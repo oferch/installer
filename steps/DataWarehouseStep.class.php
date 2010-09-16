@@ -8,8 +8,8 @@ class DataWarehouseStep extends InstallStep
 		// copy data warehouse files to /home/etl
 		$result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_DWH, myConf::get('ETL_HOME_DIR'), true);
 		
-		$replace_groups = parse_ini_file('../config/config_files_to_replace.ini', true);
-		if ($result === true) { $result = FileUtils::replaceTokens(myConf::get('ETL_HOME_DIR'), $replace_groups['dwh']['files'], myConf::getAll()); }
+		$replace_groups = parse_ini_file(PACKAGE_DIR.'../config/config_files_to_replace.ini', true);
+		if ($result === true) { $result = FileUtils::replaceTokensForGroup(myConf::get('ETL_HOME_DIR'), $replace_groups['dwh']['files'], myConf::getAll()); }
 			
 		// chmod
 		if ($result === true) { $result = FileUtils::chmod(myConf::get('ETL_HOME_DIR'), '-R 700'); }

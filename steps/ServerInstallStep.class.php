@@ -5,22 +5,22 @@ class ServerInstallStep extends InstallStep
 	public function install()
 	{
 		// copy app dir
-		$result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_APP, myConf::get('APP_DIR'), true);
+		$result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_APP, myConf::get('BASE_DIR'), true);
 		
 		// copy web dir
 		if ($result === true) { $result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_WEB, myConf::get('WEB_DIR'), true); }
 		
-		$replace_groups = parse_ini_file('../config/config_files_to_replace.ini', true);
-		if ($result === true) { $result = FileUtils::replaceTokens(myConf::get('APP_DIR'), $replace_groups['app']['files'], myConf::getAll()); }
+		$replace_groups = parse_ini_file(PACKAGE_DIR.'../config/config_files_to_replace.ini', true);
+		if ($result === true) { $result = FileUtils::replaceTokensForGroup(myConf::get('BASE_DIR').'/', $replace_groups['app']['files'], myConf::getAll()); }
 			
-		// set binary files
-		if ($result === true) { $result = $this->setBinFiles(); }
+		// adjust binary files
+		if ($result === true) { $result = $this->adjustBinFiles(); }
 		
 		// chmod
 		if ($result === true) { $result = $this->chmod();	}
 		
 		// create a symbolic link for the logrotate
-		symlink('/etc/logrotate.d/kaltura_log_rotate', PACKAGE_DIR.PACKAGE_APP.'/logrotate/kaltura_log_rotate');
+		symlink(myConf::get('BASE_DIR').'/logrotate/kaltura_log_rotate', '/etc/logrotate.d/kaltura_log_rotate');
 		
 		if ($result !== true) {
 			$this->addStepToError($result);
@@ -63,7 +63,7 @@ class ServerInstallStep extends InstallStep
 		$bin_subdir = $os_name.'/'.$architecture;
 
 		$result = FileUtils::fullCopy(myConf::get('BIN_DIR').'/'.$bin_subdir, myConf::get('BIN_DIR'), true);
-		if ($result === true) $result = FileUtils::recursiveDelete(myConf::get('BIN_DIR').'/'.$os_name); }
+		if ($result === true) $result = FileUtils::recursiveDelete(myConf::get('BIN_DIR').'/'.$os_name);
 
 		symlink(myConf::get('BIN_DIR').'run/run-ffmpeg.sh', myConf::get('BIN_DIR').'ffmpeg');
 		symlink(myConf::get('BIN_DIR').'run/run-mencoder.sh', myConf::get('BIN_DIR').'mencoder');

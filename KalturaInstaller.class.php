@@ -130,10 +130,7 @@ class KalturaInstaller
 		FileUtils::fullCopy(LIB_DIR.'InstallUtils.class.php', $base_dir.'/uninstaller/InstallUtils.class.php');
 		FileUtils::fullCopy(LIB_DIR.'ErrorObject.class.php', $base_dir.'/uninstaller/ErrorObject.class.php');
 		FileUtils::fullCopy(CONFIG_DIR.'error_codes.php', $base_dir.'/uninstaller/error_codes.php');
-		myConf::writeToFile($base_dir.'/uninstaller/my_config.ini');
-		
-		// Copy the root files
-		FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_ROOT_FILES, $base_dir);
+		myConf::writeToFile($base_dir.'/uninstaller/my_config.ini');		
 	}
 	
 	
