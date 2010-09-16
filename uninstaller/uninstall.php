@@ -35,8 +35,6 @@ if ($result === true) { $result = FileUtils::execAsUser($config['ETL_HOME_DIR'].
 if ($result === true) { $result = FileUtils::recursiveDelete($config['ETL_HOME_DIR'].DIRECTORY_SEPARATOR.'*'); }
 if ($result === true) { $result = FileUtils::recursiveDelete('/etc/logrotate.d/kaltura_log_rotate'); }
 
-
-
 if ($result === true) {
 	echo 'Uninstall done successfully but needs you to do the following steps manually :'.PHP_EOL;
 	echo '  1. Delete your kaltura base directory ['.$config['BASE_DIR'].']'.PHP_EOL;

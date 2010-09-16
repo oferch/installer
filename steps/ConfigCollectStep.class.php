@@ -1,9 +1,7 @@
 <?php
 
-
 class ConfigCollectStep extends InstallStep
 {
-
 	public function install()
 	{
 		echo PHP_EOL;
@@ -12,9 +10,7 @@ class ConfigCollectStep extends InstallStep
 		myConf::writeToFile(INSTALL_CONFIG_FILE);
 		return true;		
 	}
-	
-	
-	
+		
 	public function prepareForRetry()
 	{
 		return true;
@@ -31,8 +27,7 @@ class ConfigCollectStep extends InstallStep
 		// databases (copy information collected during prerequisites
 		$this->collectDatabaseCopier('1', '2');
 		$this->collectDatabaseCopier('1', '3');
-		
-		
+				
 		// admin console defaults
 		myConf::set('ADMIN_CONSOLE_PARTNER_SECRET', InstallUtils::generateSecret());
 		myConf::set('ADMIN_CONSOLE_PARTNER_ADMIN_SECRET',  InstallUtils::generateSecret());
@@ -55,14 +50,12 @@ class ConfigCollectStep extends InstallStep
 		myConf::set('DWH_PASS', 'etl');
 		myConf::set('DWH_SEND_REPORT_MAIL', myConf::get('ADMIN_CONSOLE_ADMIN_MAIL'));
 		myConf::set('DWH_SEND_REPORT_MAIL', myConf::get('ADMIN_CONSOLE_ADMIN_MAIL'));
-		
-		
+				
 		// default partners and kusers
 		myConf::set('TEMPLATE_PARTNER_MAIL', 'template@kaltura.com');
 		myConf::set('TEMPLATE_KUSER_MAIL', myConf::get('TEMPLATE_PARTNER_MAIL'));
 		myConf::set('TEMPLATE_ADMIN_KUSER_SALT', myConf::get('SYSTEM_USER_ADMIN_SALT'));
-		myConf::set('TEMPLATE_ADMIN_KUSER_SHA1', myConf::get('SYSTEM_USER_ADMIN_SHA1'));
-		
+		myConf::set('TEMPLATE_ADMIN_KUSER_SHA1', myConf::get('SYSTEM_USER_ADMIN_SHA1'));		
 		
 		// batch
 		myConf::set('BATCH_ADMIN_MAIL', myConf::get('ADMIN_CONSOLE_ADMIN_MAIL'));
@@ -81,8 +74,7 @@ class ConfigCollectStep extends InstallStep
 		myConf::set('WWW_HOST', myConf::get('KALTURA_VIRTUAL_HOST_NAME'));
 		myConf::set('SERVICE_URL', 'http://'.myConf::get('KALTURA_VIRTUAL_HOST_NAME'));
 		myConf::set('ENVIRONEMTN_NAME', myConf::get('KALTURA_VIRTUAL_HOST_NAME'));
-		
-		
+				
 		// other configurations
 		myConf::set('APACHE_RESTART_COMMAND', myConf::get('HTTPD_BIN').' -k restart');
 		myConf::set('TIME_ZONE', date('e'));
@@ -94,8 +86,7 @@ class ConfigCollectStep extends InstallStep
 		myConf::set('SYSTEM_PAGES_LOGIN_PASS', '123456');
 		myConf::set('KMC_BACKDOR_SHA1_PASS', '123456');
 		myConf::set('DC0_SECRET', '');
-		myConf::set('APACHE_CONF', '');
-		
+		myConf::set('APACHE_CONF', '');		
 		
 		// storage profile related
 		myConf::set('DC_NAME', 'local');
@@ -105,9 +96,7 @@ class ConfigCollectStep extends InstallStep
 		myConf::set('DELIVERY_RTMP_BASE_URL', myConf::get('RTMP_URL'));
 		myConf::set('DELIVERY_ISS_BASE_URL', myConf::get('SERVICE_URL'));
 		myConf::set('ENVIRONMENT_NAME', myConf::get('KALTURA_VIRTUAL_HOST_NAME'));
-	}
-	
-	
+	}	
 	
 	private function collectData()
 	{
@@ -133,9 +122,6 @@ class ConfigCollectStep extends InstallStep
 		myConf::set('SYSTEM_USER_ADMIN_SALT', $salt);
 		myConf::set('SYSTEM_USER_ADMIN_SHA1', $sha1);
 	}
-	
-		
-	
 		
 	private function collectDatabaseCopier($fromNum, $toNum)
 	{
@@ -145,8 +131,7 @@ class ConfigCollectStep extends InstallStep
 		myConf::set('DB'.$toNum.'_USER', myConf::get('DB'.$fromNum.'_USER'));
 		myConf::set('DB'.$toNum.'_PASS', myConf::get('DB'.$fromNum.'_PASS'));
 	}
-	
-	
+		
 	private function remove_http($url = '')
 	{
 	    $list = array('http://', 'https://');
@@ -155,6 +140,4 @@ class ConfigCollectStep extends InstallStep
 	            return substr($url, strlen($item));
 	    return $url;
 	}
-			
-		
 }

@@ -1,9 +1,7 @@
 <?php
 
-
 class CronJobsStep extends InstallStep
 {
-
 	public function install()
 	{
 		if (InstallUtils::getOsName() == InstallUtils::LINUX_OS)
@@ -39,13 +37,10 @@ class CronJobsStep extends InstallStep
 				sprintf(ErrorCodes::OS_NOT_SUPPORTED, PHP_OS)
 			);
 		}	
-	}
-	
+	}	
 		
 	public function prepareForRetry()
 	{
 		return true;
-	}
-		
-		
+	}			
 }

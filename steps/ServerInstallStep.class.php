@@ -1,9 +1,7 @@
 <?php
 
-
 class ServerInstallStep extends InstallStep
 {
-
 	public function install()
 	{
 		// copy app dir
@@ -12,31 +10,24 @@ class ServerInstallStep extends InstallStep
 		// copy web dir
 		if ($result === true) { $result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_WEB, myConf::get('WEB_DIR'), true); }
 		
-		// replace tokens in config files
-		$tmp_server_config_dir = TMP_DIR.'/server/'.PACKAGE_SERVER_CONFIG;
-		if ($result === true) { $result = FileUtils::recursiveDelete($tmp_server_config_dir); }
-		if ($result === true) { $result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_SERVER_CONFIG, $tmp_server_config_dir); }
-		if ($result === true) { $result = FileUtils::replaceTokens(myConf::getAll(), $tmp_server_config_dir); }
-		
-		// copy config files (after tokens were replaced)		
-		if ($result === true) { $result = FileUtils::fullCopy($tmp_server_config_dir, myConf::get('APP_DIR'), true); }
+		$replace_groups = parse_ini_file('../config/config_files_to_replace.ini', true);
+		if ($result === true) { $result = FileUtils::replaceTokens(myConf::get('APP_DIR'), $replace_groups['app']['files'], myConf::getAll()); }
 			
-		// create directories
-		if ($result === true) { $result = $this->mkDirs(); }
-		
-		// copy binary files
-		if ($result === true) { $result = $this->copyBinFiles(); }
+		// set binary files
+		if ($result === true) { $result = $this->setBinFiles(); }
 		
 		// chmod
 		if ($result === true) { $result = $this->chmod();	}
+		
+		// create a symbolic link for the logrotate
+		symlink('/etc/logrotate.d/kaltura_log_rotate', PACKAGE_DIR.PACKAGE_APP.'/logrotate/kaltura_log_rotate');
 		
 		if ($result !== true) {
 			$this->addStepToError($result);
 		}
 		return $result;
 	}
-	
-	
+		
 	private function chmod()
 	{
 		$result = FileUtils::chmod(myConf::get('BASE_DIR'), '+r -R');
@@ -56,22 +47,7 @@ class ServerInstallStep extends InstallStep
 		return $result;
 	}
 	
-	private function mkDirs()
-	{
-		$result = FileUtils::mkDir(myConf::get('LOG_DIR'));
-		if ($result === true) { FileUtils::mkDir(myConf::get('LOG_DIR').DIRECTORY_SEPARATOR.'batch'); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('LOG_DIR').DIRECTORY_SEPARATOR.'dwh'); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('BIN_DIR')); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('TMP_DIR')); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('APP_DIR').DIRECTORY_SEPARATOR.'cache'); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('WEB_DIR').DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'convert'); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('WEB_DIR').DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'imports'); }
-		if ($result === true) { FileUtils::mkDir(myConf::get('WEB_DIR').DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'thumb'); }
-		return $result;
-	}
-	
-		
-	private function copyBinFiles()
+	private function adjustBinFiles()
 	{
 		$os_name = 	InstallUtils::getOsName();
 		$architecture = InstallUtils::getSystemArchitecture();
@@ -84,16 +60,14 @@ class ServerInstallStep extends InstallStep
 			return $architecture; //error	
 		}
 		
-		$bin_subdir = $os_name.DIRECTORY_SEPARATOR.$architecture;
-		$result = FileUtils::fullCopy(PACKAGE_DIR.PACKAGE_BIN.$bin_subdir, myConf::get('BIN_DIR'), true);
+		$bin_subdir = $os_name.'/'.$architecture;
 
-		if ($os_name == InstallUtils::LINUX_OS) {
-			
-			if ($result === true) { $result = FileUtils::replaceTokens(myConf::getAll(), myConf::get('BIN_DIR').'run/'); }
-			symlink(myConf::get('BIN_DIR').'run/run-ffmpeg.sh', myConf::get('BIN_DIR').'ffmpeg');
-			symlink(myConf::get('BIN_DIR').'run/run-mencoder.sh', myConf::get('BIN_DIR').'mencoder');
-			symlink(myConf::get('BIN_DIR').'run/run-ffmpeg-aux.sh', myConf::get('BIN_DIR').'ffmpeg-aux');
-		}		
+		$result = FileUtils::fullCopy(myConf::get('BIN_DIR').'/'.$bin_subdir, myConf::get('BIN_DIR'), true);
+		if ($result === true) $result = FileUtils::recursiveDelete(myConf::get('BIN_DIR').'/'.$os_name); }
+
+		symlink(myConf::get('BIN_DIR').'run/run-ffmpeg.sh', myConf::get('BIN_DIR').'ffmpeg');
+		symlink(myConf::get('BIN_DIR').'run/run-mencoder.sh', myConf::get('BIN_DIR').'mencoder');
+		symlink(myConf::get('BIN_DIR').'run/run-ffmpeg-aux.sh', myConf::get('BIN_DIR').'ffmpeg-aux');
 		
 		if ($result !== true) {
 			$this->addStepToError($result);

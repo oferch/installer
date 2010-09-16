@@ -166,45 +166,32 @@ class FileUtils
         return $result;
     }
     
-    
     /**
-     * Replace tokens in all files in given directory path, recursively
-     * @param string[] $tokens array of key=>value replacements
-     * @param string $path directory path
+     * Replace tokens in all the given files in the given directory
+     * @param string $base_dir the base directory path
+	 * @param string[] $files a list of all the files to replace in (if file contains .template it is copied to an '.template' omitted file and then replaces)
+     * @param string[] $tokens array of key=>value replacements	 
      * @return true on success, ErrorObject on error
-     */
-    public static function replaceTokens($tokens, $path)
-    {
-    	$path = InstallUtils::fixPath($path);
-        if (self::shouldIgnore($path)) {
-			return true;
-		}
-    	if (is_file($path)) {
-    		return self::replaceTokensInFile($tokens, $path);
-    	}
-    	else if (is_dir($path)) {
-    		$list = @scandir($path);
-    		if (!$list) {
-    			$last_error = InstallUtils::getLastError();
-    			return new ErrorObject('replaceTokens', 'CANT_READ_DIR', sprintf(ErrorCodes::CANT_READ_DIR, $path, $last_error['message']));
-    		}
-    		foreach ($list as $item) {
-    			if ($item !== '.' && $item !== '..') {
-    				$item = $path.DIRECTORY_SEPARATOR.$item;
-    				$result = self::replaceTokens($tokens, $item);
-    				if ($result !== true) {
-    					return $result;
-    				}
-    			}
-    		}
-    	}
-    	else {
-    		return new ErrorObject('replaceTokens', 'PATH_NOT_FOUND', sprintf(ErrorCodes::PATH_NOT_FOUND, $source));
-    	}
-    	
-    	return true;
-    }
-    
+     */	
+    public static function replaceTokensForGroup($base_dir, $files, $tokens) 
+	{
+		foreach ($files as $file) {
+			$replace_file = $file;
+			
+			// Replacement in a template file, first copy to a non .template file
+			if (strpos($file, ".template") !== false) {
+				$replace_file = str_replace(".template", "", $file);
+				fullCopy($file, $replace_file);				
+			}
+			
+			$result = self::replaceTokensInFile($tokens, $base_dir.$replace_file)
+			if ($result !== true)) {
+				return $result;
+			}
+		}		
+		return true;
+	}
+	  
     
     /**
      * Write $data to $filename

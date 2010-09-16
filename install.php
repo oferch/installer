@@ -11,10 +11,8 @@ ini_set('max_execution_time', 0);
 ini_set('memory_limit', -1);
 ini_set('max_input_time ', 0);
 
-
 // clear terminal screen
 @system('clear');
-
 
 // installation steps - will be followed one after the other
 $install_steps = Array(
@@ -23,9 +21,8 @@ $install_steps = Array(
 	2 => 'ConfigCollect', /* THIS STEP IS REQUIRED FOR ALL OTHER STEPS TO FUNCTION CORRECTLY */
 	3 => 'ServerInstall',
 	4 => 'OperDatabase',
-	5 => 'StatsDb',
-	6 => 'DataWarehouse',
-	7 => 'CronJobs',
+	5 => 'DataWarehouse',
+	6 => 'CronJobs',
 
 );
 
@@ -33,9 +30,7 @@ $install_steps = Array(
 $installer = new KalturaInstaller($install_steps);
 $installer->run();
 
-
 // resetting parameters
-
 ini_set('max_execution_time', $time_limit);
 ini_set('memory_limit', $memory_limit);
 ini_set('max_input_time ', $input_time_limit);
