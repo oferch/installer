@@ -181,7 +181,7 @@ class FileUtils
 			// Replacement in a template file, first copy to a non .template file
 			if (strpos($file, ".template") !== false) {
 				$replace_file = str_replace(".template", "", $file);
-				self::fullCopy($base_dir.$file, $base_dir.$replace_file);				
+				self::fullCopy($base_dir.$file, $base_dir.$replace_file);
 			}
 			
 			$result = self::replaceTokensInFile($tokens, $base_dir.$replace_file);

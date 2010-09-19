@@ -17,12 +17,12 @@ class OperDatabaseStep extends InstallStep
 			return $result;
 		}
 		
-		for ($sql_files['kaltura']['sql'] as $sql) {
+		foreach ($sql_files['kaltura']['sql'] as $sql) {
 			$result = DatabaseUtils::runScript(myConf::get('APP_DIR').$sql_dir.$sql, myConf::get('DB1_HOST'), myConf::get('DB1_USER'), myConf::get('DB1_PASS'), myConf::get('DB1_NAME'), myConf::get('DB1_PORT'));
 			if ($result !== true) {
 				$this->addStepToError($result);
 				return $result;
-			}				
+			}
 		}
 		
 		// create stats database
@@ -32,7 +32,7 @@ class OperDatabaseStep extends InstallStep
 			return $result;
 		}
 		
-		for ($sql_files['stats']['sql'] as $sql) {		
+		foreach ($sql_files['stats']['sql'] as $sql) {		
 			$result = DatabaseUtils::runScript(myConf::get('APP_DIR').$sql_dir.$sql, myConf::get('DB_STATS_HOST'), myConf::get('DB_STATS_USER'), myConf::get('DB_STATS_PASS'), myConf::get('DB_STATS_NAME'), myConf::get('DB_STATS_PORT'));
 			if ($result !== true) {
 				$this->addStepToError($result);
