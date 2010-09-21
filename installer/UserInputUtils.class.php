@@ -1,48 +1,22 @@
 <?php
 
 class UserInputUtils
-{	
-	// singleton functions
-	static $instance = null;
-	
-	public static function instance() 
-	{
-		if (!isset($instance)) {
-			$instance = new UserInputUtils();
-		}
-		return $instance;
-	}
-
-	// UserInputUtils functions
-
-	public function __construct()
-	{
-		$config = conf::newConfig();
-	}
-	
-	public function setConfig(&$useConfig) 
-	{
-		$config = $useConfig;
-	}
-	
-	public function getConfig() {
-		return $config;
-	}
-	
+{		
 	/**
 	 * Get a y/n input from the user
 	 * @param string $request_text text to display
 	 * @param string $default should be y/n according to desired default when user input is empty
 	 * @return boolean true/false according to input (y/n)
 	 */
-	public function getTrueFalse($key, $request_text, $default)
+	public static function getTrueFalse($key, $request_text, $default)
 	{	
-		if (isset($key) && isset($config[$key])) {
-			return $config[$key];
+		global $user_input;
+		if (isset($key) && isset($user_input[$key])) {
+			return $user_input[$key];
 		}
 
 		$retrunVal = null;
-		$input = self::getInput($request_text);
+		$input = self::getInput(null, $request_text);
 		if ((strcasecmp('y',$input) === 0) || strcasecmp('yes',$input) === 0) {
 			$retrunVal = true;
 		}
@@ -53,7 +27,7 @@ class UserInputUtils
 			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);			
 		}
 		
-		if (isset($key)) $config[$key] = $retrunVal;
+		if (isset($key)) $user_input[$key] = $retrunVal;
 		return $retrunVal;		
 	}	
 	
@@ -62,10 +36,11 @@ class UserInputUtils
 	 * @param string $request_text text to display
 	 * @return string user input
 	 */
-	public function getInput($key, $request_text, $default = '')
+	public static function getInput($key, $request_text, $default = '')
 	{
-		if (isset($key) && isset($config[$key])) {
-			return $config[$key];
+		global $user_input;
+		if (isset($key) && isset($user_input[$key])) {
+			return $user_input[$key];
 		}
 		
 		echo $request_text.PHP_EOL.'> ';
@@ -74,7 +49,7 @@ class UserInputUtils
 		
 		if ($input == '') $input = $default;
 		
-		if (isset($key)) $config[$key] = $input;
+		if (isset($key)) $user_input[$key] = $input;
   		return $input;
 	}
 	
@@ -83,10 +58,11 @@ class UserInputUtils
 	 * @param unknown_type $file_name
 	 * @return string which output or null if none found
 	 */
-	private function getFirstWhich($key, $file_name)
+	private static function getFirstWhich($key, $file_name)
 	{
-		if (isset($key) && isset($config[$key])) {
-			return $config[$key];
+		global $user_input;
+		if (isset($key) && isset($user_input[$key])) {
+			return $user_input[$key];
 		}
 		
 		$returnVal = null;
@@ -100,7 +76,7 @@ class UserInputUtils
 			}
 		}
 		
-		if (isset($key)) $config[$key] = $returnVal;
+		if (isset($key)) $user_input[$key] = $returnVal;
 		return $returnVal;		
 	}
 	
@@ -112,10 +88,11 @@ class UserInputUtils
 	 * @param string or string[] $which_name file names to look for with 'which' and offer to the user as defaults when found
 	 * @return string user input
 	 */
-	public function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null)
+	public static function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null)
 	{
-		if (isset($key) && isset($config[$key])) {
-			return $config[$key];
+		global $user_input;
+		if (isset($key) && isset($user_input[$key])) {
+			return $user_input[$key];
 		}
 		
 		$input_ok = false;
@@ -126,7 +103,7 @@ class UserInputUtils
 			
 			// execute 'which'
 			if ($must_exist && $which_name) {
-				$which_path = self::getFirstWhich($which_name);
+				$which_path = self::getFirstWhich(null, $which_name);
 				if (substr($which_path, 0, 1) != '/') {
 					$which_path = false;
 				}
@@ -148,13 +125,13 @@ class UserInputUtils
 			
 			// check if not a path
 			if (substr($input, 0, 1) != '/') {
-				echo PHP_EOL.InstallerTexts::getText('global', 'not_full_path').PHP_EOL;	
+				echo PHP_EOL.'G1. Not a full path'.PHP_EOL;	
 			}
 			// check if exists
 			else if ($must_exist) {
 				if ($is_dir) {
 					if (!is_dir($input)) {
-						echo PHP_EOL.InstallerTexts::getText('global', 'path_not_valid').PHP_EOL;
+						echo PHP_EOL.'G2. Not a valid path'.PHP_EOL;
 					}
 					else {
 						$input_ok = true;
@@ -162,7 +139,7 @@ class UserInputUtils
 				}
 				else {
 					if (!is_file($input)) {
-						echo PHP_EOL.InstallerTexts::getText('global', 'path_not_valid').PHP_EOL;
+						echo PHP_EOL.'G3. Not a valid path'.PHP_EOL;
 					}
 					else {
 						$input_ok = true;
@@ -175,7 +152,7 @@ class UserInputUtils
 		}
 		echo PHP_EOL;
 		
-		if (isset($key)) $config[$key] = $input;		
+		if (isset($key)) $user_input[$key] = $input;		
 		return $input;
 	}	
 }

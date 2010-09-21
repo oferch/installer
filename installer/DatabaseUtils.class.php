@@ -45,22 +45,22 @@ class DatabaseUtils
 	{
 		// connect if not yet connected
 		if (!$link && !self::connect($link, $host, $user, $pass, $db, $port)) {
-			echo "could not execute query: could not connect to db $link, $host, $user, $pass, $db, $port";
+			echo "could not execute query: could not connect to db $host, $user, $pass, $db, $port";
 			return false;
 		}
 		// use desired database
-		else if (!mysqli_select_db($link, $db)) {
-			echo "could not execute query: could not find the db $link, $host, $user, $pass, $db, $port";
+		else if (isset($db) && !mysqli_select_db($link, $db)) {
+			echo "could not execute query: could not find the db $host, $user, $pass, $db, $port";
 			return false;
 		}
 		
 		// execute all queries
 		if (!mysqli_multi_query($link, $query) || $link->error != '') {
-			echo "could not execute query: error with the sql query $link, $host, $user, $pass, $db, $port";
+			echo "could not execute query: error with the sql query $host, $user, $pass, $db, $port, $link->error";
 			return false;		
 		}
 		// flush
-		while (mysqli_next_result($link)) {
+		while (mysqli_more_results($link) && mysqli_next_result($link)) {
 			$discard = mysqli_store_result($link);
 		}
 		$link->commit();

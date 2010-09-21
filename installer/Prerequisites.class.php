@@ -62,24 +62,26 @@ class Prerequisites
 		
 		$httpd_bin = $config['HTTPD_BIN'];
 		$etl_home = $config['ETL_HOME_DIR'];
+		$db_host = $config['DB1_HOST'];
+		$db_user = $config['DB1_USER']; 
+		$db_pass = $config['DB1_PASS'];
+		$db_port = $config['DB1_PORT'];
 		
 		// check prerequisites
-		$this->checkRootUser();
 		$this->checkPhpVersion();
 		$this->checkBins();
 		$this->checkPhpExtensions();
-		$this->checkApacheModules();
+		$this->checkApacheModules($httpd_bin);
 		$this->checkEtlUser($etl_home);
-		$this->checkFiles();
-		$this->checkDirs();
+		$this->checkFiles();		
 		
 		if ($this->mysqli_ext_exists) {
-			$this->checkMysqlVersion();
+			$this->checkMysqlVersion($db_host, $db_user, $db_pass, $db_port);
 			$this->checkMySqlSettings($db_host, $db_user, $db_pass, $db_port);			
 		}
 		else {
-			$this->problems['Product versions:'][] = sprintf($this->getTextFor('no_mysqli_ext'), 'mySQL version');
-			$this->problems['mySQL settings:'][] =sprintf($this->getTextFor('no_mysqli_ext'), 'mySQL settings');
+			$this->problems['Product versions:'][] = sprintf('G3. No mysqli extension', 'mySQL version');
+			$this->problems['mySQL settings:'][] =sprintf('G3. No mysqli extension', 'mySQL settings');
 		}
 	
 		if (empty($this->problems)) {
@@ -93,7 +95,7 @@ class Prerequisites
 					$error_description .= "  - $item".PHP_EOL;
 				}
 			}
-			echo sprintf(ErrorCodes::MISSING_PREREQUISITES, $error_description);
+			echo 'Missing prerequisites'.$error_description;
 			return false;							
 		}
 	}
@@ -106,11 +108,11 @@ class Prerequisites
 	private function checkEtlUser($etl_home_dir)
 	{
 		if (!is_dir($etl_home_dir)) {
-			$this->problems['Etl user:'][] = sprintf($this->getTextFor('missing_etl_home'), $etl_home_dir);
+			$this->problems['Etl user:'][] = "G4. Missing etl home: $etl_home_dir";
 		}
 		@exec('id -u etl', $output, $result);
 		if ($result != 0) {
-			$this->problems['Etl user:'][] = $this->getTextFor('missing_etl_user');
+			$this->problems['Etl user:'][] = "G5. Missing etl user";
 		}
 	}		
 		
@@ -121,7 +123,7 @@ class Prerequisites
 	{
 		foreach (Prerequisites::$php_extensions as $ext) {
 			if (!extension_loaded($ext)) {
-				$this->problems['PHP extensions:'][] = sprintf($this->getTextFor('missing_php_ext'), $ext);
+				$this->problems['PHP extensions:'][] = "G6. Missing php ext $ext";
 			}
 			else if ($ext == 'mysqli') {
 				$this->mysqli_ext_exists = true;
@@ -137,7 +139,7 @@ class Prerequisites
 		foreach (Prerequisites::$bins as $bin) {
 			$path = @exec("which $bin");
 			if (trim($path) == '') {
-				$this->problems['Bins:'][] = sprintf($this->getTextFor('missing_bin'), $bin);
+				$this->problems['Bins:'][] = "G7. Missing binary $bin";
 			}
 		}
 	}	
@@ -149,7 +151,7 @@ class Prerequisites
 	{
 		foreach (Prerequisites::$files as $file) {
 			if (!is_file($file)) {
-				$this->problems['Files:'][] = sprintf($this->getTextFor('missing_file'), $file);
+				$this->problems['Files:'][] = "G8. Missing file $file";				
 			}
 		}
 	}	
@@ -157,19 +159,18 @@ class Prerequisites
 	/**
 	 * Checks that needed databases DO NOT exist
 	 */
-	public function checkDatabases($db_host, $db_user, $db_pass, $db_port)
+	public function checkDatabases($db_host, $db_user, $db_pass, $db_port, $should_drop=false)
 	{
 		$verify = null;
 		foreach (Prerequisites::$databases as $db) {
 			$result = DatabaseUtils::dbExists($db, $db_host, $db_user, $db_pass, $db_port);
 			
-			if (result === -1) {
-				if (isset($verify)) $verify = $verify.PHP_EOL;
-				$verify = $verify."Error verifying if db exists $db";
+			if ($result === -1) {
+				$verify = $verify."Error verifying if db exists $db".PHP_EOL;
 			}
 			else if ($result === true) {
-				if (isset($verify)) $verify = $verify.PHP_EOL;
-				$verify = $verify.sprintf($this->getTextFor('db_exists'), $db);			
+				$verify = "G9. DB already exists $db".PHP_EOL;
+				if ($should_drop) DatabaseUtils::dropDb($db, $db_host, $db_user, $db_pass, $db_port);
 			}
 		}
 		return $verify;
@@ -186,10 +187,11 @@ class Prerequisites
 		foreach (Prerequisites::$apache_modules as $module) {
 			$found = false;
 			for ($i=0; !$found && $i<count($current_modules); $i++) {
-				if (strpos($current_modules[$i],$module) === false) {
-					$this->problems['Apache modules:'][] = sprintf($this->getTextFor('missing_apache_module'), $module);
-				}
+				if (strpos($current_modules[$i],$module) !== false) {
+					$found = true;
+				}				
 			}
+			if (!$found) $this->problems['Apache modules:'][] = "G10. Missing apache module $module";
 		}
 	}
 
@@ -198,8 +200,8 @@ class Prerequisites
 	 */
 	private function checkMySqlSettings($db_host, $db_user, $db_pass, $db_port)
 	{
-		if (!DatabaseUtils::connect($link, $db_host, $db_user, $db_pass, $db_port)) {
-			$this->problems['mySQL settings:'][] = sprintf("Cannot connect to db");
+		if (!DatabaseUtils::connect($link, $db_host, $db_user, $db_pass, null, $db_port)) {
+			$this->problems['mySQL settings:'][] = "Cannot connect to db";
 			return;
 		}
 
@@ -212,15 +214,15 @@ class Prerequisites
 			$tmp = '@@'.$key;
 			$current = $result->fetch_object()->$tmp;
 			if (!$this->compare($current, $value[1], $value[0])) {
-				$this->problems['mySQL settings:'][] = sprintf($this->getTextFor('bad_mysql_setting'), $key, $value[0], $value[1]);
+				$this->problems['mySQL settings:'][] = "G12. Bad mysql settings for $key expected $value[0] actual $value[1]";
 			}
 		}
 	}	
 		
-	private function checkMysqlVersion() {
+	private function checkPhpVersion() {
 		
 		if (!version_compare(phpversion(), Prerequisites::$php_version[1], Prerequisites::$php_version[0])) {
-			$this->problems['Product versions:'][] = sprintf($this->getTextFor('bad_version'), 'PHP', $version[0], $version[1]);
+			$this->problems['Product versions:'][] = "G13. Bad PHP version expected $version[0] actual $version[1]";
 		}	
 	}	
 		
@@ -229,20 +231,21 @@ class Prerequisites
 	 */
 	private function checkMySqlVersion($db_host, $db_user, $db_pass, $db_port)
 	{
-		if (!DatabaseUtils::connect($link, $db_host, $db_user, $db_pass, $db_port)) {
+		if (!DatabaseUtils::connect($link, $db_host, $db_user, $db_pass, null, $db_port)) {
 			$this->problems['Product versions:'][] = "Cannot connect to db";
 			return;
 		}
 
-		$result = mysqli_query($link, "SELECT @@version;");
+		$key = "@@version";
+		$result = mysqli_query($link, "SELECT $key;");
 		if ($result === false) {
-			$this->problems['Product versions:'][] = sprintf("Cannot find mysql version");
+			$this->problems['Product versions:'][] = "Cannot find mysql version";
 			return;
 		}
 
 		$current = $result->fetch_object()->$key;
 		if (!version_compare($current, Prerequisites::$mysql_version[1], Prerequisites::$mysql_version[0])) {
-			$this->problems['Product versions:'][] = sprintf($this->getTextFor('bad_version'), 'mySQL', $check[0], $check[1]);
+			$this->problems['Product versions:'][] = "G14. Bad mysql version, expected $check[0] actual $check[1]";
 		}
 	}
 		

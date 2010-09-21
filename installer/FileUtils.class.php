@@ -30,50 +30,14 @@ class FileUtils
 	 */
 	public static function fullCopy($source, $target, $overwrite = false)
 	{
-		$source = InstallUtils::fixPath($source);
-		$target = InstallUtils::fixPath($target);
-		$result = true;
-		if (self::shouldIgnore($source)) {
-			return true;
+		$result = @exec("cp -r $source $target");
+		if (trim($result) !== '') {
+			echo "cpopy failed: cp -r $source $target";
+			return false;
 		}
-		if (is_file($source)) {
-			if (!is_dir(dirname($target))) {
-				self::mkDir(dirname($target));
-			}
-			if (!@copy( $source, $target )) {
-				$last_error = InstallUtils::getLastError();
-				echo "cannot copy: $source to $target, $last_error";
-				return false;				
-			}
-		}
-		else if (is_dir($source)) {
-			self::mkDir($target);
-			$d = @dir($source);
-			if (!$d) {
-				$last_error = InstallUtils::getLastError();
-				echo "cannot copy: can't read dir $source, $last_error";
-				return false;								
-			}
-			while (($result === true) && ($entry = $d->read()) !== FALSE)
-			{
-				if ( $entry != '.' && $entry != '..' )
-				{		
-					$Entry = $source . DIRECTORY_SEPARATOR . $entry; 
-					$result = self::fullCopy( $Entry, $target . DIRECTORY_SEPARATOR . $entry, $overwrite);
-				}
-			}
-			$d->close();
-		}
-		else {
-			echo "cannot copy: path not found $source";
-			return false;										
-		}
-
-		return $result;
+		return true;		
 	}
-	
-	
-	
+			
 	/**
 	 * Create a new directory
 	 * - $path will be ignored if in $ignore_list -
@@ -141,34 +105,8 @@ class FileUtils
         
         return $result;
     }
-    
-    /**
-     * Replace tokens in all the given files in the given directory
-     * @param string $base_dir the base directory path
-	 * @param string[] $files a list of all the files to replace in (if file contains .template it is copied to an '.template' omitted file and then replaces)
-     * @param string[] $tokens array of key=>value replacements	 
-     * @return true on success, ErrorObject on error
-     */	
-    public static function replaceTokensForGroup($base_dir, $files, $tokens) 
-	{
-		foreach ($files as $file) {
-			$replace_file = $file;
-			
-			// Replacement in a template file, first copy to a non .template file
-			if (strpos($file, ".template") !== false) {
-				$replace_file = str_replace(".template", "", $file);
-				self::fullCopy($base_dir.$file, $base_dir.$replace_file);
-			}
-			
-			$result = self::replaceTokensInFile($tokens, $base_dir.$replace_file);
-			if ($result !== true) {
-				return $result;
-			}
-		}		
-		return true;
-	}
-	  
-	public function copyTemplateFileIfNeeded($file) {
+      
+	public static function copyTemplateFileIfNeeded($file) {
 		$return_file = $file;
 		// Replacement in a template file, first copy to a non .template file
 		if (strpos($file, ".template") !== false) {
@@ -212,7 +150,7 @@ class FileUtils
      * @param string $file file path
      * @return true on success, ErrorObject on error
      */
-	private static function replaceTokensInFile(&$tokens, $file)
+	public static function replaceTokensInFile(&$tokens, $file)
 	{
 		$file = InstallUtils::fixPath($file);
 		$data = @file_get_contents($file);

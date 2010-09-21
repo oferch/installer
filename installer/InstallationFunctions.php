@@ -3,9 +3,9 @@
 /**
  * Checks that current user is root
  */
-function verifykRootUser() {
+function verifyRootUser() {
 	@exec('id -u', $output, $result);
-	return (isset($output[0]) && $output[0] != '0' && $result != 0);
+	return (isset($output[0]) && $output[0] == '0' && $result == 0);
 }
 
 function verifyOS() {
@@ -21,13 +21,14 @@ function defineInstallationTokens(&$app_config) {
 	$app_config['TMP_DIR'] = $app_config['BASE_DIR'].'/tmp/';
 	
 	// databases (copy information collected during prerequisites
-	$this->collectDatabaseCopier($app_config, '1', '2');
-	$this->collectDatabaseCopier($app_config, '1', '3');
+	collectDatabaseCopier($app_config, '1', '2');
+	collectDatabaseCopier($app_config, '1', '3');
 			
 	// admin console defaults
 	$app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = InstallUtils::generateSecret();
 	$app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  InstallUtils::generateSecret();
 	$app_config['SYSTEM_USER_ADMIN_EMAIL'] = $app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
+	$app_config['REPORT_ADMIN_EMAIL'] = $app_config['ADMIN_CONSOLE_ADMIN_MAIL']; // TODO: is this how it should be set?
 	$app_config['ADMIN_CONSOLE_PARTNER_ALIAS'] = md5('-2kaltura partner');
 	$app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@kaltura.com';	
 	InstallUtils::generateSha1Salt($app_config['ADMIN_CONSOLE_PASSWORD'], $salt, $sha1);	
@@ -38,7 +39,7 @@ function defineInstallationTokens(&$app_config) {
 	//$app_config['XYMON_SERVER_MONITORING_CONTROL_SCRIPT'] = // Not set
 	
 	// stats DB
-	$this->collectDatabaseCopier($app_config, '1', '_STATS');
+	collectDatabaseCopier($app_config, '1', '_STATS');
 	$app_config['DB_STATS_NAME'] = 'kaltura_stats';
 	
 	// data warehouse
@@ -65,7 +66,7 @@ function defineInstallationTokens(&$app_config) {
 	$app_config['BATCH_PARTNER_PARTNER_ALIAS'] = md5('-1kaltura partner');
 	
 	// site settings
-	$app_config['KALTURA_VIRTUAL_HOST_NAME'] = remove_http($app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
+	$app_config['KALTURA_VIRTUAL_HOST_NAME'] = removeHttp($app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
 	$app_config['CORP_REDIRECT'] = '';	
 	$app_config['CDN_HOST'] = $app_config['KALTURA_VIRTUAL_HOST_NAME'];
 	$app_config['IIS_HOST'] = $app_config['KALTURA_VIRTUAL_HOST_NAME'];
