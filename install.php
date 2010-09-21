@@ -37,6 +37,9 @@ function installationFailed($error) {
 
 function cleanupInstallation() {
 	global $app_config;
+	if (is_file($app_config['APP_DIR'].'/scripts/searchd.sh')) {
+		@exec($app_config['APP_DIR'].'/scripts/searchd.sh start  2>&1');
+	}		
 	if (is_file($app_config['BASE_DIR'].'app/scripts/serviceBatchMgr.sh')) {
 		@exec($app_config['BASE_DIR'].'app/scripts/serviceBatchMgr.sh stop  2>&1');
 	}
@@ -224,6 +227,7 @@ foreach ($installation_config['symlinks']['links'] as $link) {
 
 echo PHP_EOL."27.Configuring system".PHP_EOL;
 simMafteach($app_config['KALTURA_VERSION_TYPE'], $app_config['REPORT_ADMIN_EMAIL'], $app_config['APP_DIR'].'/alpha/config/kConf.php');
+@exec($app_config['PHP_BIN'].' '.$app_config['APP_DIR'].'/deployment/base/scripts/populateSphinxEntries.php');
 
 // post install
 echo PHP_EOL."28.Creating uninstaller".PHP_EOL;
@@ -231,6 +235,7 @@ echo PHP_EOL."28.Creating uninstaller".PHP_EOL;
 // copy uninstaller files and create the uninstaller itself
 echo PHP_EOL."29.Running the system".PHP_EOL;
 @exec($app_config['APP_DIR'].'/scripts/serviceBatchMgr.sh start  2>&1');
+@exec($app_config['APP_DIR'].'/scripts/searchd.sh start  2>&1');
 //sendSuccessMail();
 //printInstallationEndMessage();
 echo PHP_EOL."30.Installation finished successfully".PHP_EOL;
