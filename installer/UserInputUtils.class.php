@@ -1,8 +1,33 @@
 <?php
 
-
 class UserInputUtils
-{
+{	
+	// singleton functions
+	static $instance = null;
+	
+	public static function instance() 
+	{
+		if (!isset($instance)) {
+			$instance = new UserInputUtils();
+		}
+		return $instance;
+	}
+
+	// UserInputUtils functions
+
+	public function __construct()
+	{
+		$config = conf::newConfig();
+	}
+	
+	public function setConfig(&$useConfig) 
+	{
+		$config = $useConfig;
+	}
+	
+	public function getConfig() {
+		return $config;
+	}
 	
 	/**
 	 * Get a y/n input from the user
@@ -10,18 +35,26 @@ class UserInputUtils
 	 * @param string $default should be y/n according to desired default when user input is empty
 	 * @return boolean true/false according to input (y/n)
 	 */
-	public static function getTrueFalse($request_text, $default)
-	{
+	public function getTrueFalse($key, $request_text, $default)
+	{	
+		if (isset($key) && isset($config[$key])) {
+			return $config[$key];
+		}
+
+		$retrunVal = null;
 		$input = self::getInput($request_text);
 		if ((strcasecmp('y',$input) === 0) || strcasecmp('yes',$input) === 0) {
-			return true;
+			$retrunVal = true;
 		}
 		else if (((strcasecmp('n',$input) === 0) || strcasecmp('no',$input) === 0)) {
-			return false;
+			$retrunVal = false;
 		}
 		else {
-			return ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);			
+			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);			
 		}
+		
+		if (isset($key)) $config[$key] = $retrunVal;
+		return $retrunVal;		
 	}	
 	
 	/**
@@ -29,11 +62,19 @@ class UserInputUtils
 	 * @param string $request_text text to display
 	 * @return string user input
 	 */
-	public static function getInput($request_text)
+	public function getInput($key, $request_text, $default = '')
 	{
+		if (isset($key) && isset($config[$key])) {
+			return $config[$key];
+		}
+		
 		echo $request_text.PHP_EOL.'> ';
   		$input = trim(fgets(STDIN));
   		echo PHP_EOL;
+		
+		if ($input == '') $input = $default;
+		
+		if (isset($key)) $config[$key] = $input;
   		return $input;
 	}
 	
@@ -42,18 +83,25 @@ class UserInputUtils
 	 * @param unknown_type $file_name
 	 * @return string which output or null if none found
 	 */
-	private static function getFirstWhich($file_name)
+	private function getFirstWhich($key, $file_name)
 	{
+		if (isset($key) && isset($config[$key])) {
+			return $config[$key];
+		}
+		
+		$returnVal = null;
 		if (!is_array($file_name)) {
 			$file_name = array ($file_name);
 		}
 		foreach ($file_name as $file) {
 			$which_path = FileUtils::exec("which $file");
 			if (isset($which_path[0]) && trim($which_path[0]) != '') {
-				return $which_path[0];
+				$returnVal = $which_path[0];
 			}
 		}
-		return null;		
+		
+		if (isset($key)) $config[$key] = $returnVal;
+		return $returnVal;		
 	}
 	
 	/**
@@ -64,8 +112,12 @@ class UserInputUtils
 	 * @param string or string[] $which_name file names to look for with 'which' and offer to the user as defaults when found
 	 * @return string user input
 	 */
-	public static function getPathInput($request_text, $must_exist, $is_dir, $which_name = null)
+	public function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null)
 	{
+		if (isset($key) && isset($config[$key])) {
+			return $config[$key];
+		}
+		
 		$input_ok = false;
 		$which_path = false;
 		
@@ -122,7 +174,8 @@ class UserInputUtils
 			}
 		}
 		echo PHP_EOL;
+		
+		if (isset($key)) $config[$key] = $input;		
 		return $input;
-	}
-	
+	}	
 }

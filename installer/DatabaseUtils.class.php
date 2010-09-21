@@ -1,10 +1,7 @@
 <?php
 
-
-
 class DatabaseUtils
-{
-	
+{	
 	/**
 	 * Connect to mySQL database
 	 * @param mysqli $link mysqli link
@@ -27,12 +24,12 @@ class DatabaseUtils
 		$link = @mysqli_init();
 		$result = @mysqli_real_connect($link, $host, $user, $pass, $db, $port);
 		if (!$result) {
-		    return new ErrorObject('connect', 'CANT_CONNECT_DB', sprintf(ErrorCodes::CANT_CONNECT_DB, $host, $user, $link->error));
+			echo "Cannot connext to db: $host, $user, $link->error";
+			return false;
 		}
 		return true;
 	}
-	
-	
+		
 	/**
 	 * Execute a mySQL query or multi queries
 	 * @param string $query mySQL query, or multiple queries seperated by a ';'
@@ -47,22 +44,20 @@ class DatabaseUtils
 	public static function executeQuery($query, $host, $user, $pass, $db, $port, $link = null)
 	{
 		// connect if not yet connected
-		if (!$link) {
-			$result = self::connect($link, $host, $user, $pass, $db, $port);
-			if ($result !== true) {
-			    return $result;
-			}
+		if (!$link && !self::connect($link, $host, $user, $pass, $db, $port)) {
+			echo "could not execute query: could not connect to db $link, $host, $user, $pass, $db, $port";
+			return false;
 		}
 		// use desired database
-		else {
-			if (!mysqli_select_db($link, $db)) {
-				return new ErrorObject('executeQuery', 'CANT_FIND_DB', sprintf(ErrorCodes::CANT_FIND_DB, $db));
-			}
+		else if (!mysqli_select_db($link, $db)) {
+			echo "could not execute query: could not find the db $link, $host, $user, $pass, $db, $port";
+			return false;
 		}
 		
 		// execute all queries
 		if (!mysqli_multi_query($link, $query) || $link->error != '') {
-		    return new ErrorObject('executeQuery', 'ERROR_WITH_SQL_QUERY', sprintf(ErrorCodes::ERROR_WITH_SQL_QUERY, $host, $user, $link->error), $query);
+			echo "could not execute query: error with the sql query $link, $host, $user, $pass, $db, $port";
+			return false;		
 		}
 		// flush
 		while (mysqli_next_result($link)) {
@@ -72,8 +67,7 @@ class DatabaseUtils
 		
 		return true;
 	}
-	
-	
+		
 	/**
 	 * Create a new mySQL database
 	 * @param string $db database name
@@ -88,8 +82,7 @@ class DatabaseUtils
 		$create_db_query = "CREATE DATABASE $db;";
 		return self::executeQuery($create_db_query, $host, $user, $pass, null, $port);
 	}
-	
-	
+		
 	/**
 	 * Drop a mySQL database
 	 * @param string $db database name
@@ -104,8 +97,7 @@ class DatabaseUtils
 		$drop_db_query = "DROP DATABASE $db;";
 		return self::executeQuery($drop_db_query, $host, $user, $pass, null, $port);
 	}
-	
-	
+		
 	/**
 	 * Check if a mySQL database exists
 	 * @param string $db database name
@@ -117,14 +109,12 @@ class DatabaseUtils
 	 */
 	public static function dbExists($db, $host, $user, $pass, $port)
 	{
-		$result = self::connect($link, $host, $user, $pass, null, $port);
-		if ($result !== true) {
-			return $result;
+		if (!self::connect($link, $host, $user, $pass, null, $port)) {
+			return -1;
 		}
 		return mysqli_select_db($link, $db);
 	}
-		
-	
+			
 	/**
 	 * Execute mySQL queries from a given sql file
 	 * @param string $file sql file
@@ -139,16 +129,16 @@ class DatabaseUtils
 	{
 		$file = InstallUtils::fixPath($file);
 		if (!is_file($file)) {
-			return new ErrorObject('runScript', 'PATH_NOT_FOUND', sprintf(ErrorCodes::PATH_NOT_FOUND, $file));
+			echo "could not run script: $file not found";
+			return false;
 		}
 		
 		$data = trim(file_get_contents($file));
 		if (!$data) {
-			return new ErrorObject('runScript', 'CANT_READ_FILE', sprintf(ErrorCodes::CANT_READ_FILE, $file));
+			echo "could not run script: can't read $file";
+			return false;		
 		}
 		
 		return self::executeQuery($data, $host, $user, $pass, $db, $port);
-	}
-			
-		
+	}				
 }

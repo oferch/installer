@@ -1,9 +1,7 @@
 <?php
 
-
 class InstallUtils
 {
-	
 	const WINDOWS_OS = 'Windows';
 	const LINUX_OS   = 'linux';
 	
@@ -11,8 +9,7 @@ class InstallUtils
 	 * @return string current operating system name
 	 */
 	public static function getOsName()
-	{
-		
+	{		
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			return self::WINDOWS_OS;
 		}
@@ -20,9 +17,7 @@ class InstallUtils
 			return self::LINUX_OS;
 		}
 		else {
-			return new ErrorObject('getOsName', 'OS_NOT_SUPPORTED',
-				sprintf( ErrorCodes::OS_NOT_SUPPORTED, PHP_OS)
-			);
+			return "";
 		}
 	}
 	
@@ -32,18 +27,14 @@ class InstallUtils
 	public static function getSystemArchitecture()
 	{
 		$arch = php_uname('m');
-		if ($arch &&  stristr($arch, 'i386') || stristr($arch, 'i486')
-				   || stristr($arch, 'i586') || stristr($arch, 'i686')) {
-			return '32bit';
-		}
-		else if (stristr($arch, 'x86_64')) {
+		if ($arch && (stristr($arch, 'x86_64') || stristr($arch, 'amd64'))) {
 			return '64bit';
-		}
+		} 
 		else {
+			// stristr($arch, 'i386') || stristr($arch, 'i486') || stristr($arch, 'i586') || stristr($arch, 'i686') ||
 			// return 32bit as default when not recognized
-			return '32bit';
+			return '32bit';		
 		}
-
 	}
 	
 	/**
@@ -63,8 +54,7 @@ class InstallUtils
 		else {
 			return 'unknown';
 		}
-	}
-	
+	}	
 	
 	/**
 	 * @return string secret string, like the one generated in kaltura
@@ -96,8 +86,7 @@ class InstallUtils
 		$salt = md5(rand(100000, 999999).$password); 
 		$sha1 = sha1($salt.$password);  
 	}
-	
-	
+		
 	/**
 	 * @return string last error happened (or null if error_get_last function wasn't found)
 	 */
@@ -111,21 +100,22 @@ class InstallUtils
 	
 	/**
 	 * tavin levad :)
+	 * $version_type - myConf::get('KALTURA_VERSION_TYPE'), 'CE')
+	 * $admin_email - myConf::get('REPORT_ADMIN_EMAIL')
+	 * $kConfFile - myConf::get('APP_DIR').KCONF_FILE_LOC
 	 */
-	public static function simMafteach()
+	public static function simMafteach($version_type, $admin_email, $kConfFile)
 	{
-		if (strcasecmp(myConf::get('KALTURA_VERSION_TYPE'), 'CE') == 0) {
-			$str = implode("|", array(md5(myConf::get('REPORT_ADMIN_EMAIL')), '1', 'never', time()*rand(0,1)));
+		if (strcasecmp($version_type, 'CE') == 0) {
+			$str = implode("|", array(md5($admin_email), '1', 'never', time()*rand(0,1)));
 			$key = base64_encode($str);
-			$data = @file_get_contents(myConf::get('APP_DIR').KCONF_FILE_LOC);
+			$data = @file_get_contents($kConfFile);
 			$key_line = '/"kaltura_activation_key"(\s)*=>(\s)*(.+),/';
 			$replacement = '"kaltura_activation_key" => "'.$key.'",';
 			$data = preg_replace($key_line, $replacement ,$data);
-			@file_put_contents(myConf::get('APP_DIR').KCONF_FILE_LOC, $data);
+			@file_put_contents($kConfFile, $data);
 		}
 	}
-
-
 	
 	private static function str_makerand ($minlength, $maxlength, $useupper, $usespecial, $usenumbers)
 	{
