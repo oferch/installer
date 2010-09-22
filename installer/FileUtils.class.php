@@ -4,113 +4,18 @@ DEFINE('TOKEN_CHAR', '@'); // This character is user to surround parameters that
 
 class FileUtils
 {
-	/**
-	 * File/folder names list to ignore in various functions - check below
-	 * @var string[]
-	 */
-	private static $ignore_list = array ( '.svn' );
-	
-	/**
-	 * @param string $path dir/file path
-	 * @return boolean true if the path should be ignored according to $ignore_list, or false otherwise.
-	 */
-	private static function shouldIgnore($path)
-	{
-		$base = basename($path);
-		return in_array($base, self::$ignore_list);
+	function appendFile($filename, $newdata) {
+		$f=fopen($filename,"a");
+		fwrite($f,$newdata);
+		fclose($f);  
 	}
-	
-	/**
-	 * Copy source to target.
-	 * - $path will be ignored if in $ignore_list -
-	 * @param string $source source path
-	 * @param string $target target path
-	 * @param boolean $overwrite true/false - overwrite or not
-	 * @return true on success, ErrorObject on error
-	 */
-	public static function fullCopy($source, $target, $overwrite = false)
-	{
-		$result = @exec("cp -r $source $target");
-		if (trim($result) !== '') {
-			echo "cpopy failed: cp -r $source $target";
-			return false;
-		}
-		return true;		
-	}
-			
-	/**
-	 * Create a new directory
-	 * - $path will be ignored if in $ignore_list -
-	 * @param string $path directory path to create
-	 * @return true on success, ErrorObject on error
-	 */
-	public static function mkDir($path)
-	{
-		$path = InstallUtils::fixPath($path);
-		if (self::shouldIgnore($path)) {
-			return true;
-		}
-		if (!is_dir($path)) {
-			if (!@mkdir($path, 0777, true)) {
-				$last_error = InstallUtils::getLastError();
-				echo "cannot make directory: $path, $last_error";
-				return false;														
-			}
-		}
-		return true;
-	}
-			
-	/**
-	 * Completely delete the given path
-	 * @param string $path path to delete
-	 * @return true on success, ErrorObject on error
-	 */
-	public static function recursiveDelete($path)
-	{
-		$result = true;
-		$path = InstallUtils::fixPath($path, '/');
-		$onlyContents = (substr($path, strlen($path) - 2) == '/*');
-		if ($onlyContents) {
-			$path = substr($path, 0, strlen($path)-2);
-		}
-		if (is_file($path)){
-            if (!@unlink($path)) {
-            	$last_error = InstallUtils::getLastError();
-				echo "cannot recursive delete: can't delete file $path, $last_error";
-				return false;		
-            }
-        }
-        else if (is_dir($path) || $onlyContents){
-            $scan = @scandir($path);
-            if ($scan === false) {
-            	$last_error = InstallUtils::getLastError();
-				echo "cannot recursive delete: can't read directory $path, $last_error";
-				return false;						
-            }
-            foreach($scan as $index => $cur){
-            	if ($cur != '.' && $cur != '..') {
-	                $result = self::recursiveDelete($path.'/'.$cur);
-	                if ($result !== true) {
-	                	return $result;
-	                }
-            	}
-            }
-            
-            if (!$onlyContents && !@rmdir($path)) {
-            	$last_error = InstallUtils::getLastError();
-				echo "cannot recursive delete: can't delete directory $path, $last_error";
-				return false;										
-            }
-        }
-        
-        return $result;
-    }
       
 	public static function copyTemplateFileIfNeeded($file) {
 		$return_file = $file;
 		// Replacement in a template file, first copy to a non .template file
 		if (strpos($file, ".template") !== false) {
 			$return_file = str_replace(".template", "", $file);
+			logMessage(LOG_INFO, "$file toekn file contains .template");
 			self::fullCopy($file, $return_file);
 		}
 		return $return_file;
@@ -130,13 +35,11 @@ class FileUtils
     	
     	$fh = fopen($filename, 'w');
 		if (!$fh) {
-			$last_error = InstallUtils::getLastError();
-			echo "cannot write file: $file, can't create file, $last_error";
+			// File errors cannot be logged because it could cause an infinite loop			
 			return false;										
 		}
 		if (!fwrite($fh, $data)) {
-			$last_error = InstallUtils::getLastError();
-			echo "cannot write file: $file, $last_error";
+			// File errors cannot be logged because it could cause an infinite loop
 			return false;										
 		}
 		fclose($fh);
@@ -155,8 +58,7 @@ class FileUtils
 		$file = InstallUtils::fixPath($file);
 		$data = @file_get_contents($file);
 		if (!$data) {
-			$last_error = InstallUtils::getLastError();
-			echo "cannot replace tokens in file: $file, can't read the file";
+			logMessage(LOG_ERROR, "Cannot replace token in file $file");
 			return false;			
 		}
 		else {
@@ -165,14 +67,32 @@ class FileUtils
 				$data = str_replace($key, $var, $data);		
 			}
 			if (!file_put_contents($file, $data)) {
-				$last_error = InstallUtils::getLastError();
-				echo "cannot replace tokens in file: $file, can't write to file";
+				logMessage(LOG_ERROR, "Cannot replace token in file, cannot write to file $file");
 				return false;							
 			}
 		}
 		return true;
 	}
 	
+	public static function executeAndReturn($command) {
+		logMessage(LOG_INFO, "Executing $command");
+		$result = @exec($command);
+		if (trim($result) !== '') {
+			logMessage(LOG_ERROR, "Executing command failed: $command");	
+			return false;
+		}
+		return true;			
+	}
+	
+	public static function fullCopy($source, $target)
+	{
+		return executeAndReturn("cp -r $source $target");
+	}
+	
+	public static function recursiveDelete($path)
+	{
+		return executeAndReturn("rm -rf $path");
+    }
 	
 	/**
 	 * Chmod given $path to $chmod
@@ -180,14 +100,9 @@ class FileUtils
 	 * @param string $chmod
 	 * @return true on success, ErrorObject on error
 	 */
-	public static function chmod ($chmod)
+	public static function chmod($chmod)
 	{
-		$result = @exec("chmod $chmod");
-		if (trim($result) !== '') {
-			echo "chmod failed: chmod $chmod";
-			return false;
-		}
-		return true;
+		return executeAndReturn("chmod $chmod");	
 	}
 	
 	/**
@@ -196,14 +111,9 @@ class FileUtils
 	 * @param string $user user name
 	 * @return true on success, ErrorObject on error
 	 */
-	public static function chown ($path, $user)
+	public static function chown($path, $user)
 	{
-		$result = @exec("chown -R $user $path");
-		if (trim($result) !== '') {
-			echo "chown failed: chown -R $user $path";
-			return false;
-		}
-		return true;
+		return executeAndReturn("chown -R $user $path");	
 	}
 	
 	/**
@@ -230,7 +140,7 @@ class FileUtils
 			return true;
 		}
 		else {
-			echo "exec failed: sudo -u $user ".$cmd;
+			logMessage(LOG_ERROR, "Exec failed: sudo -u $user $cmd");
 			return false;
 		}
 	} 

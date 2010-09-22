@@ -18,12 +18,15 @@ class UserInputUtils
 		$retrunVal = null;
 		$input = self::getInput(null, $request_text);
 		if ((strcasecmp('y',$input) === 0) || strcasecmp('yes',$input) === 0) {
+			logMessage(LOG_INFO, "User selected: yes");
 			$retrunVal = true;
 		}
 		else if (((strcasecmp('n',$input) === 0) || strcasecmp('no',$input) === 0)) {
+			logMessage(LOG_INFO, "User selected: no");
 			$retrunVal = false;
 		}
 		else {
+			logMessage(LOG_INFO, "Using default value: $default");
 			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);			
 		}
 		
@@ -43,11 +46,14 @@ class UserInputUtils
 			return $user_input[$key];
 		}
 		
-		echo $request_text.PHP_EOL.'> ';
+		logMessage(LOG_USER, $request_text.PHP_EOL.'> ');
   		$input = trim(fgets(STDIN));
-  		echo PHP_EOL;
 		
-		if ($input == '') $input = $default;
+		logMessage(LOG_INFO, "User input is $input");
+		if ($input == '') {			
+			$input = $default;
+			logMessage(LOG_INFO, "No input, using default value: $default");
+		}
 		
 		if (isset($key)) $user_input[$key] = $input;
   		return $input;
@@ -73,6 +79,8 @@ class UserInputUtils
 			$which_path = FileUtils::exec("which $file");
 			if (isset($which_path[0]) && trim($which_path[0]) != '') {
 				$returnVal = $which_path[0];
+				logMessage(LOG_INFO, "Found $file, using it");
+				break;
 			}
 		}
 		
@@ -99,16 +107,17 @@ class UserInputUtils
 		$which_path = false;
 		
 		while (!$input_ok) {
-			echo $request_text.PHP_EOL;
+			logMessage(LOG_USER, $request_text);
 			
 			// execute 'which'
-			if ($must_exist && $which_name) {
+			if ($must_exist && $which_name) {				
 				$which_path = self::getFirstWhich(null, $which_name);
 				if (substr($which_path, 0, 1) != '/') {
 					$which_path = false;
+					logMessage(LOG_INFO, "Did not find any of the default binaries");
 				}
 				if ($which_path) {
-					echo 'Leave empty for ['.$which_path.']'.PHP_EOL;
+					logMessage(LOG_USER, "Leave empty for [$which_path]");
 				}
 			}
 			echo '> ';
@@ -118,20 +127,22 @@ class UserInputUtils
 			
 			// if input is empty, replace with which output
 			if ($which_path && trim($input) == '') {
+				logMessage(LOG_INFO, "No input, using default: $which_part");
 				$input = $which_path;
 			}
 			
 			$input = InstallUtils::fixPath($input, '/');
+			logMessage(LOG_INFO, "User entered path $input");
 			
 			// check if not a path
 			if (substr($input, 0, 1) != '/') {
-				echo PHP_EOL.'G1. Not a full path'.PHP_EOL;	
+				logMessage(LOG_USER, "The path you inserted is not full (should begin with a '/'). Please try again.");
 			}
 			// check if exists
 			else if ($must_exist) {
 				if ($is_dir) {
 					if (!is_dir($input)) {
-						echo PHP_EOL.'G2. Not a valid path'.PHP_EOL;
+						logMessage(LOG_USER, "The path you inserted is not valid. Please try again.");
 					}
 					else {
 						$input_ok = true;
@@ -139,7 +150,7 @@ class UserInputUtils
 				}
 				else {
 					if (!is_file($input)) {
-						echo PHP_EOL.'G3. Not a valid path'.PHP_EOL;
+						logMessage(LOG_USER, "The path you inserted is not valid. Please try again.");
 					}
 					else {
 						$input_ok = true;
@@ -148,9 +159,9 @@ class UserInputUtils
 			}
 			else {
 				$input_ok = true;
+				logMessage(LOG_INFO, "Path is valid, using $input");
 			}
 		}
-		echo PHP_EOL;
 		
 		if (isset($key)) $user_input[$key] = $input;		
 		return $input;

@@ -6,6 +6,7 @@
  * @return true on success, or ErrorObject on failure
  */
 function writeConfigToFile($config, $filename) {
+	logMessage(LOG_INFO, "Writing config to file $filename");
 	$data = '';
 	foreach ($config as $key => $value) {
 		$data = $data . $key.' = '.$value.PHP_EOL;
@@ -17,9 +18,10 @@ function writeConfigToFile($config, $filename) {
  * Load configurations from file
  * @param $filename file name to read from
  */
-function loadConfigFromFile($filename) {		
+function loadConfigFromFile($filename) {	
 	if (is_file($filename)) {
 		$config = parse_ini_file($filename);
+		logMessage(LOG_INFO, "Loaded config to file $filename");
 		return $config;			
 	}
 	return null;

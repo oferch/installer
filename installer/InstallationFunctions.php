@@ -5,14 +5,17 @@
  */
 function verifyRootUser() {
 	@exec('id -u', $output, $result);
+	logMessage(LOG_INFO, "User: $output");
 	return (isset($output[0]) && $output[0] == '0' && $result == 0);
 }
 
 function verifyOS() {
+	logMessage(LOG_INFO, "OS: ".InstallUtils::getOsName());
 	return (InstallUtils::getOsName() === InstallUtils::LINUX_OS);
 }
 
 function defineInstallationTokens(&$app_config) {
+	logMessage(LOG_INFO, "Defining installation tokens for config");
 	// directories
 	$app_config['APP_DIR'] = $app_config['BASE_DIR'].'/app/';	
 	$app_config['WEB_DIR'] = $app_config['BASE_DIR'].'/web/';	
@@ -28,7 +31,6 @@ function defineInstallationTokens(&$app_config) {
 	$app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = InstallUtils::generateSecret();
 	$app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  InstallUtils::generateSecret();
 	$app_config['SYSTEM_USER_ADMIN_EMAIL'] = $app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-	$app_config['REPORT_ADMIN_EMAIL'] = $app_config['ADMIN_CONSOLE_ADMIN_MAIL']; // TODO: is this how it should be set?
 	$app_config['ADMIN_CONSOLE_PARTNER_ALIAS'] = md5('-2kaltura partner');
 	$app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@kaltura.com';	
 	InstallUtils::generateSha1Salt($app_config['ADMIN_CONSOLE_PASSWORD'], $salt, $sha1);	
@@ -99,8 +101,7 @@ function defineInstallationTokens(&$app_config) {
 	$app_config['ENVIRONMENT_NAME'] = $app_config['KALTURA_VIRTUAL_HOST_NAME'];
 }
 
-function collectDatabaseCopier(&$config, $fromNum, $toNum)
-{
+function collectDatabaseCopier(&$config, $fromNum, $toNum) {
 	$config['DB'.$toNum.'_HOST'] = $config['DB'.$fromNum.'_HOST'];
 	$config['DB'.$toNum.'_PORT'] = $config['DB'.$fromNum.'_PORT'];
 	$config['DB'.$toNum.'_NAME'] = $config['DB'.$fromNum.'_NAME'];
@@ -108,11 +109,27 @@ function collectDatabaseCopier(&$config, $fromNum, $toNum)
 	$config['DB'.$toNum.'_PASS'] = $config['DB'.$fromNum.'_PASS'];
 }
 	
-function removeHttp($url = '')
-{
+function removeHttp($url = '') {
 	$list = array('http://', 'https://');
-	foreach ($list as $item)
+	foreach ($list as $item) {
 		if (strncasecmp($url, $item, strlen($item)) == 0)
 			return substr($url, strlen($item));
+	}
 	return $url;
+}
+
+function saveUninstallerConfig($file, $config) {
+	$data = "BASE_DIR = ".$config["BASE_DIR"].PHP_EOL;
+	$data = "ETL_HOME_DIR = ".$config["ETL_HOME_DIR"].PHP_EOL;
+	$data = "DB1_NAME = ".$config["DB1_NAME"].PHP_EOL;
+	$data = "DB1_HOST = ".$config["DB1_HOST"].PHP_EOL;
+	$data = "DB1_USER = ".$config["DB1_USER"].PHP_EOL;
+	$data = "DB1_PASS = ".$config["DB1_PASS"].PHP_EOL;
+	$data = "DB1_PORT = ".$config["DB1_PORT"].PHP_EOL;
+	$data = "DB_STATS_NAME = ".$config["DB_STATS_NAME"].PHP_EOL;
+	$data = "DB_STATS_HOST = ".$config["DB_STATS_HOST"].PHP_EOL;
+	$data = "DB_STATS_USER = ".$config["DB_STATS_USER"].PHP_EOL;
+	$data = "DB_STATS_PASS = ".$config["DB_STATS_PASS"].PHP_EOL;
+	$data = "DB_STATS_PORT = ".$config["DB_STATS_PORT"].PHP_EOL;	
+	return FileUtils::writeFile($filename, $data);
 }
