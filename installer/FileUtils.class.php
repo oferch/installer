@@ -4,7 +4,7 @@ DEFINE('TOKEN_CHAR', '@'); // This character is user to surround parameters that
 
 class FileUtils
 {
-	function appendFile($filename, $newdata) {
+	public static function appendFile($filename, $newdata) {
 		$f=fopen($filename,"a");
 		fwrite($f,$newdata);
 		fclose($f);  
@@ -15,7 +15,7 @@ class FileUtils
 		// Replacement in a template file, first copy to a non .template file
 		if (strpos($file, ".template") !== false) {
 			$return_file = str_replace(".template", "", $file);
-			logMessage(LOG_INFO, "$file toekn file contains .template");
+			logMessage(L_INFO, "$file toekn file contains .template");
 			self::fullCopy($file, $return_file);
 		}
 		return $return_file;
@@ -27,12 +27,7 @@ class FileUtils
      * @param string $data data to write
      */
     public static function writeFile($filename, $data)
-    {
-    	$dir_name = dirname($filename);
-    	if (is_dir($dir_name) && !self::mkDir($dir_name)) {
-			return false;
-    	}
-    	
+    {   	
     	$fh = fopen($filename, 'w');
 		if (!$fh) {
 			// File errors cannot be logged because it could cause an infinite loop			
@@ -55,10 +50,9 @@ class FileUtils
      */
 	public static function replaceTokensInFile(&$tokens, $file)
 	{
-		$file = InstallUtils::fixPath($file);
 		$data = @file_get_contents($file);
 		if (!$data) {
-			logMessage(LOG_ERROR, "Cannot replace token in file $file");
+			logMessage(L_ERROR, "Cannot replace token in file $file");
 			return false;			
 		}
 		else {
@@ -67,7 +61,7 @@ class FileUtils
 				$data = str_replace($key, $var, $data);		
 			}
 			if (!file_put_contents($file, $data)) {
-				logMessage(LOG_ERROR, "Cannot replace token in file, cannot write to file $file");
+				logMessage(L_ERROR, "Cannot replace token in file, cannot write to file $file");
 				return false;							
 			}
 		}
@@ -75,10 +69,10 @@ class FileUtils
 	}
 	
 	public static function executeAndReturn($command) {
-		logMessage(LOG_INFO, "Executing $command");
+		logMessage(L_INFO, "Executing $command");
 		$result = @exec($command);
 		if (trim($result) !== '') {
-			logMessage(LOG_ERROR, "Executing command failed: $command");	
+			logMessage(L_ERROR, "Executing command failed: $command");	
 			return false;
 		}
 		return true;			
@@ -86,12 +80,12 @@ class FileUtils
 	
 	public static function fullCopy($source, $target)
 	{
-		return executeAndReturn("cp -r $source $target");
+		return self::executeAndReturn("cp -r $source $target");
 	}
 	
 	public static function recursiveDelete($path)
 	{
-		return executeAndReturn("rm -rf $path");
+		return self::executeAndReturn("rm -rf $path");
     }
 	
 	/**
@@ -102,7 +96,7 @@ class FileUtils
 	 */
 	public static function chmod($chmod)
 	{
-		return executeAndReturn("chmod $chmod");	
+		return self::executeAndReturn("chmod $chmod");	
 	}
 	
 	/**
@@ -113,7 +107,7 @@ class FileUtils
 	 */
 	public static function chown($path, $user)
 	{
-		return executeAndReturn("chown -R $user $path");	
+		return self::executeAndReturn("chown -R $user $path");	
 	}
 	
 	/**
@@ -140,7 +134,7 @@ class FileUtils
 			return true;
 		}
 		else {
-			logMessage(LOG_ERROR, "Exec failed: sudo -u $user $cmd");
+			logMessage(L_ERROR, "Exec failed: sudo -u $user $cmd");
 			return false;
 		}
 	} 

@@ -16,18 +16,25 @@ class UserInputUtils
 		}
 
 		$retrunVal = null;
-		$input = self::getInput(null, $request_text);
+		$request_text_with_default = $request_text;
+		if ((strcasecmp('y', $default) === 0) || (strcasecmp('yes', $default) === 0)) {
+			$request_text_with_default = $request_text_with_default.' (Y/n)';
+		} else {
+			$request_text_with_default = $request_text_with_default.' (y/N)';
+		}
+		
+		$input = self::getInput(null, $request_text_with_default);
 		if ((strcasecmp('y',$input) === 0) || strcasecmp('yes',$input) === 0) {
-			logMessage(LOG_INFO, "User selected: yes");
+			logMessage(L_INFO, "User selected: yes");
 			$retrunVal = true;
 		}
 		else if (((strcasecmp('n',$input) === 0) || strcasecmp('no',$input) === 0)) {
-			logMessage(LOG_INFO, "User selected: no");
+			logMessage(L_INFO, "User selected: no");
 			$retrunVal = false;
 		}
 		else {
-			logMessage(LOG_INFO, "Using default value: $default");
-			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);			
+			logMessage(L_INFO, "Using default value: $default");
+			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);
 		}
 		
 		if (isset($key)) $user_input[$key] = $retrunVal;
@@ -46,13 +53,13 @@ class UserInputUtils
 			return $user_input[$key];
 		}
 		
-		logMessage(LOG_USER, $request_text.PHP_EOL.'> ');
+		logMessage(L_USER, $request_text.PHP_EOL.'> ', true);
   		$input = trim(fgets(STDIN));
 		
-		logMessage(LOG_INFO, "User input is $input");
+		logMessage(L_INFO, "User input is $input");
 		if ($input == '') {			
 			$input = $default;
-			logMessage(LOG_INFO, "No input, using default value: $default");
+			logMessage(L_INFO, "No input, using default value: $default");
 		}
 		
 		if (isset($key)) $user_input[$key] = $input;
@@ -79,7 +86,7 @@ class UserInputUtils
 			$which_path = FileUtils::exec("which $file");
 			if (isset($which_path[0]) && trim($which_path[0]) != '') {
 				$returnVal = $which_path[0];
-				logMessage(LOG_INFO, "Found $file, using it");
+				logMessage(L_INFO, "Found $file, using it");
 				break;
 			}
 		}
@@ -107,17 +114,17 @@ class UserInputUtils
 		$which_path = false;
 		
 		while (!$input_ok) {
-			logMessage(LOG_USER, $request_text);
+			logMessage(L_USER, $request_text);
 			
 			// execute 'which'
 			if ($must_exist && $which_name) {				
 				$which_path = self::getFirstWhich(null, $which_name);
 				if (substr($which_path, 0, 1) != '/') {
 					$which_path = false;
-					logMessage(LOG_INFO, "Did not find any of the default binaries");
+					logMessage(L_INFO, "Did not find any of the default binaries");
 				}
 				if ($which_path) {
-					logMessage(LOG_USER, "Leave empty for [$which_path]");
+					logMessage(L_USER, "Leave empty for [$which_path]");
 				}
 			}
 			echo '> ';
@@ -127,22 +134,21 @@ class UserInputUtils
 			
 			// if input is empty, replace with which output
 			if ($which_path && trim($input) == '') {
-				logMessage(LOG_INFO, "No input, using default: $which_part");
+				logMessage(L_INFO, "No input, using default: $which_path");
 				$input = $which_path;
 			}
 			
-			$input = InstallUtils::fixPath($input, '/');
-			logMessage(LOG_INFO, "User entered path $input");
+			logMessage(L_INFO, "User entered path $input");
 			
 			// check if not a path
 			if (substr($input, 0, 1) != '/') {
-				logMessage(LOG_USER, "The path you inserted is not full (should begin with a '/'). Please try again.");
+				logMessage(L_USER, "The path you inserted is not full (should begin with a '/'). Please try again.");
 			}
 			// check if exists
 			else if ($must_exist) {
 				if ($is_dir) {
 					if (!is_dir($input)) {
-						logMessage(LOG_USER, "The path you inserted is not valid. Please try again.");
+						logMessage(L_USER, "The path you inserted is not valid. Please try again.");
 					}
 					else {
 						$input_ok = true;
@@ -150,7 +156,7 @@ class UserInputUtils
 				}
 				else {
 					if (!is_file($input)) {
-						logMessage(LOG_USER, "The path you inserted is not valid. Please try again.");
+						logMessage(L_USER, "The path you inserted is not valid. Please try again.");
 					}
 					else {
 						$input_ok = true;
@@ -159,7 +165,7 @@ class UserInputUtils
 			}
 			else {
 				$input_ok = true;
-				logMessage(LOG_INFO, "Path is valid, using $input");
+				logMessage(L_INFO, "Path is valid, using $input");
 			}
 		}
 		

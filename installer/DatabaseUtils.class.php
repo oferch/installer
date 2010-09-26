@@ -18,14 +18,14 @@ class DatabaseUtils
 		if ($host == 'localhost') {
 			$host = '127.0.0.1';
 		}
-		logMessage(LOG_INFO, "Connect to db: $host, $user, $db, $port");		
+		logMessage(L_INFO, "Connect to db: $host, $user, $db, $port");		
 		if (trim($pass) == '') {
 			$pass = null;
 		}
 		$link = @mysqli_init();
 		$result = @mysqli_real_connect($link, $host, $user, $pass, $db, $port);
 		if (!$result) {
-			logMessage(LOG_ERROR, "Cannot connect to db: $host, $user, $link->error");
+			logMessage(L_ERROR, "Cannot connect to db: $host, $user, $link->error");
 			return false;
 		}
 		return true;
@@ -44,7 +44,7 @@ class DatabaseUtils
 	 */
 	public static function executeQuery($query, $host, $user, $pass, $db, $port, $link = null)
 	{
-		logMessage(LOG_INFO, "Execute query: $query");		
+		logMessage(L_INFO, "Execute query: $query");		
 		// connect if not yet connected
 		if (!$link && !self::connect($link, $host, $user, $pass, $db, $port)) {
 			return false;
@@ -52,13 +52,13 @@ class DatabaseUtils
 		
 		// use desired database
 		else if (isset($db) && !mysqli_select_db($link, $db)) {
-			logMessage(LOG_ERROR, "Cannot execute query: could not find the db: $db");
+			logMessage(L_ERROR, "Cannot execute query: could not find the db: $db");
 			return false;
 		}
 		
 		// execute all queries
 		if (!mysqli_multi_query($link, $query) || $link->error != '') {
-			logMessage(LOG_ERROR, "Cannot execute query: error with query: $query");
+			logMessage(L_ERROR, "Cannot execute query: error with query: $query");
 			return false;		
 		}
 		// flush
@@ -81,7 +81,7 @@ class DatabaseUtils
 	 */
 	public static function createDb($db, $host, $user, $pass, $port)
 	{
-		logMessage(LOG_INFO, "Creating database $db");	
+		logMessage(L_INFO, "Creating database $db");	
 		$create_db_query = "CREATE DATABASE $db;";
 		return self::executeQuery($create_db_query, $host, $user, $pass, null, $port);
 	}
@@ -97,7 +97,7 @@ class DatabaseUtils
 	 */
 	public static function dropDb($db, $host, $user, $pass, $port)
 	{
-		logMessage(LOG_INFO, "Dropping database $db");	
+		logMessage(L_INFO, "Dropping database $db");	
 		$drop_db_query = "DROP DATABASE $db;";
 		return self::executeQuery($drop_db_query, $host, $user, $pass, null, $port);
 	}
@@ -113,7 +113,7 @@ class DatabaseUtils
 	 */
 	public static function dbExists($db, $host, $user, $pass, $port)
 	{
-		logMessage(LOG_INFO, "Check database exists $db");	
+		logMessage(L_INFO, "Check database exists $db");	
 		if (!self::connect($link, $host, $user, $pass, null, $port)) {
 			return -1;
 		}
@@ -132,16 +132,15 @@ class DatabaseUtils
 	 */
 	public static function runScript($file, $host, $user, $pass, $db, $port)
 	{
-		logMessage(LOG_INFO, "Run sql script $file");	
-		$file = InstallUtils::fixPath($file);
+		logMessage(L_INFO, "Run sql script $file");	
 		if (!is_file($file)) {
-			logMessage(LOG_ERROR, "Could not run script: script not found $file");	
+			logMessage(L_ERROR, "Could not run script: script not found $file");	
 			return false;
 		}
 		
 		$data = trim(file_get_contents($file));
 		if (!$data) {
-			logMessage(LOG_ERROR, "Could not run script: can't read $file");	
+			logMessage(L_ERROR, "Could not run script: can't read $file");	
 			return false;		
 		}
 		

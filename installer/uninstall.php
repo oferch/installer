@@ -39,16 +39,15 @@ $success = true;
 echo 'Stopping application scripts...\n';
 @exec($config['BASE_DIR'].'/app/scripts/searchd.sh stop');
 @exec($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop');
-echo "Removing ".$config['BASE_DIR']." ...\n";
-@exec("rm -rf ".$config['BASE_DIR']);
-echo 'Removing data warehouse ...\n';
-FileUtils::execAsUser('/home/etl/ddl/dwh_drop_databases.sh' , 'etl');
-echo "Removing ".$config['ETL_HOME_DIR']." ...\n";
-@exec("rm -rf ".$config['BASE_DIR'].'/*');
 echo "Removing /etc/logrotate.d/kaltura_log_rotate ...\n";
 @exec("rm -rf /etc/logrotate.d/kaltura_log_rotate");
 echo "Removing /etc/cron.d/kaltura_crontab ...\n";
 @exec("rm -rf /etc/cron.d/kaltura_crontab");
+echo 'Removing data warehouse ...\n';
+@exec("sudo -u etl /home/etl/ddl/dwh_drop_databases.sh");
+echo "Removing ".$config['ETL_HOME_DIR']." ...\n";
+@exec("rm -rf ".$config['ETL_HOME_DIR'].'/*');
+@exec("rm -rf ".$config['ETL_HOME_DIR'].'/.kettle');
 echo "Removing Kaltura DB ... ";
 if (!dropDb($config['DB1_NAME'], $config['DB1_HOST'], $config['DB1_USER'], $config['DB1_PASS'], $config['DB1_PORT'])) {
 	$success = false;
@@ -63,6 +62,8 @@ if (!dropDb($config['DB_STATS_NAME'], $config['DB_STATS_HOST'], $config['DB_STAT
 } else {
 	echo "\n";
 }
+echo "Removing ".$config['BASE_DIR']." ...\n";
+@exec("rm -rf ".$config['BASE_DIR']);
 	
 if ($success) echo 'Uninstall finished successfully\n';
 else echo 'Some of the uninstall steps failed, please do them manually\n';

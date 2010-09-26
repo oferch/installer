@@ -10,7 +10,7 @@ class InstallUtils
 	 */
 	public static function getOsName()
 	{		
-		logMessage(LOG_INFO, "OS: ".PHP_OS);
+		logMessage(L_INFO, "OS: ".PHP_OS);
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			return self::WINDOWS_OS;
 		}
@@ -18,7 +18,7 @@ class InstallUtils
 			return self::LINUX_OS;
 		}
 		else {
-			logMessage(LOG_WARNING, "OS not recognized: ".PHP_OS);
+			logMessage(L_WARNING, "OS not recognized: ".PHP_OS);
 			return "";
 		}
 	}
@@ -29,7 +29,7 @@ class InstallUtils
 	public static function getSystemArchitecture()
 	{		
 		$arch = php_uname('m');
-		logMessage(LOG_INFO, "OS architecture: ".$arch);
+		logMessage(L_INFO, "OS architecture: ".$arch);
 		if ($arch && (stristr($arch, 'x86_64') || stristr($arch, 'amd64'))) {
 			return '64bit';
 		} 
@@ -45,19 +45,19 @@ class InstallUtils
 	 */
 	public static function getComputerName() {
 		if(isset($_ENV['COMPUTERNAME'])) {
-			logMessage(LOG_INFO, "Host name: ".$_ENV['COMPUTERNAME']);
+			logMessage(L_INFO, "Host name: ".$_ENV['COMPUTERNAME']);
 	    	return $_ENV['COMPUTERNAME'];
 		}
 		else if (isset($_ENV['HOSTNAME'])) {
-			logMessage(LOG_INFO, "Host name: ".$_ENV['HOSTNAME']);
+			logMessage(L_INFO, "Host name: ".$_ENV['HOSTNAME']);
 			return $_ENV['HOSTNAME'];
 		}
 		else if (function_exists('gethostname')) {
-			logMessage(LOG_INFO, "Host name: ".gethostname());
+			logMessage(L_INFO, "Host name: ".gethostname());
 			return gethostname();
 		}
 		else {
-			logMessage(LOG_WARNING, "Host name unkown");
+			logMessage(L_WARNING, "Host name unkown");
 			return 'unknown';
 		}
 	}	
@@ -66,7 +66,7 @@ class InstallUtils
 	 * @return string secret string, like the one generated in kaltura
 	 */
 	public static function generateSecret() {
-		logMessage(LOG_INFO, "Generating secret");
+		logMessage(L_INFO, "Generating secret");
 		$secret = md5(self::str_makerand(5,10,true, false, true));
 		return $secret;
 	}
@@ -75,7 +75,7 @@ class InstallUtils
 	 * @return string random password
 	 */
 	public static function generatePassword() {
-		logMessage(LOG_INFO, "Generating password");
+		logMessage(L_INFO, "Generating password");
 		$password = self::str_makerand(5,10,true, false, true);
 		return $password;
 	}
@@ -89,7 +89,7 @@ class InstallUtils
 	 */
 	public static function generateSha1Salt($password, &$salt, &$sha1)
 	{
-		logMessage(LOG_INFO, "Generating sh1 and salf from password");
+		logMessage(L_INFO, "Generating sh1 and salf from password");
 		$salt = md5(rand(100000, 999999).$password); 
 		$sha1 = sha1($salt.$password);  
 	}
@@ -104,15 +104,9 @@ class InstallUtils
 		return null;
 	}
 	
-	/**
-	 * tavin levad :)
-	 * $version_type - myConf::get('KALTURA_VERSION_TYPE'), 'CE')
-	 * $admin_email - myConf::get('REPORT_ADMIN_EMAIL')
-	 * $kConfFile - myConf::get('APP_DIR').KCONF_FILE_LOC
-	 */
 	public static function simMafteach($version_type, $admin_email, $kConfFile) {
-		if (strcasecmp($version_type, 'CE') == 0) {
-			logMessage(LOG_INFO, "Setting application key");
+		if (strcasecmp($version_type, K_CE_TYPE) == 0) {
+			logMessage(L_INFO, "Setting application key");
 			$str = implode("|", array(md5($admin_email), '1', 'never', time()*rand(0,1)));
 			$key = base64_encode($str);
 			$data = @file_get_contents($kConfFile);

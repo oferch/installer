@@ -5,17 +5,17 @@
  */
 function verifyRootUser() {
 	@exec('id -u', $output, $result);
-	logMessage(LOG_INFO, "User: $output");
+	logMessage(L_INFO, "User: $output");
 	return (isset($output[0]) && $output[0] == '0' && $result == 0);
 }
 
 function verifyOS() {
-	logMessage(LOG_INFO, "OS: ".InstallUtils::getOsName());
+	logMessage(L_INFO, "OS: ".InstallUtils::getOsName());
 	return (InstallUtils::getOsName() === InstallUtils::LINUX_OS);
 }
 
 function defineInstallationTokens(&$app_config) {
-	logMessage(LOG_INFO, "Defining installation tokens for config");
+	logMessage(L_INFO, "Defining installation tokens for config");
 	// directories
 	$app_config['APP_DIR'] = $app_config['BASE_DIR'].'/app/';	
 	$app_config['WEB_DIR'] = $app_config['BASE_DIR'].'/web/';	
@@ -120,16 +120,16 @@ function removeHttp($url = '') {
 
 function saveUninstallerConfig($file, $config) {
 	$data = "BASE_DIR = ".$config["BASE_DIR"].PHP_EOL;
-	$data = "ETL_HOME_DIR = ".$config["ETL_HOME_DIR"].PHP_EOL;
-	$data = "DB1_NAME = ".$config["DB1_NAME"].PHP_EOL;
-	$data = "DB1_HOST = ".$config["DB1_HOST"].PHP_EOL;
-	$data = "DB1_USER = ".$config["DB1_USER"].PHP_EOL;
-	$data = "DB1_PASS = ".$config["DB1_PASS"].PHP_EOL;
-	$data = "DB1_PORT = ".$config["DB1_PORT"].PHP_EOL;
-	$data = "DB_STATS_NAME = ".$config["DB_STATS_NAME"].PHP_EOL;
-	$data = "DB_STATS_HOST = ".$config["DB_STATS_HOST"].PHP_EOL;
-	$data = "DB_STATS_USER = ".$config["DB_STATS_USER"].PHP_EOL;
-	$data = "DB_STATS_PASS = ".$config["DB_STATS_PASS"].PHP_EOL;
-	$data = "DB_STATS_PORT = ".$config["DB_STATS_PORT"].PHP_EOL;	
-	return FileUtils::writeFile($filename, $data);
+	$data = $data."ETL_HOME_DIR = ".$config["ETL_HOME_DIR"].PHP_EOL;
+	$data = $data."DB1_NAME = ".$config["DB1_NAME"].PHP_EOL;
+	$data = $data."DB1_HOST = ".$config["DB1_HOST"].PHP_EOL;
+	$data = $data."DB1_USER = ".$config["DB1_USER"].PHP_EOL;
+	$data = $data."DB1_PASS = ".$config["DB1_PASS"].PHP_EOL;
+	$data = $data."DB1_PORT = ".$config["DB1_PORT"].PHP_EOL;
+	$data = $data."DB_STATS_NAME = ".$config["DB_STATS_NAME"].PHP_EOL;
+	$data = $data."DB_STATS_HOST = ".$config["DB_STATS_HOST"].PHP_EOL;
+	$data = $data."DB_STATS_USER = ".$config["DB_STATS_USER"].PHP_EOL;
+	$data = $data."DB_STATS_PASS = ".$config["DB_STATS_PASS"].PHP_EOL;
+	$data = $data."DB_STATS_PORT = ".$config["DB_STATS_PORT"].PHP_EOL;	
+	return FileUtils::writeFile($file, $data);
 }

@@ -8,11 +8,7 @@ class Prerequisites
 		
 	public static $files = array (
 		'pentaho kitchen.sh' => '/usr/local/pentaho/pdi/kitchen.sh',
-	);
-	
-	public static $databases = array (
-		'kaltura', 'kalturadw', 'kalturadw_ds', 'kalturadw_bisources', 'kalturalog', 'kaltura_stats',
-	);
+	);	
 	
 	public static $bins = array (
 		'curl',
@@ -58,7 +54,7 @@ class Prerequisites
 	*/
 	public function verifyPrerequisites($config)
 	{
-		logMessage(LOG_INFO, "Verifying prerequisites");	
+		logMessage(L_INFO, "Verifying prerequisites");	
 		$this->problems = array();				
 		
 		$httpd_bin = $config['HTTPD_BIN'];
@@ -86,7 +82,7 @@ class Prerequisites
 		}
 	
 		if (empty($this->problems)) {
-			logMessage(LOG_INFO, "No prerequisites problems");	
+			logMessage(L_INFO, "No prerequisites problems");	
 			return true;
 		}
 		else{	
@@ -97,7 +93,7 @@ class Prerequisites
 					$error_description .= "  - $item".PHP_EOL;
 				}
 			}
-			logMessage(LOG_USER, "Missing prerequisites: $error_description");	
+			logMessage(L_USER, "Missing prerequisites: $error_description");	
 			return false;							
 		}
 	}
@@ -108,18 +104,18 @@ class Prerequisites
 	 * 2. /home/dir directory exists
 	 */
 	private function checkEtlUser($etl_home_dir) {
-		logMessage(LOG_INFO, "Checking etl user");	
+		logMessage(L_INFO, "Checking etl user");	
 		if (!is_dir($etl_home_dir)) {
 			$this->problems['Etl home:'][] = "etl user's home directory does not exist $etl_home_dir";
 		} else {
-			logMessage(LOG_INFO, "Preqrequisite passed: etl home exists");
+			logMessage(L_INFO, "Preqrequisite passed: etl home exists");
 		}
 		@exec('id -u etl', $output, $result);
 		if ($result != 0) {
 			$this->problems['Etl user:'][] = "User 'etl' does not exist on the system";
 		}
 		else {
-			logMessage(LOG_INFO, "Preqrequisite passed: etl user exists");
+			logMessage(L_INFO, "Preqrequisite passed: etl user exists");
 		}
 	}		
 		
@@ -132,7 +128,7 @@ class Prerequisites
 				$this->problems['PHP extensions:'][] = "Missing $ext PHP extension";
 			} 
 			else {
-				logMessage(LOG_INFO, "Preqrequisite passed: PHP extension $ext is loaded");
+				logMessage(L_INFO, "Preqrequisite passed: PHP extension $ext is loaded");
 				if ($ext == 'mysqli') {
 					$this->mysqli_ext_exists = true;
 				}				
@@ -144,14 +140,14 @@ class Prerequisites
 	 * Checks that needed binary files exist (by using 'which')
 	 */
 	private function checkBins() {
-		logMessage(LOG_INFO, "Checking binaries");
+		logMessage(L_INFO, "Checking binaries");
 		foreach (Prerequisites::$bins as $bin) {			
 			$path = @exec("which $bin");
 			if (trim($path) == '') {
 				$this->problems['Bins:'][] = "Missing $bin bin file";
 			} 
 			else {
-				logMessage(LOG_INFO, "Preqrequisite passed: Binary $bin found");
+				logMessage(L_INFO, "Preqrequisite passed: Binary $bin found");
 			}			
 		}
 	}	
@@ -165,31 +161,9 @@ class Prerequisites
 			if (!is_file($file)) {
 				$this->problems['Files:'][] = "Missing $file file";				
 			} else {
-				logMessage(LOG_INFO, "Preqrequisite passed: File $file found");
+				logMessage(L_INFO, "Preqrequisite passed: File $file found");
 			}
 		}
-	}	
-		
-	/**
-	 * Checks that needed databases DO NOT exist
-	 */
-	public function checkDatabases($db_host, $db_user, $db_pass, $db_port, $should_drop=false){
-		$verify = null;
-		foreach (Prerequisites::$databases as $db) {
-			$result = DatabaseUtils::dbExists($db, $db_host, $db_user, $db_pass, $db_port);
-			
-			if ($result === -1) {
-				$verify = $verify."Error verifying if db exists $db".PHP_EOL;
-			}
-			else if ($result === true) {
-				$verify = "DB already exists $db";
-				if ($should_drop) DatabaseUtils::dropDb($db, $db_host, $db_user, $db_pass, $db_port);
-			}
-			else {
-				logMessage(LOG_INFO, "Preqrequisite passed: DB $db does not exists");
-			}
-		}
-		return $verify;
 	}	
 	
 	/**
@@ -208,7 +182,7 @@ class Prerequisites
 				}				
 			}
 			if (!$found) $this->problems['Apache modules:'][] = "Apache $module module is missing";
-			else logMessage(LOG_INFO, "Preqrequisite passed: Apache module %$module% found");
+			else logMessage(L_INFO, "Preqrequisite passed: Apache module %$module% found");
 		}
 	}
 
@@ -234,7 +208,7 @@ class Prerequisites
 					$this->problems['mySQL settings:'][] = "MySQL setting %$key=$current and not $value[0] $value[1] expected";
 				}
 				else {
-					logMessage(LOG_INFO, "Preqrequisite passed: MySQL setting $key is set correctly $current, $value[1], $value[0]");
+					logMessage(L_INFO, "Preqrequisite passed: MySQL setting $key is set correctly $current, $value[1], $value[0]");
 				}
 			}
 		}
@@ -245,7 +219,7 @@ class Prerequisites
 		if (!version_compare(phpversion(), Prerequisites::$php_version[1], Prerequisites::$php_version[0])) {
 			$this->problems['Product versions:'][] = "PHP version not valid expected $version[0] actual $version[1]";
 		} else {
-			logMessage(LOG_INFO, "Preqrequisite passed: PHP version is OK (".phpversion().")");
+			logMessage(L_INFO, "Preqrequisite passed: PHP version is OK (".phpversion().")");
 		}
 	}	
 		
@@ -270,7 +244,7 @@ class Prerequisites
 		if (!version_compare($current, Prerequisites::$mysql_version[1], Prerequisites::$mysql_version[0])) {
 			$this->problems['Product versions:'][] = "MySQL version not valid, expected $check[0] actual $check[1]";
 		} else {
-			logMessage(LOG_INFO, "Preqrequisite passed: MySQL version is OK ($current)");
+			logMessage(L_INFO, "Preqrequisite passed: MySQL version is OK ($current)");
 		}
 	}
 		

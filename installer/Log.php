@@ -1,41 +1,33 @@
 <?php
 
-define(LOG_USER,"USER");
-define(LOG_ERROR,"ERROR");
-define(LOG_WARNING,"WARNING");
-define(LOG_INFO,"INFO");
-define(LOG_DATE_FORMAT,"d.m.Y H:i:s");
+define("L_USER","USER");
+define("L_ERROR","ERROR");
+define("L_WARNING","WARNING");
+define("L_INFO","INFO");
+define("L_DATE_FORMAT","d.m.Y H:i:s");
 
 $logFile;
 $logPrintLevel=0;
 
-function startLog($date) {
+function startLog($filename) {
 	global $logFile;
-	$logFile = "installation_$date.log";	
-	writeFile($logFile, "");
+	$logFile = $filename;
+	FileUtils::writeFile($logFile, "");
 }
 
-function logMessage($level, $message) {
-	$logLine = date(LOG_DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
-	appendFile($logFile, $logLine);	
+function logMessage($level, $message, $no_new_line = false) {
+	global $logFile, $logPrintLevel;
+	$logLine = date(L_DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
+	FileUtils::appendFile($logFile, $logLine);	
 	
-		// print errors to screen
-	if (($level === LOG_USER) && ($logPrintLevel >= 0)) {
-		echo $message.PHP_EOL;
+	// print to screen according to log level
+	if ((($level === L_USER) && ($logPrintLevel >= 0)) ||
+		(($level === L_ERROR) && ($logPrintLevel >= 1)) ||
+		(($level === L_WARNING) && ($logPrintLevel >= 2)) ||
+		(($level === L_INFO) && ($logPrintLevel >= 3))) {
+		echo $message;
+		
+		if (!$no_new_line)
+			echo PHP_EOL;		
 	}
-	
-	// print errors to screen
-	if (($level === LOG_ERROR) && ($logPrintLevel >= 1)) {
-		echo $logLine;
-	}
-	
-	// print warnings to screen
-	if (($level === LOG_WARNING) && ($logPrintLevel >= 2)) {
-		echo $logLine;
-	}
-	
-	// print info to screen
-	if (($level === LOG_WARNING) && ($logPrintLevel >= 3)) {
-		echo $logLine;
-	}	
 }
