@@ -34,9 +34,9 @@ function installationFailed($error, $cleanup = true) {
 }
 
 function detectDatabases($db_params, $should_drop=false){
-	global $installation_config;
+	global $install;
 	$verify = null;
-	foreach ($installation_config["databases"]["dbs"] as $db) {
+	foreach ($install->getDatabases() as $db) {
 		$result = DatabaseUtils::dbExists($db_params, $db);
 		
 		if ($result === -1) {

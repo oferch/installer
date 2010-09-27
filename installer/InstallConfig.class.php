@@ -19,5 +19,9 @@ class InstallConfig {
 	
 	public function getSymLinks() {
 		return $install_config['symlinks']['links'];
-	}	
+	}
+
+	public function getDatabases() {
+		return $install_config['databases']["dbs"];
+	}		
 }
