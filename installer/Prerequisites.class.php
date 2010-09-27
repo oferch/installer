@@ -1,7 +1,6 @@
 <?php
 
-class Prerequisites
-{
+class Prerequisites {
 	public static $php_version = array('>=', '5.2.0');
 	public static $mysql_version = array('>=', '5.1.33');
 	public static $apache_version = array('>=', '2.2'); // Currently not checked
@@ -53,7 +52,6 @@ class Prerequisites
 	* @config has all the values for verifiying prerequisites
 	*/
 	public function verifyPrerequisites($config, $db_params) {
-		logMessage(L_INFO, "Verifying prerequisites");	
 		$this->problems = array();				
 		
 		$httpd_bin = $config['HTTPD_BIN'];
@@ -142,7 +140,7 @@ class Prerequisites
 	 */
 	private function checkApacheModules($httpd_bin) {
 		$apache_cmd = $httpd_bin.' -t -D DUMP_MODULES';
-		$current_modules = FileUtils::exec($apache_cmd);
+		$current_modules = OsUtils::executeReturnOutput($apache_cmd);
 				
 		foreach (Prerequisites::$apache_modules as $module) {
 			$found = false;

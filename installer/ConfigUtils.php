@@ -11,7 +11,7 @@ function writeConfigToFile($config, $filename) {
 	foreach ($config as $key => $value) {
 		$data = $data . $key.' = '.$value.PHP_EOL;
 	}
-	return FileUtils::writeFile($filename, $data);
+	return OsUtils::writeFile($filename, $data);
 }
 
 /**
@@ -25,10 +25,4 @@ function loadConfigFromFile($filename) {
 		return $config;			
 	}
 	return null;
-}
-
-function copyConfig(&$config_source, &$config_target) {
-	foreach ($config_source as $key => $value) {
-		$config_target[$key] = $value;
-	}
 }

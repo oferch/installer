@@ -1,15 +1,48 @@
 <?php
 
-class UserInputUtils
-{		
+define("FILE_USER_INPUT", "user_input.ini");
+
+class UserInput
+{
+	private $user_input;
+	private $input_loaded = false;
+	
+	public function hasInput() {
+		return is_file(FILE_USER_INPUT);
+	}
+	
+	public function loadInput() {
+		$user_input = parse_ini_file(FILE_USER_INPUT, true);
+		$input_loaded = true;
+	}
+	
+	public function saveInput() {
+		writeConfigToFile($user_input, FILE_USER_INPUT);
+	}		
+	
+	public function get($key) {
+		return $user_input[$key];
+	}
+	
+	public function set($key, $value) {
+		return $user_input[$key] = $value;
+	}
+	
+	public function getAll() {
+		return $user_input;
+	}
+	
+	public function isInputLoaded() {
+		return $input_loaded;
+	}
+	
 	/**
 	 * Get a y/n input from the user
 	 * @param string $request_text text to display
 	 * @param string $default should be y/n according to desired default when user input is empty
 	 * @return boolean true/false according to input (y/n)
 	 */
-	public static function getTrueFalse($key, $request_text, $default) {	
-		global $user_input;
+	public function getTrueFalse($key, $request_text, $default) {	
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
 		}
@@ -43,8 +76,7 @@ class UserInputUtils
 	 * @param string $request_text text to display
 	 * @return string user input
 	 */
-	public static function getInput($key, $request_text, $default = '') {
-		global $user_input;
+	public function getInput($key, $request_text, $default = '') {
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
 		}
@@ -67,8 +99,7 @@ class UserInputUtils
 	 * @param unknown_type $file_name
 	 * @return string which output or null if none found
 	 */
-	private static function getFirstWhich($key, $file_name) {
-		global $user_input;
+	private function getFirstWhich($key, $file_name) {
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
 		}
@@ -78,7 +109,7 @@ class UserInputUtils
 			$file_name = array ($file_name);
 		}
 		foreach ($file_name as $file) {
-			$which_path = FileUtils::exec("which $file");
+			$which_path = OsUtils::executeReturnOutput("which $file");
 			if (isset($which_path[0]) && trim($which_path[0]) != '') {
 				$returnVal = $which_path[0];
 				logMessage(L_INFO, "Found $file, using it");
@@ -98,8 +129,7 @@ class UserInputUtils
 	 * @param string or string[] $which_name file names to look for with 'which' and offer to the user as defaults when found
 	 * @return string user input
 	 */
-	public static function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null, $default = null) {
-		global $user_input;
+	public function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null, $default = null) {
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
 		}

@@ -12,13 +12,13 @@ $logPrintLevel=0;
 function startLog($filename) {
 	global $logFile;
 	$logFile = $filename;
-	FileUtils::writeFile($logFile, "");
+	OsUtils::writeFile($logFile, "");
 }
 
 function logMessage($level, $message, $no_new_line = false) {
 	global $logFile, $logPrintLevel;
 	$logLine = date(L_DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
-	FileUtils::appendFile($logFile, $logLine);	
+	OsUtils::appendFile($logFile, $logLine);	
 	
 	// print to screen according to log level
 	if ((($level === L_USER) && ($logPrintLevel >= 0)) ||
