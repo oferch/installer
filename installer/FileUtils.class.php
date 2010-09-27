@@ -39,8 +39,7 @@ class FileUtils
 		}
 		fclose($fh);
 		return true;
-    }
-    
+    }  
     
     /**
      * Replace tokens in given file

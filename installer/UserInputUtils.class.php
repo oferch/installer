@@ -8,8 +8,7 @@ class UserInputUtils
 	 * @param string $default should be y/n according to desired default when user input is empty
 	 * @return boolean true/false according to input (y/n)
 	 */
-	public static function getTrueFalse($key, $request_text, $default)
-	{	
+	public static function getTrueFalse($key, $request_text, $default) {	
 		global $user_input;
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
@@ -27,12 +26,10 @@ class UserInputUtils
 		if ((strcasecmp('y',$input) === 0) || strcasecmp('yes',$input) === 0) {
 			logMessage(L_INFO, "User selected: yes");
 			$retrunVal = true;
-		}
-		else if (((strcasecmp('n',$input) === 0) || strcasecmp('no',$input) === 0)) {
+		} else if (((strcasecmp('n',$input) === 0) || strcasecmp('no',$input) === 0)) {
 			logMessage(L_INFO, "User selected: no");
 			$retrunVal = false;
-		}
-		else {
+		} else {
 			logMessage(L_INFO, "Using default value: $default");
 			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);
 		}
@@ -46,8 +43,7 @@ class UserInputUtils
 	 * @param string $request_text text to display
 	 * @return string user input
 	 */
-	public static function getInput($key, $request_text, $default = '')
-	{
+	public static function getInput($key, $request_text, $default = '') {
 		global $user_input;
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
@@ -71,8 +67,7 @@ class UserInputUtils
 	 * @param unknown_type $file_name
 	 * @return string which output or null if none found
 	 */
-	private static function getFirstWhich($key, $file_name)
-	{
+	private static function getFirstWhich($key, $file_name) {
 		global $user_input;
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
@@ -103,8 +98,7 @@ class UserInputUtils
 	 * @param string or string[] $which_name file names to look for with 'which' and offer to the user as defaults when found
 	 * @return string user input
 	 */
-	public static function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null)
-	{
+	public static function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null, $default = null) {
 		global $user_input;
 		if (isset($key) && isset($user_input[$key])) {
 			return $user_input[$key];
@@ -112,22 +106,19 @@ class UserInputUtils
 		
 		$input_ok = false;
 		$which_path = false;
+			
+		// execute 'which' to find binaries
+		if ($must_exist && $which_name) {				
+			$which_path = self::getFirstWhich(null, $which_name);
+			if ($which_path && (substr($which_path, 0, 1) == '/')) {
+				$request_text = $request_text." (installation found $which_path, leave empty to use it)";
+			}
+		} else if ($default) {
+			$which_path = $default;
+		}
 		
 		while (!$input_ok) {
-			logMessage(L_USER, $request_text);
-			
-			// execute 'which'
-			if ($must_exist && $which_name) {				
-				$which_path = self::getFirstWhich(null, $which_name);
-				if (substr($which_path, 0, 1) != '/') {
-					$which_path = false;
-					logMessage(L_INFO, "Did not find any of the default binaries");
-				}
-				if ($which_path) {
-					logMessage(L_USER, "Leave empty for [$which_path]");
-				}
-			}
-			echo '> ';
+			logMessage(L_USER, $request_text.PHP_EOL.'> ', true);
 			
 			// get user input
 			$input = trim(fgets(STDIN));
@@ -149,21 +140,17 @@ class UserInputUtils
 				if ($is_dir) {
 					if (!is_dir($input)) {
 						logMessage(L_USER, "The path you inserted is not valid. Please try again.");
-					}
-					else {
+					} else {
 						$input_ok = true;
 					}
-				}
-				else {
+				} else {
 					if (!is_file($input)) {
 						logMessage(L_USER, "The path you inserted is not valid. Please try again.");
-					}
-					else {
+					} else {
 						$input_ok = true;
 					}
 				}
-			}
-			else {
+			} else {
 				$input_ok = true;
 				logMessage(L_INFO, "Path is valid, using $input");
 			}
@@ -171,5 +158,5 @@ class UserInputUtils
 		
 		if (isset($key)) $user_input[$key] = $input;		
 		return $input;
-	}	
+	}
 }

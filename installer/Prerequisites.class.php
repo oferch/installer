@@ -52,17 +52,12 @@ class Prerequisites
 	* This function checks the preqrequisites
 	* @config has all the values for verifiying prerequisites
 	*/
-	public function verifyPrerequisites($config)
-	{
+	public function verifyPrerequisites($config, $db_params) {
 		logMessage(L_INFO, "Verifying prerequisites");	
 		$this->problems = array();				
 		
 		$httpd_bin = $config['HTTPD_BIN'];
 		$etl_home = $config['ETL_HOME_DIR'];
-		$db_host = $config['DB1_HOST'];
-		$db_user = $config['DB1_USER']; 
-		$db_pass = $config['DB1_PASS'];
-		$db_port = $config['DB1_PORT'];
 		
 		// check prerequisites
 		$this->checkPhpVersion();
@@ -73,8 +68,8 @@ class Prerequisites
 		$this->checkFiles();		
 		
 		if ($this->mysqli_ext_exists) {
-			$this->checkMysqlVersion($db_host, $db_user, $db_pass, $db_port);
-			$this->checkMySqlSettings($db_host, $db_user, $db_pass, $db_port);			
+			$this->checkMysqlVersion($db_params);
+			$this->checkMySqlSettings($db_params);			
 		}
 		else {
 			$this->problems['Product versions:'][] = "Cannot check MySQL version because php mysqli extension was not found";
@@ -155,8 +150,7 @@ class Prerequisites
 	/**
 	 * Check that needed file paths exist
 	 */
-	private function checkFiles()
-	{
+	private function checkFiles() {
 		foreach (Prerequisites::$files as $file) {
 			if (!is_file($file)) {
 				$this->problems['Files:'][] = "Missing $file file";				
@@ -169,8 +163,7 @@ class Prerequisites
 	/**
 	 * Checks that needed apache modules exist
 	 */
-	private function checkApacheModules($httpd_bin)
-	{
+	private function checkApacheModules($httpd_bin) {
 		$apache_cmd = $httpd_bin.' -t -D DUMP_MODULES';
 		$current_modules = FileUtils::exec($apache_cmd);
 				
@@ -181,6 +174,7 @@ class Prerequisites
 					$found = true;
 				}				
 			}
+			
 			if (!$found) $this->problems['Apache modules:'][] = "Apache $module module is missing";
 			else logMessage(L_INFO, "Preqrequisite passed: Apache module %$module% found");
 		}
@@ -189,9 +183,8 @@ class Prerequisites
 	/**
 	 * Check that mySQL settings are set as required
 	 */
-	private function checkMySqlSettings($db_host, $db_user, $db_pass, $db_port)
-	{
-		if (!DatabaseUtils::connect($link, $db_host, $db_user, $db_pass, null, $db_port)) {
+	private function checkMySqlSettings($db_params) {
+		if (!DatabaseUtils::connect($link, $db_params, null)) {
 			$this->problems['mySQL settings:'][] = "Cannot connect to db";
 			return;
 		}
@@ -214,8 +207,7 @@ class Prerequisites
 		}
 	}	
 		
-	private function checkPhpVersion() {
-		
+	private function checkPhpVersion() {		
 		if (!version_compare(phpversion(), Prerequisites::$php_version[1], Prerequisites::$php_version[0])) {
 			$this->problems['Product versions:'][] = "PHP version not valid expected $version[0] actual $version[1]";
 		} else {
@@ -226,9 +218,8 @@ class Prerequisites
 	/**
 	 * Check MYSQL version
 	 */
-	private function checkMySqlVersion($db_host, $db_user, $db_pass, $db_port)
-	{
-		if (!DatabaseUtils::connect($link, $db_host, $db_user, $db_pass, null, $db_port)) {
+	private function checkMySqlVersion($db_params) {
+		if (!DatabaseUtils::connect($link, $db_params, null)) {
 			$this->problems['Product versions:'][] = "Cannot connect to db";
 			return;
 		}

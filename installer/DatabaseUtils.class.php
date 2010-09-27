@@ -12,20 +12,20 @@ class DatabaseUtils
 	 * @param int $port database port
 	 * @return true on success, ErrorObject on failure + $link object by reference
 	 */
-	public static function connect(&$link, $host, $user, $pass, $db, $port)
+	public static function connect(&$link, $db_params, $db_name)
 	{
 		// set mysqli to connect via tcp
 		if ($host == 'localhost') {
 			$host = '127.0.0.1';
 		}
-		logMessage(L_INFO, "Connect to db: $host, $user, $db, $port");		
+		logMessage(L_INFO, "Connect to db: $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_params['db_port']");		
 		if (trim($pass) == '') {
 			$pass = null;
 		}
 		$link = @mysqli_init();
-		$result = @mysqli_real_connect($link, $host, $user, $pass, $db, $port);
+		$result = @mysqli_real_connect($link, $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_name, $db_params['db_port']);
 		if (!$result) {
-			logMessage(L_ERROR, "Cannot connect to db: $host, $user, $link->error");
+			logMessage(L_ERROR, "Cannot connect to db: $db_params['db_host'], $db_params['db_user'], $link->error");
 			return false;
 		}
 		return true;
@@ -42,16 +42,16 @@ class DatabaseUtils
 	 * @param mysqli $link mysqli link
 	 * @return true on success, ErrorObject on failure
 	 */
-	public static function executeQuery($query, $host, $user, $pass, $db, $port, $link = null)
+	public static function executeQuery($query, $db_params, $db_name, $link = null)
 	{
 		logMessage(L_INFO, "Execute query: $query");		
 		// connect if not yet connected
-		if (!$link && !self::connect($link, $host, $user, $pass, $db, $port)) {
+		if (!$link && !self::connect($link, $db_params, $db_name)) {
 			return false;
 		}
 		
 		// use desired database
-		else if (isset($db) && !mysqli_select_db($link, $db)) {
+		else if (isset($db_name) && !mysqli_select_db($link, $db_name)) {
 			logMessage(L_ERROR, "Cannot execute query: could not find the db: $db");
 			return false;
 		}
@@ -79,11 +79,11 @@ class DatabaseUtils
 	 * @param int $port database port
 	 * @return true on success, ErrorObject on failure
 	 */
-	public static function createDb($db, $host, $user, $pass, $port)
+	public static function createDb($db_params, $db_name)
 	{
-		logMessage(L_INFO, "Creating database $db");	
-		$create_db_query = "CREATE DATABASE $db;";
-		return self::executeQuery($create_db_query, $host, $user, $pass, null, $port);
+		logMessage(L_INFO, "Creating database $db_name");	
+		$create_db_query = "CREATE DATABASE $db_name;";
+		return self::executeQuery($create_db_query, $db_params, null);
 	}
 		
 	/**
@@ -95,11 +95,11 @@ class DatabaseUtils
 	 * @param int $port database port
 	 * @return true on success, ErrorObject on failure
 	 */
-	public static function dropDb($db, $host, $user, $pass, $port)
+	public static function dropDb($db_params, $db_name)
 	{
-		logMessage(L_INFO, "Dropping database $db");	
-		$drop_db_query = "DROP DATABASE $db;";
-		return self::executeQuery($drop_db_query, $host, $user, $pass, null, $port);
+		logMessage(L_INFO, "Dropping database $db_name");	
+		$drop_db_query = "DROP DATABASE $db_name;";
+		return self::executeQuery($drop_db_query, $db_params, null);
 	}
 		
 	/**
@@ -111,13 +111,14 @@ class DatabaseUtils
 	 * @param int $port database port
 	 * @return true/false according to existence
 	 */
-	public static function dbExists($db, $host, $user, $pass, $port)
+	public static function dbExists($db_params, $db_name)
 	{
-		logMessage(L_INFO, "Check database exists $db");	
-		if (!self::connect($link, $host, $user, $pass, null, $port)) {
+		logMessage(L_INFO, "Check database exists $db_name");	
+		if (!self::connect($link, $db_params, null)) {
+			logMessage(L_ERROR, "Could not database $db_name: could not connect to host");	
 			return -1;
 		}
-		return mysqli_select_db($link, $db);
+		return mysqli_select_db($link, $db_name);
 	}
 			
 	/**
@@ -130,9 +131,8 @@ class DatabaseUtils
 	 * @param int $port database port
 	 * @return true on success, ErrorObject on failure
 	 */
-	public static function runScript($file, $host, $user, $pass, $db, $port)
+	public static function runScript($file, $db_params, $db_name)
 	{
-		logMessage(L_INFO, "Run sql script $file");	
 		if (!is_file($file)) {
 			logMessage(L_ERROR, "Could not run script: script not found $file");	
 			return false;
@@ -144,6 +144,6 @@ class DatabaseUtils
 			return false;		
 		}
 		
-		return self::executeQuery($data, $host, $user, $pass, $db, $port);
+		return self::executeQuery($data, $db_params, $db_name);
 	}				
 }

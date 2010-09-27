@@ -24,6 +24,16 @@ class InstallUtils
 	}
 	
 	/**
+	 * @return string current operating system name
+	 */
+	public static function getOsLsb()
+	{		
+		$dist = FileUtils::exec("lsb_release -d");		
+		logMessage(L_INFO, "Distribution: ".$dist);
+		return $dist;
+	}
+	
+	/**
 	 * @return string 32bit/64bit according to current system architecture - if not found, default is 32bit
 	 */
 	public static function getSystemArchitecture()
