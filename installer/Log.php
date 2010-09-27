@@ -25,7 +25,7 @@ function logMessage($level, $message, $no_new_line = false) {
 		(($level === L_ERROR) && ($logPrintLevel >= 1)) ||
 		(($level === L_WARNING) && ($logPrintLevel >= 2)) ||
 		(($level === L_INFO) && ($logPrintLevel >= 3))) {
-		echo $message;
+		echo str_replace("\\n",PHP_EOL,$message);
 		
 		if (!$no_new_line)
 			echo PHP_EOL;		

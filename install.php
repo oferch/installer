@@ -31,18 +31,19 @@ $db_params = array();
 
 function adjust_path($path) {
 	global $app_config;	
-	$new_path = str_replace("@BASE_DIR@",$app_config['BASE_DIR'], $path);
-	$new_path = str_replace("@ETL_HOME_DIR@",$app_config['ETL_HOME_DIR'], $new_path);
-	return $new_path;
+	return str_replace("@BASE_DIR@",$app_config['BASE_DIR'], $path);
 }
 
 function installationFailed($error, $cleanup = true) {
 	global $app_config, $texts, $should_report;
 	echo PHP_EOL;
-	logMessage(L_USER, "An error has occured during installation: $error");
-	logMessage(L_USER, "Cleaning leftovers...");	
-	if ($cleanup) detectLeftovers(false);
-	if ($should_report) reportInstallationFailure();
+	logMessage(L_USER, "Installation could not continue: $error");
+	
+	if ($cleanup) {
+		logMessage(L_USER, "Cleaning leftovers...");
+		detectLeftovers(false);
+	}
+	//if ($should_report) reportInstallationFailure();
 	logMessage(L_USER, $texts['flow']["install_fail"]);
 	die(1);
 }
@@ -74,28 +75,22 @@ function detectLeftovers($report_only) {
 		$leftovers = $leftovers."\tLeftovers found: kaltura_crontab symbolic link exists".PHP_EOL;;	
 		if (!$report_only) FileUtils::recursiveDelete('/etc/cron.d/kaltura_crontab');
 	}	
+	$verify = detectDatabases($db_params);
+	if (isset($verify))  {		
+		$leftovers = $leftovers.$verify;
+		if (!$report_only) {
+			FileUtils::execAsUser('/home/etl/ddl/dwh_drop_databases.sh' , 'etl');
+			detectDatabases($db_params, true);
+		}
+	}	
 	if (is_dir($app_config['BASE_DIR'])) {
 		$leftovers = $leftovers."\tLeftovers found: Target directory ".$app_config['BASE_DIR']." already exists".PHP_EOL;;
 		if (!$report_only) {
 			@exec($app_config['BASE_DIR'].'app/scripts/searchd.sh stop  2>&1');
-			@exec($app_config['BASE_DIR'].'app/scripts/serviceBatchMgr.sh stop  2>&1');
+			@exec($app_config['BASE_DIR'].'app/scripts/serviceBatchMgr.sh stop  2>&1');			
 			FileUtils::recursiveDelete($app_config['BASE_DIR']);			
 		}
-	}	
-	if (($files = @scandir($app_config['ETL_HOME_DIR']."/")) && (count($files) > 5)) {
-		$leftovers = $leftovers."\tLeftovers found: Datawarehouse in ".$app_config['ETL_HOME_DIR']." already exists".PHP_EOL;;
-		if (!$report_only) {
-			FileUtils::execAsUser('/home/etl/ddl/dwh_drop_databases.sh' , 'etl');
-			FileUtils::recursiveDelete($app_config['ETL_HOME_DIR'].'/*');
-		}
 	}
-	$verify = detectDatabases($db_params);
-	if (isset($verify))  {
-		$leftovers = $leftovers.$verify;
-		if (!$report_only) {
-			detectDatabases($db_params, true);
-		}
-	}	
 	
 	if (isset($leftovers)) {
 		if ($report_only) logMessage(L_USER, "Installation found some previous installation leftovers:".PHP_EOL.$leftovers);
@@ -147,7 +142,10 @@ if (is_file(FILE_USER_INPUT) &&
 	$user_input['INSTALLATION_SEQUENCE_UID'] = uniqid("ISEQID"); // unique id per installation sequence (using same config)
 }
 
-if (!UserInputUtils::getTrueFalse('PROCEED_WITH_INSTALL', $flow_texts['proceed_with_install'], 'y')) installationFailed($error_texts['user_does_not_want'], false);
+if (!UserInputUtils::getTrueFalse('PROCEED_WITH_INSTALL', $flow_texts['proceed_with_install'], 'y')) {
+	echo $error_texts['user_does_not_want'].PHP_EOL;
+	die(1);
+}
 
 if ($result = ((strcasecmp($app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) == 0) || 
 	(UserInputUtils::getTrueFalse('ASK_TO_REPORT', $flow_texts['ask_to_report'], 'y')))) {
@@ -155,7 +153,7 @@ if ($result = ((strcasecmp($app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) == 0)
 	$app_config['REPORT_ADMIN_EMAIL'] = $email;
 	$app_config['TRACK_KDPWRAPPER'] = 'true';
 	$should_report = true;
-	reportInstallationStart();
+	//reportInstallationStart();
 } else {
 	$app_config['TRACK_KDPWRAPPER'] = 'false';
 }
@@ -178,7 +176,6 @@ UserInputUtils::getInput('DB1_PORT', $input_texts['db_port'],'3306');
 if ($should_user_input) $user_input['DB1_NAME'] = 'kaltura'; // currently we do not support getting the DB name from the user because of the DWH implementation
 UserInputUtils::getInput('DB1_USER', $input_texts['db_user']);
 UserInputUtils::getInput('DB1_PASS', $input_texts['db_pass']);
-if ($should_user_input) $user_input['ETL_HOME_DIR'] = '/home/etl'; // currently the DWH must be installed in this location
 UserInputUtils::getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', $input_texts['virtual_host_name']);
 UserInputUtils::getPathInput('BASE_DIR',  $input_texts['kaltura_base_dir'], false, true, null, "/opt/kaltura");
 if ($should_user_input) logMessage(L_USER, $input_texts['admin_console_welcome']);
@@ -198,7 +195,7 @@ $db_params['db_pass'] = $app_config['DB1_PASS'];
 
 // verify prerequisites
 $preq = new Prerequisites();
-if (!$preq->verifyPrerequisites($app_config)) installationFailed($error_texts['prereq_failed'], false);
+if (!$preq->verifyPrerequisites($app_config, $db_params)) installationFailed($error_texts['prereq_failed'], false);
 
 defineInstallationTokens($app_config);
 writeConfigToFile($app_config, FILE_APPLICATION_CONFIG);
@@ -216,7 +213,6 @@ logMessage(L_USER, $flow_texts["starting_installation"]);
 echo PHP_EOL;
 logMessage(L_USER, $flow_texts["copying_files"]);
 if (!FileUtils::fullCopy('package/app/', $app_config['BASE_DIR'], true)) installationFailed($error_texts['failed_copy']);
-if (!FileUtils::fullCopy('package/dwh/*', $app_config['ETL_HOME_DIR']."/", true)) installationFailed("Failed copying data warehouse to target directory");
 
 // replace tokens in configuration files
 logMessage(L_USER, $flow_texts["replacing_tokens"]);
@@ -260,9 +256,8 @@ foreach ($sql_files['stats']['sql'] as $sql) {
 	
 // create the data warehouse
 logMessage(L_USER, $flow_texts["dwh"]);
-if (!FileUtils::chown($app_config['ETL_HOME_DIR'], 'etl')) installationFailed("Failed chown to etl");
 if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app_config['DB1_NAME'])) installationFailed($error_texts['failed_running_dwh_sql_script']);
-if (!FileUtils::execAsUser($app_config['ETL_HOME_DIR'].'/ddl/dwh_ddl_install.sh', 'etl')) installationFailed($error_texts['failed_running_dwh_script']);
+//if (!FileUtils::execAsUser($app_config['BASE_DIR'].'dwh/ddl/dwh_ddl_install.sh')) installationFailed($error_texts['failed_running_dwh_script']);
 
 // Create a symbolic link for the logrotate and crontab
 logMessage(L_USER, $flow_texts["symlinks"]);
@@ -287,9 +282,7 @@ logMessage(L_USER, $flow_texts["run_system"]);
 
 // send settings mail
 if (function_exists('mail')) {
-	$msg = sprintf($flow_texts['finish_mail'], $app_config('KALTURA_VIRTUAL_HOST_NAME'),
-			$app_config('KALTURA_VIRTUAL_HOST_NAME'), $app_config('ADMIN_CONSOLE_ADMIN_MAIL'),
-			$app_config('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
+	$msg = sprintf($flow_texts['finish_mail'], $app_config['KALTURA_VIRTUAL_HOST_NAME'], $app_config['KALTURA_VIRTUAL_HOST_NAME'], $app_config['ADMIN_CONSOLE_ADMIN_MAIL'], $app_config['ADMIN_CONSOLE_PASSWORD']).PHP_EOL;
 	@mail('TO', 'Kaltura installation settings', $msg);
 }
 	
@@ -299,7 +292,7 @@ logMessage(L_USER, sprintf($flow_texts["install_success"], $app_config['ADMIN_CO
 logMessage(L_USER, sprintf($flow_texts["after_install_steps"], $app_config["KALTURA_VIRTUAL_HOST_NAME"], $app_config["BASE_DIR"], $app_config["HTTPD_BIN"], $app_config["KALTURA_VIRTUAL_HOST_NAME"]));
 
 if ($should_report) {
-	reportInstallationSuccess();
+	//reportInstallationSuccess();
 }
 
 die(0);

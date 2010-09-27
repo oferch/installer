@@ -22,6 +22,7 @@ function defineInstallationTokens(&$app_config) {
 	$app_config['LOG_DIR'] = $app_config['BASE_DIR'].'/log/';	
 	$app_config['BIN_DIR'] = $app_config['BASE_DIR'].'/bin/';	
 	$app_config['TMP_DIR'] = $app_config['BASE_DIR'].'/tmp/';
+	$app_config['ETL_HOME_DIR'] = $app_config['BASE_DIR'].'/dwh/';
 	
 	// databases (copy information collected during prerequisites
 	collectDatabaseCopier($app_config, '1', '2');
@@ -119,17 +120,12 @@ function removeHttp($url = '') {
 }
 
 function saveUninstallerConfig($file, $config) {
-	$data = "BASE_DIR = ".$config["BASE_DIR"].PHP_EOL;
-	$data = $data."ETL_HOME_DIR = ".$config["ETL_HOME_DIR"].PHP_EOL;
+	$data = "BASE_DIR = ".$config["BASE_DIR"].PHP_EOL;	
+	$data = $data."DB_HOST = ".$config["DB1_HOST"].PHP_EOL;
+	$data = $data."DB_USER = ".$config["DB1_USER"].PHP_EOL;
+	$data = $data."DB_PASS = ".$config["DB1_PASS"].PHP_EOL;
+	$data = $data."DB_PORT = ".$config["DB1_PORT"].PHP_EOL;
 	$data = $data."DB1_NAME = ".$config["DB1_NAME"].PHP_EOL;
-	$data = $data."DB1_HOST = ".$config["DB1_HOST"].PHP_EOL;
-	$data = $data."DB1_USER = ".$config["DB1_USER"].PHP_EOL;
-	$data = $data."DB1_PASS = ".$config["DB1_PASS"].PHP_EOL;
-	$data = $data."DB1_PORT = ".$config["DB1_PORT"].PHP_EOL;
 	$data = $data."DB_STATS_NAME = ".$config["DB_STATS_NAME"].PHP_EOL;
-	$data = $data."DB_STATS_HOST = ".$config["DB_STATS_HOST"].PHP_EOL;
-	$data = $data."DB_STATS_USER = ".$config["DB_STATS_USER"].PHP_EOL;
-	$data = $data."DB_STATS_PASS = ".$config["DB_STATS_PASS"].PHP_EOL;
-	$data = $data."DB_STATS_PORT = ".$config["DB_STATS_PORT"].PHP_EOL;	
 	return FileUtils::writeFile($file, $data);
 }

@@ -57,14 +57,12 @@ class Prerequisites
 		$this->problems = array();				
 		
 		$httpd_bin = $config['HTTPD_BIN'];
-		$etl_home = $config['ETL_HOME_DIR'];
 		
 		// check prerequisites
 		$this->checkPhpVersion();
 		$this->checkBins();
 		$this->checkPhpExtensions();
 		$this->checkApacheModules($httpd_bin);
-		$this->checkEtlUser($etl_home);
 		$this->checkFiles();		
 		
 		if ($this->mysqli_ext_exists) {
@@ -92,27 +90,6 @@ class Prerequisites
 			return false;							
 		}
 	}
-		
-	/**
-	 * Checks that :
-	 * 1. User etl exists
-	 * 2. /home/dir directory exists
-	 */
-	private function checkEtlUser($etl_home_dir) {
-		logMessage(L_INFO, "Checking etl user");	
-		if (!is_dir($etl_home_dir)) {
-			$this->problems['Etl home:'][] = "etl user's home directory does not exist $etl_home_dir";
-		} else {
-			logMessage(L_INFO, "Preqrequisite passed: etl home exists");
-		}
-		@exec('id -u etl', $output, $result);
-		if ($result != 0) {
-			$this->problems['Etl user:'][] = "User 'etl' does not exist on the system";
-		}
-		else {
-			logMessage(L_INFO, "Preqrequisite passed: etl user exists");
-		}
-	}		
 		
 	/**
 	 * Checks that needed php extensions exist
@@ -198,7 +175,7 @@ class Prerequisites
 				$tmp = '@@'.$key;
 				$current = $result->fetch_object()->$tmp;
 				if (!$this->compare($current, $value[1], $value[0])) {
-					$this->problems['mySQL settings:'][] = "MySQL setting %$key=$current and not $value[0] $value[1] expected";
+					$this->problems['mySQL settings:'][] = "MySQL setting $key=$current and not $value[0] $value[1] expected";
 				}
 				else {
 					logMessage(L_INFO, "Preqrequisite passed: MySQL setting $key is set correctly $current, $value[1], $value[0]");

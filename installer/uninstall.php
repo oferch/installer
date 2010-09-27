@@ -36,36 +36,45 @@ function dropDb($db, $host, $user, $pass, $port) {
 $config = parse_ini_file("uninstall.ini");
 $success = true;
 
-echo 'Stopping application scripts...\n';
+echo 'Stopping application scripts... ';
 @exec($config['BASE_DIR'].'/app/scripts/searchd.sh stop');
 @exec($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop');
-echo "Removing /etc/logrotate.d/kaltura_log_rotate ...\n";
+echo 'OK'.PHP_EOL;
+
+echo "Removing /etc/logrotate.d/kaltura_log_rotate... ";
 @exec("rm -rf /etc/logrotate.d/kaltura_log_rotate");
-echo "Removing /etc/cron.d/kaltura_crontab ...\n";
+echo 'OK'.PHP_EOL;
+
+echo "Removing /etc/cron.d/kaltura_crontab... ";
 @exec("rm -rf /etc/cron.d/kaltura_crontab");
-echo 'Removing data warehouse ...\n';
+echo 'OK'.PHP_EOL;
+
+echo 'Removing data warehouse... ';
 @exec("sudo -u etl /home/etl/ddl/dwh_drop_databases.sh");
-echo "Removing ".$config['ETL_HOME_DIR']." ...\n";
-@exec("rm -rf ".$config['ETL_HOME_DIR'].'/*');
-@exec("rm -rf ".$config['ETL_HOME_DIR'].'/.kettle');
-echo "Removing Kaltura DB ... ";
-if (!dropDb($config['DB1_NAME'], $config['DB1_HOST'], $config['DB1_USER'], $config['DB1_PASS'], $config['DB1_PORT'])) {
+echo 'OK'.PHP_EOL;
+
+echo "Removing Kaltura DB... ";
+if (!dropDb($config['DB1_NAME'], $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
 	$success = false;
-	echo "Error\n";
+	echo "Error".PHP_EOL;
 } else {
-	echo "\n";
+	echo 'OK'.PHP_EOL;
 }
-echo "Removing Kaltura stats DB ... ";
-if (!dropDb($config['DB_STATS_NAME'], $config['DB_STATS_HOST'], $config['DB_STATS_USER'], $config['DB_STATS_PASS'], $config['DB_STATS_PORT'])) {
+echo "Removing Kaltura stats DB... ";
+if (!dropDb($config['DB_STATS_NAME'], $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
 	$success = false;
-	echo "Error\n";
+	echo 'Error'.PHP_EOL;
 } else {
-	echo "\n";
+	echo 'OK'.PHP_EOL;
 }
-echo "Removing ".$config['BASE_DIR']." ...\n";
+echo "Removing ".$config['BASE_DIR']."...";
 @exec("rm -rf ".$config['BASE_DIR']);
+echo 'OK'.PHP_EOL.PHP_EOL;
 	
-if ($success) echo 'Uninstall finished successfully\n';
-else echo 'Some of the uninstall steps failed, please do them manually\n';
-echo 'Please maually remove Kaltura related includes from your httpd.conf or httpd-vhosts.conf files\n';
+if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
+else echo 'Some of the uninstall steps failed, please do them manually'.PHP_EOL;
+
+echo PHP_EOL;
+
+echo 'Please maually remove Kaltura related includes from your httpd.conf or httpd-vhosts.conf files'.PHP_EOL;
 
