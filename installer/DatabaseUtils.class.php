@@ -18,14 +18,14 @@ class DatabaseUtils
 		if ($host == 'localhost') {
 			$host = '127.0.0.1';
 		}
-		logMessage(L_INFO, "Connect to db: $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_params['db_port']");		
+		logMessage(L_INFO, sprintf("Connect to db: %s, %s, %s, %s",$db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_params['db_port']));
 		if (trim($pass) == '') {
 			$pass = null;
 		}
 		$link = @mysqli_init();
 		$result = @mysqli_real_connect($link, $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_name, $db_params['db_port']);
 		if (!$result) {
-			logMessage(L_ERROR, "Cannot connect to db: $db_params['db_host'], $db_params['db_user'], $link->error");
+			logMessage(L_ERROR, sprintf("Cannot connect to db: %s, %s, %s", $db_params['db_host'], $db_params['db_user'], $link->error));
 			return false;
 		}
 		return true;

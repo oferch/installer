@@ -30,21 +30,19 @@ $db_params = array();
 // functions
 
 function adjust_path($path) {
-	global $app_config;
+	global $app_config;	
 	$new_path = str_replace("@BASE_DIR@",$app_config['BASE_DIR'], $path);
 	$new_path = str_replace("@ETL_HOME_DIR@",$app_config['ETL_HOME_DIR'], $new_path);
 	return $new_path;
 }
 
-function installationFailed($error) {
+function installationFailed($error, $cleanup = true) {
 	global $app_config, $texts, $should_report;
 	echo PHP_EOL;
 	logMessage(L_USER, "An error has occured during installation: $error");
 	logMessage(L_USER, "Cleaning leftovers...");	
-	detectLeftovers(false);
-	if ($should_report) {
-		reportInstallationFailure();
-	}
+	if ($cleanup) detectLeftovers(false);
+	if ($should_report) reportInstallationFailure();
 	logMessage(L_USER, $texts['flow']["install_fail"]);
 	die(1);
 }
@@ -125,7 +123,7 @@ logMessage(L_INFO, "Installation might take a few minutes, set PHP ini values: m
 $texts = parse_ini_file(FILE_INSTALL_TEXTS, true);
 $flow_texts = $texts['flow'];
 $input_texts = $texts['input'];
-$error_texts = $texts['error'];
+$error_texts = $texts['errors'];
 $installation_config = parse_ini_file(FILE_INSTALL_CONFIG, true);
 $app_config['INSTALLATION_UID'] = uniqid("IID"); // unique id per installation
 
@@ -149,7 +147,7 @@ if (is_file(FILE_USER_INPUT) &&
 	$user_input['INSTALLATION_SEQUENCE_UID'] = uniqid("ISEQID"); // unique id per installation sequence (using same config)
 }
 
-if (!UserInputUtils::getTrueFalse('PROCEED_WITH_INSTALL', $flow_texts['proceed_with_install'], 'y')) installationFailed($error_texts['user_does_not_want']);
+if (!UserInputUtils::getTrueFalse('PROCEED_WITH_INSTALL', $flow_texts['proceed_with_install'], 'y')) installationFailed($error_texts['user_does_not_want'], false);
 
 if ($result = ((strcasecmp($app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) == 0) || 
 	(UserInputUtils::getTrueFalse('ASK_TO_REPORT', $flow_texts['ask_to_report'], 'y')))) {
@@ -164,8 +162,8 @@ if ($result = ((strcasecmp($app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) == 0)
 
 InstallUtils::getOsLsb();
 
-if (!verifyRootUser()) installationFailed($error_texts['user_not_root']);
-if (!verifyOS()) installationFailed($error_texts['os_not_linux']);
+if (!verifyRootUser()) installationFailed($error_texts['user_not_root'], false);
+if (!verifyOS()) installationFailed($error_texts['os_not_linux'], false);
 
 if ($should_user_input) {
 	echo PHP_EOL; 
@@ -200,13 +198,13 @@ $db_params['db_pass'] = $app_config['DB1_PASS'];
 
 // verify prerequisites
 $preq = new Prerequisites();
-if (!$preq->verifyPrerequisites($app_config)) installationFailed($error_texts['prereq_failed']);
+if (!$preq->verifyPrerequisites($app_config)) installationFailed($error_texts['prereq_failed'], false);
 
 defineInstallationTokens($app_config);
 writeConfigToFile($app_config, FILE_APPLICATION_CONFIG);
 
 if (detectLeftovers(true)) {
-	if (!UserInputUtils::getTrueFalse(null, $flow_texts["leftovers_found"], 'n')) installationFailed($error_texts['clean_leftovers']);
+	if (!UserInputUtils::getTrueFalse(null, $flow_texts["leftovers_found"], 'n')) installationFailed($error_texts['clean_leftovers'], false);
 	else detectLeftovers(false);
 }
 
@@ -233,7 +231,7 @@ $os_name = 	InstallUtils::getOsName(); // Already verified that the OS is suppor
 $architecture = InstallUtils::getSystemArchitecture();	
 logMessage(L_USER, sprintf($flow_texts["adjusting_architecture"], $os_name, $architecture));
 $bin_subdir = $os_name.'/'.$architecture;
-if (!FileUtils::fullCopy($app_config['BIN_DIR'].'/'.$bin_subdir, $app_config['BIN_DIR'], true)) installationFailed($error_texts['failed_architecture_copy');
+if (!FileUtils::fullCopy($app_config['BIN_DIR'].'/'.$bin_subdir, $app_config['BIN_DIR'], true)) installationFailed($error_texts['failed_architecture_copy']);
 if (!FileUtils::recursiveDelete($app_config['BIN_DIR'].'/'.$os_name)) installationFailed($error_texts['failed_architecture_delete']);
 
 // chmod
@@ -270,7 +268,7 @@ if (!FileUtils::execAsUser($app_config['ETL_HOME_DIR'].'/ddl/dwh_ddl_install.sh'
 logMessage(L_USER, $flow_texts["symlinks"]);
 foreach ($installation_config['symlinks']['links'] as $slink) {
 	$link_items = explode('^', adjust_path($slink));	
-	if (!symlink($link_items[0], $link_items[1])) installationFailed(sprintf($error_texts['failed_sym_link', $link_items[0], $link_items[1]);
+	if (!symlink($link_items[0], $link_items[1])) installationFailed(sprintf($error_texts['failed_sym_link'], $link_items[0], $link_items[1]));
 	else logMessage(L_INFO, "Created symblic link from $link_items[0] to $link_items[1]");
 }
 
