@@ -158,10 +158,18 @@ if (!$user->isInputLoaded()) {
 
 // user input
 $httpd_bin_found = OsUtils::findBinary(array('apachectl', 'apache2ctl'));
+$httpd_bin_message = $texts->getInputText('httpd_bin');
+if (!empty($httpd_bin_found)) {
+	$httpd_bin_message .= PHP_EOL."Installer found $httpd_bin_found, leave empty to use it";
+}
 $php_bin_found = OsUtils::findBinary('php');
+$php_bin_message = $texts->getInputText('php_bin');
+if (!empty($php_bin_found)) {
+	$php_bin_message .= PHP_EOL."Installer found $php_bin_found, leave empty to use it";
+}
 
-$user->getInput('HTTPD_BIN', $texts->getInputText('httpd_bin'), 'Httpd binary must exist', InputValidator::createFileVallidator(!empty($httpd_bin_found)), $httpd_bin_found);
-$user->getInput('PHP_BIN', $texts->getInputText('php_bin'), 'PHP binary must exist', InputValidator::createFileVallidator(!empty($php_bin_found)), $php_bin_found);
+$user->getInput('HTTPD_BIN', $httpd_bin_found, 'Httpd binary must exist', InputValidator::createFileVallidator(!empty($httpd_bin_found)), $httpd_bin_found);
+$user->getInput('PHP_BIN', $php_bin_found, 'PHP binary must exist', InputValidator::createFileVallidator(!empty($php_bin_found)), $php_bin_found);
 $user->getInput('DB1_HOST', $texts->getInputText('db_host'), 'Must be a valid hostname or ip', InputValidator::createHostValidator(), 'localhost');
 $user->getInput('DB1_PORT', $texts->getInputText('db_port'), 'Must be a valid port', InputValidator::createRangeValidator(1, 65535), '3306');
 if (!$user->isInputLoaded()) $user->set('DB1_NAME','kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
