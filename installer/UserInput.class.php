@@ -41,8 +41,10 @@ class UserInput
 			return $this->user_input[$key];
 		}
 		
+		if (isset($validator) && !empty($default)) $validator->emptyIsValid = true;
+		
 		$inputOk = false;
-		while (!inputOk) {
+		while (!$inputOk) {
 			logMessage(L_USER, $request_text, true);
 			echo PHP_EOL.'> ';
 			$input = trim(fgets(STDIN));
@@ -81,7 +83,7 @@ class UserInput
 		}
 		
 		$validator = InputValidator::createYesNoValidator();
-		$input = self::getInput($key, $request_text, "Input is not valid", $default, $validator);
+		$input = $this->getInput(null, $request_text, "Input is not valid", $validator, $default);
 		$retrunVal = ((strcasecmp('y',$input) === 0) || (strcasecmp('yes',$input) === 0));
 		
 		if (isset($key)) $this->user_input[$key] = $retrunVal;

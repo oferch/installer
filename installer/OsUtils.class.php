@@ -98,14 +98,14 @@ class OsUtils {
 	 * @param unknown_type $file_name
 	 * @return string which output or null if none found
 	 */
-	private function findBinary($file_name) {			
+	public function findBinary($file_name) {			
 		if (!is_array($file_name)) {
 			$file_name = array ($file_name);
 		}
 		
 		foreach ($file_name as $file) {
 			$which_path = OsUtils::executeReturnOutput("which $file");
-			if (isset($which_path[0]) && trim($which_path[0]) != '') {
+			if (isset($which_path[0]) && (trim($which_path[0]) != '') && (substr($which_path[0],0,1) == "/")) {
 				return $which_path[0];
 			}
 		}

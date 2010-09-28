@@ -135,7 +135,7 @@ if (!$user->getTrueFalse('PROCEED_WITH_INSTALL', $texts->getFlowText('proceed_wi
 
 if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) || 
 	($user->getTrueFalse('ASK_TO_REPORT', $texts->getFlowText('ask_to_report'), 'y')))) {
-	$email = $user->getInput('REPORT_MAIL', $texts->getFlowText('report_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(), null);
+	$email = $user->getInput('REPORT_MAIL', $texts->getFlowText('report_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
 	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $user->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
@@ -168,16 +168,16 @@ if (!empty($php_bin_found)) {
 	$php_bin_message .= PHP_EOL."Installer found $php_bin_found, leave empty to use it";
 }
 
-$user->getInput('HTTPD_BIN', $httpd_bin_found, 'Httpd binary must exist', InputValidator::createFileVallidator(!empty($httpd_bin_found)), $httpd_bin_found);
-$user->getInput('PHP_BIN', $php_bin_found, 'PHP binary must exist', InputValidator::createFileVallidator(!empty($php_bin_found)), $php_bin_found);
+$user->getInput('HTTPD_BIN', $httpd_bin_message, 'Httpd binary must exist', InputValidator::createFileValidator(), $httpd_bin_found);
+$user->getInput('PHP_BIN', $php_bin_message, 'PHP binary must exist', InputValidator::createFileValidator(), $php_bin_found);
 $user->getInput('DB1_HOST', $texts->getInputText('db_host'), 'Must be a valid hostname or ip', InputValidator::createHostValidator(), 'localhost');
-$user->getInput('DB1_PORT', $texts->getInputText('db_port'), 'Must be a valid port', InputValidator::createRangeValidator(1, 65535), '3306');
+$user->getInput('DB1_PORT', $texts->getInputText('db_port'), 'Must be a valid port (1-65535)', InputValidator::createRangeValidator(1, 65535), '3306');
 if (!$user->isInputLoaded()) $user->set('DB1_NAME','kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
-$user->getInput('DB1_USER', $texts->getInputText('db_user'), null, InputValidator::createNonEmptyValidator(), null);
+$user->getInput('DB1_USER', $texts->getInputText('db_user'), "Db user cannot be empty", InputValidator::createNonEmptyValidator(), null);
 $user->getInput('DB1_PASS', $texts->getInputText('db_pass'), null, null, null);
 $user->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', $texts->getInputText('virtual_host_name'), 'Must be a valid hostname or ip', InputValidator::createHostValidator(), null);
 $user->getInput('BASE_DIR', $texts->getInputText('kaltura_base_dir'), "Target directory must be a valid directory path", InputValidator::createDirectoryValidator(), '/opt/kaltura');
-$user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', $texts->getInputText('admin_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(), null);
+$user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', $texts->getInputText('admin_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(false), null);
 $user->getInput('ADMIN_CONSOLE_PASSWORD', $texts->getInputText('admin_password'), "Password cannot be empty or contain whitespaces", InputValidator::createNoWhitespaceValidator(), null);
 $user->getInput('XYMON_URL', $texts->getInputText('xymon_url'), null, null, null);
 if (!$user->isInputLoaded()) $user->saveInput();

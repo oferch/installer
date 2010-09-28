@@ -10,9 +10,9 @@ class InstallReport {
 	public function __construct($email, $package_version, $install_seq_id, $install_id){	
 		$this->report_parameters['email'] = $email;
 		$this->report_parameters['client_type'] = 'PHP CLI';
-		$this->report_parameters['server_ip'] = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : null;
-		$this->report_parameters['host_name'] = php_uname('n');			
-		$this->report_parameters['operating_system'] = php_uname('s').' '.getOsLsb();
+		$this->report_parameters['server_ip'] = null;
+		$this->report_parameters['host_name'] = null;
+		$this->report_parameters['operating_system'] = php_uname('s').' '.OsUtils::getOsLsb();
 		$this->report_parameters['architecture'] = php_uname('m');
 		$this->report_parameters['php_version'] = phpversion();
 		$this->report_parameters['package_version'] = $package_version;
@@ -24,7 +24,7 @@ class InstallReport {
 		$this->report_parameters['code'] = "";
 		$this->report_post_parameters['data'] = $install_ids;
 		$this->report_post_parameters['description'] = "";
-		sendReport($this->report_parameters, $this->report_post_parameters);
+		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
 	
 	public function reportInstallationFailed($failure_message) {
@@ -32,7 +32,7 @@ class InstallReport {
 		$this->report_parameters['code'] = $failure_message;
 		$this->report_post_parameters['data'] = $install_ids;
 		$this->report_post_parameters['description'] = "";
-		sendReport($this->report_parameters, $this->report_post_parameters);
+		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
 	
 	public function reportInstallationSuccess() {
@@ -40,7 +40,7 @@ class InstallReport {
 		$this->report_parameters['code'] = "";
 		$this->report_post_parameters['data'] = $install_ids;
 		$this->report_post_parameters['description'] = "";
-		sendReport($this->report_parameters, $this->report_post_parameters);
+		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}	
 
 	/**
