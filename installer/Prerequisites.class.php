@@ -51,10 +51,10 @@ class Prerequisites {
 	* This function checks the preqrequisites
 	* @config has all the values for verifiying prerequisites
 	*/
-	public function verifyPrerequisites($config, $db_params) {
+	public function verifyPrerequisites($app_config, $db_params) {
 		$this->problems = array();				
 		
-		$httpd_bin = $config['HTTPD_BIN'];
+		$httpd_bin = $app_config->get('HTTPD_BIN');
 		
 		// check prerequisites
 		$this->checkPhpVersion();

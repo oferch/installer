@@ -12,28 +12,28 @@ class UserInput
 	}
 	
 	public function loadInput() {
-		$user_input = parse_ini_file(FILE_USER_INPUT, true);
-		$input_loaded = true;
+		$this->user_input = parse_ini_file(FILE_USER_INPUT, true);
+		$this->input_loaded = true;
 	}
 	
 	public function saveInput() {
-		writeConfigToFile($user_input, FILE_USER_INPUT);
+		writeConfigToFile($this->user_input, FILE_USER_INPUT);
 	}		
 	
 	public function get($key) {
-		return $user_input[$key];
+		return $this->user_input[$key];
 	}
 	
 	public function set($key, $value) {
-		return $user_input[$key] = $value;
+		return $this->user_input[$key] = $value;
 	}
 	
 	public function getAll() {
-		return $user_input;
+		return $this->user_input;
 	}
 	
 	public function isInputLoaded() {
-		return $input_loaded;
+		return $this->input_loaded;
 	}
 	
 	/**
@@ -43,8 +43,8 @@ class UserInput
 	 * @return boolean true/false according to input (y/n)
 	 */
 	public function getTrueFalse($key, $request_text, $default) {	
-		if (isset($key) && isset($user_input[$key])) {
-			return $user_input[$key];
+		if (isset($key) && isset($this->user_input[$key])) {
+			return $this->user_input[$key];
 		}
 
 		$retrunVal = null;
@@ -67,7 +67,7 @@ class UserInput
 			$retrunVal = ((strcasecmp('y',$default) === 0) || strcasecmp('yes',$default) === 0);
 		}
 		
-		if (isset($key)) $user_input[$key] = $retrunVal;
+		if (isset($key)) $this->user_input[$key] = $retrunVal;
 		return $retrunVal;		
 	}	
 	
@@ -77,8 +77,8 @@ class UserInput
 	 * @return string user input
 	 */
 	public function getInput($key, $request_text, $default = '') {
-		if (isset($key) && isset($user_input[$key])) {
-			return $user_input[$key];
+		if (isset($key) && isset($this->user_input[$key])) {
+			return $this->user_input[$key];
 		}
 		
 		logMessage(L_USER, $request_text.PHP_EOL.'> ', true);
@@ -90,7 +90,7 @@ class UserInput
 			logMessage(L_INFO, "No input, using default value: $default");
 		}
 		
-		if (isset($key)) $user_input[$key] = $input;
+		if (isset($key)) $this->user_input[$key] = $input;
   		return $input;
 	}
 	
@@ -100,8 +100,8 @@ class UserInput
 	 * @return string which output or null if none found
 	 */
 	private function getFirstWhich($key, $file_name) {
-		if (isset($key) && isset($user_input[$key])) {
-			return $user_input[$key];
+		if (isset($key) && isset($this->user_input[$key])) {
+			return $this->user_input[$key];
 		}
 		
 		$returnVal = null;
@@ -117,7 +117,7 @@ class UserInput
 			}
 		}
 		
-		if (isset($key)) $user_input[$key] = $returnVal;
+		if (isset($key)) $this->user_input[$key] = $returnVal;
 		return $returnVal;		
 	}
 	
@@ -130,8 +130,8 @@ class UserInput
 	 * @return string user input
 	 */
 	public function getPathInput($key, $request_text, $must_exist, $is_dir, $which_name = null, $default = null) {
-		if (isset($key) && isset($user_input[$key])) {
-			return $user_input[$key];
+		if (isset($key) && isset($this->user_input[$key])) {
+			return $this->user_input[$key];
 		}
 		
 		$input_ok = false;
@@ -186,7 +186,7 @@ class UserInput
 			}
 		}
 		
-		if (isset($key)) $user_input[$key] = $input;		
+		if (isset($key)) $this->user_input[$key] = $input;		
 		return $input;
 	}
 }

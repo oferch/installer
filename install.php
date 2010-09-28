@@ -8,6 +8,8 @@ include_once('installer/Prerequisites.class.php');
 include_once('installer/Log.php');
 include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
+include_once('installer/TextsConfig.class.php');
+include_once('installer/InstallConfig.class.php');
 
 // constants
 define("K_TM_TYPE", "TM");
@@ -89,18 +91,17 @@ function detectLeftovers($report_only) {
 
 // installation script start
 
+// installation might take a few minutes
+ini_set('max_execution_time', 0);
+ini_set('memory_limit', -1);
+ini_set('max_input_time ', 0);
+
 // TODO: parameters - config name and debug level
 
 // initialize the installation
 $logfilename = "install_log_".date("d.m.Y_H.i.s");
 startLog($logfilename);
 logMessage(L_INFO, "Installation started");
-
-// installation might take a few minutes
-ini_set('max_execution_time', 0);
-ini_set('memory_limit', -1);
-ini_set('max_input_time ', 0);
-logMessage(L_INFO, "Installation might take a few minutes, set PHP ini values: max_execution_time=0; memory_limit=-1;max_input_time=0");
 
 $texts = new TextsConfig();
 $app = new AppConfig();
@@ -127,7 +128,7 @@ if ($user->hasInput() && $user->getTrueFalse(null, $texts->getFlowText('user_pre
 }
 
 if (!$user->getTrueFalse('PROCEED_WITH_INSTALL', $texts->getFlowText('proceed_with_install'), 'y')) {
-	echo $error_texts['user_does_not_want'].PHP_EOL;
+	echo $texts->getErrorText('user_does_not_want').PHP_EOL;
 	die(1);
 }
 
@@ -244,7 +245,7 @@ if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app-
 // Create a symbolic link for the logrotate and crontab
 logMessage(L_USER, $texts->getFlowText("symlinks"));
 foreach ($install->getSymLinks() as $slink) {
-	$link_items = explode('^', adjust_path($slink));	
+	$link_items = explode('^', $app->replaceTokensInString($slink));	
 	if (!symlink($link_items[0], $link_items[1])) installationFailed(sprintf($texts->getErrorText('failed_sym_link'), $link_items[0], $link_items[1]));
 	else logMessage(L_INFO, "Created symblic link from $link_items[0] to $link_items[1]");
 }
