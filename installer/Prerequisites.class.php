@@ -66,8 +66,7 @@ class Prerequisites {
 		if ($this->mysqli_ext_exists) {
 			$this->checkMysqlVersion($db_params);
 			$this->checkMySqlSettings($db_params);			
-		}
-		else {
+		} else {
 			$this->problems['Product versions:'][] = "Cannot check MySQL version because php mysqli extension was not found";
 			$this->problems['mySQL settings:'][] = "Cannot check MySQL settings because php mysqli extension was not found";
 		}
@@ -75,8 +74,7 @@ class Prerequisites {
 		if (empty($this->problems)) {
 			logMessage(L_INFO, "No prerequisites problems");	
 			return true;
-		}
-		else{	
+		} else {	
 			$error_description = PHP_EOL;
 			foreach ($this->problems as $title => $items) {
 				$error_description .= $title.PHP_EOL;	
@@ -96,8 +94,7 @@ class Prerequisites {
 		foreach (Prerequisites::$php_extensions as $ext) {
 			if (!extension_loaded($ext)) {
 				$this->problems['PHP extensions:'][] = "Missing $ext PHP extension";
-			} 
-			else {
+			} else {
 				logMessage(L_INFO, "Preqrequisite passed: PHP extension $ext is loaded");
 				if ($ext == 'mysqli') {
 					$this->mysqli_ext_exists = true;
@@ -115,8 +112,7 @@ class Prerequisites {
 			$path = @exec("which $bin");
 			if (trim($path) == '') {
 				$this->problems['Bins:'][] = "Missing $bin bin file";
-			} 
-			else {
+			} else {
 				logMessage(L_INFO, "Preqrequisite passed: Binary $bin found");
 			}			
 		}

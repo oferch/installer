@@ -6,6 +6,7 @@ include_once('installer/OsUtils.class.php');
 include_once('installer/UserInput.class.php');
 include_once('installer/Prerequisites.class.php');
 include_once('installer/Log.php');
+include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
 
 // constants
@@ -14,21 +15,22 @@ define("K_CE_TYPE", "CE");
 define("APP_SQL_SIR", "/app/deployment/base/sql/");
 
 // variables
-$app; $install; $texts; $user;
-$should_report = false;
+$app; $install; $texts; $user; $report;
 $db_params = array();
 
 // functions
 
 function installationFailed($error, $cleanup = true) {
-	global $texts, $should_report;
+	global $texts, $report;
 	logMessage(L_USER, "Installation could not continue: $error");
 	
 	if ($cleanup) {
 		logMessage(L_USER, "Cleaning leftovers...");
 		detectLeftovers(false);
 	}
-	//if ($should_report) reportInstallationFailure();
+	if (isset($report)) {
+		$report->reportInstallationFailed($error);
+	}	
 	logMessage(L_USER, $texts->getFlowText("install_fail"));
 	die(1);
 }
@@ -40,9 +42,9 @@ function detectDatabases($db_params, $should_drop=false){
 		$result = DatabaseUtils::dbExists($db_params, $db);
 		
 		if ($result === -1) {
-			$verify = $verify."\tLeftovers found: Error verifying if db exists $db".PHP_EOL;
+			$verify .= "\tLeftovers found: Error verifying if db exists $db".PHP_EOL;
 		} else if ($result === true) {
-			$verify = $verify."\tLeftovers found: DB already exists $db".PHP_EOL;
+			$verify .= "\tLeftovers found: DB already exists $db".PHP_EOL;
 			if ($should_drop) DatabaseUtils::dropDb($db_params, $db);
 		}
 	}
@@ -53,23 +55,23 @@ function detectLeftovers($report_only) {
 	global $app, $db_params;
 	$leftovers = null;
 	if (is_file('/etc/logrotate.d/kaltura_log_rotate')) {
-		$leftovers = $leftovers."\tLeftovers found: kaltura_log_rotate symbolic link exists".PHP_EOL;;		
+		$leftovers .= "\tLeftovers found: kaltura_log_rotate symbolic link exists".PHP_EOL;;		
 		if (!$report_only) OsUtils::recursiveDelete('/etc/logrotate.d/kaltura_log_rotate');
 	}
 	if (is_file('/etc/cron.d/kaltura_crontab')) {
-		$leftovers = $leftovers."\tLeftovers found: kaltura_crontab symbolic link exists".PHP_EOL;;	
+		$leftovers .= "\tLeftovers found: kaltura_crontab symbolic link exists".PHP_EOL;;	
 		if (!$report_only) OsUtils::recursiveDelete('/etc/cron.d/kaltura_crontab');
 	}	
 	$verify = detectDatabases($db_params);
 	if (isset($verify))  {		
-		$leftovers = $leftovers.$verify;
+		$leftovers .= $verify;
 		if (!$report_only) {
 			//FileUtils::execAsUser('/home/etl/ddl/dwh_drop_databases.sh' , 'etl');
 			detectDatabases($db_params, true);
 		}
 	}	
 	if (is_dir($app->get('BASE_DIR'))) {
-		$leftovers = $leftovers."\tLeftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;;
+		$leftovers .= "\tLeftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;;
 		if (!$report_only) {
 			@exec($app->get('BASE_DIR').'app/scripts/searchd.sh stop  2>&1');
 			@exec($app->get('BASE_DIR').'app/scripts/serviceBatchMgr.sh stop  2>&1');			
@@ -78,7 +80,7 @@ function detectLeftovers($report_only) {
 	}
 	
 	if (isset($leftovers)) {
-		if ($report_only) logMessage(L_USER, "Installation found some previous installation leftovers:".PHP_EOL.$leftovers);
+		if ($report_only) logMessage(L_USER, $leftovers);
 		return true;
 	} else {
 		return false;
@@ -134,8 +136,8 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 	$email = $user->getInput('REPORT_MAIL', $texts->getFlowText('report_email'));	
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
-	$should_report = true;
-	//reportInstallationStart();
+	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $user->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
+	$report->reportInstallationStart();
 } else {
 	$app->set('TRACK_KDPWRAPPER','false');
 }
@@ -148,7 +150,9 @@ if (!OsUtils::verifyOS()) installationFailed($texts->getErrorText('os_not_linux'
 if (!$user->isInputLoaded()) {
 	echo PHP_EOL; 
 	logMessage(L_USER, $texts->getFlowText('config_start'));
-} else logMessage(L_USER, $texts->getFlowText('skipping_input'));
+} else {
+	logMessage(L_USER, $texts->getFlowText('skipping_input'));
+}
 
 // user input
 $user->getPathInput('HTTPD_BIN', $texts->getInputText('httpd_bin'), true, false, array('apachectl', 'apache2ctl'));
@@ -269,8 +273,8 @@ echo PHP_EOL;
 logMessage(L_USER, sprintf($texts->getFlowText("install_success"), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')));
 logMessage(L_USER, sprintf($texts->getFlowText("after_install_steps"), $app->get("KALTURA_VIRTUAL_HOST_NAME"), $app->get("BASE_DIR"), $app->get("HTTPD_BIN"), $app->get("KALTURA_VIRTUAL_HOST_NAME")));
 
-if ($should_report) {
-	//reportInstallationSuccess();
+if (isset($report)) {
+	$report->reportInstallationSuccess();
 }
 
 die(0);

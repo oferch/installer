@@ -19,38 +19,31 @@ class OsUtils {
 		if(isset($_ENV['COMPUTERNAME'])) {
 			logMessage(L_INFO, "Host name: ".$_ENV['COMPUTERNAME']);
 	    	return $_ENV['COMPUTERNAME'];
-		}
-		else if (isset($_ENV['HOSTNAME'])) {
+		} else if (isset($_ENV['HOSTNAME'])) {
 			logMessage(L_INFO, "Host name: ".$_ENV['HOSTNAME']);
 			return $_ENV['HOSTNAME'];
-		}
-		else if (function_exists('gethostname')) {
+		} else if (function_exists('gethostname')) {
 			logMessage(L_INFO, "Host name: ".gethostname());
-			return gethostname();
-		}
-		else {
+			return gethostname(); 
+		} else {
 			logMessage(L_WARNING, "Host name unkown");
 			return 'unknown';
 		}
 	}	
 	
-	public static function getOsName()
-	{		
+	public static function getOsName() {		
 		logMessage(L_INFO, "OS: ".PHP_OS);
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			return self::WINDOWS_OS;
-		}
-		else if (strtoupper(substr(PHP_OS, 0, 5)) === 'LINUX') {
+		} else if (strtoupper(substr(PHP_OS, 0, 5)) === 'LINUX') {
 			return self::LINUX_OS;
-		}
-		else {
+		} else {
 			logMessage(L_WARNING, "OS not recognized: ".PHP_OS);
 			return "";
 		}
 	}
 	
-	public static function getOsLsb()
-	{		
+	public static function getOsLsb() {		
 		$dist = OsUtils::executeReturnOutput("lsb_release -d");		
 		logMessage(L_INFO, "Distribution: ".$dist);
 		return $dist;
@@ -59,14 +52,12 @@ class OsUtils {
 	/**
 	 * @return string 32bit/64bit according to current system architecture - if not found, default is 32bit
 	 */
-	public static function getSystemArchitecture()
-	{		
+	public static function getSystemArchitecture() {		
 		$arch = php_uname('m');
 		logMessage(L_INFO, "OS architecture: ".$arch);
 		if ($arch && (stristr($arch, 'x86_64') || stristr($arch, 'amd64'))) {
 			return '64bit';
-		} 
-		else {
+		} else {
 			// stristr($arch, 'i386') || stristr($arch, 'i486') || stristr($arch, 'i586') || stristr($arch, 'i686') ||
 			// return 32bit as default when not recognized
 			return '32bit';		
@@ -84,17 +75,10 @@ class OsUtils {
      * @param string $filename file name to write to
      * @param string $data data to write
      */
-    public static function writeFile($filename, $data)
-    {   	
+    public static function writeFile($filename, $data) {   	
     	$fh = fopen($filename, 'w');
-		if (!$fh) {
-			// File errors cannot be logged because it could cause an infinite loop			
-			return false;										
-		}
-		if (!fwrite($fh, $data)) {
-			// File errors cannot be logged because it could cause an infinite loop
-			return false;										
-		}
+		if (!$fh) return false; // File errors cannot be logged because it could cause an infinite loop			
+		if (!fwrite($fh, $data)) return false; // File errors cannot be logged because it could cause an infinite loop
 		fclose($fh);
 		return true;
     }      
@@ -113,25 +97,21 @@ class OsUtils {
 	 * Execute the given command, returning the output
 	 * @param string $cmd command to execute
 	 */
-	public static function executeReturnOutput($cmd)
-	{
+	public static function executeReturnOutput($cmd) {
 		// 2>&1 is needed so the output will not display on the screen
 		@exec($cmd . ' 2>&1', $output);
 		return $output;
 	}
 	
-	public static function fullCopy($source, $target)
-	{
+	public static function fullCopy($source, $target) {
 		return self::execute("cp -r $source $target");
 	}
 	
-	public static function recursiveDelete($path)
-	{
+	public static function recursiveDelete($path) {
 		return self::execute("rm -rf $path");
     }
 	
-	public static function chmod($chmod)
-	{
+	public static function chmod($chmod) {
 		return self::execute("chmod $chmod");	
 	}
 }
