@@ -69,7 +69,7 @@ class OsUtils {
 		fwrite($f,$newdata);
 		fclose($f);  
 	}
-      	
+      			
     /**
      * Write $data to $filename
      * @param string $filename file name to write to
@@ -94,6 +94,26 @@ class OsUtils {
 	}
 
 		/**
+	 * Execute 'which' on each of the given file names and first one found
+	 * @param unknown_type $file_name
+	 * @return string which output or null if none found
+	 */
+	private function findBinary($file_name) {			
+		if (!is_array($file_name)) {
+			$file_name = array ($file_name);
+		}
+		
+		foreach ($file_name as $file) {
+			$which_path = OsUtils::executeReturnOutput("which $file");
+			if (isset($which_path[0]) && trim($which_path[0]) != '') {
+				return $which_path[0];
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Execute the given command, returning the output
 	 * @param string $cmd command to execute
 	 */
