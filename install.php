@@ -16,6 +16,7 @@ include_once('installer/InputValidator.class.php');
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");
 define("APP_SQL_SIR", "/app/deployment/base/sql/");
+define("FILE_INSTALL_SEQ_ID", "install_seq"); // this file is used to store a sequence of installations
 
 // variables
 $app; $install; $texts; $user; $report;
@@ -108,7 +109,16 @@ $texts = new TextsConfig();
 $app = new AppConfig();
 $install = new InstallConfig();
 $user = new UserInput();
+
 $app->set('INSTALLATION_UID', uniqid("IID")); // unique id per installation
+if (is_file(FILE_INSTALL_SEQ_ID)) {
+	$install_seq = @file_get_contents($newfile);
+	$user->set('INSTALLATION_SEQUENCE_UID', $install_seq);
+} else {
+	$install_seq = uniqid("ISEQID"); // unique id per a set of installations
+	$user->set('INSTALLATION_SEQUENCE_UID', $install_seq); 
+	file_put_contents(FILE_INSTALL_SEQ_ID, $install_seq);
+}
 
 // reading package version
 $version = parse_ini_file('package/version.ini');
@@ -124,8 +134,6 @@ echo PHP_EOL;
 // If previous installation found and the user wants to use it
 if ($user->hasInput() && $user->getTrueFalse(null, $texts->getFlowText('user_previous_input'), 'y')) {
 	$user->loadInput();
-} else {	
-	$user->set('INSTALLATION_SEQUENCE_UID', uniqid("ISEQID")); // unique id per installation sequence (using same config)
 }
 
 if (!$user->getTrueFalse('PROCEED_WITH_INSTALL', $texts->getFlowText('proceed_with_install'), 'y')) {
@@ -215,7 +223,7 @@ foreach ($install->getTokenFiles() as $file) {
 	$replace_file = $app->replaceTokensInString($file);
 	if (!$app->replaceTokensInFile($replace_file)) installationFailed($texts->getErrorText('failed_replacing_tokens'));
 }
-	
+
 // ajust to the system architecture
 $os_name = 	OsUtils::getOsName(); // Already verified that the OS is supported in the prerequisites
 $architecture = OsUtils::getSystemArchitecture();	

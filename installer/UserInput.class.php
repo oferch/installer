@@ -48,6 +48,7 @@ class UserInput
 			logMessage(L_USER, $request_text, true);
 			echo PHP_EOL.'> ';
 			$input = trim(fgets(STDIN));
+			echo PHP_EOL;
 			logMessage(L_INFO, "User input is $input");
 			
 			if (isset($validator) && !$validator->validateInput($input)) {
