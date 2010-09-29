@@ -17,6 +17,8 @@ function startLog($filename) {
 
 function logMessage($level, $message, $no_new_line = false) {
 	global $logFile, $logPrintLevel;
+	$message = str_replace("\\n", PHP_EOL, $message);
+	$message = str_replace("\\t", "\t", $message);
 	$logLine = date(L_DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
 	OsUtils::appendFile($logFile, $logLine);	
 	
@@ -25,7 +27,7 @@ function logMessage($level, $message, $no_new_line = false) {
 		(($level === L_ERROR) && ($logPrintLevel >= 1)) ||
 		(($level === L_WARNING) && ($logPrintLevel >= 2)) ||
 		(($level === L_INFO) && ($logPrintLevel >= 3))) {
-		echo str_replace("\\n",PHP_EOL,$message);
+		echo $message;
 		
 		if (!$no_new_line)
 			echo PHP_EOL;		

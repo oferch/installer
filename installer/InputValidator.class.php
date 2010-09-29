@@ -18,7 +18,7 @@ class InputValidator {
 	
 	public static function createNoWhitespaceValidator() {
 		$validator = new InputValidator();
-		$validator->validateUrl = true;
+		$validator->validateNoWhitespace = true;
 		return $validator;
 	}
 	

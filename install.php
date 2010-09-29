@@ -98,7 +98,7 @@ ini_set('max_execution_time', 0);
 ini_set('memory_limit', -1);
 ini_set('max_input_time ', 0);
 
-// TODO: parameters - config name and debug level
+// TODO: parameters - config name, debug level and force
 
 // initialize the installation
 $logfilename = "install_log_".date("d.m.Y_H.i.s");
@@ -113,10 +113,10 @@ $user = new UserInput();
 $app->set('INSTALLATION_UID', uniqid("IID")); // unique id per installation
 if (is_file(FILE_INSTALL_SEQ_ID)) {
 	$install_seq = @file_get_contents($newfile);
-	$user->set('INSTALLATION_SEQUENCE_UID', $install_seq);
+	$app->set('INSTALLATION_SEQUENCE_UID', $install_seq);
 } else {
 	$install_seq = uniqid("ISEQID"); // unique id per a set of installations
-	$user->set('INSTALLATION_SEQUENCE_UID', $install_seq); 
+	$app->set('INSTALLATION_SEQUENCE_UID', $install_seq); 
 	file_put_contents(FILE_INSTALL_SEQ_ID, $install_seq);
 }
 
@@ -146,7 +146,7 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 	$email = $user->getInput('REPORT_MAIL', $texts->getFlowText('report_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
-	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $user->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
+	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $app->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
 	$report->reportInstallationStart();
 } else {
 	$app->set('TRACK_KDPWRAPPER','false');
@@ -178,15 +178,15 @@ if (!empty($php_bin_found)) {
 
 $user->getInput('HTTPD_BIN', $httpd_bin_message, 'Httpd binary must exist', InputValidator::createFileValidator(), $httpd_bin_found);
 $user->getInput('PHP_BIN', $php_bin_message, 'PHP binary must exist', InputValidator::createFileValidator(), $php_bin_found);
+$user->getInput('BASE_DIR', $texts->getInputText('kaltura_base_dir'), "Target directory must be a valid directory path", InputValidator::createDirectoryValidator(), '/opt/kaltura');
+$user->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', $texts->getInputText('virtual_host_name'), 'Must be a valid hostname or ip', InputValidator::createHostValidator(), null);
+$user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', $texts->getInputText('admin_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(false), null);
+$user->getInput('ADMIN_CONSOLE_PASSWORD', $texts->getInputText('admin_password'), "Password cannot be empty or contain whitespaces", InputValidator::createNoWhitespaceValidator(), null);
 $user->getInput('DB1_HOST', $texts->getInputText('db_host'), 'Must be a valid hostname or ip', InputValidator::createHostValidator(), 'localhost');
 $user->getInput('DB1_PORT', $texts->getInputText('db_port'), 'Must be a valid port (1-65535)', InputValidator::createRangeValidator(1, 65535), '3306');
 if (!$user->isInputLoaded()) $user->set('DB1_NAME','kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
 $user->getInput('DB1_USER', $texts->getInputText('db_user'), "Db user cannot be empty", InputValidator::createNonEmptyValidator(), null);
 $user->getInput('DB1_PASS', $texts->getInputText('db_pass'), null, null, null);
-$user->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', $texts->getInputText('virtual_host_name'), 'Must be a valid hostname or ip', InputValidator::createHostValidator(), null);
-$user->getInput('BASE_DIR', $texts->getInputText('kaltura_base_dir'), "Target directory must be a valid directory path", InputValidator::createDirectoryValidator(), '/opt/kaltura');
-$user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', $texts->getInputText('admin_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(false), null);
-$user->getInput('ADMIN_CONSOLE_PASSWORD', $texts->getInputText('admin_password'), "Password cannot be empty or contain whitespaces", InputValidator::createNoWhitespaceValidator(), null);
 $user->getInput('XYMON_URL', $texts->getInputText('xymon_url'), null, null, null);
 if (!$user->isInputLoaded()) $user->saveInput();
 
@@ -203,6 +203,7 @@ $db_params['db_pass'] = $app->get('DB1_PASS');
 $preq = new Prerequisites();
 if (!$preq->verifyPrerequisites($app, $db_params)) installationFailed($texts->getErrorText('prereq_failed'), false);
 
+logMessage(L_USER, "Verifing that the machine is clean for the installation");
 if (detectLeftovers(true)) {
 	if (!$user->getTrueFalse(null, $texts->getFlowText("leftovers_found"), 'n')) installationFailed($texts->getErrorText('clean_leftovers'), false);
 	else detectLeftovers(false);
@@ -224,7 +225,7 @@ foreach ($install->getTokenFiles() as $file) {
 	if (!$app->replaceTokensInFile($replace_file)) installationFailed($texts->getErrorText('failed_replacing_tokens'));
 }
 
-// ajust to the system architecture
+// adjust to the system architecture
 $os_name = 	OsUtils::getOsName(); // Already verified that the OS is supported in the prerequisites
 $architecture = OsUtils::getSystemArchitecture();	
 logMessage(L_USER, sprintf($texts->getFlowText("adjusting_architecture"), $os_name, $architecture));
@@ -279,7 +280,7 @@ if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninst
 $app->saveUninstallerConfig();
 
 logMessage(L_USER, $texts->getFlowText("run_system"));
-@exec($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start  2>&1');
+@exec($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start 2>&1');
 @exec($app->get('APP_DIR').'/scripts/searchd.sh start  2>&1');
 
 // send settings mail
