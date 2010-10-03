@@ -50,7 +50,7 @@ echo "Removing /etc/cron.d/kaltura_crontab... ";
 echo 'OK'.PHP_EOL;
 
 echo 'Removing data warehouse... ';
-@exec($config['BASE_DIR']."/dwh/etl/ddl/dwh_drop_databases.sh");
+@exec($config['BASE_DIR']."/dwh/ddl/dwh_drop_databases.sh");
 echo 'OK'.PHP_EOL;
 
 echo "Removing Kaltura DB... ";

@@ -85,8 +85,8 @@ class OsUtils {
 	
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
-		$output = OsUtils::executeReturnOutput($command);
-		if (trim($output[0]) == '') {
+		@exec($command . ' 2>&1', $output, $return_var);
+		if ($return_var === 0) {
 			return true;
 		} else {
 			logMessage(L_ERROR, "Executing command failed: $command");	

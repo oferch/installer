@@ -129,7 +129,7 @@ $user->getInput('PHP_BIN', $php_bin_message, 'PHP binary must exist', InputValid
 $user->getInput('BASE_DIR', "The full directory path for Kaltura application (Leave empty for /opt/kaltura)", "Target directory must be a valid directory path", InputValidator::createDirectoryValidator(), '/opt/kaltura');
 $user->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', "Please enter the domain name/virtual hostname that will be used for the kaltura server (without http://)", 'Must be a valid hostname or ip', InputValidator::createHostValidator(), null);
 // not printing: A primary system administrator user will be created with full access to the Kaltura Administration Console.\nAdministrator e-mail
-$user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', "Your primary system administrator email address (A real email address is required in order to recieve system auto-generated emails)", "Email must be in a valid email format", InputValidator::createEmailValidator(false), null);
+$user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', "Your primary system administrator email address", "Email must be in a valid email format", InputValidator::createEmailValidator(false), null);
 $user->getInput('ADMIN_CONSOLE_PASSWORD', "The password you want to set for your primary administrator", "Password cannot be empty or contain whitespaces", InputValidator::createNoWhitespaceValidator(), null);
 $user->getInput('DB1_HOST', "Database host (Leave empty for 'localhost')", 'Must be a valid hostname or ip', InputValidator::createHostValidator(), 'localhost');
 $user->getInput('DB1_PORT', "Database port (Leave empty for '3306')", 'Must be a valid port (1-65535)', InputValidator::createRangeValidator(1, 65535), '3306');

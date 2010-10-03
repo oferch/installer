@@ -30,8 +30,8 @@ class Installer {
 		
 		foreach ($this->getSymLinks() as $slink) {
 			$link_items = explode('^', $app->replaceTokensInString($slink));	
-			if (is_file($link_items[1])) {
-				if ($report_only) $leftovers .= "\tLeftovers found: ".$link_items[1]." symbolic link exists".PHP_EOL;
+			if (is_file($link_items[1]) && (strpos($link_items[1], $app->get('BASE_DIR')) === false)) {
+				if ($report_only) $leftovers .= "   Leftovers found: ".$link_items[1]." symbolic link exists".PHP_EOL;
 				else OsUtils::recursiveDelete($link_items[1]);			
 			}
 		}
@@ -45,7 +45,7 @@ class Installer {
 			}
 		}	
 		if (is_dir($app->get('BASE_DIR'))) {
-			if ($report_only) $leftovers .= "\tLeftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
+			if ($report_only) $leftovers .= "   Leftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
 			else {
 				OsUtils::execute($app->get('BASE_DIR').'app/scripts/searchd.sh stop');
 				OsUtils::execute($app->get('BASE_DIR').'app/scripts/serviceBatchMgr.sh stop');			
@@ -114,7 +114,7 @@ class Installer {
 			return "Failed running Data Warehouse permission initialization script";		
 		}
 		if (!OsUtils::execute(sprintf("%s/ddl/dwh_ddl_install.sh -u %s -p %s -d %s", $app->get('DWH_DIR'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
-			return $error_texts['failed_running_dwh_script'];
+			return "Failed running data warehouse initialization script";
 		}
 
 		logMessage(L_USER, "Creating system symbolic links");
@@ -154,9 +154,9 @@ class Installer {
 			$result = DatabaseUtils::dbExists($db_params, $db);
 			
 			if ($result === -1) {
-				$verify .= "\tLeftovers found: Error verifying if db exists $db".PHP_EOL;
+				$verify .= "   Leftovers found: Error verifying if db exists $db".PHP_EOL;
 			} else if ($result === true) {
-				$verify .= "\tLeftovers found: DB already exists $db".PHP_EOL;
+				$verify .= "   Leftovers found: DB already exists $db".PHP_EOL;
 				if ($should_drop) DatabaseUtils::dropDb($db_params, $db);
 			}
 		}
