@@ -266,7 +266,7 @@ logMessage(L_USER, "Finished creating Kaltura databases");
 // create the data warehouse
 logMessage(L_USER, "Creating Data Warehouse");
 if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app->get('DB1_NAME'))) installationFailed($texts->getErrorText('failed_running_dwh_sql_script'));
-//if (!FileUtils::execAsUser($app_config['BASE_DIR'].'dwh/ddl/dwh_ddl_install.sh ')) installationFailed($error_texts['failed_running_dwh_script']);
+if (!FileUtils::execAsUser($app_config['DWH_DIR'].'/ddl/dwh_ddl_install.sh -u '.$app_config['DWH_USER'].' -p '.$app_config['DWH_PASS'].' -d '.$app_config['DWH_DIR'])) installationFailed($error_texts['failed_running_dwh_script']);
 logMessage(L_USER, "Finsihed creating Data Warehouse");
 
 // Create a symbolic link for the logrotate and crontab
