@@ -188,19 +188,16 @@ class AppConfig {
 	}
 			
 	public function simMafteach() {
-		if (strcasecmp($version_type, K_CE_TYPE) == 0) {
-			$version_type = $this->app_config['KALTURA_VERSION_TYPE']; 
-			$admin_email = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL']; 
-			$kConfFile = $this->app_config['APP_DIR'].KCONF_LOCATION;
-			logMessage(L_INFO, "Setting application key");
-			$str = implode("|", array(md5($admin_email), '1', 'never', time()*rand(0,1)));
-			$key = base64_encode($str);
-			$data = @file_get_contents($kConfFile);
-			$key_line = '/"kaltura_activation_key"(\s)*=>(\s)*(.+),/';
-			$replacement = '"kaltura_activation_key" => "'.$key.'",';
-			$data = preg_replace($key_line, $replacement ,$data);
-			@file_put_contents($kConfFile, $data);
-		}
+		$admin_email = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL']; 
+		$kConfFile = $this->app_config['APP_DIR'].KCONF_LOCATION;
+		logMessage(L_INFO, "Setting application key");
+		$str = implode("|", array(md5($admin_email), '1', 'never', time()*rand(0,1)));
+		$key = base64_encode($str);
+		$data = @file_get_contents($kConfFile);
+		$key_line = '/"kaltura_activation_key"(\s)*=>(\s)*(.+),/';
+		$replacement = '"kaltura_activation_key" => "'.$key.'",';
+		$data = preg_replace($key_line, $replacement ,$data);
+		@file_put_contents($kConfFile, $data);
 	}
 	
 	private function removeHttp($url = '') {

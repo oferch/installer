@@ -9,7 +9,7 @@ include_once('installer/Log.php');
 include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
 include_once('installer/TextsConfig.class.php');
-include_once('installer/InstallConfig.class.php');
+include_once('installer/Installer.class.php');
 include_once('installer/InputValidator.class.php');
 
 // constants
@@ -25,65 +25,17 @@ $db_params = array();
 // functions
 
 function installationFailed($error, $cleanup = true) {
-	global $texts, $report;
+	global $texts, $report, $install;
 	logMessage(L_USER, "Installation could not continue: $error");
 	
 	if ($cleanup) {
-		logMessage(L_USER, "Cleaning leftovers...");
-		detectLeftovers(false);
+		$install->detectLeftovers(false);
 	}
 	if (isset($report)) {
 		$report->reportInstallationFailed($error);
 	}	
 	logMessage(L_USER, $texts->getFlowText("install_fail"));
 	die(1);
-}
-
-function detectDatabases($db_params, $should_drop=false){
-	global $install;
-	$verify = null;
-	foreach ($install->getDatabases() as $db) {
-		$result = DatabaseUtils::dbExists($db_params, $db);
-		
-		if ($result === -1) {
-			$verify .= "\tLeftovers found: Error verifying if db exists $db".PHP_EOL;
-		} else if ($result === true) {
-			$verify .= "\tLeftovers found: DB already exists $db".PHP_EOL;
-			if ($should_drop) DatabaseUtils::dropDb($db_params, $db);
-		}
-	}
-	return $verify;
-}	
-	
-function detectLeftovers($report_only) {
-	global $app, $db_params;
-	$leftovers = null;
-	if (is_file('/etc/logrotate.d/kaltura_log_rotate')) {
-		$leftovers .= "\tLeftovers found: kaltura_log_rotate symbolic link exists".PHP_EOL;;		
-		if (!$report_only) OsUtils::recursiveDelete('/etc/logrotate.d/kaltura_log_rotate');
-	}
-	if (is_file('/etc/cron.d/kaltura_crontab')) {
-		$leftovers .= "\tLeftovers found: kaltura_crontab symbolic link exists".PHP_EOL;;	
-		if (!$report_only) OsUtils::recursiveDelete('/etc/cron.d/kaltura_crontab');
-	}	
-	$verify = detectDatabases($db_params);
-	if (isset($verify))  {		
-		$leftovers .= $verify;
-		if (!$report_only) {
-			//FileUtils::execAsUser('/home/etl/ddl/dwh_drop_databases.sh' , 'etl');
-			detectDatabases($db_params, true);
-		}
-	}	
-	if (is_dir($app->get('BASE_DIR'))) {
-		$leftovers .= "\tLeftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;;
-		if (!$report_only) {
-			@exec($app->get('BASE_DIR').'app/scripts/searchd.sh stop  2>&1');
-			@exec($app->get('BASE_DIR').'app/scripts/serviceBatchMgr.sh stop  2>&1');			
-			OsUtils::recursiveDelete($app->get('BASE_DIR'));			
-		}
-	}
-	
-	return $leftovers;
 }
 
 // installation script start
@@ -102,10 +54,13 @@ logMessage(L_INFO, "Installation started");
 
 $texts = new TextsConfig();
 $app = new AppConfig();
-$install = new InstallConfig();
+$install = new Installer();
+$preq = new Prerequisites();
 $user = new UserInput();
 
 $app->set('INSTALLATION_UID', uniqid("IID")); // unique id per installation
+
+// Load or create installation sequence id
 if (is_file(FILE_INSTALL_SEQ_ID)) {
 	$install_seq = @file_get_contents($newfile);
 	$app->set('INSTALLATION_SEQUENCE_UID', $install_seq);
@@ -136,6 +91,7 @@ if (!$user->getTrueFalse('PROCEED_WITH_INSTALL', $texts->getFlowText('proceed_wi
 	die(1);
 }
 
+// if user wants or have to report
 if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) || 
 	($user->getTrueFalse('ASK_TO_REPORT', $texts->getFlowText('ask_to_report'), 'y')))) {
 	$email = $user->getInput('REPORT_MAIL', $texts->getFlowText('report_email'), "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
@@ -146,8 +102,6 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 } else {
 	$app->set('TRACK_KDPWRAPPER','false');
 }
-
-OsUtils::getOsLsb();
 
 if (!OsUtils::verifyRootUser()) installationFailed($texts->getErrorText('user_not_root'), false);
 if (!OsUtils::verifyOS()) installationFailed($texts->getErrorText('os_not_linux'), false);
@@ -187,6 +141,7 @@ if (!$user->isInputLoaded()) $user->saveInput();
 
 echo PHP_EOL;
 
+// init the application configuration
 $app->initFromUserInput($user->getAll());
 $db_params['db_host'] = $app->get('DB1_HOST');
 $db_params['db_port'] = $app->get('DB1_PORT');
@@ -194,16 +149,16 @@ $db_params['db_user'] = $app->get('DB1_USER');
 $db_params['db_pass'] = $app->get('DB1_PASS');
 
 // verify prerequisites
-$preq = new Prerequisites();
 $prereq_desc = $preq->verifyPrerequisites($app, $db_params);
 if ($prereq_desc !== null) installationFailed($texts->getErrorText('prereq_failed')."\n".$prereq_desc, false);
 else logMessage(L_USER, "All prerequisites verifications passed");
 
-$leftovers = detectLeftovers(true);
+// verify the machine is ready for installation
+$leftovers = $installer->detectLeftovers(true, $app, $db_params);
 if (isset($leftovers)) {
 	logMessage(L_USER, $leftovers);
 	if (!$user->getTrueFalse(null, $texts->getFlowText("leftovers_found"), 'n')) installationFailed($texts->getErrorText('clean_leftovers')."\n".$leftovers, false);
-	else detectLeftovers(false);
+	else $installer->detectLeftovers(false, $app, $db_params);
 } else {
 	logMessage(L_USER, "Finished verifing that the machine is clean for installation");
 }
@@ -211,87 +166,12 @@ if (isset($leftovers)) {
 // installation
 echo PHP_EOL;
 logMessage(L_USER, $texts->getFlowText("starting_installation"));
-
-// copy files
 echo PHP_EOL;
-logMessage(L_USER, "Copying application files to ".$app->get('BASE_DIR'));
-if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'), true)) installationFailed($texts->getErrorText('failed_copy'));
-logMessage(L_USER, "Finished copying application files");
 
-// replace tokens in configuration files
-logMessage(L_USER, "Replacing configuration tokens in files");
-foreach ($install->getTokenFiles() as $file) {
-	$replace_file = $app->replaceTokensInString($file);
-	if (!$app->replaceTokensInFile($replace_file)) installationFailed($texts->getErrorText('failed_replacing_tokens'));
-	else logMessage(L_USER, "\t$replace_file");
+$install_output = $installer->install($app, $db_params, $texts);
+if ($install_output !== null) {
+	installationFailed($install_output, true);
 }
-logMessage(L_USER, "Finished replacing configuration tokens");
-
-// adjust to the system architecture
-$os_name = 	OsUtils::getOsName(); // Already verified that the OS is supported in the prerequisites
-$architecture = OsUtils::getSystemArchitecture();	
-logMessage(L_USER, "Adjusting binaries to system architecture: $os_name $architecture");
-$bin_subdir = $os_name.'/'.$architecture;
-if (!OsUtils::fullCopy($app->get('BIN_DIR').'/'.$bin_subdir, $app->get('BIN_DIR'), true)) installationFailed($texts->getErrorText('failed_architecture_copy'));
-if (!OsUtils::recursiveDelete($app->get('BIN_DIR').'/'.$os_name)) installationFailed($texts->getErrorText('failed_architecture_delete'));
-logMessage(L_USER, "Finished adjusting binaries to system architecture");
-
-// chmod
-logMessage(L_USER, "Changing permissions of directories and files");
-foreach ($install->getChmodItems() as $item) {
-	$chmod_item = $app->replaceTokensInString($item);
-	if (!OsUtils::chmod($chmod_item)) installationFailed($texts->getErrorText('failed_cmod')." $chmod_item");
-	else logMessage(L_USER, "\t$chmod_item");
-}
-logMessage(L_USER, "Finished changing permissions");
-
-// create databases
-logMessage(L_USER, "Creating Kaltura databases");
-$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_SIR.'create_kaltura_db.ini', true);
-
-logMessage(L_USER, "Creating and initializing ".$app->get('DB1_NAME')." DB");
-if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) installationFailed($texts->getErrorText('failed_creating_kaltura_db'));
-foreach ($sql_files['kaltura']['sql'] as $sql) {
-	if (!DatabaseUtils::runScript($app->get('BASE_DIR').APP_SQL_SIR.$sql, $db_params, $app->get('DB1_NAME'))) installationFailed($texts->getErrorText('failed_init_kaltura_db'));
-}
-
-// create stats database
-logMessage(L_USER, "Creating and initializing ".$app->get('DB_STATS_NAME')." DB");
-if (!DatabaseUtils::createDb($db_params, $app->get('DB_STATS_NAME'))) installationFailed($texts->getErrorText('failed_creating_stats_db'));
-foreach ($sql_files['stats']['sql'] as $sql) {
-	if (!DatabaseUtils::runScript($app->get('BASE_DIR').APP_SQL_SIR.$sql, $db_params, $app->get('DB_STATS_NAME'))) installationFailed($texts->getErrorText('failed_init_stats_db'));
-}
-logMessage(L_USER, "Finished creating Kaltura databases");
-	
-// create the data warehouse
-logMessage(L_USER, "Creating Data Warehouse");
-if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app->get('DB1_NAME'))) installationFailed($texts->getErrorText('failed_running_dwh_sql_script'));
-if (!FileUtils::execAsUser($app_config['DWH_DIR'].'/ddl/dwh_ddl_install.sh -u '.$app_config['DWH_USER'].' -p '.$app_config['DWH_PASS'].' -d '.$app_config['DWH_DIR'])) installationFailed($error_texts['failed_running_dwh_script']);
-logMessage(L_USER, "Finsihed creating Data Warehouse");
-
-// Create a symbolic link for the logrotate and crontab
-logMessage(L_USER, "Creating system symbolic links");
-foreach ($install->getSymLinks() as $slink) {
-	$link_items = explode('^', $app->replaceTokensInString($slink));	
-	if (!symlink($link_items[0], $link_items[1])) installationFailed(sprintf($texts->getErrorText('failed_sym_link'), $link_items[0], $link_items[1]));
-	else logMessage(L_USER, "\tCreated symblic link from $link_items[0] to $link_items[1]");
-}
-logMessage(L_USER, "Finished creating system symbolic links");
-
-$app->simMafteach();
-
-logMessage(L_USER, "Creating the uninstaller");
-if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) installationFailed($texts->getErrorText('failed_creating_uninstaller'));
-$app->saveUninstallerConfig();
-logMessage(L_USER, "Finished creating the uninstaller");
-
-logMessage(L_USER, "Running Kaltura");
-logMessage(L_USER, "Populating sphinx entries (executing '".$app->get('PHP_BIN').' '.$app->get('APP_DIR')."/deployment/base/scripts/populateSphinxEntries.php')");
-@exec($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php');
-logMessage(L_USER, "Running the batch manager (executing '".$app->get('APP_DIR')."/scripts/serviceBatchMgr.sh start 2>&1')");
-@exec($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start 2>&1');
-logMessage(L_USER, "Running the sphinx search deamon (executing '".$app->get('APP_DIR')."/scripts/searchd.sh start  2>&1')");
-@exec($app->get('APP_DIR').'/scripts/searchd.sh start  2>&1');
 
 // send settings mail
 if (function_exists('mail')) {
