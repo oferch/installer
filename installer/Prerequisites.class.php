@@ -73,7 +73,7 @@ class Prerequisites {
 	
 		if (empty($this->problems)) {
 			logMessage(L_INFO, "No prerequisites problems");	
-			return true;
+			return null;
 		} else {	
 			$error_description = PHP_EOL;
 			foreach ($this->problems as $title => $items) {
@@ -83,7 +83,7 @@ class Prerequisites {
 				}
 			}
 			logMessage(L_USER, "Missing prerequisites: $error_description");	
-			return false;							
+			return $error_description;							
 		}
 	}
 		

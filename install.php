@@ -83,12 +83,7 @@ function detectLeftovers($report_only) {
 		}
 	}
 	
-	if (isset($leftovers)) {
-		if ($report_only) logMessage(L_USER, $leftovers);
-		return true;
-	} else {
-		return false;
-	}	
+	return $leftovers;
 }
 
 // installation script start
@@ -200,11 +195,14 @@ $db_params['db_pass'] = $app->get('DB1_PASS');
 
 // verify prerequisites
 $preq = new Prerequisites();
-if (!$preq->verifyPrerequisites($app, $db_params)) installationFailed($texts->getErrorText('prereq_failed'), false);
-else logMessage(L_USER, $texts->getFlowText('prereq_start'));
+$prereq_desc = $preq->verifyPrerequisites($app, $db_params);
+if ($prereq_desc !== null) installationFailed($texts->getErrorText('prereq_failed')."\n".$prereq_desc, false);
+else logMessage(L_USER, "All prerequisites verifications passed");
 
-if (detectLeftovers(true)) {	
-	if (!$user->getTrueFalse(null, $texts->getFlowText("leftovers_found"), 'n')) installationFailed($texts->getErrorText('clean_leftovers'), false);
+$leftovers = detectLeftovers(true);
+if (isset($leftovers)) {
+	logMessage(L_USER, $leftovers);
+	if (!$user->getTrueFalse(null, $texts->getFlowText("leftovers_found"), 'n')) installationFailed($texts->getErrorText('clean_leftovers')."\n".$leftovers, false);
 	else detectLeftovers(false);
 } else {
 	logMessage(L_USER, "Finished verifing that the machine is clean for installation");
@@ -268,7 +266,7 @@ logMessage(L_USER, "Finished creating Kaltura databases");
 // create the data warehouse
 logMessage(L_USER, "Creating Data Warehouse");
 if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app->get('DB1_NAME'))) installationFailed($texts->getErrorText('failed_running_dwh_sql_script'));
-//if (!FileUtils::execAsUser($app_config['BASE_DIR'].'dwh/ddl/dwh_ddl_install.sh')) installationFailed($error_texts['failed_running_dwh_script']);
+//if (!FileUtils::execAsUser($app_config['BASE_DIR'].'dwh/ddl/dwh_ddl_install.sh ')) installationFailed($error_texts['failed_running_dwh_script']);
 logMessage(L_USER, "Finsihed creating Data Warehouse");
 
 // Create a symbolic link for the logrotate and crontab
