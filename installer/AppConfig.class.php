@@ -71,12 +71,12 @@ class AppConfig {
 	private function defineInstallationTokens() {
 		logMessage(L_INFO, "Defining installation tokens for config");
 		// directories
-		$this->app_config['APP_DIR'] = $this->app_config['BASE_DIR'].'/app/';	
-		$this->app_config['WEB_DIR'] = $this->app_config['BASE_DIR'].'/web/';	
-		$this->app_config['LOG_DIR'] = $this->app_config['BASE_DIR'].'/log/';	
-		$this->app_config['BIN_DIR'] = $this->app_config['BASE_DIR'].'/bin/';	
-		$this->app_config['TMP_DIR'] = $this->app_config['BASE_DIR'].'/tmp/';
-		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh/';
+		$this->app_config['APP_DIR'] = $this->app_config['BASE_DIR'].'/app';	
+		$this->app_config['WEB_DIR'] = $this->app_config['BASE_DIR'].'/web';	
+		$this->app_config['LOG_DIR'] = $this->app_config['BASE_DIR'].'/log';	
+		$this->app_config['BIN_DIR'] = $this->app_config['BASE_DIR'].'/bin';	
+		$this->app_config['TMP_DIR'] = $this->app_config['BASE_DIR'].'/tmp';
+		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh';
 		
 		// databases (copy information collected during prerequisites
 		$this->collectDatabaseCopier($this->app_config, '1', '2');
