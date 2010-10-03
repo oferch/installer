@@ -25,6 +25,7 @@ $db_params = array();
 
 function installationFailed($error, $cleanup = true) {
 	global $texts, $report, $installer, $app, $db_params;
+	echo PHP_EOL;
 	logMessage(L_USER, "Installation could not continue: $error");
 	
 	if ($cleanup) {
@@ -109,8 +110,6 @@ if (!OsUtils::verifyOS()) {
 
 if ($user->isInputLoaded()) {
 	logMessage(L_USER, "Skipping user input, using previous configuration");	
-} else {
-	logMessage(L_USER, "User input:");
 }
 
 // user input
@@ -154,6 +153,7 @@ if ($prereq_desc !== null) {
 	installationFailed("Please setup the preqrequisites listed and run the installation again\n$prereq_desc", false);
 }
 
+echo PHP_EOL;
 logMessage(L_USER, "Verifing that there are no leftovers from previous installation of Kaltura");
 $leftovers = $installer->detectLeftovers(true, $app, $db_params);
 if (isset($leftovers)) {

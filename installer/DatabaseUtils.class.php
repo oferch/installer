@@ -18,7 +18,6 @@ class DatabaseUtils
 		if ($host == 'localhost') {
 			$host = '127.0.0.1';
 		}
-		logMessage(L_INFO, sprintf("Connect to db: %s, %s, %s, %s",$db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_params['db_port']));
 		if (trim($pass) == '') {
 			$pass = null;
 		}

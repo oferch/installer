@@ -40,15 +40,15 @@ class Installer {
 		if (isset($verify)) {
 			if ($report_only) $leftovers .= $verify;
 			else {			
-				//@exec(sprintf('%s/ddl/dwh_drop_databases.sh -u %s -p %s -d %s', $app->get('DWH_DIR'), $app->get('DWH_USER'), $app_config['DWH_PASS'], $app_config['DWH_DIR']));
+				OsUtils::execute(sprintf('%s/ddl/dwh_drop_databases.sh -u %s -p %s -d %s', $app->get('DWH_DIR'), $app->get('DWH_USER'), $app_config['DWH_PASS'], $app_config['DWH_DIR']));
 				$this->detectDatabases($db_params, true);
 			}
 		}	
 		if (is_dir($app->get('BASE_DIR'))) {
 			if ($report_only) $leftovers .= "\tLeftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
 			else {
-				@exec($app->get('BASE_DIR').'app/scripts/searchd.sh stop  2>&1');
-				@exec($app->get('BASE_DIR').'app/scripts/serviceBatchMgr.sh stop  2>&1');			
+				OsUtils::execute($app->get('BASE_DIR').'app/scripts/searchd.sh stop');
+				OsUtils::execute($app->get('BASE_DIR').'app/scripts/serviceBatchMgr.sh stop');			
 				OsUtils::recursiveDelete($app->get('BASE_DIR'));			
 			}
 		}
@@ -57,15 +57,15 @@ class Installer {
 	}	
 	
 	public function install($app, $db_params) {
-		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')), true);
-		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'), true)) {
+		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
+		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
 			return "Failed copying Kaltura application to target directory";
 		}		
 
 		$os_name = 	OsUtils::getOsName(); // Already verified that the OS is supported in the prerequisites
 		$architecture = OsUtils::getSystemArchitecture();	
 		logMessage(L_USER, "Copying binaries for $os_name $architecture");
-		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get('BIN_DIR'), true)) {
+		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get('BIN_DIR'))) {
 			return "Failed copying binaris for $os_name $architecture";
 		}
 				
@@ -85,10 +85,9 @@ class Installer {
 			}
 		}		
 
-		logMessage(L_USER, "Creating Kaltura databases");
 		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_SIR.'create_kaltura_db.ini', true);
 
-		logMessage(L_USER, sprintf("Creating and initializing %s DB", $app->get('DB1_NAME')));
+		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
 		if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) {
 			return "Failed creating ".$app->get('DB1_NAME')." DB";
 		}
@@ -99,7 +98,7 @@ class Installer {
 			}
 		}
 
-		logMessage(L_USER, sprintf("Creating and initializing %s DB", $app->get('DB_STATS_NAME')));
+		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB_STATS_NAME')));
 		if (!DatabaseUtils::createDb($db_params, $app->get('DB_STATS_NAME'))) {
 			return "Failed creating ".$app->get('DB_STATS_NAME')." DB";
 		}
@@ -110,17 +109,19 @@ class Installer {
 			}
 		}
 			
-		logMessage(L_USER, "Creating Data Warehouse");
+		logMessage(L_USER, "Creating data warehouse");
 		if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app->get('DB1_NAME'))) {
 			return "Failed running Data Warehouse permission initialization script";		
 		}
-		//if (!@exec(sprintf("%s/ddl/dwh_ddl_install.sh -u %s -p %s -d %s", $app->get('DWH_DIR'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) return $error_texts['failed_running_dwh_script'];
+		if (!OsUtils::execute(sprintf("%s/ddl/dwh_ddl_install.sh -u %s -p %s -d %s", $app->get('DWH_DIR'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
+			return $error_texts['failed_running_dwh_script'];
+		}
 
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->getSymLinks() as $slink) {
 			$link_items = explode('^', $app->replaceTokensInString($slink));	
 			if (symlink($link_items[0], $link_items[1])) {
-				logMessage(L_USER, "\t$link_items[0] -> $link_items[1]");
+				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
 			} else {
 				return sprintf("Failed to create symblic link from %s to %s", $link_items[0], $link_items[1]);
 			}
@@ -138,11 +139,11 @@ class Installer {
 
 		logMessage(L_USER, "Running Kaltura");
 		logMessage(L_USER, "Populating sphinx entries (executing '".$app->get('PHP_BIN').' '.$app->get('APP_DIR')."/deployment/base/scripts/populateSphinxEntries.php')");
-		@exec($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php');
-		logMessage(L_USER, "Running the batch manager (executing '".$app->get('APP_DIR')."/scripts/serviceBatchMgr.sh start 2>&1')");
-		@exec($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start 2>&1');
-		logMessage(L_USER, "Running the sphinx search deamon (executing '".$app->get('APP_DIR')."/scripts/searchd.sh start  2>&1')");
-		@exec($app->get('APP_DIR').'/scripts/searchd.sh start  2>&1');
+		OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php');
+		logMessage(L_USER, "Running the batch manager (executing '".$app->get('APP_DIR')."/scripts/serviceBatchMgr.sh start')");
+		OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start');
+		logMessage(L_USER, "Running the sphinx search deamon (executing '".$app->get('APP_DIR')."/scripts/searchd.sh start')");
+		OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start');
 		
 		return null;
 	}

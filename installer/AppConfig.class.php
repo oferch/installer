@@ -50,7 +50,7 @@ class AppConfig {
 				logMessage(L_ERROR, "Cannot replace token in file, cannot write to file $newfile");
 				return false;							
 			} else {
-				logMessage(L_ERROR, "Replaced tokens in file $newfile");			
+				logMessage(L_INFO, "Replaced tokens in file $newfile");			
 			}
 		}
 		return true;

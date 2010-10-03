@@ -85,15 +85,16 @@ class OsUtils {
 	
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
-		$result = @exec($command);
-		if (trim($result) !== '') {
+		$output = OsUtils::executeReturnOutput($command);
+		if (trim($output[0]) == '') {
+			return true;
+		} else {
 			logMessage(L_ERROR, "Executing command failed: $command");	
 			return false;
 		}
-		return true;			
 	}
 
-		/**
+	/**
 	 * Execute 'which' on each of the given file names and first one found
 	 * @param unknown_type $file_name
 	 * @return string which output or null if none found
