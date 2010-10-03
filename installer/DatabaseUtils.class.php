@@ -44,7 +44,6 @@ class DatabaseUtils
 	 */
 	public static function executeQuery($query, $db_params, $db_name, $link = null)
 	{
-		logMessage(L_INFO, "Execute query: $query");		
 		// connect if not yet connected
 		if (!$link && !self::connect($link, $db_params, $db_name)) {
 			return false;
@@ -133,6 +132,7 @@ class DatabaseUtils
 	 */
 	public static function runScript($file, $db_params, $db_name)
 	{
+		logMessage(L_INFO, "Running script: $file");	
 		if (!is_file($file)) {
 			logMessage(L_ERROR, "Could not run script: script not found $file");	
 			return false;
