@@ -38,7 +38,7 @@ class AppConfig {
      * @param string $file file path
      * @return true on success, ErrorObject on error
      */
-	public function replaceTokensInFile($file) {
+	public function replaceTokensInFile($file) {		
 		$newfile = $this->copyTemplateFileIfNeeded($file);
 		$data = @file_get_contents($newfile);
 		if (!$data) {
@@ -49,6 +49,8 @@ class AppConfig {
 			if (!file_put_contents($newfile, $data)) {
 				logMessage(L_ERROR, "Cannot replace token in file, cannot write to file $newfile");
 				return false;							
+			} else {
+				logMessage(L_ERROR, "Replaced tokens in file $newfile");			
 			}
 		}
 		return true;
