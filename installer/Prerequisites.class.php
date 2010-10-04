@@ -83,7 +83,6 @@ class Prerequisites {
 					$error_description .= "  - $item".PHP_EOL;
 				}
 			}
-			logMessage(L_USER, "Missing prerequisites: $error_description");	
 			return $error_description;							
 		}
 	}

@@ -17,7 +17,7 @@ function getTrueFalse($default) {
 			echo "Input invalid, must be y/n/yes/no".PHP_EOL;
 		}
 	}
-	$retrunVal = ((strcasecmp('y',$input) === 0) || (strcasecmp('yes',$input) === 0));	
+	return ((strcasecmp('y',$input) === 0) || (strcasecmp('yes',$input) === 0));	
 }
 
 // execute a shell command and returns, returns true if succeeds, false otherwise
@@ -65,10 +65,10 @@ function dropDb($db, $host, $user, $pass, $port) {
 $config = parse_ini_file("uninstall.ini");
 $success = true;
 echo 'Uninstaller is going to remove Kaltura software from your system.'.PHP_EOL;
-echo 'The installation will remove the software, drop the databases and remove any uploaded content.'.PHP_EOL;
+echo 'The installation cannot be undone (it will also drop the databases and remove any uploaded content).'.PHP_EOL;
 echo 'Do you wish to continue? (y/N)'.PHP_EOL;
 if (!getTrueFalse(false)) {
-	echo 'You choose not to uninstaller Kaltura, uninstaller will exit now.'.PHP_EOL;
+	echo 'You choose not to uninstaller Kaltura, uninstall will exit now.'.PHP_EOL;
 	die(0);
 }
 
@@ -137,7 +137,5 @@ if (execute("rm -rf ".$config['BASE_DIR'])) {
 	
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
 else echo 'Some of the uninstall steps failed, please do them manually'.PHP_EOL;
-
-echo PHP_EOL;
 echo 'Please maually remove Kaltura related includes from your httpd.conf or httpd-vhosts.conf files'.PHP_EOL;
 

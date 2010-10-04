@@ -55,6 +55,7 @@ class UserInput
 				logMessage(L_USER, $not_valid_text);
 			} else {			
 				$inputOk = true;
+				echo PHP_EOL;				
 				if (empty($input) && !empty($default)) {
 					$input = $default;
 					logMessage(L_INFO, "Using default value: $default");
@@ -107,7 +108,7 @@ class UserInput
 						$httpd_bin_message, 
 						'Httpd binary must exist', 
 						InputValidator::createFileValidator(), 
-						$httpd_bin_found);
+						$httpd_bin_found);		
 		$this->getInput('PHP_BIN', 
 						$php_bin_message, 
 						'PHP binary must exist', 
