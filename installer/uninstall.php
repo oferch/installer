@@ -64,7 +64,6 @@ function dropDb($db, $host, $user, $pass, $port) {
 	
 $config = parse_ini_file("uninstall.ini");
 $success = true;
-
 echo 'Uninstaller is going to remove Kaltura software from your system.'.PHP_EOL;
 echo 'The installation will remove the software, drop the databases and remove any uploaded content.'.PHP_EOL;
 echo 'Do you wish to continue? (y/N)'.PHP_EOL;

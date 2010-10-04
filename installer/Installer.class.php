@@ -1,42 +1,59 @@
 <?php
 
-define("FILE_INSTALL_CONFIG", "installer/installation.ini");
-define("APP_SQL_DIR", "/app/deployment/base/sql/");
+define("FILE_INSTALL_CONFIG", "installer/installation.ini"); // this file contains the definitions of the installation itself
+define("APP_SQL_DIR", "/app/deployment/base/sql/"); // this is the relative directory where the base sql files are
+define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts of the symbolic link definition
 
+/*
+* This class handles the installation itself. It has functions for installing and for cleaning up.
+*/
 class Installer {	
 	private $install_config;
 
+	// crteate a new installer, loads installation configurations from installation configuration file
 	public function __construct() {
 		$this->install_config = parse_ini_file(FILE_INSTALL_CONFIG, true);
 	}
 
+	// returns all the files in which the installer shuld replace configuration tokens
 	public function getTokenFiles() {
 		return $this->install_config['token_files']['files'];
 	}
 	
+	// returns all the files and directories which premission change
 	public function getChmodItems() {
 		return $this->install_config['chmod_items']['items'];
 	}	
 	
+	// returns all the symbolic links to create
 	public function getSymLinks() {
 		return $this->install_config['symlinks']['links'];
 	}
 
+	// returns all the databases that should not exist before the installaiton start
 	public function getDatabases() {
 		return $this->install_config['databases']["dbs"];
 	}
 	
+	// detects if there are leftovers of an installation
+	// can be used both before installation to verify and when the installation failed for cleaning up
+	// $report_only - if set to true only returns the leftovers found and does not removes them
+	// $app - the AppConfig used for the installation
+	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
+	// returns null if no leftovers are found or it is not report only or a text containing all the leftovers found
 	public function detectLeftovers($report_only, $app, $db_params) {
 		$leftovers = null;		
 		
+		// symbloic links leftovers
 		foreach ($this->getSymLinks() as $slink) {
-			$link_items = explode('^', $app->replaceTokensInString($slink));	
+			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
 			if (is_file($link_items[1]) && (strpos($link_items[1], $app->get('BASE_DIR')) === false)) {
 				if ($report_only) $leftovers .= "   Leftovers found: ".$link_items[1]." symbolic link exists".PHP_EOL;
 				else OsUtils::recursiveDelete($link_items[1]);			
 			}
 		}
 		
+		// database leftovers
 		$verify = $this->detectDatabases($db_params);
 		if (isset($verify)) {
 			if ($report_only) $leftovers .= $verify;
@@ -44,10 +61,13 @@ class Installer {
 				OsUtils::execute(sprintf('%s/ddl/dwh_drop_databases.sh -u %s -p %s -d %s', $app->get('DWH_DIR'), $app->get('DWH_USER'), $app_config['DWH_PASS'], $app_config['DWH_DIR']));
 				$this->detectDatabases($db_params, true);
 			}
-		}	
+		}
+		
+		// application leftovers
 		if (is_dir($app->get('BASE_DIR'))) {
-			if ($report_only) $leftovers .= "   Leftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
-			else {
+			if ($report_only) {
+				$leftovers .= "   Leftovers found: Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
+			} else {
 				OsUtils::execute($app->get('BASE_DIR').'app/scripts/searchd.sh stop');
 				OsUtils::execute($app->get('BASE_DIR').'app/scripts/serviceBatchMgr.sh stop');			
 				OsUtils::recursiveDelete($app->get('BASE_DIR'));			
@@ -57,13 +77,17 @@ class Installer {
 		return $leftovers;
 	}	
 	
+	// installs the application according to the given parameters
+	// $app - the AppConfig used for the installation
+	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')	
+	// returns null if the installation succeeded or an error text if it failed
 	public function install($app, $db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
 		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
 			return "Failed copying Kaltura application to target directory";
 		}		
 
-		$os_name = 	OsUtils::getOsName(); // Already verified that the OS is supported in the prerequisites
+		$os_name = 	OsUtils::getOsName();
 		$architecture = OsUtils::getSystemArchitecture();	
 		logMessage(L_USER, "Copying binaries for $os_name $architecture");
 		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get('BIN_DIR'))) {
@@ -120,7 +144,7 @@ class Installer {
 
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->getSymLinks() as $slink) {
-			$link_items = explode('^', $app->replaceTokensInString($slink));	
+			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
 			if (symlink($link_items[0], $link_items[1])) {
 				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
 			} else {
@@ -149,6 +173,11 @@ class Installer {
 		return null;
 	}
 	
+	// detects if there are databases leftovers
+	// can be used both for verification and for dropping the databases
+	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
+	// $should_drop - whether to drop the databases that are found or not (default - false) 
+	// returns null if no leftovers are found or a text containing all the leftovers found
 	private function detectDatabases($db_params, $should_drop=false) {
 		$verify = null;
 		foreach ($this->getDatabases() as $db) {

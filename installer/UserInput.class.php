@@ -43,8 +43,7 @@ class UserInput
 		
 		if (isset($validator) && !empty($default)) $validator->emptyIsValid = true;
 		
-		logMessage(L_USER, $request_text, true);
-		echo PHP_EOL;
+		logMessage(L_USER, $request_text);
 			
 		$inputOk = false;
 		while (!$inputOk) {

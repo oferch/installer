@@ -1,20 +1,26 @@
 <?php
 
+/*
+* This is a static OS utilities class
+*/
 class OsUtils {
 	const WINDOWS_OS = 'Windows';
 	const LINUX_OS   = 'linux';
 
+	// returns true if the user is root, false otherwise
 	public static function verifyRootUser() {
 		@exec('id -u', $output, $result);
 		logMessage(L_INFO, "User: $output");
 		return (isset($output[0]) && $output[0] == '0' && $result == 0);
 	}
 
+	// returns true if the OS is linux, false otherwise
 	public static function verifyOS() {
 		logMessage(L_INFO, "OS: ".OsUtils::getOsName());
 		return (OsUtils::getOsName() === OsUtils::LINUX_OS);
 	}
-
+	
+	// returns the computer hostname if found, 'unknown' if not found
 	public static function getComputerName() {
 		if(isset($_ENV['COMPUTERNAME'])) {
 			logMessage(L_INFO, "Host name: ".$_ENV['COMPUTERNAME']);
@@ -31,6 +37,7 @@ class OsUtils {
 		}
 	}	
 	
+	// returns the OS name or empty string if not recognized
 	public static function getOsName() {		
 		logMessage(L_INFO, "OS: ".PHP_OS);
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -43,15 +50,14 @@ class OsUtils {
 		}
 	}
 	
+	// returns the linux distribution
 	public static function getOsLsb() {		
 		$dist = OsUtils::executeReturnOutput("lsb_release -d");		
 		logMessage(L_INFO, "Distribution: ".$dist);
 		return $dist;
 	}
 	
-	/**
-	 * @return string 32bit/64bit according to current system architecture - if not found, default is 32bit
-	 */
+	// returns '32bit'/'64bit' according to current system architecture - if not found, default is 32bit
 	public static function getSystemArchitecture() {		
 		$arch = php_uname('m');
 		logMessage(L_INFO, "OS architecture: ".$arch);
@@ -64,17 +70,14 @@ class OsUtils {
 		}
 	}
 
+	// appends $newdata to the file named $filename
 	public static function appendFile($filename, $newdata) {
 		$f=fopen($filename,"a");
 		fwrite($f,$newdata);
 		fclose($f);  
 	}
       			
-    /**
-     * Write $data to $filename
-     * @param string $filename file name to write to
-     * @param string $data data to write
-     */
+    // Write $data to $filename
     public static function writeFile($filename, $data) {   	
     	$fh = fopen($filename, 'w');
 		if (!$fh) return false; // File errors cannot be logged because it could cause an infinite loop			
@@ -83,11 +86,7 @@ class OsUtils {
 		return true;
     }      
 	
-	/**
-	* Write configurations to file as key = value
-	* @param string $filename file name to write
-	* @return true on success, or ErrorObject on failure
-	*/
+	// Write $config to ini $filename key = value
 	public static function writeConfigToFile($config, $filename) {
 		logMessage(L_INFO, "Writing config to file $filename");
 		$data = '';
@@ -97,6 +96,7 @@ class OsUtils {
 		return OsUtils::writeFile($filename, $data);
 	}
 
+	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
 		@exec($command . ' 2>&1', $output, $return_var);
@@ -108,11 +108,7 @@ class OsUtils {
 		}
 	}
 
-	/**
-	 * Execute 'which' on each of the given file names and first one found
-	 * @param unknown_type $file_name
-	 * @return string which output or null if none found
-	 */
+	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
 	public function findBinary($file_name) {			
 		if (!is_array($file_name)) {
 			$file_name = array ($file_name);
@@ -128,24 +124,24 @@ class OsUtils {
 		return null;
 	}
 	
-	/**
-	 * Execute the given command, returning the output
-	 * @param string $cmd command to execute
-	 */
+	// execute the given $cmd, returning the output
 	public static function executeReturnOutput($cmd) {
 		// 2>&1 is needed so the output will not display on the screen
 		@exec($cmd . ' 2>&1', $output);
 		return $output;
 	}
-	
+
+	// full copy $source to $target and return true/false according to success
 	public static function fullCopy($source, $target) {
 		return self::execute("cp -r $source $target");
 	}
 	
+	// recursive delete the $path and return true/false according to success
 	public static function recursiveDelete($path) {
 		return self::execute("rm -rf $path");
     }
 	
+	// execute chmod with the given $chmod command and return true/false according to success
 	public static function chmod($chmod) {
 		return self::execute("chmod $chmod");	
 	}

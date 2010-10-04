@@ -1,12 +1,20 @@
-<?
+<?php
 
 define('INSTALL_REPORT_URL', 'http://kalstats.kaltura.com/index.php/events/installation_event');
 
+/*
+* This class handles reporting to Kaltura during the installation if the user allows
+*/
 class InstallReport {
 	private $report_parameters = array();
 	private $report_post_parameters = array();
 	private $install_ids;
 	
+	// create a new install report class
+	// $email - the user email
+	// $package_version - the full version of the package
+	// $install_seq_id - the id of the installation sequence
+	// $install_id - the id of the current installation
 	public function __construct($email, $package_version, $install_seq_id, $install_id){	
 		$this->report_parameters['email'] = $email;
 		$this->report_parameters['client_type'] = 'PHP CLI';
@@ -19,6 +27,7 @@ class InstallReport {
 		$this->install_ids = $install_seq_id.';'.$install_id;
 	}
 
+	// send an installation start event report
 	public function reportInstallationStart() {
 		$this->report_parameters['step'] = "Install Started";
 		$this->report_parameters['code'] = "";
@@ -27,6 +36,7 @@ class InstallReport {
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
 	
+	// send an installation failed event report
 	public function reportInstallationFailed($failure_message) {
 		$this->report_parameters['step'] = "Install Failed";
 		$this->report_parameters['code'] = $failure_message;
@@ -35,6 +45,7 @@ class InstallReport {
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
 	
+	// send an installation success event report
 	public function reportInstallationSuccess() {
 		$this->report_parameters['step'] = "Install Success";
 		$this->report_parameters['code'] = "";
@@ -43,9 +54,7 @@ class InstallReport {
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}	
 
-	/**
-	 * Send current event to kaltura
-	 */
+	// send an event report with the given $get_parameters and $post_parameters
 	private function sendReport($get_parameters, $post_parameters) {
 		// create a new cURL resource
 		$ch = curl_init();		

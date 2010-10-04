@@ -1,22 +1,29 @@
 <?php
 
-define("FILE_APPLICATION_CONFIG", "app_config.ini");
-define('TOKEN_CHAR', '@'); // This character is user to surround parameters that should be replaced with configurations in config files
-define('TEMPLATE_FILE', '.template');
-define('KCONF_LOCATION', '/alpha/config/kConf.php');
-define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini');
+define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
+define('TEMPLATE_FILE', '.template'); // how to recognize a tamplate file, template files are copyed to non-template and then the tokens are replaced
+define('KCONF_LOCATION', '/alpha/config/kConf.php'); // the location of kConf
+define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini'); // the location where to save configuration for the uninstaller
 
+/* 
+* This class handles all the configuration of the application:
+* Defining application configuration values according to user input, 
+* replaceing configuration tokens in needed files and other application configuration actions 
+*/
 class AppConfig {
 	private $app_config = array();
 	
+	// gets the application value set for the given key
 	public function get($key) {
 		return $this->app_config[$key];
 	}
 	
+	// sets the application value for the given key
 	public function set($key, $value) {
 		$this->app_config[$key] = $value;
 	}
 	
+	// init the application configuration values according to the user input
 	public function initFromUserInput($user_input) {
 		foreach ($user_input as $key => $value) {
 			$this->app_config[$key] = $value;
@@ -24,6 +31,7 @@ class AppConfig {
 		$this->defineInstallationTokens();
 	}		
 	
+	// replaces all tokens in the given string with the configuration values and returns the new string
 	public function replaceTokensInString($string) {
 		foreach ($this->app_config as $key => $var) {
 			$key = TOKEN_CHAR.$key.TOKEN_CHAR;
@@ -32,11 +40,9 @@ class AppConfig {
 		return $string;
 	}
 		
-    /**
-     * Replace tokens in given file    
-     * @param string $file file path
-     * @return true on success, ErrorObject on error
-     */
+	// replaces all the tokens in the given file with the configuration values and returns true/false upon success/failure
+	// will override the file if it is not a template file
+	// if it is a template file it will save it to a non template file and then override it
 	public function replaceTokensInFile($file) {		
 		$newfile = $this->copyTemplateFileIfNeeded($file);
 		$data = @file_get_contents($newfile);
@@ -55,6 +61,7 @@ class AppConfig {
 		return true;
 	}	
 	
+	// saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
 	public function saveUninstallerConfig() {
 		$file = $this->app_config['BASE_DIR'].UNINSTALLER_LOCATION;
 		$data = "BASE_DIR = ".$this->app_config["BASE_DIR"].PHP_EOL;	
@@ -69,6 +76,7 @@ class AppConfig {
 	
 	// private functions
 	
+	// defines all the installation configuration values according to the user input and the default values
 	private function defineInstallationTokens() {
 		logMessage(L_INFO, "Defining installation tokens for config");
 		// directories
@@ -81,8 +89,8 @@ class AppConfig {
 		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh'; // For backward compatibility
 		
 		// databases (copy information collected during prerequisites
-		$this->collectDatabaseCopier($this->app_config, '1', '2');
-		$this->collectDatabaseCopier($this->app_config, '1', '3');
+		$this->collectDatabaseCopier('DB1', 'DB2');
+		$this->collectDatabaseCopier('DB1', 'DB3');
 				
 		// admin console defaults
 		$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $this->generateSecret();
@@ -98,7 +106,7 @@ class AppConfig {
 		//$this->app_config['XYMON_SERVER_MONITORING_CONTROL_SCRIPT'] = // Not set
 		
 		// stats DB
-		$this->collectDatabaseCopier($this->app_config, '1', '_STATS');
+		$this->collectDatabaseCopier('DB1', 'DB_STATS');
 		$this->app_config['DB_STATS_NAME'] = 'kaltura_stats';
 		
 		// data warehouse
@@ -158,17 +166,16 @@ class AppConfig {
 		$this->app_config['ENVIRONMENT_NAME'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 	}
 
-	private function collectDatabaseCopier(&$config, $fromNum, $toNum) {
-		$config['DB'.$toNum.'_HOST'] = $config['DB'.$fromNum.'_HOST'];
-		$config['DB'.$toNum.'_PORT'] = $config['DB'.$fromNum.'_PORT'];
-		$config['DB'.$toNum.'_NAME'] = $config['DB'.$fromNum.'_NAME'];
-		$config['DB'.$toNum.'_USER'] = $config['DB'.$fromNum.'_USER'];
-		$config['DB'.$toNum.'_PASS'] = $config['DB'.$fromNum.'_PASS'];
+	// copies DB parametes from one DB configuration to another
+	private function collectDatabaseCopier($from_db, $to_db) {
+		$this->app_config[$to_db.'_HOST'] = $this->app_config[$from_db.'_HOST'];
+		$this->app_config[$to_db.'_PORT'] = $this->app_config[$from_db.'_PORT'];
+		$this->app_config[$to_db.'_NAME'] = $this->app_config[$from_db.'_NAME'];
+		$this->app_config[$to_db.'_USER'] = $this->app_config[$from_db.'_USER'];
+		$this->app_config[$to_db.'_PASS'] = $this->app_config[$from_db.'_PASS'];
 	}
 		
-	/**
-	 * @return string secret string, like the one generated in kaltura
-	 */
+	// generates a secret for Kaltura and returns it
 	private function generateSecret() {
 		logMessage(L_INFO, "Generating secret");
 		$secret = md5(self::str_makerand(5,10,true, false, true));
@@ -187,7 +194,8 @@ class AppConfig {
 		$salt = md5(rand(100000, 999999).$password); 
 		$sha1 = sha1($salt.$password);  
 	}
-			
+	
+	// puts a Kaltura CE activation key
 	public function simMafteach() {
 		$admin_email = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL']; 
 		$kConfFile = $this->app_config['APP_DIR'].KCONF_LOCATION;
@@ -201,6 +209,7 @@ class AppConfig {
 		@file_put_contents($kConfFile, $data);
 	}
 	
+	// removes http:// or https:// prefix from the string and returns it
 	private function removeHttp($url = '') {
 		$list = array('http://', 'https://');
 		foreach ($list as $item) {
@@ -210,6 +219,8 @@ class AppConfig {
 		return $url;
 	}
 	
+	// checks if the given file is a template file and if so copies it to a non template file
+	// returns the non template file if it was copied or the original file if it was not copied
 	private function copyTemplateFileIfNeeded($file) {
 		$return_file = $file;
 		// Replacement in a template file, first copy to a non .template file
@@ -221,7 +232,8 @@ class AppConfig {
 		return $return_file;
 	}
 	
-	private static function str_makerand ($minlength, $maxlength, $useupper, $usespecial, $usenumbers) {
+	// creates a random key used to generate a secret
+	private static function str_makerand($minlength, $maxlength, $useupper, $usespecial, $usenumbers) {
 		$charset = "abcdefghijklmnopqrstuvwxyz";
 		if ($useupper) $charset .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		if ($usenumbers) $charset .= "0123456789";

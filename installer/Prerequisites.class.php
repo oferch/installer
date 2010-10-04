@@ -1,9 +1,12 @@
 <?php
 
+/*
+* This class handles prerequisites verifications
+*/
 class Prerequisites {
 	public static $php_version = array('>=', '5.2.0');
 	public static $mysql_version = array('>=', '5.1.33');
-	public static $apache_version = array('>=', '2.2'); // Currently not checked
+	public static $apache_version = array('>=', '2.2'); // currently not checked
 		
 	public static $files = array (
 		'pentaho kitchen.sh' => '/usr/local/pentaho/pdi/kitchen.sh',
@@ -47,10 +50,8 @@ class Prerequisites {
 		'thread_stack' => array('>=', '262144'),	
 	);
 	
-		/*
-	* This function checks the preqrequisites
-	* @config has all the values for verifiying prerequisites
-	*/
+	// verifies the prerequisites using the given $app_config (AppConfig) and $db_params
+	// returns null if everything is OK or a string with the failing prerequisites
 	public function verifyPrerequisites($app_config, $db_params) {
 		$this->problems = array();				
 		
@@ -87,9 +88,9 @@ class Prerequisites {
 		}
 	}
 		
-	/**
-	 * Checks that needed php extensions exist
-	 */
+	// private functions
+	
+	// checks if needed php extensions exist
 	private function checkPhpExtensions() {		
 		foreach (Prerequisites::$php_extensions as $ext) {
 			if (!extension_loaded($ext)) {
@@ -103,9 +104,7 @@ class Prerequisites {
 		}
 	}
 		
-	/**
-	 * Checks that needed binary files exist (by using 'which')
-	 */
+	// checks that needed binary files exist (by using 'which')
 	private function checkBins() {
 		logMessage(L_INFO, "Checking binaries");
 		foreach (Prerequisites::$bins as $bin) {			
@@ -118,9 +117,7 @@ class Prerequisites {
 		}
 	}	
 	
-	/**
-	 * Check that needed file paths exist
-	 */
+	// Check that needed file paths exist
 	private function checkFiles() {
 		foreach (Prerequisites::$files as $file) {
 			if (!is_file($file)) {
@@ -131,9 +128,7 @@ class Prerequisites {
 		}
 	}	
 	
-	/**
-	 * Checks that needed apache modules exist
-	 */
+    // checks that needed apache modules exist, using the given $httpd_bin
 	private function checkApacheModules($httpd_bin) {
 		$apache_cmd = $httpd_bin.' -t -D DUMP_MODULES';
 		$current_modules = OsUtils::executeReturnOutput($apache_cmd);
@@ -151,9 +146,7 @@ class Prerequisites {
 		}
 	}
 
-	/**
-	 * Check that mySQL settings are set as required
-	 */
+	// check that mySQL settings are set as required using the given $db_params
 	private function checkMySqlSettings($db_params) {
 		if (!DatabaseUtils::connect($link, $db_params, null)) {
 			$this->problems['mySQL settings:'][] = "Cannot connect to db";
@@ -177,7 +170,8 @@ class Prerequisites {
 			}
 		}
 	}	
-		
+	
+	// check that the php version is ok
 	private function checkPhpVersion() {		
 		if (!version_compare(phpversion(), Prerequisites::$php_version[1], Prerequisites::$php_version[0])) {
 			$this->problems['Product versions:'][] = "PHP version not valid expected $version[0] actual $version[1]";
@@ -186,9 +180,7 @@ class Prerequisites {
 		}
 	}	
 		
-	/**
-	 * Check MYSQL version
-	 */
+	// checks that the MYSQL version is ok
 	private function checkMySqlVersion($db_params) {
 		if (!DatabaseUtils::connect($link, $db_params, null)) {
 			$this->problems['Product versions:'][] = "Cannot connect to db";

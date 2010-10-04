@@ -1,16 +1,16 @@
 <?php
 
+/* 
+* This class is a static class with database utility functions
+*/
 class DatabaseUtils
 {	
 	/**
 	 * Connect to mySQL database
 	 * @param mysqli $link mysqli link
-	 * @param string $host database host
-	 * @param string $user database username
-	 * @param string $pass database password
-	 * @param string $db database name
-	 * @param int $port database port
-	 * @return true on success, ErrorObject on failure + $link object by reference
+	 * @param array $db_params db parameters array 'db_host', 'db_user', 'db_pass', 'db_port'
+	 * @param string $db_name database name
+	 * @return true on success, false otherwise
 	 */
 	public static function connect(&$link, $db_params, $db_name)
 	{
@@ -33,13 +33,10 @@ class DatabaseUtils
 	/**
 	 * Execute a mySQL query or multi queries
 	 * @param string $query mySQL query, or multiple queries seperated by a ';'
-	 * @param string $host database host
-	 * @param string $user database username
-	 * @param string $pass database password
-	 * @param string $db database name
-	 * @param int $port database port
+	 * @param array $db_params db parameters array 'db_host', 'db_user', 'db_pass', 'db_port'
+	 * @param string $db_name database name
 	 * @param mysqli $link mysqli link
-	 * @return true on success, ErrorObject on failure
+	 * @return true on success, false otherwise
 	 */
 	public static function executeQuery($query, $db_params, $db_name, $link = null)
 	{
@@ -70,12 +67,9 @@ class DatabaseUtils
 		
 	/**
 	 * Create a new mySQL database
-	 * @param string $db database name
-	 * @param string $host database host
-	 * @param string $user database username
-	 * @param string $pass database password
-	 * @param int $port database port
-	 * @return true on success, ErrorObject on failure
+	 * @param array $db_params db parameters array 'db_host', 'db_user', 'db_pass', 'db_port'
+	 * @param string $db_name database name
+	 * @return true on success, false otherwise
 	 */
 	public static function createDb($db_params, $db_name)
 	{
@@ -86,12 +80,9 @@ class DatabaseUtils
 		
 	/**
 	 * Drop a mySQL database
-	 * @param string $db database name
-	 * @param string $host database host
-	 * @param string $user database username
-	 * @param string $pass database password
-	 * @param int $port database port
-	 * @return true on success, ErrorObject on failure
+	 * @param array $db_params db parameters array 'db_host', 'db_user', 'db_pass', 'db_port'
+	 * @param string $db_name database name
+	 * @return true on success, false otherwise
 	 */
 	public static function dropDb($db_params, $db_name)
 	{
@@ -102,11 +93,8 @@ class DatabaseUtils
 		
 	/**
 	 * Check if a mySQL database exists
-	 * @param string $db database name
-	 * @param string $host database host
-	 * @param string $user database username
-	 * @param string $pass database password
-	 * @param int $port database port
+	 * @param array $db_params db parameters array 'db_host', 'db_user', 'db_pass', 'db_port'
+	 * @param string $db_name database name
 	 * @return true/false according to existence
 	 */
 	public static function dbExists($db_params, $db_name)
@@ -122,12 +110,9 @@ class DatabaseUtils
 	/**
 	 * Execute mySQL queries from a given sql file
 	 * @param string $file sql file
-	 * @param string $host database host
-	 * @param string $user database user
-	 * @param string $pass database password
-	 * @param string $db database name
-	 * @param int $port database port
-	 * @return true on success, ErrorObject on failure
+	 * @param array $db_params db parameters array 'db_host', 'db_user', 'db_pass', 'db_port'
+	 * @param string $db_name database name
+	 * @return true on success, false otherwise
 	 */
 	public static function runScript($file, $db_params, $db_name)
 	{
