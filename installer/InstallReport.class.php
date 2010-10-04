@@ -31,7 +31,7 @@ class InstallReport {
 	public function reportInstallationStart() {
 		$this->report_parameters['step'] = "Install Started";
 		$this->report_parameters['code'] = "";
-		$this->report_post_parameters['data'] = $install_ids;
+		$this->report_post_parameters['data'] = $this->install_ids;
 		$this->report_post_parameters['description'] = "";
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
@@ -40,7 +40,7 @@ class InstallReport {
 	public function reportInstallationFailed($failure_message) {
 		$this->report_parameters['step'] = "Install Failed";
 		$this->report_parameters['code'] = $failure_message;
-		$this->report_post_parameters['data'] = $install_ids;
+		$this->report_post_parameters['data'] = $this->install_ids;
 		$this->report_post_parameters['description'] = "";
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
@@ -49,7 +49,7 @@ class InstallReport {
 	public function reportInstallationSuccess() {
 		$this->report_parameters['step'] = "Install Success";
 		$this->report_parameters['code'] = "";
-		$this->report_post_parameters['data'] = $install_ids;
+		$this->report_post_parameters['data'] = $this->install_ids;
 		$this->report_post_parameters['description'] = "";
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}	

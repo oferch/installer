@@ -109,7 +109,7 @@ class OsUtils {
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
-	public function findBinary($file_name) {			
+	public static function findBinary($file_name) {			
 		if (!is_array($file_name)) {
 			$file_name = array ($file_name);
 		}

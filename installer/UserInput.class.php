@@ -1,41 +1,57 @@
 <?php
 
-define("FILE_USER_INPUT", "user_input.ini");
+define("FILE_USER_INPUT", "user_input.ini"); // this file contains the saved user input
 
+/*
+* This class handles all the user input
+*/
 class UserInput
 {
 	private $user_input;
 	private $input_loaded = false;
-	
+
+	// return true if user input is already loaded
 	public function hasInput() {
 		return is_file(FILE_USER_INPUT);
 	}
 	
+	// load input from user input file
 	public function loadInput() {
 		$this->user_input = parse_ini_file(FILE_USER_INPUT, true);
 		$this->input_loaded = true;
 	}
 	
+	// save the user input to input file
 	public function saveInput() {
 		OsUtils::writeConfigToFile($this->user_input, FILE_USER_INPUT);
 	}		
 	
+	// get the input for the given $key
 	public function get($key) {
 		return $this->user_input[$key];
 	}
 	
+	// set the input $value for the given $key
 	public function set($key, $value) {
 		return $this->user_input[$key] = $value;
 	}
 	
+	// returns the user input array
 	public function getAll() {
 		return $this->user_input;
 	}
 	
+	// returns true if user input is loaded
 	public function isInputLoaded() {
 		return $this->input_loaded;
 	}
 	
+	// gets input from the user and returns it
+	// if $key was already loaded from config it will be taked from there and user will not have to insert
+	// $request text - text to show the user
+	// $not_valid_text - text to show the user if the input is invalid (according to the validator)
+	// $validator - the InputValidator to user (default is null, no validation)
+	// $default - the default value (default's default is '' :))
 	public function getInput($key, $request_text, $not_valid_text, $validator = null, $default = '') {
 		if (isset($key) && isset($this->user_input[$key])) {
 			return $this->user_input[$key];
@@ -67,12 +83,10 @@ class UserInput
   		return $input;	
 	}
 	
-	/**
-	 * Get a y/n input from the user
-	 * @param string $request_text text to display
-	 * @param string $default should be y/n according to desired default when user input is empty
-	 * @return boolean true/false according to input (y/n)
-	 */
+	// Get a y/n input from the user
+	// if $key was already loaded from config it will be taked from there and user will not have to insert
+	// $request text - text to show the user	
+	// $default - the default value (show be 'y'/'n')
 	public function getTrueFalse($key, $request_text, $default) {	
 		if (isset($key) && isset($this->user_input[$key])) {
 			return $this->user_input[$key];
@@ -92,6 +106,7 @@ class UserInput
 		return $retrunVal;		
 	}
 	
+	// get all the user input for the installation
 	public function getApplicationInput() {
 		$httpd_bin_found = OsUtils::findBinary(array('apachectl', 'apache2ctl'));
 		$httpd_bin_message = "The full pathname to your Apache apachectl/apache2ctl";

@@ -15,11 +15,11 @@ class DatabaseUtils
 	public static function connect(&$link, $db_params, $db_name)
 	{
 		// set mysqli to connect via tcp
-		if ($host == 'localhost') {
-			$host = '127.0.0.1';
+		if ($db_params['db_host'] == 'localhost') {
+			$db_params['db_host'] = '127.0.0.1';
 		}
-		if (trim($pass) == '') {
-			$pass = null;
+		if (trim($db_params['db_pass']) == '') {
+			$db_params['db_pass'] = null;
 		}
 		$link = @mysqli_init();
 		$result = @mysqli_real_connect($link, $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_name, $db_params['db_port']);
