@@ -83,6 +83,20 @@ class OsUtils {
 		return true;
     }      
 	
+	/**
+	* Write configurations to file as key = value
+	* @param string $filename file name to write
+	* @return true on success, or ErrorObject on failure
+	*/
+	public static function writeConfigToFile($config, $filename) {
+		logMessage(L_INFO, "Writing config to file $filename");
+		$data = '';
+		foreach ($config as $key => $value) {
+			$data = $data . $key.' = '.$value.PHP_EOL;
+		}
+		return OsUtils::writeFile($filename, $data);
+	}
+
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
 		@exec($command . ' 2>&1', $output, $return_var);

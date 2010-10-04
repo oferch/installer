@@ -1,6 +1,7 @@
 <?php
 
 define("FILE_INSTALL_CONFIG", "installer/installation.ini");
+define("APP_SQL_DIR", "/app/deployment/base/sql/");
 
 class Installer {	
 	private $install_config;
@@ -85,14 +86,14 @@ class Installer {
 			}
 		}		
 
-		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_SIR.'create_kaltura_db.ini', true);
+		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
 
 		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
 		if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) {
 			return "Failed creating ".$app->get('DB1_NAME')." DB";
 		}
 		foreach ($sql_files['kaltura']['sql'] as $sql) {
-			$sql_file = $app->get('BASE_DIR').APP_SQL_SIR.$sql;
+			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
 			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
 				return "Failed running DB script $sql_file";
 			}
@@ -103,7 +104,7 @@ class Installer {
 			return "Failed creating ".$app->get('DB_STATS_NAME')." DB";
 		}
 		foreach ($sql_files['stats']['sql'] as $sql) {
-			$sql_file = $app->get('BASE_DIR').APP_SQL_SIR.$sql;
+			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
 			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB_STATS_NAME'))) {
 				return "Failed running DB script $sql_file";
 			}

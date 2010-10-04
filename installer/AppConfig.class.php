@@ -22,7 +22,6 @@ class AppConfig {
 			$this->app_config[$key] = $value;
 		}
 		$this->defineInstallationTokens();
-		writeConfigToFile($this->app_config, FILE_APPLICATION_CONFIG);
 	}		
 	
 	public function replaceTokensInString($string) {
