@@ -69,8 +69,6 @@ class AppConfig {
 		$data = $data."DB_USER = ".$this->app_config["DB1_USER"].PHP_EOL;
 		$data = $data."DB_PASS = ".$this->app_config["DB1_PASS"].PHP_EOL;
 		$data = $data."DB_PORT = ".$this->app_config["DB1_PORT"].PHP_EOL;
-		$data = $data."DB1_NAME = ".$this->app_config["DB1_NAME"].PHP_EOL;
-		$data = $data."DB_STATS_NAME = ".$this->app_config["DB_STATS_NAME"].PHP_EOL;
 		return OsUtils::writeFile($file, $data);
 	}	
 	

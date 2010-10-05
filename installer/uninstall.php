@@ -2,6 +2,15 @@
 
 define('YESNO_REGEX', '/^(y|yes|n|no)$/i');
 
+public static $dbs_to_drop = array ( 
+	'kaltura',
+	'kalturadw',
+	'kalturadw_ds',
+	'kalturadw_bisources',
+	'kalturalog',
+	'kaltura_stats',
+);
+	
 // returns true or false according to the user input, if empty return $default
 function getTrueFalse($default) {
 	$inputOk = false;
@@ -103,28 +112,14 @@ if (execute("rm -rf /etc/cron.d/kaltura_crontab")) {
 	$success = false;
 }
 
-echo 'Removing data warehouse... ';
-if (execute($config['BASE_DIR']."/dwh/ddl/dwh_drop_databases.sh")) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
-}
-
-echo "Removing Kaltura DB... ";
-if (dropDb($config['DB1_NAME'], $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
-}
-
-echo "Removing Kaltura stats DB... ";
-if (dropDb($config['DB_STATS_NAME'], $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
- 	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
+foreach ($dbs_to_drop as $db) {
+	echo "Removing '$db' DB... ";
+	if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
+		echo 'OK'.PHP_EOL;
+	} else {
+		echo 'Failed'.PHP_EOL;
+		$success = false;
+	}
 }
 
 echo "Removing ".$config['BASE_DIR']."...";
