@@ -130,7 +130,7 @@ class Prerequisites {
     // checks that needed apache modules exist, using the given $httpd_bin
 	private function checkApacheModules($httpd_bin) {
 		// TODO: check apachectl -t to see that it is working first
-		$apache_cmd = $httpd_bin.' -M -D PHP5';
+		$apache_cmd = $httpd_bin.' -M';
 		$current_modules = OsUtils::executeReturnOutput($apache_cmd);
 				
 		foreach (Prerequisites::$apache_modules as $module) {
