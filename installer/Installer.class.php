@@ -164,11 +164,17 @@ class Installer {
 
 		logMessage(L_USER, "Running Kaltura");
 		logMessage(L_USER, "Populating sphinx entries (executing '".$app->get('PHP_BIN').' '.$app->get('APP_DIR')."/deployment/base/scripts/populateSphinxEntries.php')");
-		OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php');
+		if (!OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php')) {
+			return "Failed populating initial sphinx entries";
+		}
 		logMessage(L_USER, "Running the batch manager (executing '".$app->get('APP_DIR')."/scripts/serviceBatchMgr.sh start')");
-		OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start');
+		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
+			return "Failed running the btach manager";
+		}
 		logMessage(L_USER, "Running the sphinx search deamon (executing '".$app->get('APP_DIR')."/scripts/searchd.sh start')");
-		OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start');
+		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start')) {
+			return "Failed running the sphinx search deamon";
+		}
 		
 		return null;
 	}
