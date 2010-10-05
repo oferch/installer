@@ -2,7 +2,7 @@
 
 define('YESNO_REGEX', '/^(y|yes|n|no)$/i');
 
-public static $dbs_to_drop = array ( 
+$dbs_to_drop = array ( 
 	'kaltura',
 	'kalturadw',
 	'kalturadw_ds',
@@ -81,7 +81,7 @@ if (!getTrueFalse(false)) {
 	die(0);
 }
 
-echo 'Stopping application scripts... ';
+echo 'Stopping sphinx deamon ('.$config['BASE_DIR'].'/app/scripts/searchd.sh stop)... ';
 if (execute($config['BASE_DIR'].'/app/scripts/searchd.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
@@ -89,6 +89,7 @@ if (execute($config['BASE_DIR'].'/app/scripts/searchd.sh stop')) {
 	$success = false;
 }
 
+echo 'Stopping batch manager manager ('.$config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop)';
 if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {

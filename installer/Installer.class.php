@@ -35,6 +35,11 @@ class Installer {
 		return $this->install_config['databases']["dbs"];
 	}
 	
+	// returns all the applications that require uiconf deployment
+	public function getUiConfApps() {
+		return $this->install_config['uiconf']["apps"];
+	}	
+	
 	// detects if there are leftovers of an installation
 	// can be used both before installation to verify and when the installation failed for cleaning up
 	// $report_only - if set to true only returns the leftovers found and does not removes them
@@ -58,7 +63,6 @@ class Installer {
 		if (isset($verify)) {
 			if ($report_only) $leftovers .= $verify;
 			else {			
-				OsUtils::execute(sprintf('%s/ddl/dwh_drop_databases.sh -u %s -p %s -d %s', $app->get('DWH_DIR'), $app->get('DWH_USER'), $app_config['DWH_PASS'], $app_config['DWH_DIR']));
 				$this->detectDatabases($db_params, true);
 			}
 		}
@@ -156,12 +160,22 @@ class Installer {
 			$app->simMafteach();
 		}
 
+		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		foreach ($this->getUiConfApps() as $uiconfapp) {
+			$to_deploy = $app->replaceTokensInString($uiconfapp);
+			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy.php --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
+				logMessage(L_INFO, "Deployed uiconf $to_deploy");
+			} else {
+				return "Failed to deploy uiconf $to_deploy";
+			}
+		}
+		
 		logMessage(L_USER, "Creating the uninstaller");
 		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
 			return "Failed creating the uninstaller";
 		}
 		$app->saveUninstallerConfig();
-
+		
 		logMessage(L_USER, "Running Kaltura");
 		logMessage(L_USER, "Populating sphinx entries (executing '".$app->get('PHP_BIN').' '.$app->get('APP_DIR')."/deployment/base/scripts/populateSphinxEntries.php')");
 		if (!OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php')) {
