@@ -146,7 +146,6 @@ if ($user->getTrueFalse('PROCEED_WITH_INSTALL', "Installation is now ready to be
 }
 
 // run the installation
-echo PHP_EOL;
 $install_output = $installer->install($app, $db_params);
 if ($install_output !== null) {
 	installationFailed($install_output, true);
