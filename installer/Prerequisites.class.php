@@ -1,99 +1,50 @@
 <?php
+define("FILE_PREREQUISITES_CONFIG", "installer/prerequisites.ini"); // this file contains the definitions of the prerequisites that are being checked
 
 /*
 * This class handles prerequisites verifications
 */
 class Prerequisites {
-	public static $php_version = array('>=', '5.2.0');
-	public static $mysql_version = array('>=', '5.1.33');
-	public static $apache_version = array('>=', '2.2'); // currently not checked
-		
-	public static $files = array (
-		'pentaho kitchen.sh' => '/usr/local/pentaho/pdi/kitchen.sh',
-	);	
-	
-	public static $bins = array (
-		'curl',
-		'mysql',
-	);	
-	
-	public static $php_extensions = array ( 
-		'gd',	
-		'curl',
-		'mysql',
-		'mysqli',
-		'exif',
-		'ftp',
-		'iconv',
-		'json',
-		'session',
-		'SPL',
-		'dom',
-		'SimpleXML',
-		'xml',
-		'ctype',
-	);
-		
-	public static $apache_modules = array (
-		'rewrite_module',
-		'headers_module',
-		'expires_module', 
-		'ext_filter_module',
-		'deflate_module',
-		'file_cache_module',
-		'env_module',
-		'proxy_module',
-	);	
-	
-	public static $mysql_settings = array (
-		'lower_case_table_names' => array ('=', '1'),
-		'thread_stack' => array('>=', '262144'),	
-	);
-	
+	private $prerequisites_config;
+
+	// crteate a new preqrequisites verifier, loads prerequisites definitions from file
+	public function __construct() {
+		$this->prerequisites_config = parse_ini_file(FILE_PREREQUISITES_CONFIG, true);
+	}
+
 	// verifies the prerequisites using the given $app_config (AppConfig) and $db_params
-	// returns null if everything is OK or a string with the failing prerequisites
+	// returns null if everything is OK or a string with the failing prerequisites	
 	public function verifyPrerequisites($app_config, $db_params) {
-		$this->problems = array();				
+		$prerequisites = "";		
 		
-		$httpd_bin = $app_config->get('HTTPD_BIN');
+		$this->checkPhpVersion($prerequisites);
+		$this->checkPhpExtensions($prerequisites);
 		
-		// check prerequisites
-		$this->checkPhpVersion();
-		$this->checkBins();
-		$this->checkPhpExtensions();
-		$this->checkApacheModules($httpd_bin);
-		$this->checkFiles();		
-		
-		if ($this->mysqli_ext_exists) {
-			$this->checkMysqlVersion($db_params);
-			$this->checkMySqlSettings($db_params);			
-		} else {
-			$this->problems['Product versions:'][] = "Cannot check MySQL version because php mysqli extension was not found";
-			$this->problems['mySQL settings:'][] = "Cannot check MySQL settings because php mysqli extension was not found";
+		if (!$this->mysqli_ext_exists) {
+			$prerequisites .= "   Cannot check MySQL connection, version and settings because PHP mysqli extension is not loaded".PHP_EOL;
+		} else if ($this->checkMySqlConnection($db_params, $prerequisites)) {
+			$this->checkMysqlVersion($db_params, $prerequisites);
+			$this->checkMySqlSettings($db_params, $prerequisites);		
 		}
+		$this->checkApacheModules($app_config->get('HTTPD_BIN'), $prerequisites);
+		$this->checkBins($prerequisites);		
+		$this->checkPentaho($prerequisites);		
 	
-		if (empty($this->problems)) {
-			logMessage(L_INFO, "No prerequisites problems");	
+		if (empty($prerequisites)) {
+			logMessage(L_INFO, "All prerequisites checks passed");	
 			return null;
 		} else {	
-			$error_description = PHP_EOL;
-			foreach ($this->problems as $title => $items) {
-				$error_description .= $title.PHP_EOL;	
-				foreach ($items as $item) {
-					$error_description .= "  - $item".PHP_EOL;
-				}
-			}
-			return $error_description;							
+			return $prerequisites;							
 		}
 	}
 		
 	// private functions
 	
 	// checks if needed php extensions exist
-	private function checkPhpExtensions() {		
-		foreach (Prerequisites::$php_extensions as $ext) {
+	private function checkPhpExtensions(&$prerequisites) {
+		foreach ($this->prerequisites_config["php_extensions"] as $ext) {
 			if (!extension_loaded($ext)) {
-				$this->problems['PHP extensions:'][] = "Missing $ext PHP extension";
+				$prerequisites .= "   Missing $ext PHP extension".PHP_EOL;
 			} else {
 				logMessage(L_INFO, "Preqrequisite passed: PHP extension $ext is loaded");
 				if ($ext == 'mysqli') {
@@ -104,12 +55,11 @@ class Prerequisites {
 	}
 		
 	// checks that needed binary files exist (by using 'which')
-	private function checkBins() {
-		logMessage(L_INFO, "Checking binaries");
-		foreach (Prerequisites::$bins as $bin) {			
+	private function checkBins(&$prerequisites) {
+		foreach ($this->prerequisites_config["binaries"] as $bin) {			
 			$path = @exec("which $bin");
 			if (trim($path) == '') {
-				$this->problems['Bins:'][] = "Missing $bin bin file";
+				$prerequisites .= "   Missing $bin binary file".PHP_EOL;
 			} else {
 				logMessage(L_INFO, "Preqrequisite passed: Binary $bin found");
 			}			
@@ -117,111 +67,113 @@ class Prerequisites {
 	}	
 	
 	// Check that needed file paths exist
-	private function checkFiles() {
-		foreach (Prerequisites::$files as $file) {
-			if (!is_file($file)) {
-				$this->problems['Files:'][] = "Missing $file file";				
-			} else {
-				logMessage(L_INFO, "Preqrequisite passed: File $file found");
-			}
+	private function checkPentaho(&$prerequisites) {
+		$pentaho = $this->prerequisites_config["pentaho_path"];
+		if (!is_file($pentaho)) {
+			$prerequisites .= "   Missing pentaho at $pentaho".PHP_EOL;
+		} else {
+			logMessage(L_INFO, "Preqrequisite passed: Pentaho found at $pentaho");
 		}
 	}	
 	
     // checks that needed apache modules exist, using the given $httpd_bin
-	private function checkApacheModules($httpd_bin) {
-		// TODO: check apachectl -t to see that it is working first
-		$apache_cmd = $httpd_bin.' -M';
-		$current_modules = OsUtils::executeReturnOutput($apache_cmd);
+	private function checkApacheModules($httpd_bin, &$prerequisites) {
+		if (!OsUtils::execute($httpd_bin.' -t')) {
+			$prerequisites .= "   Cannot check apache modules, please fix '$httpd_bin -t'".PHP_EOL;
+		} else {		
+			$current_modules = OsUtils::executeReturnOutput($httpd_bin.' -M');
 				
-		foreach (Prerequisites::$apache_modules as $module) {
-			$found = false;
-			for ($i=0; !$found && $i<count($current_modules); $i++) {
-				if (strpos($current_modules[$i],$module) !== false) {
-					$found = true;
-				}				
+			foreach ($this->prerequisites_config["apache_modules"] as $module) {
+				$found = false;
+				for ($i=0; !$found && $i<count($current_modules); $i++) {
+					if (strpos($current_modules[$i],$module) !== false) {
+						$found = true;
+					}				
+				}
+				
+				if (!$found) {
+					$prerequisites .= "   Missing $module apache module".PHP_EOL;
+				} else {
+					logMessage(L_INFO, "Preqrequisite passed: Apache module %$module% found");
+				}
 			}
-			
-			if (!$found) $this->problems['Apache modules:'][] = "Apache $module module is missing";
-			else logMessage(L_INFO, "Preqrequisite passed: Apache module %$module% found");
 		}
 	}
 
-	// check that mySQL settings are set as required using the given $db_params
-	private function checkMySqlSettings($db_params) {
+	private function checkMySqlConnection($db_params, &$prerequisites) {
 		if (!DatabaseUtils::connect($link, $db_params, null)) {
-			$this->problems['mySQL settings:'][] = "Cannot connect to db";
+			$prerequisites .= "   Failed to connect to DB ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user'].PHP_EOL;
+			return false;
+		} else {
+			logMessage(L_INFO, "Preqrequisite passed: Successfully connected to DB ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user']);
+			return true;
+		}		
+	}
+	
+	// check that mySQL settings are set as required using the given $db_params
+	private function checkMySqlSettings($db_params, &$prerequisites) {
+		if (!DatabaseUtils::connect($link, $db_params, null)) {
+			$prerequisites .= "   Cannot check mysql settings, failed to connect to DB".PHP_EOL;
 			return;
 		}
 
-		foreach (Prerequisites::$mysql_settings as $key => $value) {
-			$result = mysqli_query($link, "SELECT @@$key;");
-			if ($result === false) {
-				$this->problems['mySQL settings:'][] = "Cannot find mysql settings key: $key";
-			}
-			else {			
-				$tmp = '@@'.$key;
-				$current = $result->fetch_object()->$tmp;
-				if (!$this->compare($current, $value[1], $value[0])) {
-					$this->problems['mySQL settings:'][] = "MySQL setting $key=$current and not $value[0] $value[1] expected";
-				}
-				else {
-					logMessage(L_INFO, "Preqrequisite passed: MySQL setting $key is set correctly $current, $value[1], $value[0]");
-				}
-			}
+		$this->checkMysqlSetting($link, "lower_case_table_names", $this->prerequisites_config["lower_case_table_names"], false, $prerequisites);
+		$this->checkMysqlSetting($link, "thread_stack", $this->prerequisites_config["thread_stack"], true, $prerequisites);
+	}
+	
+	// checks if the mysql settings $key is as $expected using the db $link
+	// if $allow_greater it also checks if the value is greater the the $expected (not only equal)
+	private function checkMysqlSetting(&$link, $key, $expected, $allow_greater, &$prerequisites) {
+		if ($allow_greater) $op = ">=";
+		else $op = "=";
+		
+		$result = mysqli_query($link, "SELECT @@$key;");
+		if ($result === false) {
+			$prerequisites .= "   Please set '$key $op $expected' in my.cnf and restart MySQL".PHP_EOL;
 		}
-	}	
+		else {			
+			$tmp = '@@'.$key;
+			$current = $result->fetch_object()->$tmp;
+			if ((intval($current) == intval($expected)) || 
+				($allow_greater && (intval($current) > intval($expected)))) {
+				logMessage(L_INFO, "Preqrequisite passed: MySQL setting $key=$current (should be $op $expected)");			
+			} else {
+				$prerequisites .= "   Please set '$key $op $expected' in my.cnf and restart MySQL (currently value is $current)".PHP_EOL;
+
+			}
+		}		
+	}
 	
 	// check that the php version is ok
-	private function checkPhpVersion() {		
-		if (!version_compare(phpversion(), Prerequisites::$php_version[1], Prerequisites::$php_version[0])) {
-			$this->problems['Product versions:'][] = "PHP version not valid expected $version[0] actual $version[1]";
+	private function checkPhpVersion(&$prerequisites) {	
+		$php_min_version = $this->prerequisites_config["php_min_version"];
+		if (!(intval(phpversion()) >= intval($php_min_version))) {
+			$prerequisites .= "   PHP version should be >= $php_min_version (current version is ".phpversion().")".PHP_EOL;
 		} else {
-			logMessage(L_INFO, "Preqrequisite passed: PHP version is OK (".phpversion().")");
+			logMessage(L_INFO, "Preqrequisite passed: PHP version is OK (".phpversion().")");			
 		}
 	}	
 		
 	// checks that the MYSQL version is ok
-	private function checkMySqlVersion($db_params) {
+	private function checkMySqlVersion($db_params, &$prerequisites) {
 		if (!DatabaseUtils::connect($link, $db_params, null)) {
-			$this->problems['Product versions:'][] = "Cannot connect to db";
+			$prerequisites .= "   Cannot MySQL version, failed to connect to DB".PHP_EOL;
 			return;
 		}
 
 		$key = "@@version";
 		$result = mysqli_query($link, "SELECT $key;");
 		if ($result === false) {
-			$this->problems['Product versions:'][] = "Cannot find mysql version";
+			$prerequisites .= "   Cannot find MySQL version".PHP_EOL;
 			return;
 		}
 
+		$mysql_min_version = $this->prerequisites_config["mysql_min_version"];
 		$current = $result->fetch_object()->$key;
-		if (!version_compare($current, Prerequisites::$mysql_version[1], Prerequisites::$mysql_version[0])) {
-			$this->problems['Product versions:'][] = "MySQL version not valid, expected $check[0] actual $check[1]";
+		if (!(intval($current) >= intval($mysql_min_version))) {
+			$prerequisites .= "   MySQL version should be >= $mysql_min_version (current version is $current)".PHP_EOL;
 		} else {
 			logMessage(L_INFO, "Preqrequisite passed: MySQL version is OK ($current)");
 		}
 	}
-		
-	/**
-	 * compare numbers according to given operator $op (note: assumes only numbers are passed as $val1 & $val2)
-	 * @param string $val1 1st value
-	 * @param string $val2 2nd value
-	 * @param string $op   operator
-	 */
-	private function compare($val1, $val2, $op)
-	{
-		switch ($op) {
-			case '=':
-				return strtoupper($val1) === strtoupper($val2);				
-			case '>':
-				return intval($val1) > intval($val2);				
-			case '>=':
-				return intval($val1) >= intval($val2);				
-			case '<':		
-				return (intval($val1) < intval($val2));					
-			case '<=':
-				return intval($val1) <= intval($val2);				
-		}
-		return false;
-	}		
 }

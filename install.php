@@ -11,20 +11,23 @@ include_once('installer/Installer.class.php');
 include_once('installer/InputValidator.class.php');
 
 // should be called whenever the installation fails
-// $error - the error to print to the user 
-// $cleanup - whether the installation failed at the middle of the install itself (true/false)
-function installationFailed($error, $cleanup = true) {
-	global $report, $installer, $app, $db_params;
-	echo PHP_EOL;
-	logMessage(L_USER, "Installation could not continue: $error");
-	
-	if ($cleanup) {
-		$installer->detectLeftovers(false, $app, $db_params);
-	}
+// $error - the error to print to the user
+// if $cleanup and there is something to cleanup it will prompt the user whether to cleanup
+function installationFailed($what_happened, $description, $what_to_do, $cleanup = false) {
+	global $report, $installer, $app, $db_params, $user;
+
 	if (isset($report)) {
-		$report->reportInstallationFailed($error);
-	}	
-	logMessage(L_USER, "Installation failed.\nCritical errors occurred during the installation process.\nFor assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org");
+		$report->reportInstallationFailed($what_happened."\n".$description);
+	}
+	if (!empty($what_happened)) logMessage(L_USER, $what_happened);
+	if (!empty($description)) logMessage(L_USER, $description);
+	if ($cleanup) {
+		$leftovers = $installer->detectLeftovers(true, $app, $db_params);
+		if (isset($leftovers) && $user->getTrueFalse(null, "Do you want to cleanup?", 'y')) {
+			$installer->detectLeftovers(false, $app, $db_params);
+		}	
+	}
+	if (!empty($what_to_do)) logMessage(L_USER, $what_to_do);		
 	die(1);
 }
 
@@ -95,10 +98,14 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 
 // verify that the installation can continue
 if (!OsUtils::verifyRootUser()) {
-	installationFailed("You must have root privileges to install Kaltura", false);
+	installationFailed("Installation cannot continue", 
+					   "You must have root privileges to install Kaltura", 
+					   "Please run the installation again from a root user");
 }
 if (!OsUtils::verifyOS()) {
-	installationFailed("Installation can only run on Linux", false);
+	installationFailed("Installation cannot continue", 
+					   "Kaltura can only run on Linux systems at the current time", 
+					   "Please run the installation on a different machine");
 }
 
 // get the user input if needed
@@ -120,7 +127,9 @@ echo PHP_EOL;
 logMessage(L_USER, "Verifing prerequisites");
 $prereq_desc = $preq->verifyPrerequisites($app, $db_params);
 if ($prereq_desc !== null) {
-	installationFailed("Please setup the preqrequisites listed and run the installation again\n$prereq_desc", false);
+	installationFailed("Installation cannot continue because some of the prerequisites checks failed", 
+					   $prereq_desc, 
+					   "Please fix the prerequisites and then run the installation again.");
 }
 
 // verify that there are no leftovers from previous installations
@@ -132,7 +141,9 @@ if (isset($leftovers)) {
 	if ($user->getTrueFalse(null, "Installation found leftovers from previous installation of Kaltura. In order to advance forward the leftovers must be removed. Do you wish to remove them now?", 'n')) {
 		$installer->detectLeftovers(false, $app, $db_params);
 	} else {
-		installationFailed("Please cleanup the previous installation and run the installer again\n$leftovers", false);		
+		installationFailed("Installation cannot continue because a previous installation of Kaltura was found", 
+						   $leftovers, 
+						   "Please manually uninstall Kaltura before running the installation again or aprove removing the leftovers.");
 	}
 }
 
@@ -148,7 +159,9 @@ if ($user->getTrueFalse('PROCEED_WITH_INSTALL', "Installation is now ready to be
 // run the installation
 $install_output = $installer->install($app, $db_params);
 if ($install_output !== null) {
-	installationFailed($install_output, true);
+	installationFailed("Installation failed", 
+					   "Critical errors occurred during the installation process", 
+					   "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org", true);
 }
 
 // send settings mail if possible
