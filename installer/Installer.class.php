@@ -145,7 +145,7 @@ class Installer {
 			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy.php --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
 				logMessage(L_INFO, "Deployed uiconf $to_deploy");
 			} else {
-				echo "Failed to deploy uiconf $to_deploy";
+				return "Failed to deploy uiconf $to_deploy";
 			}
 		}
 		
