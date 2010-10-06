@@ -107,16 +107,23 @@ class UserInput
 	}
 	
 	// get all the user input for the installation
-	public function getApplicationInput() {
-		$httpd_bin_found = OsUtils::findBinary(array('apachectl', 'apache2ctl'));
-		$httpd_bin_message = "The full pathname to your apachectl script";
+	public function getApplicationInput() {				
+		$httpd_bin_found = OsUtils::findBinary(array('apachectl', 'apache2ctl'));					
 		if (!empty($httpd_bin_found)) {
-			$httpd_bin_message .= PHP_EOL."Installer found $httpd_bin_found, leave empty to use it";
+			$httpd_bin_message = "The following apachectl script has been detected: $httpd_bin_found. Do you want to use this script to run your Kaltura application? Leave empty to use or provide a pathname to an alternative apachectl script on your server.";
+			$httpd_error_message = "Invalid pathname for apachectl script, leave empty to use $httpd_bin_found or enter an alternative apachectl path";
+		} else {
+			$httpd_bin_message = "Installation could not automatically detect any apachectl script. Please provide a pathname to the apachectl script on your server.";
+			$httpd_error_message = "Invalid pathname for apachectl script, please enter the apachectl pathname again";
 		}
+		
 		$php_bin_found = OsUtils::findBinary('php');
-		$php_bin_message = "The full pathname to your PHP binary file";
 		if (!empty($php_bin_found)) {
-			$php_bin_message .= PHP_EOL."Installer found $php_bin_found, leave empty to use it";
+			$php_bin_message = "The following PHP binary has been detected: $php_bin_found. Do you want to use this script to run your Kaltura application? Leave empty to use or provide a pathname to an alternative PHP binary on your server.";
+			$php_error_message = "Invalid pathname for PHP binary, leave empty to use $php_bin_found or enter an alternative PHP path";
+		} else {
+			$php_bin_message = "Installation could not automatically detect any PHP binary. Please provide a pathname to the PHP binary on your server.";
+			$php_error_message = "Invalid pathname for PHP binary, please enter the PHP pathname again";
 		}
 
 		logMessage(L_USER, "Please provide the following information:");
@@ -124,58 +131,58 @@ class UserInput
 		
 		$this->getInput('HTTPD_BIN', 
 						$httpd_bin_message, 
-						'Invalid pathname for apachectl', 
+						$httpd_error_message, 
 						InputValidator::createFileValidator(), 
 						$httpd_bin_found);		
 		$this->getInput('PHP_BIN', 
 						$php_bin_message, 
-						'PHP binary must exist', 
+						$php_error_message, 
 						InputValidator::createFileValidator(), 
 						$php_bin_found);
 		$this->getInput('BASE_DIR', 
-						"The full directory path for Kaltura application (Leave empty for /opt/kaltura)",
-						"Target directory must be a valid directory path", 
+						"Full target directory path for Kaltura application (leave empty for /opt/kaltura)",
+						"Target directory must be a valid directory path, please enter again", 
 						InputValidator::createDirectoryValidator(), 
 						'/opt/kaltura');
 		$this->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', 
 						"Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://)", 
-						'Must be a valid hostname or ip', 
+						'Must be a valid hostname or ip, please enter again', 
 						InputValidator::createHostValidator(), 
 						null);
 		// TODO: remove? not printing: A primary system administrator user will be created with full access to the Kaltura Administration Console.\nAdministrator e-mail
 		$this->getInput('ADMIN_CONSOLE_ADMIN_MAIL', 
 						"Your primary system administrator email address", 
-						"Email must be in a valid email format", 
+						"Email must be in a valid email format, please enter again", 
 						InputValidator::createEmailValidator(false), 
 						null);
 		$this->getInput('ADMIN_CONSOLE_PASSWORD', 
 						"The password you want to set for your primary administrator", 
-						"Password cannot be empty or contain whitespaces", 
+						"Password should not be empty and should not contain whitespaces, please enter again", 
 						InputValidator::createNoWhitespaceValidator(), 
 						null);
 		$this->getInput('DB1_HOST', 
-						"Database host (Leave empty for 'localhost')", 
-						'Must be a valid hostname or ip', 
+						"Database host (leave empty for 'localhost')", 
+						"Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", 
 						InputValidator::createHostValidator(), 
 						'localhost');
 		$this->getInput('DB1_PORT', 
-						"Database port (Leave empty for '3306')", 
-						'Must be a valid port (1-65535)', 
+						"Database port (leave empty for '3306')", 
+						"Must be a valid port (1-65535), please enter again (leave empty for '3306')", 
 						InputValidator::createRangeValidator(1, 65535), 
 						'3306');
 		$this->set('DB1_NAME','kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
 		$this->getInput('DB1_USER', 
-						"Database username (With create & write privileges)", 
-						"DB user cannot be empty", 
+						"Database username (with create & write privileges)", 
+						"Database username cannot be empty, please enter again", 
 						InputValidator::createNonEmptyValidator(), 
 						null);
 		$this->getInput('DB1_PASS', 
-						"Database password (Leave empty for no password)", 
+						"Database password (leave empty for no password)", 
 						null, 
 						null, 
 						null);
 		$this->getInput('XYMON_URL', 
-						"The URL to your xymon/hobbit monitoring location.\nXymon is an optional installation. Leave empty to set manually later\nExamples:\nhttp://www.xymondomain.com/xymon/\nhttp://www.xymondomain.com/hobbit/", 
+						"The URL to your xymon/hobbit monitoring location. Xymon is an optional installation. Leave empty to set manually later\nExamples:\nhttp://www.xymondomain.com/xymon/\nhttp://www.xymondomain.com/hobbit/", 
 						null, 
 						null, 
 						null);

@@ -3,7 +3,6 @@
 include_once('installer/DatabaseUtils.class.php');
 include_once('installer/OsUtils.class.php');
 include_once('installer/UserInput.class.php');
-include_once('installer/Prerequisites.class.php');
 include_once('installer/Log.php');
 include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
@@ -50,7 +49,6 @@ logMessage(L_INFO, "Installation started");
 // variables
 $app = new AppConfig();
 $installer = new Installer();
-$preq = new Prerequisites();
 $user = new UserInput();
 $db_params = array();
 
@@ -106,6 +104,11 @@ if (!OsUtils::verifyOS()) {
 					   null, null);
 }
 
+if (!extension_loaded('mysqli')) {
+	installationFailed("You must have PHP mysqli extension loaded to continue with the installation.", 
+					   null, null);
+}
+
 // get the user input if needed
 if ($user->isInputLoaded()) {
 	logMessage(L_USER, "Skipping user input, previous installation input will be used.");	
@@ -123,10 +126,12 @@ $db_params['db_pass'] = $app->get('DB1_PASS');
 // verify prerequisites
 echo PHP_EOL;
 logMessage(L_USER, "Verifing prerequisites");
-$prereq_desc = $preq->verifyPrerequisites($app, $db_params);
-if ($prereq_desc !== null) {
-	installationFailed("One or more prerequisites required to install Kaltura failed:", 
-					   $prereq_desc, 
+@exec(sprintf("%s installer/Prerequisites.php %s %s %s %s %s 2>&1", $app->get("PHP_BIN"), $app->get("HTTPD_BIN"), $db_params['db_host'], $db_params['db_port'], $db_params['db_user'], $db_params['db_pass']), $output, $exit_value);
+if ($exit_value !== 0) {
+	$description = "   ".implode("\n   ", $output)."\n";
+	echo PHP_EOL;
+	installationFailed("One or more prerequisites required to install Kaltura failed:",
+					   $description,
 					   "Please resolve the issues and run the installation again.");
 }
 
@@ -140,7 +145,7 @@ if (isset($leftovers)) {
 		$installer->detectLeftovers(false, $app, $db_params);
 	} else {
 		installationFailed("Installation cannot continue because a previous installation of Kaltura was detected.", 
-						   $leftovers, 
+						   $leftovers,
 						   "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
 	}
 }
