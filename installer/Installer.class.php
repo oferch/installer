@@ -31,7 +31,7 @@ class Installer {
 				if ($report_only) {
 					$leftovers .= "   ".$link_items[1]." symbolic link exists".PHP_EOL;
 				} else {
-					logMessage(L_USER, "Removing symblic link $link_items[1]");
+					logMessage(L_USER, "Removing symbolic link $link_items[1]");
 					OsUtils::recursiveDelete($link_items[1]);
 				}
 			}
@@ -67,14 +67,14 @@ class Installer {
 	public function install($app, $db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
 		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
-			return "Failed copying Kaltura application to target directory";
+			return "Failed to copy application files to target directory";
 		}		
 
 		$os_name = 	OsUtils::getOsName();
 		$architecture = OsUtils::getSystemArchitecture();	
 		logMessage(L_USER, "Copying binaries for $os_name $architecture");
 		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get('BIN_DIR'))) {
-			return "Failed copying binaris for $os_name $architecture";
+			return "Failed to copy binaris for $os_name $architecture";
 		}
 				
 		logMessage(L_USER, "Replacing configuration tokens in files");
@@ -89,37 +89,37 @@ class Installer {
 		foreach ($this->install_config['chmod_items'] as $item) {
 			$chmod_item = $app->replaceTokensInString($item);
 			if (!OsUtils::chmod($chmod_item)) {
-				return "Failed changing permission for $chmod_item";
+				return "Failed to change permissions for $chmod_item";
 			}
-		}		
+		}
 
 		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
 
 		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
 		if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) {
-			return "Failed creating ".$app->get('DB1_NAME')." DB";
+			return "Failed to create '".$app->get('DB1_NAME')."' database";
 		}
 		foreach ($sql_files['kaltura']['sql'] as $sql) {
 			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
 			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
-				return "Failed running DB script $sql_file";
+				return "Failed running database script $sql_file";
 			}
 		}
 
 		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB_STATS_NAME')));
 		if (!DatabaseUtils::createDb($db_params, $app->get('DB_STATS_NAME'))) {
-			return "Failed creating ".$app->get('DB_STATS_NAME')." DB";
+			return "Failed to create '".$app->get('DB_STATS_NAME')."' database";
 		}
 		foreach ($sql_files['stats']['sql'] as $sql) {
 			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
 			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB_STATS_NAME'))) {
-				return "Failed running DB script $sql_file";
+				return "Failed running database script $sql_file";
 			}
 		}
 			
 		logMessage(L_USER, "Creating data warehouse");
 		if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app->get('DB1_NAME'))) {
-			return "Failed running Data Warehouse permission initialization script";		
+			return "Failed running data warehouse permission initialization script";		
 		}
 		if (!OsUtils::execute(sprintf("%s/ddl/dwh_ddl_install.sh -u %s -p %s -d %s", $app->get('DWH_DIR'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
 			return "Failed running data warehouse initialization script";
@@ -151,20 +151,19 @@ class Installer {
 		
 		logMessage(L_USER, "Creating the uninstaller");
 		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
-			return "Failed creating the uninstaller";
+			return "Failed to create the uninstaller";
 		}
 		$app->saveUninstallerConfig();
 		
-		logMessage(L_USER, "Running Kaltura");
-		logMessage(L_USER, "Populating sphinx entries (executing '".$app->get('PHP_BIN').' '.$app->get('APP_DIR')."/deployment/base/scripts/populateSphinxEntries.php')");
+		logMessage(L_USER, "Populating sphinx entries");
 		if (!OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php')) {
-			return "Failed populating initial sphinx entries";
+			return "Failed to populate initial sphinx entries";
 		}
-		logMessage(L_USER, "Running the batch manager (executing '".$app->get('APP_DIR')."/scripts/serviceBatchMgr.sh start')");
+		logMessage(L_USER, "Running the batch manager");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the btach manager";
 		}
-		logMessage(L_USER, "Running the sphinx search deamon (executing '".$app->get('APP_DIR')."/scripts/searchd.sh start')");
+		logMessage(L_USER, "Running the sphinx search deamon");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start')) {
 			return "Failed running the sphinx search deamon";
 		}
@@ -183,7 +182,7 @@ class Installer {
 			$result = DatabaseUtils::dbExists($db_params, $db);
 			
 			if ($result === -1) {
-				$verify .= "   Error verifying if db exists $db".PHP_EOL;
+				$verify .= "   Cannot verify if '$db' database exists".PHP_EOL;
 			} else if ($result === true) {
 				if (!$should_drop) {
 					$verify .= "   '$db' database already exists ".PHP_EOL;

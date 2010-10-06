@@ -79,7 +79,7 @@ class Prerequisites {
     // checks that needed apache modules exist, using the given $httpd_bin
 	private function checkApacheModules($httpd_bin, &$prerequisites) {
 		if (!OsUtils::execute($httpd_bin.' -t')) {
-			$prerequisites .= "   Cannot check apache modules, please fix '$httpd_bin -t'".PHP_EOL;
+			$prerequisites .= "   Cannot check apache modules, please make sure that '$httpd_bin -t' command runs properly".PHP_EOL;
 		} else {		
 			$current_modules = OsUtils::executeReturnOutput($httpd_bin.' -M');
 				
@@ -92,7 +92,7 @@ class Prerequisites {
 				}
 				
 				if (!$found) {
-					$prerequisites .= "   Missing $module apache module".PHP_EOL;
+					$prerequisites .= "   Missing $module Apache module".PHP_EOL;
 				} else {
 					logMessage(L_INFO, "Preqrequisite passed: Apache module %$module% found");
 				}
@@ -102,7 +102,7 @@ class Prerequisites {
 
 	private function checkMySqlConnection($db_params, &$prerequisites) {
 		if (!DatabaseUtils::connect($link, $db_params, null)) {
-			$prerequisites .= "   Failed to connect to DB ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user'].PHP_EOL;
+			$prerequisites .= "   Failed to connect to database ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user'].PHP_EOL;
 			return false;
 		} else {
 			logMessage(L_INFO, "Preqrequisite passed: Successfully connected to DB ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user']);
@@ -138,7 +138,7 @@ class Prerequisites {
 				($allow_greater && (intval($current) > intval($expected)))) {
 				logMessage(L_INFO, "Preqrequisite passed: MySQL setting $key=$current (should be $op $expected)");			
 			} else {
-				$prerequisites .= "   Please set '$key $op $expected' in my.cnf and restart MySQL (currently value is $current)".PHP_EOL;
+				$prerequisites .= "   Please set '$key $op $expected' in my.cnf and restart MySQL (currently set to $current)".PHP_EOL;
 
 			}
 		}		
@@ -157,7 +157,7 @@ class Prerequisites {
 	// checks that the MYSQL version is ok
 	private function checkMySqlVersion($db_params, &$prerequisites) {
 		if (!DatabaseUtils::connect($link, $db_params, null)) {
-			$prerequisites .= "   Cannot MySQL version, failed to connect to DB".PHP_EOL;
+			$prerequisites .= "   Cannot check MySQL version, failed to connect to database".PHP_EOL;
 			return;
 		}
 

@@ -109,7 +109,7 @@ class UserInput
 	// get all the user input for the installation
 	public function getApplicationInput() {
 		$httpd_bin_found = OsUtils::findBinary(array('apachectl', 'apache2ctl'));
-		$httpd_bin_message = "The full pathname to your Apache apachectl/apache2ctl";
+		$httpd_bin_message = "The full pathname to your apachectl script";
 		if (!empty($httpd_bin_found)) {
 			$httpd_bin_message .= PHP_EOL."Installer found $httpd_bin_found, leave empty to use it";
 		}
@@ -119,9 +119,12 @@ class UserInput
 			$php_bin_message .= PHP_EOL."Installer found $php_bin_found, leave empty to use it";
 		}
 
+		logMessage(L_USER, "Please provide the following information:");
+		echo PHP_EOL;
+		
 		$this->getInput('HTTPD_BIN', 
 						$httpd_bin_message, 
-						'Httpd binary must exist', 
+						'Invalid pathname for apachectl', 
 						InputValidator::createFileValidator(), 
 						$httpd_bin_found);		
 		$this->getInput('PHP_BIN', 
@@ -130,12 +133,12 @@ class UserInput
 						InputValidator::createFileValidator(), 
 						$php_bin_found);
 		$this->getInput('BASE_DIR', 
-						"The full directory path for Kaltura application (Leave empty for /opt/kaltura)", 
+						"The full directory path for Kaltura application (Leave empty for /opt/kaltura)",
 						"Target directory must be a valid directory path", 
 						InputValidator::createDirectoryValidator(), 
 						'/opt/kaltura');
 		$this->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', 
-						"Please enter the domain name/virtual hostname that will be used for the kaltura server (without http://)", 
+						"Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://)", 
 						'Must be a valid hostname or ip', 
 						InputValidator::createHostValidator(), 
 						null);

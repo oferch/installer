@@ -73,15 +73,15 @@ function dropDb($db, $host, $user, $pass, $port) {
 	
 $config = parse_ini_file("uninstall.ini");
 $success = true;
-echo 'Uninstaller is going to remove Kaltura software from your system.'.PHP_EOL;
-echo 'The installation cannot be undone (it will also drop the databases and remove any uploaded content).'.PHP_EOL;
-echo 'Do you wish to continue? (y/N)'.PHP_EOL;
+echo 'Uninstaller will fully remove the Kaltura software from your system.'.PHP_EOL;
+echo 'Databases and any uploaded content will also be removed.'.PHP_EOL;
+echo 'This action cannot be undone. Do you wish to continue? (y/N)'.PHP_EOL;
 if (!getTrueFalse(false)) {
-	echo 'You choose not to uninstaller Kaltura, uninstall will exit now.'.PHP_EOL;
+	echo 'Uninstallation was cancelled, uninstaller will now exit.'.PHP_EOL;
 	die(0);
 }
 
-echo 'Stopping sphinx deamon ('.$config['BASE_DIR'].'/app/scripts/searchd.sh stop)... ';
+echo 'Stopping sphinx deamon... ';
 if (execute($config['BASE_DIR'].'/app/scripts/searchd.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
@@ -89,7 +89,7 @@ if (execute($config['BASE_DIR'].'/app/scripts/searchd.sh stop')) {
 	$success = false;
 }
 
-echo 'Stopping batch manager manager ('.$config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop)';
+echo 'Stopping batch manager... ';
 if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
@@ -114,7 +114,7 @@ if (execute("rm -rf /etc/cron.d/kaltura_crontab")) {
 }
 
 foreach ($dbs_to_drop as $db) {
-	echo "Removing '$db' DB... ";
+	echo "Removing '$db' database... ";
 	if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
 		echo 'OK'.PHP_EOL;
 	} else {
@@ -132,6 +132,6 @@ if (execute("rm -rf ".$config['BASE_DIR'])) {
 }
 	
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
-else echo 'Some of the uninstall steps failed, please do them manually'.PHP_EOL;
-echo 'Please maually remove Kaltura related includes from your httpd.conf or httpd-vhosts.conf files'.PHP_EOL;
+else echo 'Some of the uninstall steps failed, please complete the process manually'.PHP_EOL;
+echo 'Please maually remove Kaltura related Includes from your httpd.conf or httpd-vhosts.conf files'.PHP_EOL;
 

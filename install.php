@@ -75,19 +75,19 @@ $app->set('KALTURA_VERSION_TYPE', $version['type']);
 
 // start user interaction
 @system('clear');
-logMessage(L_USER, "Thank you for using Kaltura video platform");
+logMessage(L_USER, "Thank you for installing Kaltura Video Platform - Community Edition");
 echo PHP_EOL;
 
 // If previous installation found and the user wants to use it
 if ($user->hasInput() && 
-	$user->getTrueFalse(null, "A previous installation found, do you want to use the same configuration?", 'y')) {
+	$user->getTrueFalse(null, "A previous installation attempt has been detected, do you want to use the input you provided during you last installation?", 'y')) {
 	$user->loadInput();
 }
 
 // if user wants or have to report
 if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) || 
 	($user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura CE, we would like your permission to send system data from your server to Kaltura.\nThis information will not be used for any purpose other than improving service quality. I agree", 'y')))) {
-	$email = $user->getInput('REPORT_MAIL', "If you wish, please provide your email address so that we can offer you future assistance (Leave empty to pass)", "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
+	$email = $user->getInput('REPORT_MAIL', "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)", "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
 	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $app->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
@@ -98,19 +98,17 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 
 // verify that the installation can continue
 if (!OsUtils::verifyRootUser()) {
-	installationFailed("Installation cannot continue", 
-					   "You must have root privileges to install Kaltura", 
-					   "Please run the installation again from a root user");
+	installationFailed("Installation cannot continue, you must have root privileges to continue with the installation process.", 
+					   null, null);
 }
 if (!OsUtils::verifyOS()) {
-	installationFailed("Installation cannot continue", 
-					   "Kaltura can only run on Linux systems at the current time", 
-					   "Please run the installation on a different machine");
+	installationFailed("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.", 
+					   null, null);
 }
 
 // get the user input if needed
 if ($user->isInputLoaded()) {
-	logMessage(L_USER, "Skipping user input, using previous configuration");	
+	logMessage(L_USER, "Skipping user input, previous installation input will be used.");	
 } else {
 	$user->getApplicationInput();
 }
@@ -127,29 +125,29 @@ echo PHP_EOL;
 logMessage(L_USER, "Verifing prerequisites");
 $prereq_desc = $preq->verifyPrerequisites($app, $db_params);
 if ($prereq_desc !== null) {
-	installationFailed("Installation cannot continue because some of the prerequisites checks failed", 
+	installationFailed("One or more prerequisites required to install Kaltura failed:", 
 					   $prereq_desc, 
-					   "Please fix the prerequisites and then run the installation again.");
+					   "Please resolve the issues and run the installation again.");
 }
 
 // verify that there are no leftovers from previous installations
 echo PHP_EOL;
-logMessage(L_USER, "Verifing that there are no leftovers from previous installation of Kaltura");
+logMessage(L_USER, "Checking for leftovers from a previous installation");
 $leftovers = $installer->detectLeftovers(true, $app, $db_params);
 if (isset($leftovers)) {
 	logMessage(L_USER, $leftovers);
-	if ($user->getTrueFalse(null, "Installation found leftovers from previous installation of Kaltura. In order to advance forward the leftovers must be removed. Do you wish to remove them now?", 'n')) {
+	if ($user->getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
 		$installer->detectLeftovers(false, $app, $db_params);
 	} else {
-		installationFailed("Installation cannot continue because a previous installation of Kaltura was found", 
+		installationFailed("Installation cannot continue because a previous installation of Kaltura was detected.", 
 						   $leftovers, 
-						   "Please manually uninstall Kaltura before running the installation again or aprove removing the leftovers.");
+						   "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
 	}
 }
 
 // last chance to stop the installation
 echo PHP_EOL;
-if ($user->getTrueFalse('PROCEED_WITH_INSTALL', "Installation is now ready to begin, start the installation?", 'y')) {
+if ($user->getTrueFalse('PROCEED_WITH_INSTALL', "Installation is now ready to begin. Start installation now?", 'y')) {
 	$user->saveInput();
 } else {
 	echo "Bye".PHP_EOL;
@@ -159,24 +157,24 @@ if ($user->getTrueFalse('PROCEED_WITH_INSTALL', "Installation is now ready to be
 // run the installation
 $install_output = $installer->install($app, $db_params);
 if ($install_output !== null) {
-	installationFailed("Installation failed", 
-					   "Critical errors occurred during the installation process", 
+	installationFailed("Installation failed.", 
+					   "Critical errors occurred during the installation process.", 
 					   "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org", true);
 }
 
 // send settings mail if possible
 if (!function_exists('mail')) {
-	logMessage(L_USER, "Skipped sending settings mail");
+	logMessage(L_USER, "Post installation email cannot be sent (missing PHP email function)");
 } else {
-	logMessage(L_USER, "Sending settings mail to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
+	logMessage(L_USER, "Sending post installation email to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
 	$msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
-	@mail('TO', 'Kaltura installation settings', $msg);	
+	@mail('TO', 'Kaltura Installation Settings', $msg);	
 }
-	
+
 // print after installation instructions
 echo PHP_EOL;
-logMessage(L_USER, sprintf("Installation Completed Successfully.\nYour Kaltura Admin Console credentials:\nSystem Admin user: %s\nSystem Admin password: %s\n\nPlease keep this information for future use.\nAssuming your mail server is up, the above \ninformation will also be sent to your email.", $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')));
-logMessage(L_USER, sprintf("To start using Kaltura, please do the following steps:\n1. Add the following line to your /etc/hosts file:\n\t127.0.0.1 %s\n2. Add the following line to your Apache configurations file (Usually called httpd.conf or apache2.conf):\n\tInclude %s/app/configurations/apache/my_kaltura.conf\n3. Restart apache by executing the following command:\t%s\n4. Browse to your Kaltura start page at: http://%s/start\n", $app->get("KALTURA_VIRTUAL_HOST_NAME"), $app->get("BASE_DIR"), $app->get("HTTPD_BIN"), $app->get("KALTURA_VIRTUAL_HOST_NAME")));
+logMessage(L_USER, sprintf("Installation Completed Successfully.\nYour Kaltura Admin Console credentials:\nSystem Admin user: %s\nSystem Admin password: %s\n\nPlease keep this information for future use.\n", $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')));
+logMessage(L_USER, sprintf("To start using Kaltura, please complete the following steps:\n1. Add the following line to your /etc/hosts file:\n\t127.0.0.1 %s\n2. Add the following line to your Apache configurations file (Usually called httpd.conf or apache2.conf):\n\tInclude %s/app/configurations/apache/my_kaltura.conf\n3. Restart apache\n4. Browse to your Kaltura start page at: http://%s/start\n", $app->get("KALTURA_VIRTUAL_HOST_NAME"), $app->get("BASE_DIR"), $app->get("KALTURA_VIRTUAL_HOST_NAME")));
 
 if (isset($report)) {
 	$report->reportInstallationSuccess();
