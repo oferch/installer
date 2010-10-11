@@ -87,6 +87,9 @@ class AppConfig {
 		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh'; // For backward compatibility
 		
 		// databases (copy information collected during prerequisites
+		if ($this->app_config['DB1_HOST'] == 'localhost') {
+			$this->app_config['DB1_HOST'] = '127.0.0.1';
+		}
 		$this->collectDatabaseCopier('DB1', 'DB2');
 		$this->collectDatabaseCopier('DB1', 'DB3');
 				
