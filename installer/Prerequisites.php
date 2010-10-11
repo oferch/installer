@@ -17,7 +17,7 @@ $httpd_bin = trim($argv[1]);
 $db_params['db_host'] = trim($argv[2]);
 $db_params['db_port'] = trim($argv[3]);
 $db_params['db_user'] = trim($argv[4]);
-if (count($argv) > 4) $db_params['db_pass'] = trim($argv[5]);
+if (count($argv) > 5) $db_params['db_pass'] = trim($argv[5]);
 else $db_params['db_pass'] = "";
 
 $prerequisites_config = parse_ini_file(FILE_PREREQUISITES_CONFIG, true);
