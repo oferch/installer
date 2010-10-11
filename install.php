@@ -168,12 +168,11 @@ if ($install_output !== null) {
 }
 
 // send settings mail if possible
-if (!function_exists('mail')) {
-	logMessage(L_USER, "Post installation email cannot be sent (missing PHP email function)");
+$msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
+if (!function_exists('mail') || !@mail($app->get('ADMIN_CONSOLE_ADMIN_MAIL'), 'Kaltura Installation Settings', $msg)) {
+	logMessage(L_USER, "Post installation email cannot be sent");
 } else {
-	logMessage(L_USER, "Sending post installation email to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
-	$msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
-	@mail($app->get('ADMIN_CONSOLE_ADMIN_MAIL'), 'Kaltura Installation Settings', $msg);	
+	logMessage(L_USER, "Sending post installation email to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL')." (the arrival of the mail also depends on the server's mail configuration)");		
 }
 
 // print after installation instructions
