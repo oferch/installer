@@ -89,7 +89,7 @@ if (execute($config['BASE_DIR'].'/app/scripts/searchd.sh stop')) {
 	$success = false;
 }
 
-echo 'Stopping batch manager... ';
+echo 'Stopping the batch manager... ';
 if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
@@ -114,7 +114,7 @@ if (execute("rm -rf /etc/cron.d/kaltura_crontab")) {
 }
 
 foreach ($dbs_to_drop as $db) {
-	echo "Removing '$db' database... ";
+	echo "Dropping '$db' database... ";
 	if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
 		echo 'OK'.PHP_EOL;
 	} else {
