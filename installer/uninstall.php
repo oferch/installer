@@ -123,7 +123,7 @@ foreach ($dbs_to_drop as $db) {
 	}
 }
 
-echo "Removing ".$config['BASE_DIR']."...";
+echo "Removing ".$config['BASE_DIR']."... ";
 if (execute("rm -rf ".$config['BASE_DIR'])) {
 	echo 'OK'.PHP_EOL;
 } else {
