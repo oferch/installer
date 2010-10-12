@@ -84,7 +84,7 @@ if ($user->hasInput() &&
 
 // if user wants or have to report
 if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) || 
-	($user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura CE, we would like your permission to send system data from your server to Kaltura.\nThis information will not be used for any purpose other than improving service quality. I agree", 'y')))) {
+	($user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y')))) {
 	$email = $user->getInput('REPORT_MAIL', "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)", "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
@@ -172,7 +172,7 @@ $msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get st
 if (!function_exists('mail') || !@mail($app->get('ADMIN_CONSOLE_ADMIN_MAIL'), 'Kaltura Installation Settings', $msg)) {
 	logMessage(L_USER, "Post installation email cannot be sent");
 } else {
-	logMessage(L_USER, "Sending post installation email to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL')." (the arrival of the mail also depends on the server's mail configuration)");		
+	logMessage(L_USER, "Sending post installation email to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL')." (the arrival of the mail also depends on the server's mail configuration)");
 }
 
 // print after installation instructions
