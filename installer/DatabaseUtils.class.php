@@ -53,7 +53,7 @@ class DatabaseUtils
 		
 		// execute all queries
 		if (!mysqli_multi_query($link, $query) || $link->error != '') {
-			logMessage(L_ERROR, "Cannot execute query: error with query: $query");
+			logMessage(L_ERROR, "Cannot execute query: error with query: $query, error: ".$link->error);
 			return false;		
 		}
 		// flush
@@ -99,7 +99,6 @@ class DatabaseUtils
 	 */
 	public static function dbExists($db_params, $db_name)
 	{
-		logMessage(L_INFO, "Check database exists $db_name");	
 		if (!self::connect($link, $db_params, null)) {
 			logMessage(L_ERROR, "Could not database $db_name: could not connect to host");	
 			return -1;

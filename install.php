@@ -152,9 +152,7 @@ if (isset($leftovers)) {
 
 // last chance to stop the installation
 echo PHP_EOL;
-if ($user->getTrueFalse('PROCEED_WITH_INSTALL', "Installation is now ready to begin. Start installation now?", 'y')) {
-	$user->saveInput();
-} else {
+if (!$user->getTrueFalse('', "Installation is now ready to begin. Start installation now?", 'y')) {
 	echo "Bye".PHP_EOL;
 	die(1);	
 }
