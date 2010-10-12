@@ -1,7 +1,9 @@
 <?php
 
+include_once('installer/DatabaseUtils.class.php');
+include_once('installer/Log.php');
+
 define("FILE_PREREQUISITES_CONFIG", "prerequisites.ini"); // this file contains the definitions of the prerequisites that are being checked
-include_once('DatabaseUtils.class.php');
 
 $usage_string = 'Usage is php '.__FILE__.' <apachectl> <db host> <db port> <db user> <db pass>'.PHP_EOL;
 $usage_string .= 'Prints all the missing prerequisites and exits with code 0 if all verifications passes and 1 otherwise'.PHP_EOL;
