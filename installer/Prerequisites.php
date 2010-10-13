@@ -41,7 +41,7 @@ foreach ($prerequisites_config["php_extensions"] as $ext) {
 if (!extension_loaded('mysqli')) {
 	$prerequisites .= "Cannot check MySQL connection, version and settings because PHP mysqli extension is not loaded".PHP_EOL;
 } else if (!DatabaseUtils::connect($link, $db_params, null)) {
-		$prerequisites .= "Failed to connect to database ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user'].PHP_EOL;
+		$prerequisites .= "Failed to connect to database ".$db_params['db_host'].":".$db_params['db_port']." user:".$db_params['db_user'].". Please check the database settings you provided and verify that MySQL is up and running.".PHP_EOL;
 } else {
 	// check mysql version and settings
 	$mysql_version = getMysqlSetting($link, 'version'); // will always return the value
