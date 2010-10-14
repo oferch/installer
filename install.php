@@ -88,10 +88,12 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 	$email = $user->getInput('REPORT_MAIL', "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)", "Email must be in a valid email format", InputValidator::createEmailValidator(true), null);
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
+	$app->set('USAGE_TRACKING_OPTIN','true');	
 	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $app->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
 	$report->reportInstallationStart();
 } else {
 	$app->set('TRACK_KDPWRAPPER','false');
+	$app->set('USAGE_TRACKING_OPTIN','false');
 }
 
 // verify that the installation can continue
