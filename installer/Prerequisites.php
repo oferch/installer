@@ -1,7 +1,7 @@
 <?php
 
-include_once(realpath(dirname(__FILE__).'/DatabaseUtils.class.php');
-include_once(realpath(dirname(__FILE__).'/Log.php');
+include_once(realpath(dirname(__FILE__)).'/DatabaseUtils.class.php');
+include_once(realpath(dirname(__FILE__)).'/Log.php');
 
 define("FILE_PREREQUISITES_CONFIG", "prerequisites.ini"); // this file contains the definitions of the prerequisites that are being checked
 
