@@ -124,6 +124,9 @@ class AppConfig {
 		$this->app_config['TEMPLATE_KUSER_MAIL'] = $this->app_config['TEMPLATE_PARTNER_MAIL'];
 		$this->app_config['TEMPLATE_ADMIN_KUSER_SALT'] = $this->app_config['SYSTEM_USER_ADMIN_SALT'];
 		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];		
+		$this->app_config['PARTNER_ZERO_SECRET'] = $this->generateSecret();
+		$this->app_config['PARTNER_ZERO_ADMIN_SECRET'] = $this->generateSecret();
+		$this->app_config['PARTNER_ZERO_PARTNER_ALIAS'] = md5('-1kaltura partner zero');		
 		
 		// batch
 		$this->app_config['BATCH_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
