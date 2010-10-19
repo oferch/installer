@@ -155,8 +155,8 @@ class AppConfig {
 		$this->app_config['PARTNERS_USAGE_REPORT_SEND_FROM'] = ''; 
 		$this->app_config['PARTNERS_USAGE_REPORT_SEND_TO'] = '';
 		$this->app_config['SYSTEM_PAGES_LOGIN_USER'] = '';
-		$this->app_config['SYSTEM_PAGES_LOGIN_PASS'] = '123456';
-		$this->app_config['KMC_BACKDOR_SHA1_PASS'] = '123456';
+		$this->app_config['SYSTEM_PAGES_LOGIN_PASS'] = sha1('123456');
+		$this->app_config['KMC_BACKDOR_SHA1_PASS'] = sha1('123456');
 		$this->app_config['DC0_SECRET'] = '';
 		$this->app_config['APACHE_CONF'] = '';		
 		
