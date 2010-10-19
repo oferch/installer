@@ -175,8 +175,8 @@ $mailer->CharSet = 'utf-8';
 $mailer->IsHTML(true);
 $mailer->AddAddress($app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
 $mailer->Sender = 'notifications@kaltura.com';
-$mailer->From = 'notifications@kaltura.com';
-$mailer->FromName = 'notifications@kaltura.com';
+$mailer->From = "installation_confirmation@".$app->get('KALTURA_VIRTUAL_HOST_NAME');
+$mailer->FromName = $app->get('ENVIRONMENT_NAME');
 $mailer->Subject = 'Kaltura Installation Settings';
 $mailer->Body = $msg;
 
