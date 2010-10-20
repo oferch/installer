@@ -155,6 +155,11 @@ class Installer {
 		}
 		$app->saveUninstallerConfig();
 		
+		logMessage(L_USER, "Running the sphinx search deamon");
+		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start')) {
+			return "Failed running the sphinx search deamon";
+		}
+		
 		logMessage(L_USER, "Populating sphinx entries");
 		if (!OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php')) {
 			return "Failed to populate initial sphinx entries";
@@ -162,10 +167,6 @@ class Installer {
 		logMessage(L_USER, "Running the batch manager");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the btach manager";
-		}
-		logMessage(L_USER, "Running the sphinx search deamon");
-		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start')) {
-			return "Failed running the sphinx search deamon";
 		}
 		
 		return null;
