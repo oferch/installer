@@ -26,7 +26,7 @@ $prerequisites_config = parse_ini_file(FILE_PREREQUISITES_CONFIG, true);
 $prerequisites = "";
 
 // check php version
-if (!(intval(phpversion()) >= intval($prerequisites_config["php_min_version"]))) {
+if (!checkVersion(phpversion(), $prerequisites_config["php_min_version"])) {
 	$prerequisites .= "PHP version should be >= $php_min_version (current version is ".phpversion().")".PHP_EOL;
 }
 
@@ -58,7 +58,7 @@ if (!extension_loaded('mysqli')) {
 } else {
 	// check mysql version and settings
 	$mysql_version = getMysqlSetting($link, 'version'); // will always return the value
-	if (intval($mysql_version) < intval($prerequisites_config["mysql_min_version"])) {
+	if (!checkVersion($mysql_version, $prerequisites_config["mysql_min_version"])) {
 		$prerequisites .= "MySQL version should be >= ".$prerequisites_config["mysql_min_version"]." (current version is $mysql_version)".PHP_EOL;
 	}
 	
@@ -129,4 +129,30 @@ function getMysqlSetting(&$link, $key) {
 		$current = $result->fetch_object()->$tmp;
 		return $current;
 	}		
+}
+
+// check if the given $version is equal or bigger than the $expected
+// both $version and $expected are version strings which means that they are numbers separated by dots ('.')
+// if $version has less parts, the missing parts are treated as zeros
+function checkVersion($version, $expected) {
+	$version_parts = explode('.', $version);
+	$expected_parts = explode('.', $expected);
+	
+	for ($i=0; $i<count($expected_parts); $i++) {
+		// allow the version to have less parts than the expected, fill the missing with zeros
+		$comparison = 0;
+		if ($i < count($version_parts)) {
+			$comparison = intval($version_parts[$i]);
+		}
+	
+		// if the part is smaller the version is not ok
+		if ($comparison < intval($expected_parts[$i])) {
+			return false;
+		// if the part is bigger the version is ok
+		} else if ($comparison > intval($expected_parts[$i])) {
+			return true;
+		}		
+	}
+	
+	return true;
 }
