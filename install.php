@@ -172,7 +172,7 @@ if ($install_output !== null) {
 $msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
 $mailer = new PHPMailer();
 $mailer->CharSet = 'utf-8';
-$mailer->IsHTML(true);
+$mailer->IsHTML(false);
 $mailer->AddAddress($app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
 $mailer->Sender = "installation_confirmation@".$app->get('KALTURA_VIRTUAL_HOST_NAME');
 $mailer->From = "installation_confirmation@".$app->get('KALTURA_VIRTUAL_HOST_NAME');
