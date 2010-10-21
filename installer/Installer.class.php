@@ -118,9 +118,6 @@ class Installer {
 		}
 			
 		logMessage(L_USER, "Creating data warehouse");
-		if (!DatabaseUtils::runScript("package/dwh_grants/grants.sql", $db_params, $app->get('DB1_NAME'))) {
-			return "Failed running data warehouse permission initialization script";		
-		}
 		if (!OsUtils::execute(sprintf("%s/ddl/dwh_ddl_install.sh -u %s -p %s -d %s", $app->get('DWH_DIR'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
 			return "Failed running data warehouse initialization script";
 		}
