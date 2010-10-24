@@ -58,7 +58,7 @@ $app->set('INSTALLATION_UID', uniqid("IID")); // unique id per installation
 
 // load or create installation sequence id
 if (is_file(FILE_INSTALL_SEQ_ID)) {
-	$install_seq = @file_get_contents($newfile);
+	$install_seq = @file_get_contents(FILE_INSTALL_SEQ_ID);
 	$app->set('INSTALLATION_SEQUENCE_UID', $install_seq);
 } else {
 	$install_seq = uniqid("ISEQID"); // unique id per a set of installations

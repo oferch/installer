@@ -53,6 +53,7 @@ class OsUtils {
 	// returns the linux distribution
 	public static function getOsLsb() {		
 		$dist = OsUtils::executeReturnOutput("lsb_release -d");		
+		$dist = implode('\n', $dist);
 		logMessage(L_INFO, "Distribution: ".$dist);
 		return $dist;
 	}

@@ -8,7 +8,6 @@ define('INSTALL_REPORT_URL', 'http://kalstats.kaltura.com/index.php/events/insta
 class InstallReport {
 	private $report_parameters = array();
 	private $report_post_parameters = array();
-	private $install_ids;
 	
 	// create a new install report class
 	// $email - the user email
@@ -20,37 +19,31 @@ class InstallReport {
 		$this->report_parameters['client_type'] = 'PHP CLI';
 		$this->report_parameters['server_ip'] = null;
 		$this->report_parameters['host_name'] = null;
-		$this->report_parameters['operating_system'] = php_uname('s').' '.OsUtils::getOsLsb();
+		$this->report_parameters['operating_system'] = php_uname('s')
+		$this->report_parameters['os_disribution'] = OsUtils::getOsLsb();
 		$this->report_parameters['architecture'] = php_uname('m');
 		$this->report_parameters['php_version'] = phpversion();
 		$this->report_parameters['package_version'] = $package_version;
-		$this->install_ids = $install_seq_id.';'.$install_id;
+		$this->report_parameters['install_id'] = $install_id;
+		$this->report_parameters['install_seq_id'] = $install_seq_id;
 	}
 
 	// send an installation start event report
 	public function reportInstallationStart() {
 		$this->report_parameters['step'] = "Install Started";
-		$this->report_parameters['code'] = "";
-		$this->report_post_parameters['data'] = $this->install_ids;
-		$this->report_post_parameters['description'] = "";
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
 	
 	// send an installation failed event report
 	public function reportInstallationFailed($failure_message) {
 		$this->report_parameters['step'] = "Install Failed";
-		$this->report_parameters['code'] = $failure_message;
-		$this->report_post_parameters['data'] = $this->install_ids;
-		$this->report_post_parameters['description'] = "";
+		$this->report_post_parameters['description'] = $failure_message;
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}
 	
 	// send an installation success event report
 	public function reportInstallationSuccess() {
-		$this->report_parameters['step'] = "Install Success";
-		$this->report_parameters['code'] = "";
-		$this->report_post_parameters['data'] = $this->install_ids;
-		$this->report_post_parameters['description'] = "";
+		$this->report_parameters['step'] = "Install Success";		
 		$this->sendReport($this->report_parameters, $this->report_post_parameters);
 	}	
 
