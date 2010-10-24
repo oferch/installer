@@ -19,7 +19,7 @@ class InstallReport {
 		$this->report_parameters['client_type'] = 'PHP CLI';
 		$this->report_parameters['server_ip'] = null;
 		$this->report_parameters['host_name'] = null;
-		$this->report_parameters['operating_system'] = php_uname('s')
+		$this->report_parameters['operating_system'] = php_uname('s');
 		$this->report_parameters['os_disribution'] = OsUtils::getOsLsb();
 		$this->report_parameters['architecture'] = php_uname('m');
 		$this->report_parameters['php_version'] = phpversion();
