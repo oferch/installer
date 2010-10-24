@@ -93,6 +93,7 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $app->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
 	$report->reportInstallationStart();
 } else {
+	$app->set('REPORT_ADMIN_EMAIL', "");
 	$app->set('TRACK_KDPWRAPPER','false');
 	$app->set('USAGE_TRACKING_OPTIN','false');
 }
