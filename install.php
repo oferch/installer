@@ -17,7 +17,7 @@ function installationFailed($what_happened, $description, $what_to_do, $cleanup 
 	global $report, $installer, $app, $db_params, $user;
 
 	if (isset($report)) {
-		$report->reportInstallationFailed($description);
+		$report->reportInstallationFailed($what_happened."\n".$description);
 	}
 	if (!empty($what_happened)) logMessage(L_USER, $what_happened);
 	if (!empty($description)) logMessage(L_USER, $description);
