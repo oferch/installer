@@ -135,8 +135,8 @@ class DatabaseUtils
 		}
 		
 		$cmd = sprintf("mysql -h%s -u%s -p%s -P%s %s < %s", $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_name, $db_params['db_port'], $db_name, $file);
-		logMessage(L_INFO, "Executing $command");
-		@exec($command . ' 2>&1', $output, $return_var);
+		logMessage(L_INFO, "Executing $cmd");
+		@exec($cmd . ' 2>&1', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
