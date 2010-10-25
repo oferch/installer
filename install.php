@@ -188,6 +188,12 @@ if ($install_output !== null) {
 	installationFailed("Installation failed.", $install_output, $fail_action, true);
 }
 
+// add usage tracking crontab for onprem TM
+if (strcasecmp($this->app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) !== 0) {
+	$tracking_cron = sprintf("\n0 8 5 * * root %s %s/admin_console/scripts/send-usage-report.php\n", $this->app_config['PHP_BIN'], $this->app_config['APP_DIR']);
+	OsUtils::appendFile($this->app_config['BASE_DIR'].'/crontab/kaltura_crontab', $tracking_cron);
+}
+
 // send settings mail if possible
 $msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
 $mailer = new PHPMailer();
