@@ -71,7 +71,7 @@ $version = parse_ini_file('package/version.ini');
 logMessage(L_INFO, "Installing Kaltura ".$version['type'].' '.$version['number']);
 $app->set('KALTURA_VERSION', 'Kaltura '.$version['type'].' '.$version['number']);
 $app->set('KALTURA_VERSION_TYPE', $version['type']);
-if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) {
+if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0) {
 	$hello_message = "Thank you for installing Kaltura Video Platform - Community Edition";
 	$report_message = "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)";
 	$report_error_message = "Email must be in a valid email format";
@@ -98,15 +98,7 @@ if ($user->hasInput() &&
 
 // if user wants or have to report
 if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) || 
-	($user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y')))) {
-
-	// OnPrem TM must enter company name and OnPrem CE enters email if wish to
-	if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) {
-
-	} else {
-
-	}
-	
+	($user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y')))) {	
 	$email = $user->getInput('REPORT_MAIL', $report_message, $report_error_message, $report_validator, null);
 	$app->set('REPORT_ADMIN_EMAIL', $email);
 	$app->set('TRACK_KDPWRAPPER','true');
