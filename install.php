@@ -181,9 +181,9 @@ if ($install_output !== null) {
 }
 
 // add usage tracking crontab for onprem TM
-if (strcasecmp($this->app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) !== 0) {
-	$tracking_cron = sprintf("\n0 8 5 * * root %s %s/admin_console/scripts/send-usage-report.php\n", $this->app_config['PHP_BIN'], $this->app_config['APP_DIR']);
-	OsUtils::appendFile($this->app_config['BASE_DIR'].'/crontab/kaltura_crontab', $tracking_cron);
+if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0) {
+	$tracking_cron = sprintf("\n0 8 5 * * root %s %s/admin_console/scripts/send-usage-report.php\n", $app->get('PHP_BIN'), $app->get('APP_DIR'));
+	OsUtils::appendFile($app->get('BASE_DIR').'/crontab/kaltura_crontab', $tracking_cron);
 }
 
 // send settings mail if possible
