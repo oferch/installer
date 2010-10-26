@@ -54,7 +54,6 @@ class Installer {
 			} else {
 				logMessage(L_USER, "Stopping sphinx if running");
 				@exec($app->get('BASE_DIR').'/app/scripts/searchd.sh stop 2>&1', $output, $return_var);
-				execute();
 				logMessage(L_USER, "Stopping the batch manager if running");
 				@exec($app->get('BASE_DIR').'/app/scripts/serviceBatchMgr.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Deleting ".$app->get('BASE_DIR'));
