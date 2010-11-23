@@ -70,6 +70,7 @@ if (is_file(FILE_INSTALL_SEQ_ID)) {
 $version = parse_ini_file('package/version.ini');
 logMessage(L_INFO, "Installing Kaltura ".$version['type'].' '.$version['number']);
 $app->set('KALTURA_VERSION', 'Kaltura '.$version['type'].' '.$version['number']);
+$app->set('KALTURA_PREINSTALLED', $version['preinstalled']);
 $app->set('KALTURA_VERSION_TYPE', $version['type']);
 if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0) {
 	$hello_message = "Thank you for installing Kaltura Video Platform - Community Edition";
@@ -110,6 +111,10 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 	$app->set('TRACK_KDPWRAPPER','false');
 	$app->set('USAGE_TRACKING_OPTIN','false');
 }
+
+// set to replace passwords on first activiation if this installation is preinstalled
+$app->set('REPLACE_PASSWORDS',$app->get('KALTURA_PREINSTALLED'));
+
 
 // verify that the installation can continue
 if (!OsUtils::verifyRootUser()) {
