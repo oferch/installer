@@ -1,7 +1,7 @@
 <?php
 
 define("FILE_INSTALL_CONFIG", "installer/installation.ini"); // this file contains the definitions of the installation itself
-define("APP_SQL_DIR", "/app/deployment/base/sql/"); // this is the relative directory where the base sql files are
+define("APP_SQL_DIR", "/app/deployment/final/sql/"); // this is the relative directory where the final sql files are
 define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts of the symbolic link definition
 
 /*
@@ -52,6 +52,8 @@ class Installer {
 			if ($report_only) {
 				$leftovers .= "   Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
 			} else {
+				logMessage(L_USER, "killing sphinx daemon if running");
+				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh');
 				logMessage(L_USER, "Stopping sphinx if running");
 				@exec($app->get('BASE_DIR').'/app/scripts/searchd.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Stopping the batch manager if running");
@@ -80,7 +82,7 @@ class Installer {
 		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get('BIN_DIR'))) {
 			return "Failed to copy binaris for $os_name $architecture";
 		}
-				
+		
 		logMessage(L_USER, "Replacing configuration tokens in files");
 		foreach ($this->install_config['token_files'] as $file) {
 			$replace_file = $app->replaceTokensInString($file);
@@ -122,9 +124,20 @@ class Installer {
 		}
 			
 		logMessage(L_USER, "Creating data warehouse");
-		if (!OsUtils::execute(sprintf("%s/ddl/dwh_ddl_install.sh -u %s -p %s -d %s", $app->get('DWH_DIR'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
+		if (!OsUtils::execute(sprintf("%s/ddl/dwh_ddl_install.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
 			return "Failed running data warehouse initialization script";
 		}
+		
+		logMessage(L_USER, "Configure sphinx");
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/configureSphinx.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+				logMessage(L_INFO, "sphinx configuration file (kaltura.conf) created");
+			} else {
+				return "Failed to create sphinx configuration file (kaltura.conf)";
+			}
+		
+		logMessage(L_USER, "Running the sphinx search deamon");
+		!OsUtils::executeInBackground($app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
+		
 
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
@@ -150,21 +163,26 @@ class Installer {
 			}
 		}
 		
+		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		foreach ($this->install_config['uiconfs_2'] as $uiconfapp) {
+			$to_deploy = $app->replaceTokensInString($uiconfapp);
+			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
+				logMessage(L_INFO, "Deployed uiconf $to_deploy");
+			} else {
+				return "Failed to deploy uiconf $to_deploy";
+			}
+		}
+		
+		
+		
+		
 		logMessage(L_USER, "Creating the uninstaller");
 		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
 			return "Failed to create the uninstaller";
 		}
 		$app->saveUninstallerConfig();
+
 		
-		logMessage(L_USER, "Running the sphinx search deamon");
-		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/searchd.sh start')) {
-			return "Failed running the sphinx search deamon";
-		}
-		
-		logMessage(L_USER, "Populating sphinx entries");
-		if (!OsUtils::execute($app->get('PHP_BIN').' '.$app->get('APP_DIR').'/deployment/base/scripts/populateSphinxEntries.php')) {
-			return "Failed to populate initial sphinx entries";
-		}
 		logMessage(L_USER, "Running the batch manager");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the btach manager";
