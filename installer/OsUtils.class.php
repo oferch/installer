@@ -108,6 +108,11 @@ class OsUtils {
 			return false;
 		}
 	}
+	
+	public static function executeInBackground($command) {
+		logMessage(L_INFO, "Executing in background $command");
+		@exec($command. ' > /dev/null 2>&1 &');
+	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
 	public static function findBinary($file_name) {			
