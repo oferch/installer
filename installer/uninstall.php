@@ -90,7 +90,7 @@ if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/watch.stop.s
 }
 
 
-echo 'Stopping sphinx';
+echo 'Stopping sphinx... ';
 if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/searchd.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
