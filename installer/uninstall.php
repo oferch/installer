@@ -81,8 +81,17 @@ if (!getTrueFalse(false)) {
 	die(0);
 }
 
-echo 'Stopping sphinx deamon... ';
-if (execute($config['BASE_DIR'].'/app/scripts/searchd.sh stop')) {
+echo 'Stopping sphinx daemon... ';
+if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/watch.stop.sh')) {
+	echo 'OK'.PHP_EOL;
+} else {
+	echo 'Failed'.PHP_EOL;
+	$success = false;
+}
+
+
+echo 'Stopping sphinx';
+if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/searchd.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
 	echo 'Failed'.PHP_EOL;
