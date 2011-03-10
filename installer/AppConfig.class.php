@@ -2,7 +2,7 @@
 
 define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
 define('TEMPLATE_FILE', '.template'); // how to recognize a tamplate file, template files are copyed to non-template and then the tokens are replaced
-define('KCONF_LOCATION', '/alpha/config/kConf.php'); // the location of kConf
+define('KCONF_LOCAL_LOCATION', '/alpha/config/kConfLocal.php'); // the location of kConf
 define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini'); // the location where to save configuration for the uninstaller
 
 /* 
@@ -85,6 +85,8 @@ class AppConfig {
 		$this->app_config['TMP_DIR'] = $this->app_config['BASE_DIR'].'/tmp';
 		$this->app_config['DWH_DIR'] = $this->app_config['BASE_DIR'].'/dwh';
 		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh'; // For backward compatibility
+		$this->app_config['SPHINX_BIN_DIR'] = $this->app_config['BIN_DIR'].'/sphinx';
+		
 		
 		// site settings
 		$this->app_config['KALTURA_VIRTUAL_HOST_NAME'] = $this->removeHttp($this->app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
@@ -103,7 +105,11 @@ class AppConfig {
 		}
 		$this->collectDatabaseCopier('DB1', 'DB2');
 		$this->collectDatabaseCopier('DB1', 'DB3');
-				
+
+		
+		//sphinx
+		$this->app_config['SPHINX_SERVER'] = '127.0.0.1';
+		
 		// admin console defaults
 		$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $this->generateSecret();
 		$this->app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  $this->generateSecret();
@@ -208,15 +214,15 @@ class AppConfig {
 	// puts a Kaltura CE activation key
 	public function simMafteach() {
 		$admin_email = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL']; 
-		$kConfFile = $this->app_config['APP_DIR'].KCONF_LOCATION;
+		$kConfLocalFile = $this->app_config['APP_DIR'].KCONF_LOCAL_LOCATION;
 		logMessage(L_INFO, "Setting application key");
 		$str = implode("|", array(md5($admin_email), '1', 'never', time()*rand(0,1)));
 		$key = base64_encode($str);
-		$data = @file_get_contents($kConfFile);
+		$data = @file_get_contents($kConfLocalFile);
 		$key_line = '/"kaltura_activation_key"(\s)*=>(\s)*(.+),/';
 		$replacement = '"kaltura_activation_key" => "'.$key.'",';
 		$data = preg_replace($key_line, $replacement ,$data);
-		@file_put_contents($kConfFile, $data);
+		@file_put_contents($kConfLocalFile, $data);
 	}
 	
 	// removes http:// or https:// prefix from the string and returns it
