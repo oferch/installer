@@ -87,6 +87,9 @@ class AppConfig {
 		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh'; // For backward compatibility
 		$this->app_config['SPHINX_BIN_DIR'] = $this->app_config['BIN_DIR'].'/sphinx';
 		
+		$this->app_config['IMAGE_MAGICK_BIN_DIR'] = "/usr/bin";
+		$this->app_config['CURL_BIN_DIR'] = "/usr/bin";
+		
 		
 		// site settings
 		$this->app_config['KALTURA_VIRTUAL_HOST_NAME'] = $this->removeHttp($this->app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
@@ -135,6 +138,9 @@ class AppConfig {
 		$this->app_config['DWH_PASS'] = 'etl';
 		$this->app_config['DWH_SEND_REPORT_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
 		$this->app_config['DWH_SEND_REPORT_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
+		$this->app_config['EVENTS_LOGS_DIR'] = $this->app_config['LOG_DIR'];
+		$this->app_config['EVENTS_WILDCARD'] = 'kaltura_apache_access-.*';
+		
 				
 		// default partners and kusers
 		$this->app_config['TEMPLATE_PARTNER_MAIL'] = 'template@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
