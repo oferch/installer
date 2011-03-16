@@ -222,7 +222,8 @@ class AppConfig {
 		$admin_email = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL']; 
 		$kConfLocalFile = $this->app_config['APP_DIR'].KCONF_LOCAL_LOCATION;
 		logMessage(L_INFO, "Setting application key");
-		$str = implode("|", array(md5($admin_email), '1', 'never', time()*rand(0,1)));
+		$token = md5(uniqid(rand(), true));
+		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
 		$key = base64_encode($str);
 		$data = @file_get_contents($kConfLocalFile);
 		$key_line = '/"kaltura_activation_key"(\s)*=>(\s)*(.+),/';
