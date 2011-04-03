@@ -139,6 +139,11 @@ class AppConfig {
 		$this->app_config['DWH_SEND_REPORT_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
 		$this->app_config['EVENTS_LOGS_DIR'] = $this->app_config['LOG_DIR'];
 		$this->app_config['EVENTS_WILDCARD'] = 'kaltura_apache_access.log-.*';
+		$this->app_config['BANDWIDTH_USAGE_WWW_LOGS_DIR'] = $this->app_config['EVENTS_LOGS_DIR'];
+		$this->app_config['BANDWIDTH_USAGE_WWW_WILDCARD'] = $this->app_config['EVENTS_WILDCARD'];
+		$this->app_config['BANDWIDTH_USAGE_WWW_PROCESS_ID'] = 7;
+		
+		
 		
 				
 		// default partners and kusers
