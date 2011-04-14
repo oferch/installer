@@ -128,13 +128,20 @@ class Installer {
 			return "Failed running data warehouse initialization script";
 		}
 		
+		logMessage(L_USER, "Creating Dynamic Enums");
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+				logMessage(L_INFO, "Dynamic Enums created");
+		} else {
+			return "Failed to create dynamic enums";
+		}
+	
 		logMessage(L_USER, "Configure sphinx");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/configureSphinx.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
 				logMessage(L_INFO, "sphinx configuration file (kaltura.conf) created");
-			} else {
-				return "Failed to create sphinx configuration file (kaltura.conf)";
-			}
-		
+		} else {
+			return "Failed to create sphinx configuration file (kaltura.conf)";
+		}
+	
 		logMessage(L_USER, "Running the sphinx search deamon");
 		!OsUtils::executeInBackground($app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
 		
