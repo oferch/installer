@@ -143,8 +143,6 @@ class AppConfig {
 		$this->app_config['BANDWIDTH_USAGE_WWW_WILDCARD'] = $this->app_config['EVENTS_WILDCARD'];
 		$this->app_config['BANDWIDTH_USAGE_WWW_PROCESS_ID'] = 7;
 		
-		
-		
 				
 		// default partners and kusers
 		$this->app_config['TEMPLATE_PARTNER_MAIL'] = 'template@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
@@ -174,7 +172,7 @@ class AppConfig {
 		$this->app_config['SYSTEM_PAGES_LOGIN_PASS'] = '';
 		$this->app_config['KMC_BACKDOR_SHA1_PASS'] = '';
 		$this->app_config['DC0_SECRET'] = '';
-		$this->app_config['APACHE_CONF'] = '';		
+		$this->app_config['APACHE_CONF'] = '';
 		
 		// storage profile related
 		$this->app_config['DC_NAME'] = 'local';
@@ -190,6 +188,14 @@ class AppConfig {
 			$this->app_config['PARTNERS_USAGE_REPORT_SEND_FROM'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];	
 			$this->app_config['PARTNERS_USAGE_REPORT_SEND_TO'] = "on-prem-monthly@kaltura.com";
 		}
+		
+		// mails configurations
+		$this->app_config['FORUMS_URLS'] = 'http://www.kaltura.org/forum';
+		$this->app_config['CONTACT_URL'] = 'http://corp.kaltura.com/contact';
+		$this->app_config['CONTACT_PHONE_NUMBER'] = '+1 (800) 871-5224';
+		$this->app_config['BEGINNERS_TUTORIAL_URL'] = 'http://corp.kaltura.com/about/dosignup';
+		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/pdf/KMC_Quick_Start_Guide.pdf';
+		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
 	}
 	
 	public function defineConfigurationTokens() {
@@ -223,8 +229,8 @@ class AppConfig {
 		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];
 		
 		$this->app_config['XYMON_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/xymon/';
-		
-		
+		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/pdf/KMC_Quick_Start_Guide.pdf';
+		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
 		
 		
 	}
