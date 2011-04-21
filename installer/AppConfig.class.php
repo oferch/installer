@@ -194,7 +194,7 @@ class AppConfig {
 		$this->app_config['CONTACT_URL'] = 'http://corp.kaltura.com/contact';
 		$this->app_config['CONTACT_PHONE_NUMBER'] = '+1 (800) 871-5224';
 		$this->app_config['BEGINNERS_TUTORIAL_URL'] = 'http://corp.kaltura.com/about/dosignup';
-		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/pdf/KMC_Quick_Start_Guide.pdf';
+		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
 		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
 	}
 	
@@ -229,7 +229,7 @@ class AppConfig {
 		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];
 		
 		$this->app_config['XYMON_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/xymon/';
-		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/pdf/KMC_Quick_Start_Guide.pdf';
+		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
 		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
 		
 		
