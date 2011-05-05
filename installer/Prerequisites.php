@@ -37,9 +37,13 @@ if (!empty($request_order)) {
 		$prerequisites .= "(PHP 5.3 and above) Please set 'request_order' ini value to include C,G and P (recommended: 'CGP') in php.ini ".PHP_EOL;
 	}
 } else {
-	$variables_order = ini_get("variables_order");
-	if (preg_match($prerequisites_config["request_order_regex"], $variables_order) === 0) {
-		$prerequisites .= "Please set 'variables_order' ini value to include C,G and P in php.ini ".PHP_EOL;
+	if (checkVersion(phpversion(), "5.3")) {
+		$prerequisites .= "(PHP 5.3 and above) Please set 'request_order' ini value to include C,G and P (recommended: 'CGP') in php.ini ".PHP_EOL;
+	} else {
+		$variables_order = ini_get("variables_order");
+		if (preg_match($prerequisites_config["request_order_regex"], $variables_order) === 0) {
+			$prerequisites .= "Please set 'variables_order' ini value to include C,G and P in php.ini ".PHP_EOL;
+		}
 	}
 }
 
