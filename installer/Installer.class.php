@@ -131,7 +131,6 @@ class Installer {
 		logMessage(L_USER, "Creating Dynamic Enums");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
 				logMessage(L_INFO, "Dynamic Enums created");
-				OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php", $app->get('PHP_BIN'), $app->get('APP_DIR')));
 		} else {
 			return "Failed to create dynamic enums";
 		}
