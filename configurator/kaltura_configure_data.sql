@@ -3,8 +3,7 @@ update storage_profile set delivery_http_base_url = '@DELIVERY_HTTP_BASE_URL@' ,
 update kuser set email = '@BATCH_KUSER_MAIL@' where id = 101;
 update kuser set email = '@TEMPLATE_PARTNER_MAIL@' where id = 100;
 update kuser set email = '@TEMPLATE_KUSER_MAIL@' where id = 99;
-update kuser set email = '@ADMIN_CONSOLE_KUSER_MAIL@' where id = 102;
-update kuser set email = '@SYSTEM_USER_ADMIN_EMAIL@', puser_id = '@SYSTEM_USER_ADMIN_EMAIL@' where id = 103;
+update kuser set email = '@SYSTEM_USER_ADMIN_EMAIL@', puser_id = '@SYSTEM_USER_ADMIN_EMAIL@' where id = 102;
 
 
 
