@@ -115,6 +115,10 @@ if ($result = ((strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0) |
 // set to replace passwords on first activiation if this installation is preinstalled
 $app->set('REPLACE_PASSWORDS',$app->get('KALTURA_PREINSTALLED'));
 
+// allow ui conf tab only for CE installation
+if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0) 
+	$app->set('UICONF_TAB_ACCESS', 'SYSTEM_ADMIN_BATCH_CONTROL');
+
 
 // verify that the installation can continue
 if (!OsUtils::verifyRootUser()) {
