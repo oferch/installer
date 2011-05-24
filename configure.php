@@ -1,6 +1,7 @@
 <?php
-define('APP_DIR', realpath(dirname(__FILE__) . '/../app'));
-define("FILE_CONFIG", "configurator/configuration.ini"); 
+define('APPLICATION_DIR', realpath(dirname(__FILE__) . '/../app'));
+define("FILE_CONFIG", "configurator/configuration.ini");
+define('SECRET_REPLACE_SCRIPT', APPLICATION_DIR . '/infra/general/secret_replace.php'); 
 include_once('installer/DatabaseUtils.class.php');
 include_once('installer/UserInput.class.php');
 include_once('installer/Log.php');
@@ -8,7 +9,7 @@ include_once('installer/AppConfig.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/OsUtils.class.php');
 
-require_once(APP_DIR . '/alpha/config/kConf.php');
+require_once(APPLICATION_DIR . '/alpha/config/kConf.php');
 
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");
@@ -98,6 +99,13 @@ $sql_file = dirname(__FILE__).'/configurator/kaltura_configure_data.sql';
 if (!DatabaseUtils::runScript($sql_file, $db_params, 'kaltura')) {
 	echo "Failed running database script $sql_file";
 }
+
+if (strcasecmp($type, K_TM_TYPE) !== 0) {
+	$app->set('APP_DIR', APPLICATION_DIR);
+	$app->simMafteach();
+	require_once(SECRET_REPLACE_SCRIPT);
+}
+
 
 echo PHP_EOL;
 logMessage(L_USER, sprintf("Configuration Completed Successfully.\nYour Kaltura Admin Console credentials:\nSystem Admin user: %s\nSystem Admin password: %s\n\nPlease keep this information for future use.\n", $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')));
