@@ -106,20 +106,14 @@ if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 	$success = false;
 }
 
-echo "Removing /etc/logrotate.d/kaltura_log_rotate... ";
-if (execute("rm -rf /etc/logrotate.d/kaltura_log_rotate")) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
-}
-
-echo "Removing /etc/cron.d/kaltura_crontab... ";
-if (execute("rm -rf /etc/cron.d/kaltura_crontab")) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
+foreach ($config['symlinks'] as $slink) {
+	echo 'Removing '.$slink.'... ';
+	if (execute('rm -rf ' . $slink)) {
+		echo 'OK'.PHP_EOL;
+	} else {
+		echo 'Failed'.PHP_EOL;
+		$success = false;
+	}
 }
 
 foreach ($dbs_to_drop as $db) {

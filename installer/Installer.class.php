@@ -74,7 +74,7 @@ class Installer {
 		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
 		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
 			return "Failed to copy application files to target directory";
-		}		
+		}
 
 		$os_name = 	OsUtils::getOsName();
 		$architecture = OsUtils::getSystemArchitecture();	
@@ -180,15 +180,12 @@ class Installer {
 			}
 		}
 		
-		
-		
-		
 		logMessage(L_USER, "Creating the uninstaller");
 		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
 			return "Failed to create the uninstaller";
 		}
-		$app->saveUninstallerConfig();
-
+		$app->saveUninstallerConfig($this->install_config['symlinks']);
+	
 		
 		logMessage(L_USER, "Running the batch manager");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {

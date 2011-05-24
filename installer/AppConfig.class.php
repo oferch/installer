@@ -62,13 +62,19 @@ class AppConfig {
 	}	
 	
 	// saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
-	public function saveUninstallerConfig() {
+	public function saveUninstallerConfig($symlinks) {
 		$file = $this->app_config['BASE_DIR'].UNINSTALLER_LOCATION;
 		$data = "BASE_DIR = ".$this->app_config["BASE_DIR"].PHP_EOL;	
 		$data = $data."DB_HOST = ".$this->app_config["DB1_HOST"].PHP_EOL;
 		$data = $data."DB_USER = ".$this->app_config["DB1_USER"].PHP_EOL;
 		$data = $data."DB_PASS = ".$this->app_config["DB1_PASS"].PHP_EOL;
 		$data = $data."DB_PORT = ".$this->app_config["DB1_PORT"].PHP_EOL;
+		foreach ($symlinks as $slink) {
+			$link_items = explode(SYMLINK_SEPARATOR, $this->replaceTokensInString($slink));	
+			if (is_file($link_items[1]) && (strpos($link_items[1], $this->app_config["BASE_DIR"]) === false)) {
+				$data = $data."symlinks[] = ".$link_items[1].PHP_EOL;
+			}
+		} 
 		return OsUtils::writeFile($file, $data);
 	}	
 	
