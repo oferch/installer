@@ -48,6 +48,8 @@ startLog("install_log_".date("d.m.Y_H.i.s"));
 logMessage(L_INFO, "Installation started");
 
 // variables
+$silentRun = false;
+if($argc > 1 && $argv[1] == '-s') $silentRun = true;
 $app = new AppConfig();
 $installer = new Installer();
 $user = new UserInput();
@@ -92,9 +94,10 @@ logMessage(L_USER, $hello_message);
 echo PHP_EOL;
 
 // If previous installation found and the user wants to use it
-if ($user->hasInput() && 
-	$user->getTrueFalse(null, "A previous installation attempt has been detected, do you want to use the input you provided during you last installation?", 'y')) {
-	$user->loadInput();
+if ($user->hasInput()){ 
+	if((!$silentRun) && ($user->getTrueFalse(null, "A previous installation attempt has been detected, do you want to use the input you provided during you last installation?", 'y'))) {
+		$user->loadInput();
+	}
 }
 
 // if user wants or have to report
@@ -178,7 +181,7 @@ if (isset($leftovers)) {
 
 // last chance to stop the installation
 echo PHP_EOL;
-if (!$user->getTrueFalse('', "Installation is now ready to begin. Start installation now?", 'y')) {
+if ((!$silentRun) && (!$user->getTrueFalse('', "Installation is now ready to begin. Start installation now?", 'y'))) {
 	echo "Bye".PHP_EOL;
 	die(1);	
 }

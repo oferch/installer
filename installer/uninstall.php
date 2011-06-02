@@ -71,12 +71,14 @@ function dropDb($db, $host, $user, $pass, $port) {
 	return executeQuery($drop_db_query, $host, $user, $pass, null, $port);
 }
 	
+$silentRun = false;
+if($argc > 1 && $argv[1] == '-s') $silentRun = true;
 $config = parse_ini_file("uninstall.ini");
 $success = true;
 echo 'Uninstaller will fully remove the Kaltura software from your system.'.PHP_EOL;
 echo 'Databases and any uploaded content will also be removed.'.PHP_EOL;
 echo 'This action cannot be undone. Do you wish to continue? (y/N)'.PHP_EOL;
-if (!getTrueFalse(false)) {
+if ((!$silentRun) && (!getTrueFalse(false))) {
 	echo 'Uninstallation was cancelled, uninstaller will now exit.'.PHP_EOL;
 	die(0);
 }
