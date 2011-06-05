@@ -95,7 +95,7 @@ echo PHP_EOL;
 
 // If previous installation found and the user wants to use it
 if ($user->hasInput()){ 
-	if((!$silentRun) && ($user->getTrueFalse(null, "A previous installation attempt has been detected, do you want to use the input you provided during you last installation?", 'y'))) {
+	if(($silentRun) || ($user->getTrueFalse(null, "A previous installation attempt has been detected, do you want to use the input you provided during you last installation?", 'y'))) {
 		$user->loadInput();
 	}
 }
