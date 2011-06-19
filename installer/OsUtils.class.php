@@ -105,6 +105,7 @@ class OsUtils {
 			return true;
 		} else {
 			logMessage(L_ERROR, "Executing command failed: $command");	
+			logMessage(L_ERROR, "Output from command is: $output");
 			return false;
 		}
 	}
