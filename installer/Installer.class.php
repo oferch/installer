@@ -99,13 +99,6 @@ class Installer {
 			}
 		}
 		
-		logMessage(L_USER, "Running update script");
-		if (OsUtils::execute(sprintf("%s %s/deployment/updates/update.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
-				logMessage(L_INFO, "Update script finished");
-		} else {
-			return "Failed to run update script";
-		}
-
 		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
 
 		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
@@ -117,6 +110,13 @@ class Installer {
 			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
 				return "Failed running database script $sql_file";
 			}
+		}
+		
+		logMessage(L_USER, "Running update script");
+		if (OsUtils::execute(sprintf("%s %s/deployment/updates/update.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+				logMessage(L_INFO, "Update script finished");
+		} else {
+			return "Failed to run update script";
 		}
 		
 		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB_STATS_NAME')));
