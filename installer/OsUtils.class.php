@@ -104,8 +104,12 @@ class OsUtils {
 		if ($return_var === 0) {
 			return true;
 		} else {
-			logMessage(L_ERROR, "Executing command failed: $command");	
-			logMessage(L_ERROR, "Output from command is: $output");
+			logMessage(L_ERROR, "Executing command failed: $command");
+			logMessage(L_ERROR, "Output from command is: ");
+			while( list(,$row) = each($output) ){
+				logMessage(L_ERROR, "$row");
+			}
+			logMessage(L_ERROR, "End of Output");
 			return false;
 		}
 	}
