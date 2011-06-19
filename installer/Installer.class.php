@@ -1,7 +1,7 @@
 <?php
 
 define("FILE_INSTALL_CONFIG", "installer/installation.ini"); // this file contains the definitions of the installation itself
-define("APP_SQL_DIR", "/app/deployment/final/sql/"); // this is the relative directory where the final sql files are
+define("APP_SQL_DIR", "/app/deployment/base/sql/"); // this is the relative directory where the final sql files are
 define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts of the symbolic link definition
 
 /*
@@ -110,6 +110,13 @@ class Installer {
 			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
 				return "Failed running database script $sql_file";
 			}
+		}
+		
+		logMessage(L_USER, "Running update script");
+		if (OsUtils::execute(sprintf("%s %s/deployment/updates/update.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+				logMessage(L_INFO, "Update script finished");
+		} else {
+			return "Failed to run update script";
 		}
 
 		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB_STATS_NAME')));
