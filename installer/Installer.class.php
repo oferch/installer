@@ -166,6 +166,11 @@ class Installer {
 				return sprintf("Failed to create symblic link from %s to %s", $link_items[0], $link_items[1]);
 			}
 		}
+		
+		logMessage(L_USER, "Running the generate script");
+		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
+			return "Failed running the generate script";
+		}
 
 		if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_CE_TYPE) == 0) {
 			$app->simMafteach();
