@@ -203,12 +203,12 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Running the generate script");
-		if (chdir($app->get('APP_DIR').'/generator/')) {
-			return "Failed to cd to generate script directore";
-		}
+		$currentWorkingDir = getcwd();
+		chdir($app->get('APP_DIR').'/generator');
 		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
+		chdir($currentWorkingDir);
 		
 		return null;
 	}
