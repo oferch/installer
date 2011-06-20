@@ -51,7 +51,10 @@ logMessage(L_INFO, "Installation started");
 $silentRun = false;
 if($argc > 1 && $argv[1] == '-s') $silentRun = true;
 $cleanupIfFail = true;
-if($argc > 1 && $argv[1] == '-c') $cleanupIfFail = false;
+if($argc > 1 && $argv[1] == '-c') {
+	$cleanupIfFail = false;
+	$silentRun = true;
+} 
 $app = new AppConfig();
 $installer = new Installer();
 $user = new UserInput();
