@@ -50,6 +50,8 @@ logMessage(L_INFO, "Installation started");
 // variables
 $silentRun = false;
 if($argc > 1 && $argv[1] == '-s') $silentRun = true;
+$cleanupIfFail = true;
+if($argc > 1 && $argv[1] == '-c') $cleanupIfFail = false;
 $app = new AppConfig();
 $installer = new Installer();
 $user = new UserInput();
@@ -189,7 +191,7 @@ if ((!$silentRun) && (!$user->getTrueFalse('', "Installation is now ready to beg
 // run the installation
 $install_output = $installer->install($app, $db_params);
 if ($install_output !== null) {
-	installationFailed("Installation failed.", $install_output, $fail_action, true);
+	installationFailed("Installation failed.", $install_output, $fail_action, $cleanupIfFail);
 }
 
 // add usage tracking crontab for onprem TM
