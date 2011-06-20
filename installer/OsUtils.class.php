@@ -114,7 +114,7 @@ class OsUtils {
 		}
 	}
 	
-	public static function executeWithOutput($command,$scriptOutput) {
+	public static function executeWithOutput($command) {
 		logMessage(L_INFO, "Executing $command");
 		@exec($command . ' 2>&1', $output, $return_var);
 		$scriptOutput = $output;
