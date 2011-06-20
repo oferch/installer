@@ -168,6 +168,9 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Running the generate script");
+		if (!OsUtils::execute('cd '.$app->get('APP_DIR').'/generator/')) {
+			return "Failed to cd to generate script directore";
+		}
 		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
