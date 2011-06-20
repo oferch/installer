@@ -113,8 +113,11 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Running update script");
-		if (OsUtils::execute(sprintf("%s %s/deployment/updates/update.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
-				logMessage(L_INFO, "Update script finished");
+		if (OsUtils::executeWithOutput(sprintf("%s %s/deployment/updates/update.php", $app->get('PHP_BIN'), $app->get('APP_DIR')),$scriptOutput)) {
+			logMessage(L_INFO, "Update script finished");
+			while( list(,$row) = each($scriptOutput) ){
+				logMessage(L_ERROR, "$row");
+			}
 		} else {
 			return "Failed to run update script";
 		}

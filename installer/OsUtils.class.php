@@ -114,6 +114,23 @@ class OsUtils {
 		}
 	}
 	
+	public static function executeWithOutput($command,$scriptOutput) {
+		logMessage(L_INFO, "Executing $command");
+		@exec($command . ' 2>&1', $output, $return_var);
+		$scriptOutput = $output;
+		if ($return_var === 0) {
+			return $output;
+		} else {
+			logMessage(L_ERROR, "Executing command failed: $command");
+			logMessage(L_ERROR, "Output from command is: ");
+			while( list(,$row) = each($output) ){
+				logMessage(L_ERROR, "$row");
+			}
+			logMessage(L_ERROR, "End of Output");
+			return false;
+		}
+	}
+	
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
 		@exec($command. ' > /dev/null 2>&1 &');
