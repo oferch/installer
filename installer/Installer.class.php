@@ -70,7 +70,7 @@ class Installer {
 	// $app - the AppConfig used for the installation
 	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')	
 	// returns null if the installation succeeded or an error text if it failed
-	public function install($app, $db_params) {
+	public function install(AppConfig $app, $db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
 		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
 			return "Failed to copy application files to target directory";
