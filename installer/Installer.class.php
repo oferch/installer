@@ -91,13 +91,7 @@ class Installer {
 			}
 		}		
 
-		logMessage(L_USER, "Changing permissions of directories and files");
-		foreach ($this->install_config['chmod_items'] as $item) {
-			$chmod_item = $app->replaceTokensInString($item);
-			if (!OsUtils::chmod($chmod_item)) {
-				return "Failed to change permissions for $chmod_item";
-			}
-		}
+		$this->changeDirsAndFilesPermissions($app);
 		
 		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
 
@@ -210,6 +204,8 @@ class Installer {
 		}
 		chdir($currentWorkingDir);
 		
+		$this->changeDirsAndFilesPermissions($app);
+		
 		return null;
 	}
 	
@@ -236,4 +232,14 @@ class Installer {
 		}
 		return $verify;
 	}	
+	
+	private function changeDirsAndFilesPermissions($app){
+	logMessage(L_USER, "Changing permissions of directories and files");
+		foreach ($this->install_config['chmod_items'] as $item) {
+			$chmod_item = $app->replaceTokensInString($item);
+			if (!OsUtils::chmod($chmod_item)) {
+				return "Failed to change permissions for $chmod_item";
+			}
+		}
+	}
 }
