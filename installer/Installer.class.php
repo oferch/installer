@@ -150,6 +150,13 @@ class Installer {
 		logMessage(L_USER, "Running the sphinx search deamon");
 		!OsUtils::executeInBackground($app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
 		
+		logMessage(L_USER, "Running sphinx");
+		if (OsUtils::execute(sprintf("%s %s/bin/sphinx/searchd --config %s/configurations/sphinx/kaltura.conf", $app->get('PHP_BIN'), $app->get('BASE_DIR'),$app->get('APP_DIR')))) {
+				logMessage(L_INFO, "sphinx is running");
+		} else {
+			return "Failed to run sphinx";
+		}
+		
 
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
