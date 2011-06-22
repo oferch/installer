@@ -133,23 +133,7 @@ class OsUtils {
 	
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
-		@exec($command. ' > /dev/null 2>&1 &', $output, $return_var);
-		if ($return_var === 0) {
-			logMessage(L_USER, "Output from background command is: ");
-			while( list(,$row) = each($output) ){
-				logMessage(L_USER, "$row");
-			}
-			logMessage(L_USER, "End of Output");
-			return true;
-		} else {
-			logMessage(L_ERROR, "Executing command failed: $command");
-			logMessage(L_ERROR, "Output from command is: ");
-			while( list(,$row) = each($output) ){
-				logMessage(L_ERROR, "$row");
-			}
-			logMessage(L_ERROR, "End of Output");
-			return false;
-		}
+		@exec($command. ' >> /opt/kaltura/log/instlBkgrndRun.log 2>&1 &', $output, $return_var);
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
