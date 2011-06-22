@@ -133,7 +133,19 @@ class OsUtils {
 	
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
-		@exec($command. ' > /dev/null 2>&1 &');
+		@exec($command. ' > /dev/null 2>&1 &', $output, $return_var);
+		if ($return_var === 0) {
+			logMessage(L_ERROR, "Output is :" .print_r($output, true));
+			return true;
+		} else {
+			logMessage(L_ERROR, "Executing command failed: $command");
+			logMessage(L_ERROR, "Output from command is: ");
+			while( list(,$row) = each($output) ){
+				logMessage(L_ERROR, "$row");
+			}
+			logMessage(L_ERROR, "End of Output");
+			return false;
+		}
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
