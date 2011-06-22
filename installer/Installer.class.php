@@ -201,6 +201,7 @@ class Installer {
 		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
+		chdir($currentWorkingDir);
 		
 		logMessage(L_USER, "Running sphinx");
 		if (OsUtils::execute(sprintf("%s/bin/sphinx/searchd --config %s/configurations/sphinx/kaltura.conf", $app->get('BASE_DIR'),$app->get('APP_DIR')))) {
@@ -208,8 +209,6 @@ class Installer {
 		} else {
 			return "Failed to run sphinx";
 		}
-		
-		chdir($currentWorkingDir);
 		
 		$this->changeDirsAndFilesPermissions($app);
 		
