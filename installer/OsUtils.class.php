@@ -100,7 +100,7 @@ class OsUtils {
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
-		@exec($command . ' 2>&1', $output, $return_var);
+		@exec($command . ' >> /opt/kaltura/log/instlBkgrndRun.log 2>&1 ', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
