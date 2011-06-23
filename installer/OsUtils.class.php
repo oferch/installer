@@ -102,11 +102,6 @@ class OsUtils {
 		logMessage(L_INFO, "Executing $command");
 		@exec($command . ' 2>&1', $output, $return_var);
 		if ($return_var === 0) {
-			logMessage(L_USER, "Output from command is: ");
-			while( list(,$row) = each($output) ){
-				logMessage(L_USER, "$row");
-			}
-			logMessage(L_USER, "End of Output");
 			return true;
 		} else {
 			logMessage(L_ERROR, "Executing command failed: $command");
