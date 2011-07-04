@@ -120,6 +120,7 @@ class AppConfig {
 		$this->app_config['SPHINX_SERVER'] = '127.0.0.1';
 		$this->app_config['SPHINX_DB_NAME'] = 'kaltura_sphinx_log';
 		$this->app_config['SPHINX_DB_HOST'] = $this->app_config['DB1_HOST'];
+		$this->app_config['SPHINX_DB_PORT'] = $this->app_config['DB1_PORT'];
 	    $this->app_config['SPHINX_DB_USER'] = $this->app_config['DB1_USER'];
 		$this->app_config['SPHINX_DB_PASS'] = $this->app_config['DB1_PASS'];
 		
