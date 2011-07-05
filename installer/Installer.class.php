@@ -116,17 +116,6 @@ class Installer {
 		} else {
 			return "Failed to run update script";
 		}
-		
-		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB_STATS_NAME')));
-		if (!DatabaseUtils::createDb($db_params, $app->get('DB_STATS_NAME'))) {
-			return "Failed to create '".$app->get('DB_STATS_NAME')."' database";
-		}
-		foreach ($sql_files['stats']['sql'] as $sql) {
-			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
-			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB_STATS_NAME'))) {
-				return "Failed running database script $sql_file";
-			}
-		}
 			
 		logMessage(L_USER, "Creating data warehouse");
 		if (!OsUtils::execute(sprintf("%s/setup/dwh_ddl_install.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
