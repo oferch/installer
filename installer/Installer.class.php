@@ -72,6 +72,7 @@ class Installer {
 	// returns null if the installation succeeded or an error text if it failed
 	public function install(AppConfig $app, $db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
+		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
 		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
 			return "Failed to copy application files to target directory";
 		}
