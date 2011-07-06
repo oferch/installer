@@ -9,6 +9,7 @@ $dbs_to_drop = array (
 	'kalturadw_bisources',
 	'kalturalog',
 	'kaltura_stats',
+	'kaltura_sphinx_log'
 );
 	
 // returns true or false according to the user input, if empty return $default
