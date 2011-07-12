@@ -53,9 +53,9 @@ class Installer {
 				$leftovers .= "   Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
 			} else {
 				logMessage(L_USER, "killing sphinx daemon if running");
-				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh');
+				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh -u root');
 				logMessage(L_USER, "Stopping sphinx if running");
-				@exec($app->get('BASE_DIR').'/app/scripts/searchd.sh stop 2>&1', $output, $return_var);
+				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/searchd.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Stopping the batch manager if running");
 				@exec($app->get('BASE_DIR').'/app/scripts/serviceBatchMgr.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Deleting ".$app->get('BASE_DIR'));
