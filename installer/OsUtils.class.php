@@ -133,6 +133,7 @@ class OsUtils {
 	
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
+		print("Executing in background $command \n");
 		@exec($command. ' >> /opt/kaltura/log/instlBkgrndRun.log 2>&1 &', $output, $return_var);
 	}
 

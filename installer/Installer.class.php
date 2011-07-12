@@ -162,6 +162,7 @@ class Installer {
 		}
 
 		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		
 		foreach ($this->install_config['uiconfs'] as $uiconfapp) {
 			$to_deploy = $app->replaceTokensInString($uiconfapp);
 			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy.php --disableUrlHashing=true --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
@@ -192,6 +193,10 @@ class Installer {
 			return "Failed running the btach manager";
 		}
 		
+		logMessage(L_USER, "Running the sphinx search deamon");
+		print("Executing sphinx dameon \n");
+		OsUtils::executeInBackground($app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
+		
 		logMessage(L_USER, "Running the generate script");
 		$currentWorkingDir = getcwd();
 		chdir($app->get('APP_DIR').'/generator');
@@ -201,9 +206,6 @@ class Installer {
 		chdir($currentWorkingDir);
 		
 		$this->changeDirsAndFilesPermissions($app);
-		
-		logMessage(L_USER, "Running the sphinx search deamon");
-		OsUtils::executeInBackground($app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
 		
 		return null;
 	}
