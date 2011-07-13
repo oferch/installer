@@ -83,6 +83,16 @@ if ((!$silentRun) && (!getTrueFalse(false))) {
 	echo 'Uninstallation was cancelled, uninstaller will now exit.'.PHP_EOL;
 	die(0);
 }
+//We first want to clear the crontab symbolic link so we can remove all services without them returning
+foreach ($config['symlinks'] as $slink) {
+	echo 'Removing '.$slink.'... ';
+	if (execute('rm -rf ' . $slink)) {
+		echo 'OK'.PHP_EOL;
+	} else {
+		echo 'Failed'.PHP_EOL;
+		$success = false;
+	}
+}
 
 echo 'Stopping sphinx daemon... ';
 if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/watch.stop.sh')) {
@@ -107,16 +117,6 @@ if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 } else {
 	echo 'Failed'.PHP_EOL;
 	$success = false;
-}
-
-foreach ($config['symlinks'] as $slink) {
-	echo 'Removing '.$slink.'... ';
-	if (execute('rm -rf ' . $slink)) {
-		echo 'OK'.PHP_EOL;
-	} else {
-		echo 'Failed'.PHP_EOL;
-		$success = false;
-	}
 }
 
 foreach ($dbs_to_drop as $db) {
