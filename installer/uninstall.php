@@ -8,7 +8,6 @@ $dbs_to_drop = array (
 	'kalturadw_ds',
 	'kalturadw_bisources',
 	'kalturalog',
-	'kaltura_stats',
 	'kaltura_sphinx_log'
 );
 	
