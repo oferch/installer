@@ -195,7 +195,7 @@ class Installer {
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
-		OsUtils::executeInBackground($app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
+		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
 		
 		logMessage(L_USER, "Running the generate script");
 		$currentWorkingDir = getcwd();
