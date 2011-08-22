@@ -9,6 +9,7 @@ include_once('installer/AppConfig.class.php');
 include_once('installer/Installer.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/phpmailer/class.phpmailer.php');
+include_once('lib/utils.php');
 
 // should be called whenever the installation fails
 // $error - the error to print to the user
@@ -150,8 +151,15 @@ if ($user->isInputLoaded()) {
 	$user->getApplicationInput();
 }
 
+// get from kConf.php the latest versions of kmc , clipapp and HTML5
+$kconf = file_get_contents("package/app/app/alpha/config/kConf.php");
+$latestVersions = array();
+$latestVersions["KMC_VERSION"] = OsUtils::getVersionFromKconf($kconf,"kmc_version");
+$latestVersions["CLIPAPP_VERSION"] = OsUtils::getVersionFromKconf($kconf,"clipapp_version");
+$latestVersions["HTML5_VERSION"] = OsUtils::getVersionFromKconf($kconf,"html5_version");
+
 // init the application configuration
-$app->initFromUserInput($user->getAll());
+$app->initFromUserInput(array_merge((array)$user->getAll(), (array)$latestVersions));
 $db_params['db_host'] = $app->get('DB1_HOST');
 $db_params['db_port'] = $app->get('DB1_PORT');
 $db_params['db_user'] = $app->get('DB1_USER');
