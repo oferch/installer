@@ -239,4 +239,3 @@
 			return substr($matches[0],1+$firstPos, strrpos($matches[0],"'") - $firstPos - 1);
 		}
 	}
-?>
