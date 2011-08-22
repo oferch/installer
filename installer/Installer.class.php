@@ -119,7 +119,7 @@ class Installer {
 		}
 			
 		logMessage(L_USER, "Creating data warehouse");
-		if (!OsUtils::execute(sprintf("%s/setup/dwh_ddl_install.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
+		if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
 			return "Failed running data warehouse initialization script";
 		}
 		
