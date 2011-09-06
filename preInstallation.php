@@ -81,6 +81,12 @@ if (!OsUtils::execute("chmod 777 /opt/instlBkgrndRun.log")) {
 	return "\nFailed chmod log\n";
 }
 
+logMessage(L_USER, 'chmod');
+if (!OsUtils::execute("chmod 775 /var/lock/subsys/")) {
+	echo "Failed chmod";			
+	return "\nFailed chmod\n";
+}
+
 logMessage(L_USER, 'create installation directory');
 if (!OsUtils::execute("mkdir /opt/kaltura")) {
 	logMessage(L_USER, 'Failed creating installation directory');			
@@ -130,11 +136,12 @@ if (!OsUtils::execute("chmod 700 /etc/cron.d")) {
 	return "\nFailed chmod\n";
 }
 
-logMessage(L_USER, 'chmod');
-if (!OsUtils::execute("chmod 700 /etc/rc.d/init.d")) {
-	echo "Failed chmod";			
-	return "\nFailed chmod\n";
-}
+//logMessage(L_USER, 'chmod');
+//if (!OsUtils::execute("chmod 700 /etc/rc.d/init.d")) {
+//	echo "Failed chmod";			
+//	return "\nFailed chmod\n";
+//}
+
 
 
 logMessage(L_USER, 'end preinstallation');
