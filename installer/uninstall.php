@@ -118,6 +118,14 @@ if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 	$success = false;
 }
 
+echo 'Deleting kaltura user... ';
+if (execute('userdel kaltura')) {
+	echo 'OK'.PHP_EOL;
+} else {
+	echo 'Failed'.PHP_EOL;
+	$success = false;
+}
+
 foreach ($dbs_to_drop as $db) {
 	echo "Dropping '$db' database... ";
 	if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {

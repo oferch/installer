@@ -165,6 +165,11 @@ class OsUtils {
 		return self::execute("cp -r $source $target");
 	}
 	
+	// full copy $source to $target and return true/false according to success
+	public static function rsync($source, $target) {
+		return self::execute("rsync -r $source $target");
+	}
+	
 	// recursive delete the $path and return true/false according to success
 	public static function recursiveDelete($path) {
 		return self::execute("rm -rf $path");

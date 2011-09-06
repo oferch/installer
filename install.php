@@ -130,10 +130,10 @@ if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0)
 
 
 // verify that the installation can continue
-if (!OsUtils::verifyRootUser()) {
-	installationFailed("Installation cannot continue, you must have root privileges to continue with the installation process.", 
-					   null, null);
-}
+//if (!OsUtils::verifyRootUser()) {
+//	installationFailed("Installation cannot continue, you must have root privileges to continue with the installation process.", 
+//					   null, null);
+//}
 if (!OsUtils::verifyOS()) {
 	installationFailed("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.", 
 					   null, null);
@@ -207,7 +207,7 @@ if ($install_output !== null) {
 
 // add usage tracking crontab for onprem TM
 if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) === 0) {
-	$tracking_cron = sprintf("\n0 8 5 * * root %s %s/admin_console/scripts/send-usage-report.php\n", $app->get('PHP_BIN'), $app->get('APP_DIR'));
+	$tracking_cron = sprintf("\n0 8 5 * * kaltura %s %s/admin_console/scripts/send-usage-report.php\n", $app->get('PHP_BIN'), $app->get('APP_DIR'));
 	OsUtils::appendFile($app->get('BASE_DIR').'/crontab/kaltura_crontab', $tracking_cron);
 }
 

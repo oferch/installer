@@ -48,12 +48,12 @@ class Installer {
 		}
 		
 		// application leftovers
-		if (is_dir($app->get('BASE_DIR'))) {
+		if (is_dir($app->get('BASE_DIR')) && (($files = @scandir($dir)) && count($files) > 2)) {
 			if ($report_only) {
 				$leftovers .= "   Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
 			} else {
 				logMessage(L_USER, "killing sphinx daemon if running");
-				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh -u root');
+				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh -u kaltura');
 				logMessage(L_USER, "Stopping sphinx if running");
 				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/searchd.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Stopping the batch manager if running");
@@ -73,7 +73,7 @@ class Installer {
 	public function install(AppConfig $app, $db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
 		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::fullCopy('package/app/', $app->get('BASE_DIR'))) {
+		if (!OsUtils::rsync('package/app/', $app->get('BASE_DIR'))) {
 			return "Failed to copy application files to target directory";
 		}
 
@@ -190,12 +190,12 @@ class Installer {
 		
 		logMessage(L_USER, "Running the batch manager");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
-			return "Failed running the btach manager";
+			return "Failed running the batch manager";
 		}
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
-		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u root');
+		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
 		
 		logMessage(L_USER, "Running the generate script");
 		$currentWorkingDir = getcwd();
