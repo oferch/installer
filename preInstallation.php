@@ -84,6 +84,12 @@ if (!OsUtils::execute("chmod 775 /var/lock/subsys/")) {
 	return "\nFailed chmod\n";
 }
 
+logMessage(L_USER, 'chmod');
+if (!OsUtils::execute("chmod 775 /var/spool/cron")) {
+	echo "Failed chmod";			
+	return "\nFailed chmod\n";
+}
+
 logMessage(L_USER, 'create installation directory');
 if (!OsUtils::execute("mkdir /opt/kaltura")) {
 	logMessage(L_USER, 'Failed creating installation directory');			
