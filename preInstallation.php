@@ -54,14 +54,14 @@ if (!OsUtils::execute("chmod 770 /etc/rc.d/init.d")) {
 }
 
 
-logMessage(L_USER, 'adding group');
-if (!OsUtils::execute("groupadd $kalturaUserName")) {
-	logMessage(L_USER, 'Failed add group');			
-	return "\nFailed add group\n";
-}
+//logMessage(L_USER, 'adding group');
+//if (!OsUtils::execute("groupadd $kalturaUserName")) {
+//	logMessage(L_USER, 'Failed add group');			
+//	return "\nFailed add group\n";
+//}
 
 logMessage(L_USER, 'adding ownership to user');
-if (!OsUtils::execute("chown -R $kalturaUserName:$kalturaUserName $currWD")) {
+if (!OsUtils::execute("chown -R $kalturaUserName:root $currWD")) {
 	logMessage(L_USER, 'Failed add ownership');			
 	return "\nFailed adding ownership\n";
 }
@@ -97,7 +97,7 @@ if (!OsUtils::execute("mkdir /opt/kaltura")) {
 }
 
 logMessage(L_USER, 'change ownership of installation directory');
-if (!OsUtils::execute("chown -R $kalturaUserName:$kalturaUserName /opt/kaltura")) {
+if (!OsUtils::execute("chown -R $kalturaUserName:root /opt/kaltura")) {
 	logMessage(L_USER, 'Failed change ownership of  installation directory');			
 	return "\nFailed change ownership of installation directory\n";
 }
