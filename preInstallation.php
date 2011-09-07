@@ -9,25 +9,22 @@ logMessage(L_USER, 'start');
 $currWD = getcwd();
 logMessage(L_USER, "dir: $currWD");
 $kalturaUserName = 'kaltura';
-$batchUserPassword = 'batchUserPassw0r462';
+$kalturaUserPassword = 'batchUserPassw0r462';
 
 for ($i = 1; $i < $argc; $i++) {
     if(($argv[$i] != '-s') && ($argv[$i] != '-c')){
-    	$batchUserPassword = $argv[$i];
+    	$kalturaUserPassword = $argv[$i];
     }
 }
 
 
 logMessage(L_USER, 'add user');
-if (!OsUtils::execute("useradd $kalturaUserName -g root")) {
-	logMessage(L_USER, 'Failed creating user');		
-	return "Failed creating batch user";
-}
-
-logMessage(L_USER, 'create password');
-if (!OsUtils::execute("passwd $kalturaUserName <<EOF\n".$batchUserPassword."\n".$batchUserPassword."\nEOF 2>&1")) {
-	logMessage(L_USER, 'Failed creating user password');
-	return "\nFailed creating batch user password\n";
+if (OsUtils::execute("useradd $kalturaUserName -g root")) {	
+	logMessage(L_USER, 'create password');
+	if (!OsUtils::execute("passwd $kalturaUserName <<EOF\n".$kalturaUserPassword."\n".$kalturaUserPassword."\nEOF 2>&1")) {
+		logMessage(L_USER, 'Failed creating user password');
+		return "\nFailed creating user password\n";
+	}
 }
 
 
