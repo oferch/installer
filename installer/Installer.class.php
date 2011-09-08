@@ -189,7 +189,7 @@ class Installer {
 		$app->saveUninstallerConfig($this->install_config['symlinks']);
 		
 		logMessage(L_USER, "clear cache");
-		if (!OsUtils::execute($app->get('APP_DIR').'/alpha/crond/kaltura/clear_cache.sh')) {
+		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
 			return "Failed clear cache";
 		}
 		
