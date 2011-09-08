@@ -193,6 +193,9 @@ class Installer {
 			return "Failed running the batch manager";
 		}
 		
+		OsUtils::execute("ll /opt/kaltura/ | grep sphinx");
+		OsUtils::execute("chmod 755 /opt/kaltura/sphinx/");
+		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
 		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
