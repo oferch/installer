@@ -188,14 +188,15 @@ class Installer {
 		}
 		$app->saveUninstallerConfig($this->install_config['symlinks']);
 		
+		logMessage(L_USER, "clear cache");
+		if (!OsUtils::execute($app->get('APP_DIR').'/alpha/crond/kaltura/clear_cache.sh')) {
+			return "Failed clear cache";
+		}
+		
 		logMessage(L_USER, "Running the batch manager");
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the batch manager";
 		}
-		
-		OsUtils::execute("ls -l /opt/kaltura/ | grep sphinx");
-		OsUtils::execute("ls -l /opt/kaltura/sphinx/searchd.pid");
-		OsUtils::execute("chmod 755 /opt/kaltura/sphinx/");
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
