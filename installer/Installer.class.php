@@ -193,7 +193,7 @@ class Installer {
 			return "Failed running the batch manager";
 		}
 		
-		OsUtils::execute("ll /opt/kaltura/ | grep sphinx");
+		OsUtils::execute("ls -l /opt/kaltura/ | grep sphinx");
 		OsUtils::execute("chmod 755 /opt/kaltura/sphinx/");
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
