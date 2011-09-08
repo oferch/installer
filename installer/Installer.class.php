@@ -194,6 +194,7 @@ class Installer {
 		}
 		
 		OsUtils::execute("ls -l /opt/kaltura/ | grep sphinx");
+		OsUtils::execute("ls -l /opt/kaltura/sphinx/searchd.pid");
 		OsUtils::execute("chmod 755 /opt/kaltura/sphinx/");
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
