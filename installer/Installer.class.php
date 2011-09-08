@@ -193,11 +193,6 @@ class Installer {
 			return "Failed clear cache";
 		}
 		
-		logMessage(L_USER, "Running the batch manager");
-		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
-			return "Failed running the batch manager";
-		}
-		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
 		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
@@ -208,6 +203,12 @@ class Installer {
 		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
+		
+		logMessage(L_USER, "Running the batch manager");
+		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
+			return "Failed running the batch manager";
+		}
+		
 		chdir($currentWorkingDir);
 		
 		$this->changeDirsAndFilesPermissions($app);
