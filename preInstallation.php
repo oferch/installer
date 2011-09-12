@@ -146,5 +146,26 @@ if (!OsUtils::execute("chmod 700 /etc/cron.d")) {
 //}
 
 
+$kalturaProcesses = implode(OsUtils::executeReturnOutput("ps -ef | grep kaltura"));
+$processFound = strstr($kalturaProcesses, 'searchd --config');
+if(!$processFound){
+	echo 'ERROR: searchd is not running';
+}
+$processFound = strstr($kalturaProcesses, 'KGenericBatchMgr.class.php');
+if(!$processFound){
+	echo 'ERROR: batch is not running';
+}
+$processFound = strstr($kalturaProcesses, 'watch.daemon.sh');
+if(!$processFound){
+	echo 'ERROR: watch daemon is not running';
+}
+$processFound = strstr($kalturaProcesses, 'populateFromLog.php');
+if(!$processFound){
+	echo 'ERROR: populate is not running';
+}
+$processFound = strstr($kalturaProcesses, 'memcached');
+if(!$processFound){
+	echo 'ERROR: memcached is not running';
+}
 
 logMessage(L_USER, 'end preinstallation');
