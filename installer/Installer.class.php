@@ -216,6 +216,106 @@ class Installer {
 		return null;
 	}
 	
+	
+	
+	// updates the application according to the given parameters
+	// $app - the AppConfig used for the installation
+	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')	
+	// returns null if the update succeeded or an error text if it failed
+	public function update(AppConfig $app, $db_params) {
+		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
+
+		$os_name = 	OsUtils::getOsName();
+		$architecture = OsUtils::getSystemArchitecture();	
+		
+		logMessage(L_USER, "Replacing configuration tokens in files");
+		foreach ($this->install_config['token_files'] as $file) {
+			$replace_file = $app->replaceTokensInString($file);
+			if (!$app->replaceTokensInFile($replace_file)) {
+				return "Failed to replace tokens in $replace_file";
+			}
+		}		
+
+		$this->changeDirsAndFilesPermissions($app);
+		
+		logMessage(L_USER, "Running update script");
+		$scriptOutput = OsUtils::executeWithOutput(sprintf("%s %s/deployment/updates/update.php", $app->get('PHP_BIN'), $app->get('APP_DIR')));
+		if ($scriptOutput) {
+			logMessage(L_INFO, "Update script finished, update log:");
+			while( list(,$row) = each($scriptOutput) ){
+				logMessage(L_INFO, "$row");
+			}
+		} else {
+			return "Failed to run update script";
+		}
+			
+		logMessage(L_USER, "Creating Dynamic Enums");
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+				logMessage(L_INFO, "Dynamic Enums created");
+		} else {
+			return "Failed to create dynamic enums";
+		}
+		
+		logMessage(L_USER, "Configure sphinx");
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/configureSphinx.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+				logMessage(L_INFO, "sphinx configuration file (kaltura.conf) created");
+		} else {
+			return "Failed to create sphinx configuration file (kaltura.conf)";
+		}
+		
+		$this->changeDirsAndFilesPermissions($app);
+		
+		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		
+		foreach ($this->install_config['uiconfs'] as $uiconfapp) {
+			$to_deploy = $app->replaceTokensInString($uiconfapp);
+			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy.php --disableUrlHashing=true --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
+				logMessage(L_INFO, "Deployed uiconf $to_deploy");
+			} else {
+				return "Failed to deploy uiconf $to_deploy";
+			}
+		}
+		
+		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		foreach ($this->install_config['uiconfs_2'] as $uiconfapp) {
+			$to_deploy = $app->replaceTokensInString($uiconfapp);
+			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
+				logMessage(L_INFO, "Deployed uiconf $to_deploy");
+			} else {
+				return "Failed to deploy uiconf $to_deploy";
+			}
+		}
+		
+		logMessage(L_USER, "clear cache");
+		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+			return "Failed clear cache";
+		}
+		
+		logMessage(L_USER, "Running the sphinx search deamon");
+		print("Executing sphinx dameon \n");
+		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
+		
+		logMessage(L_USER, "Running the generate script");
+		$currentWorkingDir = getcwd();
+		chdir($app->get('APP_DIR').'/generator');
+		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
+			return "Failed running the generate script";
+		}
+		
+		logMessage(L_USER, "Running the batch manager");
+		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
+			return "Failed running the batch manager";
+		}
+		
+		chdir($currentWorkingDir);
+		
+		$this->changeDirsAndFilesPermissions($app);
+		
+		return null;
+	}
+	
+	
+	
 	// detects if there are databases leftovers
 	// can be used both for verification and for dropping the databases
 	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
