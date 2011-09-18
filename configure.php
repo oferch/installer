@@ -9,7 +9,7 @@ include_once('installer/AppConfig.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/OsUtils.class.php');
 
-require_once(APPLICATION_DIR . '/alpha/config/kConf.php');
+require_once(APPLICATION_DIR . '/infra/kConf.php');
 
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");

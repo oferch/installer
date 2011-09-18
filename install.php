@@ -152,7 +152,7 @@ if ($user->isInputLoaded()) {
 }
 
 // get from kConf.php the latest versions of kmc , clipapp and HTML5
-$kconf = file_get_contents("package/app/app/alpha/config/kConf.php");
+$kconf = file_get_contents("package/app/app/infra/kConf.php");
 $latestVersions = array();
 $latestVersions["KMC_VERSION"] = getVersionFromKconf($kconf,"kmc_version");
 $latestVersions["CLIPAPP_VERSION"] = getVersionFromKconf($kconf,"clipapp_version");
