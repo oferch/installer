@@ -147,6 +147,7 @@ if (!OsUtils::execute("chmod 700 /etc/cron.d")) {
 
 
 $kalturaProcesses = implode(OsUtils::executeReturnOutput("ps -ef | grep kaltura"));
+logMessage(L_USER, 'ps -ef | grep kaltura: '.$kalturaProcesses);
 $processFound = strstr($kalturaProcesses, 'searchd --config');
 if(!$processFound){
 	echo 'ERROR: searchd is not running';
