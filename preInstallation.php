@@ -91,7 +91,7 @@ if (!OsUtils::execute("chmod 775 /var/spool/cron")) {
 }
 
 logMessage(L_USER, 'chmod');
-if (!OsUtils::execute("chmod 777 /usr/local/pentaho")) {
+if (!OsUtils::execute("chmod -R 777 /usr/local/pentaho")) {
 	echo "Failed chmod";			
 	return "\nFailed chmod\n";
 }
