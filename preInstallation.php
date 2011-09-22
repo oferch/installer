@@ -90,6 +90,12 @@ if (!OsUtils::execute("chmod 775 /var/spool/cron")) {
 	return "\nFailed chmod\n";
 }
 
+logMessage(L_USER, 'chmod');
+if (!OsUtils::execute("chmod 777 /usr/local/pentaho")) {
+	echo "Failed chmod";			
+	return "\nFailed chmod\n";
+}
+
 logMessage(L_USER, 'create installation directory');
 if (!OsUtils::execute("mkdir /opt/kaltura")) {
 	logMessage(L_USER, 'Failed creating installation directory');			
