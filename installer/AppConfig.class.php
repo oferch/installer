@@ -202,7 +202,7 @@ class AppConfig {
 		// mails configurations
 		$this->app_config['FORUMS_URLS'] = 'http://www.kaltura.org/forum';
 		$this->app_config['CONTACT_URL'] = 'http://corp.kaltura.com/contact';
-		$this->app_config['CONTACT_PHONE_NUMBER'] = '+1 (800) 871-5224';
+		$this->app_config['CONTACT_PHONE_NUMBER'] = '+1 800 871-5224';
 		$this->app_config['BEGINNERS_TUTORIAL_URL'] = 'http://corp.kaltura.com/about/dosignup';
 		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
 		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
