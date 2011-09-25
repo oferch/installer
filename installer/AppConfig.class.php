@@ -2,7 +2,7 @@
 
 define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
 define('TEMPLATE_FILE', '.template'); // how to recognize a tamplate file, template files are copyed to non-template and then the tokens are replaced
-define('KCONF_LOCAL_LOCATION', '/alpha/config/kConfLocal.php'); // the location of kConf
+define('KCONF_LOCAL_LOCATION', '/configurations/local.ini'); // the location of kConf
 define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini'); // the location where to save configuration for the uninstaller
 
 /* 
@@ -283,8 +283,8 @@ class AppConfig {
 		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
 		$key = base64_encode($str);
 		$data = @file_get_contents($kConfLocalFile);
-		$key_line = '/"kaltura_activation_key"(\s)*=>(\s)*(.+),/';
-		$replacement = '"kaltura_activation_key" => "'.$key.'",';
+		$key_line = '/kaltura_activation_key(\s)*=(\s)*(.+)/';
+		$replacement = 'kaltura_activation_key = '.$key;
 		$data = preg_replace($key_line, $replacement ,$data);
 		@file_put_contents($kConfLocalFile, $data);
 	}
