@@ -53,11 +53,15 @@ class Installer {
 				$leftovers .= "   Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
 			} else {
 				logMessage(L_USER, "killing sphinx daemon if running");
+				$currentWorkingDir = getcwd();
+				chdir($app->get('APP_DIR').'/app/plugins/sphinx_search/scripts/');
 				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh -u kaltura');
 				logMessage(L_USER, "Stopping sphinx if running");
 				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/searchd.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Stopping the batch manager if running");
+				chdir($app->get('APP_DIR').'/scripts/');
 				@exec($app->get('BASE_DIR').'/app/scripts/serviceBatchMgr.sh stop 2>&1', $output, $return_var);
+				chdir($currentWorkingDir);
 				logMessage(L_USER, "Deleting ".$app->get('BASE_DIR'));
 				OsUtils::recursiveDelete($app->get('BASE_DIR'));			
 			}
@@ -195,20 +199,21 @@ class Installer {
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
+		$currentWorkingDir = getcwd();
+		chdir($app->get('APP_DIR').'/plugins/sphinx_search/scripts/');
 		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
 		
 		logMessage(L_USER, "Running the generate script");
-		$currentWorkingDir = getcwd();
 		chdir($app->get('APP_DIR').'/generator');
 		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
 		
 		logMessage(L_USER, "Running the batch manager");
+		chdir($app->get('APP_DIR').'/scripts/');
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the batch manager";
 		}
-		
 		chdir($currentWorkingDir);
 		
 		$this->changeDirsAndFilesPermissions($app);
@@ -293,16 +298,18 @@ class Installer {
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
+		$currentWorkingDir = getcwd();
+		chdir($app->get('APP_DIR').'/plugins/sphinx_search/scripts/');
 		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
 		
 		logMessage(L_USER, "Running the generate script");
-		$currentWorkingDir = getcwd();
 		chdir($app->get('APP_DIR').'/generator');
 		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
 		
 		logMessage(L_USER, "Running the batch manager");
+		chdir($app->get('APP_DIR').'/scripts/');
 		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the batch manager";
 		}
