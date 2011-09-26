@@ -118,6 +118,14 @@ if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
 	$success = false;
 }
 
+echo 'Deleting dwh pentaho directories... ';
+if (execute($config['BASE_DIR'].'/dwh/setup/cleanup.sh')) {
+	echo 'OK'.PHP_EOL;
+} else {
+	echo 'Failed'.PHP_EOL;
+	$success = false;
+}
+
 echo 'Deleting kaltura user... ';
 if (execute('userdel kaltura')) {
 	echo 'OK'.PHP_EOL;
