@@ -69,7 +69,7 @@ if (!OsUtils::execute("chown -R $kalturaUserName:root $currWD")) {
 logMessage(L_USER, 'chmod home');
 if (!OsUtils::execute("chmod -R 740 /home/$kalturaUserName")) {
 	logMessage(L_USER, 'Failed chmod home');			
-	return "\nFailed chmod home\n";
+//	return "\nFailed chmod home\n";
 }
 
 logMessage(L_USER, 'chmod log');
