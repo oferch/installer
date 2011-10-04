@@ -137,8 +137,14 @@ if (!OsUtils::execute("su $kalturaUserName --command='$installerCommand'")) {
 //}
 
 logMessage(L_USER, 'add crons');
-$cron_content = file_get_contents($app->get('BASE_DIR').'/crontab/kaltura_crontab');
+$cron_content = file_get_contents('/opt/kaltura/crontab/kaltura_crontab');
 OsUtils::appendFile('/etc/crontab', $cron_content);
+
+logMessage(L_USER, 'restart cron');
+if (!OsUtils::execute("/etc/init.d/crond restart")) {
+	echo "Failed restart cron";			
+	return "\nFailed cron\n";
+}
 
 logMessage(L_USER, 'chmod');
 if (!OsUtils::execute("chmod 700 /etc/cron.d")) {
