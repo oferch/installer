@@ -108,6 +108,10 @@ if (!OsUtils::execute("chown -R $kalturaUserName:root /opt/kaltura")) {
 	return "\nFailed change ownership of installation directory\n";
 }
 
+logMessage(L_USER, 'add crons');
+$cron_content = file_get_contents($app->get('BASE_DIR').'/crontab/kaltura_crontab');
+OsUtils::appendFile('etc/crontab', $cron_content);
+
 
 
 logMessage(L_USER, 'chmod installer');
