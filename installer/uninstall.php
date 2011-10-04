@@ -70,6 +70,19 @@ function dropDb($db, $host, $user, $pass, $port) {
 	$drop_db_query = "DROP DATABASE $db;";
 	return executeQuery($drop_db_query, $host, $user, $pass, null, $port);
 }
+
+function deleteTextFromFile($filePath, $text){
+	$data = file_get_contents($filePath);
+	while(strstr($data,$text)){
+		$textPos = strpos($data,$text);
+		$startData = substr($data,0,$textPos);
+		$endData = substr($data,$textPos + strlen($filePath));
+		$startData = substr($startData,0,strrpos($startData,PHP_EOL));
+		$endData = substr($endData,strpos($endData,PHP_EOL));
+		$data = $startData . $endData;
+	}
+	file_put_contents($filePath,$data);
+}
 	
 $silentRun = false;
 if($argc > 1 && $argv[1] == '-s') $silentRun = true;
@@ -151,6 +164,9 @@ if (execute("rm -rf ".$config['BASE_DIR'])) {
 	echo 'Failed'.PHP_EOL;
 	$success = false;
 }
+
+echo "Removing kaltura crons... ";
+deleteTextFromFile('/etc/crontab','kaltura');
 	
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
 else echo 'Some of the uninstall steps failed, please complete the process manually'.PHP_EOL;
