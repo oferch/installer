@@ -110,7 +110,7 @@ if (!OsUtils::execute("chown -R $kalturaUserName:root /opt/kaltura")) {
 
 logMessage(L_USER, 'add crons');
 $cron_content = file_get_contents($app->get('BASE_DIR').'/crontab/kaltura_crontab');
-OsUtils::appendFile('etc/crontab', $cron_content);
+OsUtils::appendFile('/etc/crontab', $cron_content);
 
 
 
