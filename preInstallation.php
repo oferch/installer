@@ -108,12 +108,6 @@ if (!OsUtils::execute("chown -R $kalturaUserName:root /opt/kaltura")) {
 	return "\nFailed change ownership of installation directory\n";
 }
 
-logMessage(L_USER, 'add crons');
-$cron_content = file_get_contents($app->get('BASE_DIR').'/crontab/kaltura_crontab');
-OsUtils::appendFile('/etc/crontab', $cron_content);
-
-
-
 logMessage(L_USER, 'chmod installer');
 if (!OsUtils::execute("chmod 744 install.php")) {
 	logMessage(L_USER, 'Failed chmod installer');			
@@ -142,6 +136,9 @@ if (!OsUtils::execute("su $kalturaUserName --command='$installerCommand'")) {
 //return "\nFailed running script batchuser\n";
 //}
 
+logMessage(L_USER, 'add crons');
+$cron_content = file_get_contents($app->get('BASE_DIR').'/crontab/kaltura_crontab');
+OsUtils::appendFile('/etc/crontab', $cron_content);
 
 logMessage(L_USER, 'chmod');
 if (!OsUtils::execute("chmod 700 /etc/cron.d")) {
