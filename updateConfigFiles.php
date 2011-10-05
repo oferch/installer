@@ -123,11 +123,13 @@ if ($user->isInputLoaded()) {
 }
 
 // get from kConf.php the latest versions of kmc , clipapp and HTML5
+logMessage(L_USER, 'app dir is: '. $app->get('APP_DIR'));
 $kconf = file_get_contents($app->get('APP_DIR')."/configurations/base.ini");
 $latestVersions = array();
 $latestVersions["KMC_VERSION"] = getVersionFromKconf($kconf,"kmc_version");
 $latestVersions["CLIPAPP_VERSION"] = getVersionFromKconf($kconf,"clipapp_version");
 $latestVersions["HTML5_VERSION"] = getVersionFromKconf($kconf,"html5_version");
+logMessage(L_USER, 'HTML5_VERSION is: '. $latestVersions["HTML5_VERSION"]);
 
 // init the application configuration
 $app->initFromUserInput(array_merge((array)$user->getAll(), (array)$latestVersions));
