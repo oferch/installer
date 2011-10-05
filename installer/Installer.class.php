@@ -291,6 +291,16 @@ class Installer {
 			}
 		}
 		
+	    logMessage(L_USER, "Creating system symbolic links");
+		foreach ($this->install_config['symlinks'] as $slink) {
+			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
+			if (symlink($link_items[0], $link_items[1])) {
+				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
+			} else {
+				return sprintf("Failed to create symblic link from %s to %s", $link_items[0], $link_items[1]);
+			}
+		}
+		
 		logMessage(L_USER, "clear cache");
 		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
 			return "Failed clear cache";
