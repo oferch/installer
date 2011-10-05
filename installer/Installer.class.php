@@ -296,8 +296,8 @@ class Installer {
 			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
 			if (symlink($link_items[0], $link_items[1])) {
 				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
-			} else {
-				return sprintf("Failed to create symblic link from %s to %s", $link_items[0], $link_items[1]);
+			} else if(!is_file($link_items[1])) {
+				return sprintf("Failed to create symblic link from %s to %s \n", $link_items[0], $link_items[1]);
 			}
 		}
 		
