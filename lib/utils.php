@@ -149,6 +149,10 @@
 		return $revision;
 	}
 	
+// used for github exporting of the html5 files
+//group = $manifest['html5'] from falconmanifest.ini file
+/*	function github_export_group($group, $base_dir){}*/ 
+
 	function get_folders_to_remove($base_path, $remove_exp) {
 		$path = explode(" * ", $remove_exp);
 		if (count($path) > 1) {
