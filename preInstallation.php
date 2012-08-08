@@ -17,7 +17,6 @@ for ($i = 1; $i < $argc; $i++) {
     }
 }
 
-
 logMessage(L_USER, 'add user');
 if (OsUtils::execute("useradd $kalturaUserName -g root")) {	
 	logMessage(L_USER, 'create password');

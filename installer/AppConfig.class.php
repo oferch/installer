@@ -104,6 +104,7 @@ class AppConfig {
 		$this->app_config['IIS_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['RTMP_URL'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
+		$this->app_config['GLOBAL_MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['WWW_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['SERVICE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['ENVIRONMENT_NAME'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
@@ -115,7 +116,6 @@ class AppConfig {
 		$this->collectDatabaseCopier('DB1', 'DB2');
 		$this->collectDatabaseCopier('DB1', 'DB3');
 
-		
 		//sphinx
 		$this->app_config['SPHINX_SERVER'] = '127.0.0.1';
 		$this->app_config['SPHINX_DB_NAME'] = 'kaltura_sphinx_log';
@@ -123,7 +123,6 @@ class AppConfig {
 		$this->app_config['SPHINX_DB_PORT'] = $this->app_config['DB1_PORT'];
 	    $this->app_config['SPHINX_DB_USER'] = $this->app_config['DB1_USER'];
 		$this->app_config['SPHINX_DB_PASS'] = $this->app_config['DB1_PASS'];
-		
 		
 		// admin console defaults
 		$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $this->generateSecret();
@@ -215,6 +214,7 @@ class AppConfig {
 		$this->app_config['IIS_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['RTMP_URL'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
+		$this->app_config['GLOBAL_MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['WWW_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['SERVICE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['ENVIRONMENT_NAME'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];		
@@ -241,7 +241,6 @@ class AppConfig {
 		$this->app_config['XYMON_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/xymon/';
 		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
 		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
-		
 		
 	}
 
