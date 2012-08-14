@@ -120,7 +120,8 @@ if ($exit_code !== 0) {
 }
 
 // check pentaho exists
-if (!is_file($prerequisites_config["pentaho_path"])) {
+$pentaho = $prerequisites_config["pentaho_path"];
+if (!is_file($pentaho)) {
 	$prerequisites .= "Missing pentaho at $pentaho".PHP_EOL;
 }
 
