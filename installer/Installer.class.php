@@ -163,15 +163,7 @@ class Installer {
 		} else {
 			return "Failed to create dynamic enums";
 		}
-
-		//HAGAY: activate sphinx scripts from deployment/base/scripts to populate DB
-		logMessage(L_USER, "Configure sphinx");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/configureSphinx.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
-				logMessage(L_INFO, "sphinx configuration file (kaltura.conf) created");
-		} else {
-			return "Failed to create sphinx configuration file (kaltura.conf)";
-		}
-				
+			
 		logMessage(L_USER, "Create query cache triggers");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
 			logMessage(L_INFO, "sphinx Query Cache Triggers created");
@@ -210,13 +202,7 @@ class Installer {
 		} else {
 			return "Failed to populate sphinx log from categories";
 		}
-//		logMessage(L_USER, "Running sphinx");
-//		if (OsUtils::execute(sprintf("%s/bin/sphinx/searchd --config %s/configurations/sphinx/kaltura.conf", $app->get('BASE_DIR'),$app->get('APP_DIR')))) {
-//				logMessage(L_INFO, "sphinx is running");
-//		} else {
-//			return "Failed to run sphinx";
-//		}
-	
+
 		$this->changeDirsAndFilesPermissions($app);
 		
 		logMessage(L_USER, "Creating system symbolic links");
@@ -254,12 +240,6 @@ class Installer {
 			return "Failed clear cache";
 		}
 		
-/*		logMessage(L_USER, "Running the sphinx search deamon");
-		print("Executing sphinx dameon \n");
-		$currentWorkingDir = getcwd();
-		chdir($app->get('APP_DIR').'/plugins/sphinx_search/scripts/');
-		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh -u kaltura');
-*/		
 		logMessage(L_USER, "Running the generate script");
 		$currentWorkingDir = getcwd();
 		chdir($app->get('APP_DIR').'/generator');

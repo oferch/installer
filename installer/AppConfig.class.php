@@ -1,7 +1,7 @@
 <?php
 
 define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
-define('TEMPLATE_FILE', '.template'); // how to recognize a tamplate file, template files are copyed to non-template and then the tokens are replaced
+define('TEMPLATE_FILE', '.template'); // how to recognize a template file, template files are copyed to non-template and then the tokens are replaced
 define('KCONF_LOCAL_LOCATION', '/configurations/local.ini'); // the location of kConf
 define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini'); // the location where to save configuration for the uninstaller
 
@@ -305,7 +305,7 @@ class AppConfig {
 		// Replacement in a template file, first copy to a non .template file
 		if (strpos($file, TEMPLATE_FILE) !== false) {
 			$return_file = str_replace(TEMPLATE_FILE, "", $file);
-			logMessage(L_INFO, "$file toekn file contains ".TEMPLATE_FILE);
+			logMessage(L_INFO, "$file token file contains ".TEMPLATE_FILE);
 			OsUtils::fullCopy($file, $return_file);
 		}
 		return $return_file;
