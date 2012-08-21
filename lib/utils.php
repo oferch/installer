@@ -149,6 +149,54 @@
 		return $revision;
 	}
 	
+	//get code from github
+	function github_export_group($group, $base_dir)
+	{
+		$revision = array();
+		
+		create_dir_path($base_dir, $group['local_path']);
+		foreach($group['get'] as $current) 
+		{
+			$revision[$group['git_path'] . $current] = github_export($group['git_path'] . '/' . $current, $base_dir . $group['local_path'] . $current, $current);
+		}
+		return $revision;
+		
+	}
+	
+	function github_export($repository, $destination, $version)
+	{
+		@mkdir($destination);
+		
+		$git_cmd = "wget $repository";
+		echo "$git_cmd\n";
+		$result = exec($git_cmd);
+		
+		$tar_cmd = "tar -C $destination -xvf ./$version --strip-components=1";		
+		echo "$tar_cmd\n";
+		$result = exec($tar_cmd);
+		
+		unlink("./$version");
+		copy($destination."/LocalSettings.KalturaPlatform.php",  $destination."/LocalSettings.php");
+		
+		return $repository; 	
+	}
+	
+	function create_dir_path($base_dir, $rel_path)
+	{
+		$rel_path_arr = explode("/", $rel_path);
+		if(count($rel_path_arr) > 0)
+		{
+			$curr_dir_path = $base_dir;
+			for ($i = 0; $i < count($rel_path_arr); $i += 1) {
+				$dir_path = $curr_dir_path . '/' . $rel_path_arr[$i];
+				if(!is_dir($curr_dir_path))
+				{
+					@mkdir($curr_dir_path);
+				}
+			}			
+		}		
+	}
+	
 	function get_folders_to_remove($base_path, $remove_exp) {
 		$path = explode(" * ", $remove_exp);
 		if (count($path) > 1) {
