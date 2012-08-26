@@ -139,13 +139,14 @@ if (execute($config['BASE_DIR'].'/dwh/setup/cleanup.sh')) {
 	$success = false;
 }
 
-echo 'Deleting kaltura user... ';
-if (execute('userdel kaltura')) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
-}
+//TODO: Kaltura user currently does not created
+//echo 'Deleting kaltura user... ';
+//if (execute('userdel kaltura')) {
+//	echo 'OK'.PHP_EOL;
+//} else {
+//	echo 'Failed'.PHP_EOL;
+//	$success = false;
+//}
 
 foreach ($dbs_to_drop as $db) {
 	echo "Dropping '$db' database... ";
