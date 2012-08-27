@@ -106,17 +106,8 @@ foreach ($config['symlinks'] as $slink) {
 	}
 }
 
-echo 'Stopping sphinx daemon... ';
+echo 'Stopping sphinx daemon and sphinx... ';
 if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/watch.stop.sh')) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
-}
-
-
-echo 'Stopping sphinx... ';
-if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/searchd.sh stop')) {
 	echo 'OK'.PHP_EOL;
 } else {
 	echo 'Failed'.PHP_EOL;
