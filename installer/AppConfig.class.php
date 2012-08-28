@@ -243,6 +243,32 @@ class AppConfig {
 		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
 		
 	}
+	
+	public function definePostInstallationConfigurationTokens()
+	{
+		$this->app_config['POST_INST_VIRTUAL_HOST_NAME'] = $this->removeHttp($this->app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
+		$this->app_config['KALTURA_VIRTUAL_HOST_NAME'] = $this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config['DELIVERY_HTTP_BASE_URL'] = 'http://'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config['DELIVERY_ISS_BASE_URL'] = 'http://'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config['DELIVERY_RTMP_BASE_URL'] = $this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		
+		$this->app_config['POST_INST_ADMIN_CONSOLE_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];		
+		$this->app_config['BATCH_KUSER_MAIL'] = 'batch@'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config['TEMPLATE_PARTNER_MAIL'] = 'template@'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config['TEMPLATE_KUSER_MAIL'] = $this->app_config['TEMPLATE_PARTNER_MAIL'];
+		$this->app_config['SYSTEM_USER_ADMIN_EMAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
+		$this->app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config['BATCH_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
+
+		$this->generateSha1Salt($this->app_config['ADMIN_CONSOLE_PASSWORD'], $salt, $sha1);	
+		$this->app_config['SYSTEM_USER_ADMIN_SALT'] = $salt;
+		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $salt;
+		$this->app_config['SYSTEM_USER_ADMIN_SHA1'] = $sha1;
+		$this->app_config['ADMIN_CONSOLE_KUSER_SALT'] = $sha1;
+		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $sha1;		
+		$this->app_config['TEMPLATE_ADMIN_KUSER_SALT'] = $this->app_config['SYSTEM_USER_ADMIN_SALT'];
+		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];		
+	}
 
 	// copies DB parametes from one DB configuration to another
 	private function collectDatabaseCopier($from_db, $to_db) {

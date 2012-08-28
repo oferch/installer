@@ -9,19 +9,11 @@ include_once('installer/AppConfig.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/OsUtils.class.php');
 
-require_once(APPLICATION_DIR . '/infra/kConf.php');
-
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");
 
-$package_version = kConf::get("kaltura_version");
-$pos = strpos($package_version, K_TM_TYPE);
-
-if ($pos === false) {
-    $type = K_CE_TYPE;
-} else {
-    $type = K_TM_TYPE;
-}
+$version = parse_ini_file('package/version.ini');
+$type = $version['type'];
 
 //start user interaction
 @system('clear');
@@ -82,7 +74,7 @@ $app->set('ADMIN_CONSOLE_PASSWORD', $password);
 						
 $install_config = parse_ini_file(FILE_CONFIG, true);
 
-$app->defineConfigurationTokens();
+$app->definePostInstallationConfigurationTokens();
 foreach ($install_config['token_files'] as $file) {
 	if (!$app->replaceTokensInFile($file)) {
 		echo "Failed to replace tokens in $file";
