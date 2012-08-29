@@ -88,6 +88,13 @@ class Installer {
 			return "Failed to copy binaris for $os_name $architecture";
 		}
 		
+		logMessage(L_USER, "Creating the uninstaller");
+		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
+			return "Failed to create the uninstaller";
+		}
+		//create uninstaller.ini with minimal definitions
+		$app->saveUninstallerConfig();
+		
 		// if vmware installation copy configurator folders
 		if ($app->get('KALTURA_PREINSTALLED')) {
 			mkdir($app->get('BASE_DIR').'/installer', 0777, true);
@@ -200,6 +207,9 @@ class Installer {
 			}
 		}
 		
+		//update uninstaller config
+		$app->updateUninstallerConfig($this->install_config['symlinks']);
+		
 		if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_CE_TYPE) == 0) {
 			$app->simMafteach();
 		}
@@ -213,13 +223,7 @@ class Installer {
 				return "Failed to deploy uiconf $to_deploy";
 			}
 		}
-		
-		logMessage(L_USER, "Creating the uninstaller");
-		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
-			return "Failed to create the uninstaller";
-		}
-		$app->saveUninstallerConfig($this->install_config['symlinks']);
-		
+				
 		logMessage(L_USER, "clear cache");
 		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php -y", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
 			return "Failed clear cache";
@@ -280,5 +284,5 @@ class Installer {
 				return "Failed to change permissions for $chmod_item";
 			}
 		}
-	}
+	}	
 }

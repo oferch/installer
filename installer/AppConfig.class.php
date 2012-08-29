@@ -62,20 +62,27 @@ class AppConfig {
 	}	
 	
 	// saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
-	public function saveUninstallerConfig($symlinks) {
+	public function saveUninstallerConfig() {
 		$file = $this->app_config['BASE_DIR'].UNINSTALLER_LOCATION;
 		$data = "BASE_DIR = ".$this->app_config["BASE_DIR"].PHP_EOL;	
 		$data = $data."DB_HOST = ".$this->app_config["DB1_HOST"].PHP_EOL;
 		$data = $data."DB_USER = ".$this->app_config["DB1_USER"].PHP_EOL;
 		$data = $data."DB_PASS = ".$this->app_config["DB1_PASS"].PHP_EOL;
 		$data = $data."DB_PORT = ".$this->app_config["DB1_PORT"].PHP_EOL;
+		return OsUtils::writeFile($file, $data);
+	}	
+	
+	// update uninstaller config with symlinks definitions
+	public function updateUninstallerConfig($symlinks) {
+		$file = $this->app_config['BASE_DIR'].UNINSTALLER_LOCATION;
+		$data ='';
 		foreach ($symlinks as $slink) {
 			$link_items = explode(SYMLINK_SEPARATOR, $this->replaceTokensInString($slink));	
 			if (is_file($link_items[1]) && (strpos($link_items[1], $this->app_config["BASE_DIR"]) === false)) {
 				$data = $data."symlinks[] = ".$link_items[1].PHP_EOL;
 			}
 		} 
-		return OsUtils::writeFile($file, $data);
+		return OsUtils::appendFile($file, $data);
 	}	
 	
 	// private functions
