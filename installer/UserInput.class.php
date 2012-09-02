@@ -139,6 +139,11 @@ class UserInput
 						$php_error_message, 
 						InputValidator::createFileValidator(), 
 						$php_bin_found);
+		$this->getInput('TIME_ZONE', 
+						"Default time zone for Kaltura application (leave empty to use system timezone: ". date_default_timezone_get()." )",
+						"Timezone must be a valid timezone, please enter again", 
+						InputValidator::createTimezoneValidator(), 
+						date_default_timezone_get());
 		$this->getInput('BASE_DIR', 
 						"Full target directory path for Kaltura application (leave empty for /opt/kaltura)",
 						"Target directory must be a valid directory path, please enter again", 

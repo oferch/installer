@@ -18,6 +18,7 @@ class InputValidator {
 	public $validateDirectory = false;
 	public $validateYesNo = false;
 	public $numberRange;
+	public $validateTimezone = false;
 	
 	// validates the input according to the validations set, returns true if input is valid, false otherwise
 	// please note that currently it is not possible to run multiple validations
@@ -34,6 +35,7 @@ class InputValidator {
 		else if ($this->validateNoWhitespace) $valid = (preg_match(WHITESPACE_REGEX, $input) === 0);
 		else if ($this->validateDirectory) $valid = is_dir(dirname($input));
 		else if ($this->validateYesNo) $valid = (preg_match(YESNO_REGEX, $input) === 1);
+		else if ($this->validateTimezone) $valid = $this->isValidTimezone($input);
 		
 		return $valid;
 	}
@@ -89,4 +91,23 @@ class InputValidator {
 		$validator->validateFileExists = true;
 		return $validator;
 	}	
+	
+	public static function createTimezoneValidator() {
+		$validator = new InputValidator();
+		$validator->validateTimezone = true;
+		return $validator;
+	}
+	
+	private function isValidTimezone($timezoneId)
+	{
+		$savedZone = date_default_timezone_get(); 
+  		$res = $savedZone == $timezoneId; 
+  		if (!$res) 
+  		{ 
+    		@date_default_timezone_set($timezoneId); 
+    		$res = date_default_timezone_get() == $timezoneId; 
+    	}
+  		date_default_timezone_set($savedZone); 
+  		return $res; 
+	}
 }	

@@ -96,13 +96,16 @@ if ((!$silentRun) && (!getTrueFalse(false))) {
 	die(0);
 }
 //We first want to clear the crontab symbolic link so we can remove all services without them returning
-foreach ($config['symlinks'] as $slink) {
-	echo 'Removing '.$slink.'... ';
-	if (execute('rm -rf ' . $slink)) {
-		echo 'OK'.PHP_EOL;
-	} else {
-		echo 'Failed'.PHP_EOL;
-		$success = false;
+if(is_array($config['symlinks']))
+{
+	foreach ($config['symlinks'] as $slink) {
+		echo 'Removing '.$slink.'... ';
+		if (execute('rm -rf ' . $slink)) {
+			echo 'OK'.PHP_EOL;
+		} else {
+			echo 'Failed'.PHP_EOL;
+			$success = false;
+		}
 	}
 }
 

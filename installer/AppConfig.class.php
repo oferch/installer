@@ -179,7 +179,7 @@ class AppConfig {
 				
 		// other configurations
 		$this->app_config['APACHE_RESTART_COMMAND'] = $this->app_config['HTTPD_BIN'].' -k restart';
-		$this->app_config['TIME_ZONE'] = date('e');
+		date_default_timezone_set($this->app_config['TIME_ZONE']);
 		$this->app_config['GOOGLE_ANALYTICS_ACCOUNT'] = 'UA-7714780-1';
 		$this->app_config['INSTALLATION_TYPE'] = '';
 		$this->app_config['PARTNERS_USAGE_REPORT_SEND_FROM'] = ''; 
