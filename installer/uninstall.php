@@ -65,6 +65,12 @@ function executeQuery($query, $host, $user, $pass, $db, $port, $link = null) {
 	return true;
 }
 
+function isDbExist($db, $host, $user, $pass, $port)
+{
+	$link = null;
+	return connect($link, $host, $user, $pass, $db, $port);
+}
+
 // drops a db, returns true if succeeds, false otherwise
 function dropDb($db, $host, $user, $pass, $port) {
 	$drop_db_query = "DROP DATABASE $db;";
@@ -99,12 +105,15 @@ if ((!$silentRun) && (!getTrueFalse(false))) {
 if(is_array($config['symlinks']))
 {
 	foreach ($config['symlinks'] as $slink) {
-		echo 'Removing '.$slink.'... ';
-		if (execute('rm -rf ' . $slink)) {
-			echo 'OK'.PHP_EOL;
-		} else {
-			echo 'Failed'.PHP_EOL;
-			$success = false;
+		if(is_link($slink))
+		{
+			echo 'Removing '.$slink.'... ';
+			if (execute('rm -rf ' . $slink)) {
+				echo 'OK'.PHP_EOL;
+			} else {
+				echo 'Failed'.PHP_EOL;
+				$success = false;
+			}
 		}
 	}
 }
@@ -143,12 +152,15 @@ if (execute($config['BASE_DIR'].'/dwh/setup/cleanup.sh')) {
 //}
 
 foreach ($dbs_to_drop as $db) {
-	echo "Dropping '$db' database... ";
-	if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
-		echo 'OK'.PHP_EOL;
-	} else {
-		echo 'Failed'.PHP_EOL;
-		$success = false;
+	if(isDbExist($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT']))
+	{
+		echo "Dropping '$db' database... ";
+		if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
+			echo 'OK'.PHP_EOL;
+		} else {
+			echo 'Failed'.PHP_EOL;
+			$success = false;
+		}
 	}
 }
 
@@ -159,11 +171,8 @@ if (execute("rm -rf ".$config['BASE_DIR'])) {
 	echo 'Failed'.PHP_EOL;
 	$success = false;
 }
-
-echo "Removing kaltura crons... ";
-deleteTextFromFile('/etc/crontab','kaltura');
 	
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
 else echo 'Some of the uninstall steps failed, please complete the process manually'.PHP_EOL;
-echo 'Please maually remove Kaltura related Includes from your httpd.conf or httpd-vhosts.conf files'.PHP_EOL;
+echo 'Please maually remove Kaltura-related symbolic links in /etc/httpd/conf.d'.PHP_EOL;
 
