@@ -40,9 +40,14 @@ class Installer {
 		// database leftovers
 		$verify = $this->detectDatabases($db_params);
 		if (isset($verify)) {
-			if ($report_only) {
+			if(!$app->get('DB1_CREATE_NEW_DB'))
+			{
+				//do nothing
+			}
+			else if ($report_only) {
 				$leftovers .= $verify;
-			} else {			
+			}  
+			else {			
 				$this->detectDatabases($db_params, true);
 			}
 		}
@@ -95,6 +100,9 @@ class Installer {
 		//create uninstaller.ini with minimal definitions
 		$app->saveUninstallerConfig();
 		
+		//OsUtils::logDir definition
+		OsUtils::$logDir = $app->get('LOG_DIR');
+		
 		// if vmware installation copy configurator folders
 		if ($app->get('KALTURA_PREINSTALLED')) {
 			mkdir($app->get('BASE_DIR').'/installer', 0777, true);
@@ -121,32 +129,51 @@ class Installer {
 
 		$this->changeDirsAndFilesPermissions($app);
 		
-		$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
-		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
-		if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) {
-			return "Failed to create '".$app->get('DB1_NAME')."' database";
+		if((!$app->get('DB1_CREATE_NEW_DB')) && (DatabaseUtils::dbExists($db_params, $app->get('DB1_NAME')) === true))
+		{		
+			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get('DB1_NAME')));
 		}
-		foreach ($sql_files['kaltura']['sql'] as $sql) {
-			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
-			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
-				return "Failed running database script $sql_file";
+		else 
+		{
+			$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
+			logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
+			if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) {
+				return "Failed to create '".$app->get('DB1_NAME')."' database";
+			}
+			foreach ($sql_files['kaltura']['sql'] as $sql) {
+				$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
+				if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
+					return "Failed running database script $sql_file";
+				}
 			}
 		}
-		
-		logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('SPHINX_DB_NAME')));
-		if (!DatabaseUtils::createDb($db_params, $app->get('SPHINX_DB_NAME'))) {
-			return "Failed to create '".$app->get('SPHINX_DB_NAME')."' database";
+		if((!$app->get('DB1_CREATE_NEW_DB')) && (DatabaseUtils::dbExists($db_params, $app->get('SPHINX_DB_NAME')) === true))
+		{		
+			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get('SPHINX_DB_NAME')));
 		}
-		foreach ($sql_files[$app->get('SPHINX_DB_NAME')]['sql'] as $sql) {
-			$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
-			if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('SPHINX_DB_NAME'))) {
-				return "Failed running database script $sql_file";
+		else 
+		{		
+			logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('SPHINX_DB_NAME')));
+			if (!DatabaseUtils::createDb($db_params, $app->get('SPHINX_DB_NAME'))) {
+				return "Failed to create '".$app->get('SPHINX_DB_NAME')."' database";
+			}
+			foreach ($sql_files[$app->get('SPHINX_DB_NAME')]['sql'] as $sql) {
+				$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
+				if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('SPHINX_DB_NAME'))) {
+					return "Failed running database script $sql_file";
+				}
 			}
 		}
-		
-		logMessage(L_USER, "Creating data warehouse");
-		if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DWH_USER'), $app->get('DWH_PASS'), $app->get('DWH_DIR')))) {		
-			return "Failed running data warehouse initialization script";
+		if((!$app->get('DB1_CREATE_NEW_DB')) && (DatabaseUtils::dbExists($db_params, $app->get('DWH_DATABASE_NAME')) === true))
+		{		
+			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get('DWH_DATABASE_NAME')));
+		}
+		else 
+		{
+			logMessage(L_USER, "Creating data warehouse");
+			if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DB1_USER'), $app->get('DB1_PASS'), $app->get('DWH_DIR')))) {		
+				return "Failed running data warehouse initialization script";
+			}
 		}
 		
 		logMessage(L_USER, "Creating Dynamic Enums");
@@ -245,9 +272,11 @@ class Installer {
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
-		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.onprem.sh');
+		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh');
 		OsUtils::executeInBackground('chkconfig sphinx_watch.sh on');
 		$this->changeDirsAndFilesPermissions($app);
+		
+		OsUtils::execute('cp /package/version.ini ' . $app->get('APP_DIR') . '/configurations/');
 		
 		return null;
 	}

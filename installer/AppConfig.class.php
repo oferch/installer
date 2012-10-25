@@ -124,7 +124,7 @@ class AppConfig {
 		$this->collectDatabaseCopier('DB1', 'DB3');
 
 		//sphinx
-		$this->app_config['SPHINX_SERVER'] = '127.0.0.1';
+		$this->app_config['SPHINX_SERVER'] = $this->app_config['DB1_HOST'];
 		$this->app_config['SPHINX_DB_NAME'] = 'kaltura_sphinx_log';
 		$this->app_config['SPHINX_DB_HOST'] = $this->app_config['DB1_HOST'];
 		$this->app_config['SPHINX_DB_PORT'] = $this->app_config['DB1_PORT'];
@@ -142,6 +142,7 @@ class AppConfig {
 		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $salt;
 		$this->app_config['SYSTEM_USER_ADMIN_SHA1'] = $sha1;
 		$this->app_config['ADMIN_CONSOLE_KUSER_SALT'] = $sha1;
+		$this->app_config['UICONF_TAB_ACCESS'] = 'SYSTEM_ADMIN_BATCH_CONTROL';
 		//$this->app_config['XYMON_SERVER_MONITORING_CONTROL_SCRIPT'] = // Not set
 		
 		// stats DB
@@ -212,6 +213,8 @@ class AppConfig {
 		$this->app_config['BEGINNERS_TUTORIAL_URL'] = 'http://corp.kaltura.com/about/dosignup';
 		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
 		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
+		
+		$this->app_config['DB1_CREATE_NEW_DB'] = ((strcasecmp('y',$this->app_config['DB1_CREATE_NEW_DB']) === 0) || (strcasecmp('yes',$this->app_config['DB1_CREATE_NEW_DB']) === 0));
 	}
 	
 	public function defineConfigurationTokens() {
@@ -247,7 +250,7 @@ class AppConfig {
 		
 		$this->app_config['XYMON_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/xymon/';
 		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
-		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
+		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e=';
 		
 	}
 	

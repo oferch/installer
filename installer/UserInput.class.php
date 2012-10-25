@@ -84,7 +84,7 @@ class UserInput
 	}
 	
 	// Get a y/n input from the user
-	// if $key was already loaded from config it will be taked from there and user will not have to insert
+	// if $key was already loaded from config it will be taken from there and user will not have to insert
 	// $request text - text to show the user	
 	// $default - the default value (show be 'y'/'n')
 	public function getTrueFalse($key, $request_text, $default) {	
@@ -184,6 +184,11 @@ class UserInput
 						"Database password (leave empty for no password)", 
 						null, 
 						null, 
+						null);
+		$this->getInput('DB1_CREATE_NEW_DB', 
+						"Would you like to create a new kaltura database or use an exisiting one? (Y/n)", 
+						"Input is not valid", 
+						InputValidator::createYesNoValidator(), 
 						null);
 		$this->getInput('XYMON_URL', 
 						"The URL to your xymon/hobbit monitoring location. Xymon is an optional installation. Leave empty to set manually later\nExamples:\nhttp://www.xymondomain.com/xymon/\nhttp://www.xymondomain.com/hobbit/", 
