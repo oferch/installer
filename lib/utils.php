@@ -186,12 +186,15 @@
 		$rel_path_arr = explode("/", $rel_path);
 		if(count($rel_path_arr) > 0)
 		{
+			var_dump("creating dirs");
 			$curr_dir_path = $base_dir;
 			for ($i = 0; $i < count($rel_path_arr); $i += 1) {
+				var_dump("creating dir ". $rel_path_arr[$i]);
 				$dir_path = $curr_dir_path . '/' . $rel_path_arr[$i];
-				if(!is_dir($curr_dir_path))
+				if(!is_dir($dir_path))
 				{
-					@mkdir($curr_dir_path);
+					var_dump("mkdir ". $rel_path_arr[$i]);
+					@mkdir($dir_path);
 				}
 			}			
 		}		
