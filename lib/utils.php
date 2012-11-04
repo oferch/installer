@@ -154,7 +154,7 @@
 	{
 		$revision = array();
 		
-		create_dir_path($base_dir, $group['local_path']);
+		mkdir("$base_dir/".$group['local_path'],null,true);
 		foreach($group['get'] as $current) 
 		{
 			$revision[$group['git_path'] . $current] = github_export($group['git_path'] . '/' . $current, $base_dir . $group['local_path'] . $current, $current);
@@ -179,22 +179,6 @@
 		copy($destination."/LocalSettings.KalturaPlatform.php",  $destination."/LocalSettings.php");
 		
 		return $repository; 	
-	}
-	
-	function create_dir_path($base_dir, $rel_path)
-	{
-		$rel_path_arr = explode("/", $rel_path);
-		if(count($rel_path_arr) > 0)
-		{
-			$curr_dir_path = $base_dir;
-			for ($i = 0; $i < count($rel_path_arr); $i += 1) {
-				$curr_dir_path = $curr_dir_path . '/' . $rel_path_arr[$i];
-				if(!is_dir($curr_dir_path))
-				{
-					@mkdir($curr_dir_path);
-				}
-			}			
-		}		
 	}
 	
 	function get_folders_to_remove($base_path, $remove_exp) {
