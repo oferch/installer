@@ -46,40 +46,66 @@ class UserInput
 		return $this->input_loaded;
 	}
 	
-	// gets input from the user and returns it
-	// if $key was already loaded from config it will be taked from there and user will not have to insert
-	// $request text - text to show the user
-	// $not_valid_text - text to show the user if the input is invalid (according to the validator)
-	// $validator - the InputValidator to user (default is null, no validation)
-	// $default - the default value (default's default is '' :))
-	public function getInput($key, $request_text, $not_valid_text, $validator = null, $default = '') {
-		if (isset($key) && isset($this->user_input[$key])) {
+	/**
+	 * gets input from the user and returns it
+	 * if $key was already loaded from config it will be taked from there and user will not have to insert
+	 * 
+	 * @param string $key 
+	 * @param string $request_text text to show the user
+	 * @param string $not_valid_text text to show the user if the input is invalid (according to the validator)
+	 * @param InputValidator $validator the input validator to user (default is null, no validation)
+	 * @param string $default the default value (default's default is '' :))
+	 * @param bool $hideValue do not show the value on the screen, in case it's password for example
+	 * @return string
+	 */
+	public function getInput($key, $request_text, $not_valid_text, InputValidator $validator = null, $default = '', $hideValue = false) 
+	{
+		if (isset($key) && isset($this->user_input[$key]))
 			return $this->user_input[$key];
-		}
 		
-		if (isset($validator) && !empty($default)) $validator->emptyIsValid = true;
+		if (isset($validator) && !empty($default)) 
+			$validator->emptyIsValid = true;
 		
 		logMessage(L_USER, $request_text);
 			
 		$inputOk = false;
-		while (!$inputOk) {
+		while (!$inputOk)
+		{
 			echo '> ';
 			$input = trim(fgets(STDIN));
-			logMessage(L_INFO, "User input is $input");
 			
-			if (isset($validator) && !$validator->validateInput($input)) {
+			if($hideValue)
+			{
+				logMessage(L_INFO, "User input accepted");
+			}
+			else
+			{
+				logMessage(L_INFO, "User input is $input");
+			}
+			
+			if (isset($validator) && !$validator->validateInput($input)) 
+			{
 				logMessage(L_USER, $not_valid_text);
-			} else {			
+			} 
+			else 
+			{			
 				$inputOk = true;
-				echo PHP_EOL;				
-				if (empty($input) && !empty($default)) {
+				echo PHP_EOL;
+				
+				if (empty($input) && !empty($default)) 
+				{
 					$input = $default;
-					logMessage(L_INFO, "Using default value: $default");
+					if($hideValue)
+						logMessage(L_INFO, "Using default value");
+					else
+						logMessage(L_INFO, "Using default value: $default");
 				}	
 			}				
 		}
 		
-		if (isset($key)) $this->user_input[$key] = $input;
+		if (isset($key)) 
+			$this->user_input[$key] = $input;
+			
   		return $input;	
 	}
 	
@@ -163,7 +189,8 @@ class UserInput
 						"The password you want to set for your primary administrator", 
 						"Password should not be empty and should not contain whitespaces, please enter again", 
 						InputValidator::createNoWhitespaceValidator(), 
-						null);
+						null, 
+						true);
 		$this->getInput('DB1_HOST', 
 						"Database host (leave empty for 'localhost')", 
 						"Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", 
