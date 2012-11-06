@@ -109,13 +109,13 @@ foreach ($prerequisites_config["binaries"] as $bin) {
 	}
 }
 
-// Hagai: Check that SELinux is not enabled (enforcing)
+// Check that SELinux is not enabled (enforcing)
 exec("getenforce", $statusresponse, $exit_code);
 if ($exit_code !== 0) {
 	$prerequisites .= "Could not resolve SE-Linux status, run again.".PHP_EOL;
 } elseif(!empty($statusresponse[0])) {
 	if(!strcmp($statusresponse[0],'Enforcing')) {
-		$prerequisites .= "SE linux is Enabled, please disable.".PHP_EOL;
+		$prerequisites .= "SE linux is Enabled, please set as permissive.".PHP_EOL;
 	}
 }
 
