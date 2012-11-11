@@ -95,7 +95,7 @@ class AppConfig {
 		$this->app_config['WEB_DIR'] = $this->app_config['BASE_DIR'].'/web';	
 		$this->app_config['LOG_DIR'] = $this->app_config['BASE_DIR'].'/log';	
 		$this->app_config['BIN_DIR'] = $this->app_config['BASE_DIR'].'/bin';	
-		$this->app_config['TMP_DIR'] = $this->app_config['BASE_DIR'].'/tmp';
+		$this->app_config['TMP_DIR'] = $this->app_config['BASE_DIR'].'/tmp/';
 		$this->app_config['DWH_DIR'] = $this->app_config['BASE_DIR'].'/dwh';
 		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh'; // For backward compatibility
 		$this->app_config['SPHINX_BIN_DIR'] = $this->app_config['BIN_DIR'].'/sphinx';
@@ -126,14 +126,12 @@ class AppConfig {
 		//sphinx
 		$this->app_config['SPHINX_SERVER'] = $this->app_config['DB1_HOST'];
 		$this->app_config['SPHINX_DB_NAME'] = 'kaltura_sphinx_log';
-		$this->app_config['SPHINX_DB_HOST'] = $this->app_config['DB1_HOST'];
+		$this->app_config['SPHINX_DB_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['SPHINX_DB_PORT'] = $this->app_config['DB1_PORT'];
 	    $this->app_config['SPHINX_DB_USER'] = $this->app_config['DB1_USER'];
 		$this->app_config['SPHINX_DB_PASS'] = $this->app_config['DB1_PASS'];
 		
 		// admin console defaults
-		$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $this->generateSecret();
-		$this->app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  $this->generateSecret();
 		$this->app_config['SYSTEM_USER_ADMIN_EMAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
 		$this->app_config['ADMIN_CONSOLE_PARTNER_ALIAS'] = md5('-2kaltura partner');
 		$this->app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];	
@@ -166,16 +164,13 @@ class AppConfig {
 		$this->app_config['TEMPLATE_KUSER_MAIL'] = $this->app_config['TEMPLATE_PARTNER_MAIL'];
 		$this->app_config['TEMPLATE_ADMIN_KUSER_SALT'] = $this->app_config['SYSTEM_USER_ADMIN_SALT'];
 		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];		
-		$this->app_config['PARTNER_ZERO_SECRET'] = $this->generateSecret();
-		$this->app_config['PARTNER_ZERO_ADMIN_SECRET'] = $this->generateSecret();
+		
 		$this->app_config['PARTNER_ZERO_PARTNER_ALIAS'] = md5('-1kaltura partner zero');		
 		
 		// batch
 		$this->app_config['BATCH_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
 		$this->app_config['BATCH_KUSER_MAIL'] = 'batch@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
 		$this->app_config['BATCH_HOST_NAME'] = OsUtils::getComputerName();
-		$this->app_config['BATCH_PARTNER_SECRET'] = $this->generateSecret();
-		$this->app_config['BATCH_PARTNER_ADMIN_SECRET'] = $this->generateSecret();
 		$this->app_config['BATCH_PARTNER_PARTNER_ALIAS'] = md5('-1kaltura partner');		
 				
 		// other configurations
@@ -212,12 +207,44 @@ class AppConfig {
 		$this->app_config['CONTACT_PHONE_NUMBER'] = '+1 800 871-5224';
 		$this->app_config['BEGINNERS_TUTORIAL_URL'] = 'http://corp.kaltura.com/about/dosignup';
 		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
-		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e';
-		
-		if($this->app_config['DB1_CREATE_NEW_DB'] == null)
+		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = '"http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e="';
+
+		if(!isset($this->app_config['DB1_CREATE_NEW_DB']))
 			$this->app_config['DB1_CREATE_NEW_DB'] = true;
 		else
 			$this->app_config['DB1_CREATE_NEW_DB'] = ((strcasecmp('y',$this->app_config['DB1_CREATE_NEW_DB']) === 0) || (strcasecmp('yes',$this->app_config['DB1_CREATE_NEW_DB']) === 0));
+	
+		if (!isset($this->app_config['RED5_INSTALL']))
+			$this->app_config['RED5_INSTALL'] = false;
+		else
+			$this->app_config['RED5_INSTALL'] = ((strcasecmp('y',$this->app_config['RED5_INSTALL']) === 0) || (strcasecmp('yes',$this->app_config['RED5_INSTALL']) === 0));
+
+		if ($this->app_config['DB1_CREATE_NEW_DB'])
+		{
+			$this->app_config['PARTNER_ZERO_SECRET'] = $this->generateSecret();
+			$this->app_config['PARTNER_ZERO_ADMIN_SECRET'] = $this->generateSecret();
+			$this->app_config['BATCH_PARTNER_SECRET'] = $this->generateSecret();
+			$this->app_config['BATCH_PARTNER_ADMIN_SECRET'] = $this->generateSecret();
+			$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $this->generateSecret();
+			$this->app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  $this->generateSecret();
+		}
+		else 
+		{
+			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=0" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );;
+			$this->app_config['PARTNER_ZERO_SECRET'] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=0" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
+			$this->app_config['PARTNER_ZERO_ADMIN_SECRET'] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-1" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
+			$this->app_config['BATCH_PARTNER_SECRET'] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-1" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
+			$this->app_config['BATCH_PARTNER_ADMIN_SECRET'] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-2" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
+			$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-2" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
+			$this->app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  $output[0];
+		}
+			
+		
 	}
 	
 	public function defineConfigurationTokens() {
@@ -253,8 +280,7 @@ class AppConfig {
 		
 		$this->app_config['XYMON_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/xymon/';
 		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
-		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e=';
-		
+		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = '"http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e="';
 	}
 	
 	public function definePostInstallationConfigurationTokens()

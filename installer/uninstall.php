@@ -150,16 +150,19 @@ if (execute($config['BASE_DIR'].'/dwh/setup/cleanup.sh')) {
 //	echo 'Failed'.PHP_EOL;
 //	$success = false;
 //}
-
-foreach ($dbs_to_drop as $db) {
-	if(isDbExist($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT']))
-	{
-		echo "Dropping '$db' database... ";
-		if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
-			echo 'OK'.PHP_EOL;
-		} else {
-			echo 'Failed'.PHP_EOL;
-			$success = false;
+echo 'Would you like to drop the KalturaDB? (y/N)'.PHP_EOL;
+if (getTrueFalse(true))
+{
+	foreach ($dbs_to_drop as $db) {
+		if(isDbExist($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT']))
+		{
+			echo "Dropping '$db' database... ";
+			if (dropDb($db, $config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_PORT'])) {
+				echo 'OK'.PHP_EOL;
+			} else {
+				echo 'Failed'.PHP_EOL;
+				$success = false;
+			}
 		}
 	}
 }
@@ -171,6 +174,13 @@ if (execute("rm -rf ".$config['BASE_DIR'])) {
 	echo 'Failed'.PHP_EOL;
 	$success = false;
 }
+
+echo "Removing apache and red5 symlinks...";
+if (!execute("rm -f /etc/init.d/red5"))
+	echo "Failed to remove the red5 symlink from /etc/init.d/red5, maybe red5 was not installed..";
+if (!execute("rm -f /etc/httpd/conf.d/my_kaltura.conf"))
+	echo "Failed to delete my_kaltura.conf symlink from /etc/httpd/conf.d";
+
 	
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
 else echo 'Some of the uninstall steps failed, please complete the process manually'.PHP_EOL;

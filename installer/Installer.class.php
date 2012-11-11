@@ -314,4 +314,49 @@ class Installer {
 			}
 		}
 	}	
+	
+	public function installRed5 ($app)
+	{
+		OsUtils::execute("dos2unix " . $app->get('BIN_DIR') ."/red5/red5");
+		OsUtils::execute("ln -s ". $app->get('BIN_DIR') ."/red5/red5 /etc/init.d/red5");
+		OsUtils::execute("/etc/init.d/red5 start");
+		OsUtils::executeInBackground('chkconfig red5 on');
+		
+		//Replace rtmp_url parameter in the local.ini configuration file
+		$location = $app->get('APP_DIR')."/configurations/local.ini";
+		$localValues = parse_ini_file($location, true);
+		$localValues['rtmp_url'] = 'rtmp://' . $app->get('KALTURA_VIRTUAL_HOST_NAME') . '/oflaDemo'; 
+		OsUtils::writeToIniFile($location, $localValues);
+		
+		//url-managers.ini change
+		$location  = $app->get('APP_DIR')."/configurations/url_managers.ini";
+		$urlManagersValues = parse_ini_file($location);
+		$red5Addition = array ('class' => 'kLocalPathUrlManager');
+		$urlManagersValues[$app->get('ENVIRONMENT_NAME')] = $red5Addition;
+		OsUtils::writeToIniFile($location, $urlManagersValues);
+		
+		//Retrieve KCW uiconf ids
+		$uiconfIds = $this->extractKCWUiconfIds($app);
+		logMessage(L_USER, "If you are insterested in recording entries from webcam, please adjust the RTMP server URL in each of the following uiConfs:\r\n". implode("\r\n", $uiconfIds));
+	    logMessage(L_USER, "By replacing 'rtmp://yoursite.com/oflaDemo' with 'rtmp://". $app->get('ENVIRONMENT_NAME') . "/oflaDemo");
+		
+		OsUtils::execute("mv ". $app->get('BIN_DIR') . "/red5/webapps/oflaDemo/streams " . $app->get('BIN_DIR'). "/red5/webapps/oflaDemo/streams_x");
+		OsUtils::execute ("ln -s " .$app->get('WEB_DIR'). "/content/webcam " . $app->get('BIN_DIR') ."/red5/webapps/oflaDemo/streams");
+		OsUtils::execute ("ln -s " .$app->get('WEB_DIR'). "/content " . $app->get('BIN_DIR') . "/red5/webapps/oflaDemo/streams");
+	}
+	
+	private function extractKCWUiconfIds ($app)
+	{
+		$uiconfIds = array();
+		$log = file_get_contents($app->get('LOG_DIR') . "/instlBkgrndRun.log");
+		preg_match_all("/creating uiconf \[\d+\] for widget \w+ with default values \( \/flash\/kcw/", $log, $matches);
+		foreach ($matches[0] as $match)
+		{
+			preg_match("/\[\d+\]/", $match, $bracketedId);
+			$id = str_replace(array ('[' , ']'), array ('', ''), $bracketedId[0]);
+			$uiconfIds[] = $id;
+		}
+		
+		return $uiconfIds;
+	}
 }

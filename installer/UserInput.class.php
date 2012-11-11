@@ -222,6 +222,11 @@ class UserInput
 						null, 
 						null, 
 						null);
+		$this->getInput('RED5_INSTALL', 
+						"Would you like to install Red5 on this machine?", 
+						"Please input yes/no.", 
+						InputValidator::createYesNoValidator(), 
+						"no");
 		$this->saveInput();	
 	}
 }

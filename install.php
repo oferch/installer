@@ -208,6 +208,11 @@ if ($install_output !== null) {
 	installationFailed("Installation failed.", $install_output, $fail_action, $cleanupIfFail);
 }
 
+if ($app->get('RED5_INSTALL'))
+{
+	$installer->installRed5($app);	
+}
+
 // add usage tracking crontab for onprem TM
 if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) === 0) {
 	$tracking_cron = sprintf("\n0 8 5 * * kaltura %s %s/admin_console/scripts/send-usage-report.php\n", $app->get('PHP_BIN'), $app->get('APP_DIR'));
