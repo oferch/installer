@@ -92,7 +92,7 @@ class OsUtils {
 		logMessage(L_INFO, "Writing config to file $filename");
 		$data = '';
 		foreach ($config as $key => $value) {
-			$data = $data . $key.' = '.$value.PHP_EOL;
+			$data .= "$key=$value" . PHP_EOL;
 		}
 		return OsUtils::writeFile($filename, $data);
 	}
