@@ -109,20 +109,24 @@ logMessage(L_USER, sprintf(
 	$app->get('ADMIN_CONSOLE_ADMIN_MAIL'), 
 	$app->get('ADMIN_CONSOLE_PASSWORD')
 ));
-	
-logMessage(L_USER, sprintf(
-	"To start using Kaltura, please complete the following steps:\n" . 
-	"1. Add the following line to your /etc/hosts file:\n" . 
-	"\t127.0.0.1 %s\n" . 
-	"2. Locate your Apache conf.d directory (usually found under /etc/httpd/conf.d) and create there a symlink to %s/configurations/apache/my_kaltura.conf\n" . 
-	"3. Restart apache\n" . 
-	"4. Browse to your Kaltura start page at: http://%s/start\n", 
 
-	$app->get("KALTURA_VIRTUAL_HOST_NAME"), 
-	realpath($app->get("APP_DIR")), 
-	$app->get("KALTURA_VIRTUAL_HOST_NAME")
-));
+$virtualHostName = $app->get("KALTURA_VIRTUAL_HOST_NAME");
+$appDir = realpath($app->get("APP_DIR"));
 
+logMessage(L_USER, 
+	"To start using Kaltura, please complete the following steps:\n" .
+	"1. Add the following line to your /etc/hosts file:\n" .
+		"\t127.0.0.1 $virtualHostName\n" .
+	"2. Locate your Apache conf.d directory (usually found under /etc/httpd/conf.d) and create there a symlink to $appDir/configurations/apache/my_kaltura.conf:\n" .
+		"\tln -s $appDir/app/configurations/apache/my_kaltura.conf /etc/httpd/conf.d/my_kaltura.conf\n" . 
+	"3. Locate your Log-Rotate conf.d directory (usually found under /etc/logrotate.d) and create there a symlink to $appDir/configurations/logrotate:\n" .
+		"\tln -s $appDir/app/configurations/logrotate/kaltura_api /etc/logrotate.d/kaltura_api\n" .
+		"\tln -s $appDir/app/configurations/logrotate/kaltura_apps /etc/logrotate.d/kaltura_apps\n" .
+		"\tln -s $appDir/app/configurations/logrotate/kaltura_batch /etc/logrotate.d/kaltura_batch\n" .
+		"\tln -s $appDir/app/configurations/logrotate/kaltura_cron /etc/logrotate.d/kaltura_cron\n" .
+	"4. Restart apache by: \"/etc/init.d/httpd restart\"\n" .
+	"5. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
+);
 
 die(0);
 
