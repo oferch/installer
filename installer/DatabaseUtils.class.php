@@ -22,6 +22,7 @@ class DatabaseUtils
 			$db_params['db_pass'] = null;
 		}
 		$link = @mysqli_init();
+		/* @var $link mysqli */
 		$result = @mysqli_real_connect($link, $db_params['db_host'], $db_params['db_user'], $db_params['db_pass'], $db_name, $db_params['db_port']);
 		if (!$result) {
 			logMessage(L_ERROR, sprintf("Cannot connect to db: %s, %s, %s", $db_params['db_host'], $db_params['db_user'], $link->error));
@@ -47,7 +48,7 @@ class DatabaseUtils
 		
 		// use desired database
 		else if (isset($db_name) && !mysqli_select_db($link, $db_name)) {
-			logMessage(L_ERROR, "Cannot execute query: could not find the db: $db");
+			logMessage(L_ERROR, "Cannot execute query: could not find the db: $db_name");
 			return false;
 		}
 		
@@ -100,6 +101,7 @@ class DatabaseUtils
 	 */
 	public static function dbExists($db_params, $db_name)
 	{
+		$link = null;
 		if (!self::connect($link, $db_params, null)) {
 			logMessage(L_ERROR, "Could not database $db_name: could not connect to host");	
 			return -1;
