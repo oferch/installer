@@ -64,25 +64,25 @@ $user = new UserInput();
 $db_params = array();
 
 // set the installation ids
-$app->set('INSTALLATION_UID', uniqid("IID")); // unique id per installation
+$app->set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
 
 // load or create installation sequence id
 if (is_file(FILE_INSTALL_SEQ_ID)) {
 	$install_seq = @file_get_contents(FILE_INSTALL_SEQ_ID);
-	$app->set('INSTALLATION_SEQUENCE_UID', $install_seq);
+	$app->set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq);
 } else {
 	$install_seq = uniqid("ISEQID"); // unique id per a set of installations
-	$app->set('INSTALLATION_SEQUENCE_UID', $install_seq); 
+	$app->set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq); 
 	file_put_contents(FILE_INSTALL_SEQ_ID, $install_seq);
 }
 
 // read package version
 $version = parse_ini_file('package/version.ini');
 logMessage(L_INFO, "Installing Kaltura ".$version['type'].' '.$version['number']);
-$app->set('KALTURA_VERSION', 'Kaltura '.$version['type'].' '.$version['number']);
-$app->set('KALTURA_PREINSTALLED', $version['preinstalled']);
-$app->set('KALTURA_VERSION_TYPE', $version['type']);
-if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0) {
+$app->set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura '.$version['type'].' '.$version['number']);
+$app->set(AppConfigAttribute::KALTURA_PREINSTALLED, $version['preinstalled']);
+$app->set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
+if (strcasecmp($app->get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) !== 0) {
 	$hello_message = "Thank you for installing Kaltura Video Platform - Community Edition";
 	$fail_action = "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org";
 } else {
@@ -103,33 +103,33 @@ if ($user->hasInput()){
 }
 
 // if user wants or have to report
-if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) == 0 || 
+if (strcasecmp($app->get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) == 0 || 
 	$user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y')) 
 {	
 	$report_message = "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)";
 	$report_error_message = "Email must be in a valid email format";
 	$report_validator = InputValidator::createEmailValidator(true);		
 	
-	$email = $user->getInput('REPORT_ADMIN_EMAIL', $report_message, $report_error_message, $report_validator, null);
-	$app->set('REPORT_ADMIN_EMAIL', $email);
-	$app->set('TRACK_KDPWRAPPER','true');
-	$app->set('USAGE_TRACKING_OPTIN','true');	
-	$report = new InstallReport($email, $app->get('KALTURA_VERSION'), $app->get('INSTALLATION_SEQUENCE_UID'), $app->get('INSTALLATION_UID'));
+	$email = $user->getInput(AppConfigAttribute::REPORT_ADMIN_EMAIL, $report_message, $report_error_message, $report_validator, null);
+	$app->set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
+	$app->set(AppConfigAttribute::TRACK_KDPWRAPPER,'true');
+	$app->set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');	
+	$report = new InstallReport($email, $app->get(AppConfigAttribute::KALTURA_VERSION), $app->get(AppConfigAttribute::INSTALLATION_SEQUENCE_UID), $app->get(AppConfigAttribute::INSTALLATION_UID));
 	$report->reportInstallationStart();
 } 
 else 
 {
-	$app->set('REPORT_ADMIN_EMAIL', "");
-	$app->set('TRACK_KDPWRAPPER','false');
-	$app->set('USAGE_TRACKING_OPTIN','false');
+	$app->set(AppConfigAttribute::REPORT_ADMIN_EMAIL, "");
+	$app->set(AppConfigAttribute::TRACK_KDPWRAPPER,'false');
+	$app->set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'false');
 }
 
 // set to replace passwords on first activiation if this installation is preinstalled
-$app->set('REPLACE_PASSWORDS',$app->get('KALTURA_PREINSTALLED'));
+$app->set(AppConfigAttribute::REPLACE_PASSWORDS,$app->get(AppConfigAttribute::KALTURA_PREINSTALLED));
 
 // allow ui conf tab only for CE installation
-if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) !== 0) 
-	$app->set('UICONF_TAB_ACCESS', 'SYSTEM_ADMIN_BATCH_CONTROL');
+if (strcasecmp($app->get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) !== 0) 
+	$app->set(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
 
 
 // verify that the installation can continue
@@ -163,15 +163,15 @@ $latestVersions["HTML5_VERSION"] = getVersionFromKconf($kconf,"html5_version");
 
 // init the application configuration
 $app->initFromUserInput(array_merge((array)$user->getAll(), (array)$latestVersions));
-$db_params['db_host'] = $app->get('DB1_HOST');
-$db_params['db_port'] = $app->get('DB1_PORT');
-$db_params['db_user'] = $app->get('DB1_USER');
-$db_params['db_pass'] = $app->get('DB1_PASS');
+$db_params['db_host'] = $app->get(AppConfigAttribute::DB1_HOST);
+$db_params['db_port'] = $app->get(AppConfigAttribute::DB1_PORT);
+$db_params['db_user'] = $app->get(AppConfigAttribute::DB1_USER);
+$db_params['db_pass'] = $app->get(AppConfigAttribute::DB1_PASS);
 
 // verify prerequisites
 echo PHP_EOL;
 logMessage(L_USER, "Verifing prerequisites");
-@exec(sprintf("%s installer/Prerequisites.php %s %s %s %s %s 2>&1", $app->get("PHP_BIN"), $app->get("HTTPD_BIN"), $db_params['db_host'], $db_params['db_port'], $db_params['db_user'], $db_params['db_pass']), $output, $exit_value);
+@exec(sprintf("%s installer/Prerequisites.php %s %s %s %s %s 2>&1", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::HTTPD_BIN), $db_params['db_host'], $db_params['db_port'], $db_params['db_user'], $db_params['db_pass']), $output, $exit_value);
 if ($exit_value !== 0) {
 	$description = "   ".implode("\n   ", $output)."\n";
 	echo PHP_EOL;
@@ -208,33 +208,33 @@ if ($install_output !== null) {
 	installationFailed("Installation failed.", $install_output, $fail_action, $cleanupIfFail);
 }
 
-if ($app->get('RED5_INSTALL'))
+if ($app->get(AppConfigAttribute::RED5_INSTALL))
 {
 	$installer->installRed5($app);	
 }
 
 // add usage tracking crontab for onprem TM
-if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_TM_TYPE) === 0) {
-	$tracking_cron = sprintf("\n0 8 5 * * kaltura %s %s/admin_console/scripts/send-usage-report.php\n", $app->get('PHP_BIN'), $app->get('APP_DIR'));
-	OsUtils::appendFile($app->get('BASE_DIR').'/crontab/kaltura_crontab', $tracking_cron);
+if (strcasecmp($app->get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) === 0) {
+	$tracking_cron = sprintf("\n0 8 5 * * kaltura %s %s/admin_console/scripts/send-usage-report.php\n", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR));
+	OsUtils::appendFile($app->get(AppConfigAttribute::BASE_DIR).'/crontab/kaltura_crontab', $tracking_cron);
 }
 
 // send settings mail if possible
-$msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('KALTURA_VIRTUAL_HOST_NAME'), $app->get('ADMIN_CONSOLE_ADMIN_MAIL'), $app->get('ADMIN_CONSOLE_PASSWORD')).PHP_EOL;
+$msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", $app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME), $app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME), $app->get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), $app->get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)).PHP_EOL;
 $mailer = new PHPMailer();
 $mailer->CharSet = 'utf-8';
 $mailer->IsHTML(false);
-$mailer->AddAddress($app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
-$mailer->Sender = "installation_confirmation@".$app->get('KALTURA_VIRTUAL_HOST_NAME');
-$mailer->From = "installation_confirmation@".$app->get('KALTURA_VIRTUAL_HOST_NAME');
-$mailer->FromName = $app->get('ENVIRONMENT_NAME');
+$mailer->AddAddress($app->get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
+$mailer->Sender = "installation_confirmation@".$app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+$mailer->From = "installation_confirmation@".$app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+$mailer->FromName = $app->get(AppConfigAttribute::ENVIRONMENT_NAME);
 $mailer->Subject = 'Kaltura Installation Settings';
 $mailer->Body = $msg;
 
 if ($mailer->Send()) {
 	logMessage(L_USER, "Post installation email cannot be sent");
 } else {
-	logMessage(L_USER, "Sent post installation settings email to ".$app->get('ADMIN_CONSOLE_ADMIN_MAIL'));
+	logMessage(L_USER, "Sent post installation settings email to ".$app->get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
 }
 
 // print after installation instructions
@@ -246,12 +246,12 @@ logMessage(L_USER, sprintf(
 	"System Admin password: %s\n\n" .
 	"Please keep this information for future use.\n", 
 
-	$app->get('ADMIN_CONSOLE_ADMIN_MAIL'), 
-	$app->get('ADMIN_CONSOLE_PASSWORD')
+	$app->get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), 
+	$app->get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)
 ));
 
-$virtualHostName = $app->get("KALTURA_VIRTUAL_HOST_NAME");
-$appDir = realpath($app->get("APP_DIR"));
+$virtualHostName = $app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+$appDir = realpath($app->get(AppConfigAttribute::APP_DIR));
 
 logMessage(L_USER, 
 	"To start using Kaltura, please complete the following steps:\n" .

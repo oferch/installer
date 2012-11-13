@@ -21,13 +21,13 @@ class Installer {
 	// $app - the AppConfig used for the installation
 	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
 	// returns null if no leftovers are found or it is not report only or a text containing all the leftovers found
-	public function detectLeftovers($report_only, $app, $db_params) {
+	public function detectLeftovers($report_only, AppConfig $app, $db_params) {
 		$leftovers = null;		
 		
 		// symbloic links leftovers
 		foreach ($this->install_config['symlinks'] as $slink) {
 			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
-			if (is_file($link_items[1]) && (strpos($link_items[1], $app->get('BASE_DIR')) === false)) {
+			if (is_file($link_items[1]) && (strpos($link_items[1], $app->get(AppConfigAttribute::BASE_DIR)) === false)) {
 				if ($report_only) {
 					$leftovers .= "   ".$link_items[1]." symbolic link exists".PHP_EOL;
 				} else {
@@ -40,7 +40,7 @@ class Installer {
 		// database leftovers
 		$verify = $this->detectDatabases($db_params);
 		if (isset($verify)) {
-			if(!$app->get('DB1_CREATE_NEW_DB'))
+			if(!$app->get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 			{
 				//do nothing
 			}
@@ -53,68 +53,67 @@ class Installer {
 		}
 		
 		// application leftovers
-		if (is_dir($app->get('BASE_DIR')) && (($files = @scandir($dir)) && count($files) > 2)) {
+		if (is_dir($app->get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir($app->get(AppConfigAttribute::BASE_DIR))) && count($files) > 2)) {
 			if ($report_only) {
-				$leftovers .= "   Target directory ".$app->get('BASE_DIR')." already exists".PHP_EOL;
+				$leftovers .= "   Target directory ".$app->get(AppConfigAttribute::BASE_DIR)." already exists".PHP_EOL;
 			} else {
 				logMessage(L_USER, "killing sphinx daemon if running");
 				$currentWorkingDir = getcwd();
-				chdir($app->get('APP_DIR').'/app/plugins/sphinx_search/scripts/');
-				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/watch.stop.sh -u kaltura');
+				chdir($app->get(AppConfigAttribute::APP_DIR).'/app/plugins/sphinx_search/scripts/');
+				@exec($app->get(AppConfigAttribute::BASE_DIR).'/app/plugins/sphinx_search/scripts/watch.stop.sh -u kaltura');
 				logMessage(L_USER, "Stopping sphinx if running");
-				@exec($app->get('BASE_DIR').'/app/plugins/sphinx_search/scripts/searchd.sh stop 2>&1', $output, $return_var);
+				@exec($app->get(AppConfigAttribute::BASE_DIR).'/app/plugins/sphinx_search/scripts/searchd.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Stopping the batch manager if running");
-				chdir($app->get('APP_DIR').'/scripts/');
-				@exec($app->get('BASE_DIR').'/app/scripts/serviceBatchMgr.sh stop 2>&1', $output, $return_var);
+				chdir($app->get(AppConfigAttribute::APP_DIR).'/scripts/');
+				@exec($app->get(AppConfigAttribute::BASE_DIR).'/app/scripts/serviceBatchMgr.sh stop 2>&1', $output, $return_var);
 				chdir($currentWorkingDir);
-				logMessage(L_USER, "Deleting ".$app->get('BASE_DIR'));
-				OsUtils::recursiveDelete($app->get('BASE_DIR'));			
+				logMessage(L_USER, "Deleting ".$app->get(AppConfigAttribute::BASE_DIR));
+				OsUtils::recursiveDelete($app->get(AppConfigAttribute::BASE_DIR));			
 			}
 		}
 		
 		return $leftovers;
 	}	
 	
-	// installs the application according to the given parameters
-	// $app - the AppConfig used for the installation
-	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')	
-	// returns null if the installation succeeded or an error text if it failed
+	/**
+	 * Installs the application according to the given parameters\
+	 * @param AppConfig $app
+	 * @param unknown_type $db_params database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
+	 * @return string|NULL null if the installation succeeded or an error text if it failed
+	 */
 	public function install(AppConfig $app, $db_params) {
-		logMessage(L_USER, sprintf("Copying application files to %s", $app->get('BASE_DIR')));
+		logMessage(L_USER, sprintf("Copying application files to %s", $app->get(AppConfigAttribute::BASE_DIR)));
 		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::rsync('package/app/', $app->get('BASE_DIR'))) {
+		if (!OsUtils::rsync('package/app/', $app->get(AppConfigAttribute::BASE_DIR))) {
 			return "Failed to copy application files to target directory";
 		}
 
 		$os_name = 	OsUtils::getOsName();
 		$architecture = OsUtils::getSystemArchitecture();	
 		logMessage(L_USER, "Copying binaries for $os_name $architecture");
-		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get('BIN_DIR'))) {
+		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", $app->get(AppConfigAttribute::BIN_DIR))) {
 			return "Failed to copy binaris for $os_name $architecture";
 		}
 		
 		logMessage(L_USER, "Creating the uninstaller");
-		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get('BASE_DIR')."/uninstaller/")) {
+		if (!OsUtils::fullCopy('installer/uninstall.php', $app->get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
 			return "Failed to create the uninstaller";
 		}
 		//create uninstaller.ini with minimal definitions
 		$app->saveUninstallerConfig();
 		
-		//OsUtils::logDir definition
-		OsUtils::$logDir = $app->get('LOG_DIR');
-		
 		// if vmware installation copy configurator folders
-		if ($app->get('KALTURA_PREINSTALLED')) {
-			mkdir($app->get('BASE_DIR').'/installer', 0777, true);
-			if (!OsUtils::rsync('installer/', $app->get('BASE_DIR').'/installer')) {
+		if ($app->get(AppConfigAttribute::KALTURA_PREINSTALLED)) {
+			mkdir($app->get(AppConfigAttribute::BASE_DIR).'/installer', 0777, true);
+			if (!OsUtils::rsync('installer/', $app->get(AppConfigAttribute::BASE_DIR).'/installer')) {
 				return "Failed to copy installer files to target directory";
 			}
 			
-			if (!OsUtils::fullCopy('configurator/', $app->get('BASE_DIR').'/installer')) {
+			if (!OsUtils::fullCopy('configurator/', $app->get(AppConfigAttribute::BASE_DIR).'/installer')) {
 				return "Failed to copy configurator files to target directory";
 			}
 			
-			if (!OsUtils::fullCopy('configure.php', $app->get('BASE_DIR')."/installer/")) {
+			if (!OsUtils::fullCopy('configure.php', $app->get(AppConfigAttribute::BASE_DIR)."/installer/")) {
 				return "Failed to copy configure.php file to targer directory";
 			}		
 		}
@@ -129,94 +128,94 @@ class Installer {
 
 		$this->changeDirsAndFilesPermissions($app);
 		
-		if((!$app->get('DB1_CREATE_NEW_DB')) && (DatabaseUtils::dbExists($db_params, $app->get('DB1_NAME')) === true))
+		if((!$app->get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, $app->get(AppConfigAttribute::DB1_NAME)) === true))
 		{		
-			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get('DB1_NAME')));
+			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get(AppConfigAttribute::DB1_NAME)));
 		}
 		else 
 		{
-			$sql_files = parse_ini_file($app->get('BASE_DIR').APP_SQL_DIR.'create_kaltura_db.ini', true);
-			logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('DB1_NAME')));
-			if (!DatabaseUtils::createDb($db_params, $app->get('DB1_NAME'))) {
-				return "Failed to create '".$app->get('DB1_NAME')."' database";
+			$sql_files = parse_ini_file($app->get(AppConfigAttribute::BASE_DIR).APP_SQL_DIR.'create_kaltura_db.ini', true);
+			logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get(AppConfigAttribute::DB1_NAME)));
+			if (!DatabaseUtils::createDb($db_params, $app->get(AppConfigAttribute::DB1_NAME))) {
+				return "Failed to create '".$app->get(AppConfigAttribute::DB1_NAME)."' database";
 			}
 			foreach ($sql_files['kaltura']['sql'] as $sql) {
-				$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
-				if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('DB1_NAME'))) {
+				$sql_file = $app->get(AppConfigAttribute::BASE_DIR).APP_SQL_DIR.$sql;
+				if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get(AppConfigAttribute::DB1_NAME))) {
 					return "Failed running database script $sql_file";
 				}
 			}
 		}
-		if((!$app->get('DB1_CREATE_NEW_DB')) && (DatabaseUtils::dbExists($db_params, $app->get('SPHINX_DB_NAME')) === true))
+		if((!$app->get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, $app->get(AppConfigAttribute::SPHINX_DB_NAME)) === true))
 		{		
-			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get('SPHINX_DB_NAME')));
+			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get(AppConfigAttribute::SPHINX_DB_NAME)));
 		}
 		else 
 		{		
-			logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get('SPHINX_DB_NAME')));
-			if (!DatabaseUtils::createDb($db_params, $app->get('SPHINX_DB_NAME'))) {
-				return "Failed to create '".$app->get('SPHINX_DB_NAME')."' database";
+			logMessage(L_USER, sprintf("Creating and initializing '%s' database", $app->get(AppConfigAttribute::SPHINX_DB_NAME)));
+			if (!DatabaseUtils::createDb($db_params, $app->get(AppConfigAttribute::SPHINX_DB_NAME))) {
+				return "Failed to create '".$app->get(AppConfigAttribute::SPHINX_DB_NAME)."' database";
 			}
-			foreach ($sql_files[$app->get('SPHINX_DB_NAME')]['sql'] as $sql) {
-				$sql_file = $app->get('BASE_DIR').APP_SQL_DIR.$sql;
-				if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get('SPHINX_DB_NAME'))) {
+			foreach ($sql_files[$app->get(AppConfigAttribute::SPHINX_DB_NAME)]['sql'] as $sql) {
+				$sql_file = $app->get(AppConfigAttribute::BASE_DIR).APP_SQL_DIR.$sql;
+				if (!DatabaseUtils::runScript($sql_file, $db_params, $app->get(AppConfigAttribute::SPHINX_DB_NAME))) {
 					return "Failed running database script $sql_file";
 				}
 			}
 		}
-		if((!$app->get('DB1_CREATE_NEW_DB')) && (DatabaseUtils::dbExists($db_params, $app->get('DWH_DATABASE_NAME')) === true))
+		if((!$app->get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, $app->get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
 		{		
-			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get('DWH_DATABASE_NAME')));
+			logMessage(L_USER, sprintf("Skipping '%s' database creation", $app->get(AppConfigAttribute::DWH_DATABASE_NAME)));
 		}
 		else 
 		{
 			logMessage(L_USER, "Creating data warehouse");
-			if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", $app->get('DWH_DIR'), $app->get('DB1_HOST'), $app->get('DB1_PORT'), $app->get('DB1_USER'), $app->get('DB1_PASS'), $app->get('DWH_DIR')))) {		
+			if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", $app->get(AppConfigAttribute::DWH_DIR), $app->get(AppConfigAttribute::DB1_HOST), $app->get(AppConfigAttribute::DB1_PORT), $app->get(AppConfigAttribute::DB1_USER), $app->get(AppConfigAttribute::DB1_PASS), $app->get(AppConfigAttribute::DWH_DIR)))) {		
 				return "Failed running data warehouse initialization script";
 			}
 		}
 		
 		logMessage(L_USER, "Creating Dynamic Enums");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "Dynamic Enums created");
 		} else {
 			return "Failed to create dynamic enums";
 		}
 			
 		logMessage(L_USER, "Create query cache triggers");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 			logMessage(L_INFO, "sphinx Query Cache Triggers created");
 		} else {
 			return "Failed to create QueryCacheTriggers";
 		}
 		
 		logMessage(L_USER, "Populate sphinx tables");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntries.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntries.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "sphinx entries log created");
 		} else {
 			return "Failed to populate sphinx log from entries";
 		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntryDistributions.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntryDistributions.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "sphinx content distribution log created");
 		} else {
 			return "Failed to populate sphinx log from content distribution";
 		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCuePoints.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCuePoints.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "sphinx cue points log created");
 		} else {
 			return "Failed to populate sphinx log from cue points";
 		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxKusers.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxKusers.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 			logMessage(L_INFO, "sphinx Kusers log created");
 		} else {
 			return "Failed to populate sphinx log from Kusers";
 		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxTags.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxTags.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 			logMessage(L_INFO, "sphinx tags log created");
 		} else {
 			return "Failed to populate sphinx log from tags";
 		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCategories.php", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCategories.php", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 			logMessage(L_INFO, "sphinx Categoriess log created");
 		} else {
 			return "Failed to populate sphinx log from categories";
@@ -237,14 +236,14 @@ class Installer {
 		//update uninstaller config
 		$app->updateUninstallerConfig($this->install_config['symlinks']);
 		
-		if (strcasecmp($app->get('KALTURA_VERSION_TYPE'), K_CE_TYPE) == 0) {
+		if (strcasecmp($app->get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_CE_TYPE) == 0) {
 			$app->simMafteach();
 		}
 	
 		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
 		foreach ($this->install_config['uiconfs_2'] as $uiconfapp) {
 			$to_deploy = $app->replaceTokensInString($uiconfapp);
-			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", $app->get('PHP_BIN'), $app->get('APP_DIR'), $to_deploy))) {
+			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR), $to_deploy))) {
 				logMessage(L_INFO, "Deployed uiconf $to_deploy");
 			} else {
 				return "Failed to deploy uiconf $to_deploy";
@@ -252,31 +251,31 @@ class Installer {
 		}
 				
 		logMessage(L_USER, "clear cache");
-		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php -y", $app->get('PHP_BIN'), $app->get('APP_DIR')))) {
+		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php -y", $app->get(AppConfigAttribute::PHP_BIN), $app->get(AppConfigAttribute::APP_DIR)))) {
 			return "Failed clear cache";
 		}
 		
 		logMessage(L_USER, "Running the generate script");
 		$currentWorkingDir = getcwd();
-		chdir($app->get('APP_DIR').'/generator');
-		if (!OsUtils::execute($app->get('APP_DIR').'/generator/generate.sh')) {
+		chdir($app->get(AppConfigAttribute::APP_DIR).'/generator');
+		if (!OsUtils::execute($app->get(AppConfigAttribute::APP_DIR).'/generator/generate.sh')) {
 			return "Failed running the generate script";
 		}
 		
 		logMessage(L_USER, "Running the batch manager");
-		chdir($app->get('APP_DIR').'/scripts/');
-		if (!OsUtils::execute($app->get('APP_DIR').'/scripts/serviceBatchMgr.sh start')) {
+		chdir($app->get(AppConfigAttribute::APP_DIR).'/scripts/');
+		if (!OsUtils::execute($app->get(AppConfigAttribute::APP_DIR).'/scripts/serviceBatchMgr.sh start')) {
 			return "Failed running the batch manager";
 		}
 		chdir($currentWorkingDir);
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
-		OsUtils::executeInBackground('nohup '.$app->get('APP_DIR').'/plugins/sphinx_search/scripts/watch.daemon.sh');
+		OsUtils::executeInBackground('nohup '.$app->get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/watch.daemon.sh');
 		OsUtils::executeInBackground('chkconfig sphinx_watch.sh on');
 		$this->changeDirsAndFilesPermissions($app);
 		
-		OsUtils::execute('cp /package/version.ini ' . $app->get('APP_DIR') . '/configurations/');
+		OsUtils::execute('cp /package/version.ini ' . $app->get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
 		return null;
 	}
@@ -305,7 +304,7 @@ class Installer {
 		return $verify;
 	}	
 	
-	private function changeDirsAndFilesPermissions($app){
+	private function changeDirsAndFilesPermissions(AppConfig $app){
 	logMessage(L_USER, "Changing permissions of directories and files");
 		foreach ($this->install_config['chmod_items'] as $item) {
 			$chmod_item = $app->replaceTokensInString($item);
@@ -315,44 +314,44 @@ class Installer {
 		}
 	}	
 	
-	public function installRed5 ($app)
+	public function installRed5 (AppConfig $app)
 	{
-		OsUtils::execute("dos2unix " . $app->get('BIN_DIR') ."/red5/red5");
-		OsUtils::execute("ln -s ". $app->get('BIN_DIR') ."/red5/red5 /etc/init.d/red5");
+		OsUtils::execute("dos2unix " . $app->get(AppConfigAttribute::BIN_DIR) ."/red5/red5");
+		OsUtils::execute("ln -s ". $app->get(AppConfigAttribute::BIN_DIR) ."/red5/red5 /etc/init.d/red5");
 		OsUtils::execute("/etc/init.d/red5 start");
 		OsUtils::executeInBackground('chkconfig red5 on');
 		
 		//Replace rtmp_url parameter in the local.ini configuration file
-		$location = $app->get('APP_DIR')."/configurations/local.ini";
+		$location = $app->get(AppConfigAttribute::APP_DIR)."/configurations/local.ini";
 		$localValues = parse_ini_file($location, true);
-		$localValues['rtmp_url'] = 'rtmp://' . $app->get('KALTURA_VIRTUAL_HOST_NAME') . '/oflaDemo'; 
+		$localValues['rtmp_url'] = 'rtmp://' . $app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/oflaDemo'; 
 		OsUtils::writeToIniFile($location, $localValues);
 		
 		//url-managers.ini change
-		$location  = $app->get('APP_DIR')."/configurations/url_managers.ini";
+		$location  = $app->get(AppConfigAttribute::APP_DIR)."/configurations/url_managers.ini";
 		$urlManagersValues = parse_ini_file($location);
 		$red5Addition = array ('class' => 'kLocalPathUrlManager');
-		$urlManagersValues[$app->get('ENVIRONMENT_NAME')] = $red5Addition;
+		$urlManagersValues[$app->get(AppConfigAttribute::ENVIRONMENT_NAME)] = $red5Addition;
 		OsUtils::writeToIniFile($location, $urlManagersValues);
 		
 		//Retrieve KCW uiconf ids
 		$uiconfIds = $this->extractKCWUiconfIds($app);
 		logMessage(L_USER, "If you are insterested in recording entries from webcam, please adjust the RTMP server URL in each of the following uiConfs:\r\n". implode("\r\n", $uiconfIds));
-	    logMessage(L_USER, "By replacing 'rtmp://yoursite.com/oflaDemo' with 'rtmp://". $app->get('ENVIRONMENT_NAME') . "/oflaDemo");
+	    logMessage(L_USER, "By replacing 'rtmp://yoursite.com/oflaDemo' with 'rtmp://". $app->get(AppConfigAttribute::ENVIRONMENT_NAME) . "/oflaDemo");
 		
-		OsUtils::execute("mv ". $app->get('BIN_DIR') . "/red5/webapps/oflaDemo/streams " . $app->get('BIN_DIR'). "/red5/webapps/oflaDemo/streams_x");
-		OsUtils::execute ("ln -s " .$app->get('WEB_DIR'). "/content/webcam " . $app->get('BIN_DIR') ."/red5/webapps/oflaDemo/streams");
-		OsUtils::execute ("ln -s " .$app->get('WEB_DIR'). "/content " . $app->get('BIN_DIR') . "/red5/webapps/oflaDemo/streams");
+		OsUtils::execute("mv ". $app->get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams " . $app->get(AppConfigAttribute::BIN_DIR). "/red5/webapps/oflaDemo/streams_x");
+		OsUtils::execute ("ln -s " .$app->get(AppConfigAttribute::WEB_DIR). "/content/webcam " . $app->get(AppConfigAttribute::BIN_DIR) ."/red5/webapps/oflaDemo/streams");
+		OsUtils::execute ("ln -s " .$app->get(AppConfigAttribute::WEB_DIR). "/content " . $app->get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams");
 	}
 	
-	private function extractKCWUiconfIds ($app)
+	private function extractKCWUiconfIds (AppConfig $app)
 	{
 		$uiconfIds = array();
-		$log = file_get_contents($app->get('LOG_DIR') . "/instlBkgrndRun.log");
-		preg_match_all("/creating uiconf \[\d+\] for widget \w+ with default values \( \/flash\/kcw/", $log, $matches);
+		$log = file_get_contents($app->get(AppConfigAttribute::LOG_DIR) . "/instlBkgrndRun.log");
+		preg_match_all('/creating uiconf \[\d+\] for widget \w+ with default values \( \/flash\/kcw/', $log, $matches);
 		foreach ($matches[0] as $match)
 		{
-			preg_match("/\[\d+\]/", $match, $bracketedId);
+			preg_match('/\[\d+\]/', $match, $bracketedId);
 			$id = str_replace(array ('[' , ']'), array ('', ''), $bracketedId[0]);
 			$uiconfIds[] = $id;
 		}

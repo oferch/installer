@@ -40,37 +40,37 @@ if ($result = ((strcasecmp($type, K_TM_TYPE) == 0) ||
 	$report_error_message = "Email must be in a valid email format";
 	$report_validator = InputValidator::createEmailValidator(true);		
 		
-	$email = $user->getInput('REPORT_ADMIN_EMAIL', $report_message, $report_error_message, $report_validator, null);
-	$app->set('REPORT_ADMIN_EMAIL', $email);
-	$app->set('TRACK_KDPWRAPPER','true');
-	$app->set('USAGE_TRACKING_OPTIN','true');	
+	$email = $user->getInput(AppConfigAttribute::REPORT_ADMIN_EMAIL, $report_message, $report_error_message, $report_validator, null);
+	$app->set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
+	$app->set(AppConfigAttribute::TRACK_KDPWRAPPER,'true');
+	$app->set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');	
 } else {
-	$app->set('REPORT_ADMIN_EMAIL', "");
-	$app->set('TRACK_KDPWRAPPER','false');
-	$app->set('USAGE_TRACKING_OPTIN','false');
+	$app->set(AppConfigAttribute::REPORT_ADMIN_EMAIL, "");
+	$app->set(AppConfigAttribute::TRACK_KDPWRAPPER,'false');
+	$app->set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'false');
 }
 
-$host_name = $user->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', 
+$host_name = $user->getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, 
 						"Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://)", 
 						'Must be a valid hostname or ip, please enter again', 
 						InputValidator::createHostValidator(), 
 						null);
-$app->set('KALTURA_FULL_VIRTUAL_HOST_NAME', $host_name);
+$app->set(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, $host_name);
 						
-$admin_email = $user->getInput('ADMIN_CONSOLE_ADMIN_MAIL', 
+$admin_email = $user->getInput(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, 
 						"Your primary system administrator email address", 
 						"Email must be in a valid email format, please enter again", 
 						InputValidator::createEmailValidator(false), 
 						null);
-$app->set('ADMIN_CONSOLE_ADMIN_MAIL', $admin_email);
+$app->set(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, $admin_email);
 
-$password = $user->getInput('ADMIN_CONSOLE_PASSWORD', 
+$password = $user->getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, 
 						"The password you want to set for your primary administrator", 
 						"Password should not be empty and should not contain whitespaces, please enter again", 
 						InputValidator::createNoWhitespaceValidator(), 
 						null, 
 						true);
-$app->set('ADMIN_CONSOLE_PASSWORD', $password);						
+$app->set(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, $password);						
 						
 $install_config = parse_ini_file(FILE_CONFIG, true);
 
@@ -93,7 +93,7 @@ if (!DatabaseUtils::runScript($sql_file, $db_params, 'kaltura')) {
 }
 
 if (strcasecmp($type, K_TM_TYPE) !== 0) {
-	$app->set('APP_DIR', APPLICATION_DIR);
+	$app->set(AppConfigAttribute::APP_DIR, APPLICATION_DIR);
 	$app->simMafteach();
 	require_once(SECRET_REPLACE_SCRIPT);
 }
@@ -106,12 +106,12 @@ logMessage(L_USER, sprintf(
 	"\tSystem Admin password: %s\n\n" . 
 	"Please keep this information for future use.\n\n",
  
-	$app->get('ADMIN_CONSOLE_ADMIN_MAIL'), 
-	$app->get('ADMIN_CONSOLE_PASSWORD')
+	$app->get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), 
+	$app->get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)
 ));
 
-$virtualHostName = $app->get("KALTURA_VIRTUAL_HOST_NAME");
-$appDir = realpath($app->get("APP_DIR"));
+$virtualHostName = $app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+$appDir = realpath($app->get(AppConfigAttribute::APP_DIR));
 
 logMessage(L_USER, 
 	"To start using Kaltura, please complete the following steps:\n" .
