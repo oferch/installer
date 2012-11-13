@@ -6,6 +6,8 @@
 class OsUtils {
 	const WINDOWS_OS = 'Windows';
 	const LINUX_OS   = 'linux';
+	
+	public static $logDir;
 
 	// returns true if the user is root, false otherwise
 	public static function verifyRootUser() {
@@ -100,7 +102,7 @@ class OsUtils {
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
-		@exec($command . ' >> /opt/instlBkgrndRun.log 2>&1 ', $output, $return_var);
+		@exec($command . ' >> ' . self::$logDir .'/instlBkgrndRun.log 2>&1 ', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
@@ -134,7 +136,7 @@ class OsUtils {
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
 		print("Executing in background $command \n");
-		@exec($command. ' >> /opt/kaltura/log/instlBkgrndRun.log 2>&1 &', $output, $return_var);
+		@exec($command. ' >> ' . self::$logDir .'/instlBkgrndRun.log 2>&1 &', $output, $return_var);
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
@@ -178,5 +180,25 @@ class OsUtils {
 	// execute chmod with the given $chmod command and return true/false according to success
 	public static function chmod($chmod) {
 		return self::execute("chmod $chmod");	
+	}
+	
+	/**
+	 * Function receives an .ini file path and an array of values and writes the array into the file.
+	 * @param string $file
+	 * @param array $valuesArray
+	 */
+	public static function writeToIniFile ($file, $valuesArray)
+	{
+		$res = array();
+		foreach($valuesArray as $key => $val)
+	    {
+	        if(is_array($val))
+	        {
+	            $res[] = "[$key]";
+	            foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
+	        }
+	        else $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
+	    }
+		file_put_contents($file, implode("\r\n", $res));
 	}
 }
