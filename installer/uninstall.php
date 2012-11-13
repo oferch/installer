@@ -92,7 +92,7 @@ function deleteTextFromFile($filePath, $text){
 	
 $silentRun = false;
 if($argc > 1 && $argv[1] == '-s') $silentRun = true;
-$config = parse_ini_file("uninstall.ini");
+$config = parse_ini_file(dirname(__FILE__)."/uninstall.ini");
 $success = true;
 echo 'Uninstaller will fully remove the Kaltura software from your system.'.PHP_EOL;
 echo 'Databases and any uploaded content will also be removed.'.PHP_EOL;
