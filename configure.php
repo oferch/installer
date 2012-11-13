@@ -28,7 +28,6 @@ if (strcasecmp($type, K_TM_TYPE) !== 0) {
 }
 
 $user = new UserInput();
-$app = new AppConfig();
 
 startLog("configure_log_".date("d.m.Y_H.i.s"));
 logMessage(L_INFO, "Configuration started");
@@ -41,13 +40,13 @@ if ($result = ((strcasecmp($type, K_TM_TYPE) == 0) ||
 	$report_validator = InputValidator::createEmailValidator(true);		
 		
 	$email = $user->getInput(AppConfigAttribute::REPORT_ADMIN_EMAIL, $report_message, $report_error_message, $report_validator, null);
-	$app->set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
-	$app->set(AppConfigAttribute::TRACK_KDPWRAPPER,'true');
-	$app->set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');	
+	AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
+	AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER,'true');
+	AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');	
 } else {
-	$app->set(AppConfigAttribute::REPORT_ADMIN_EMAIL, "");
-	$app->set(AppConfigAttribute::TRACK_KDPWRAPPER,'false');
-	$app->set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'false');
+	AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, "");
+	AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER,'false');
+	AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'false');
 }
 
 $host_name = $user->getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, 
@@ -55,14 +54,14 @@ $host_name = $user->getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME,
 						'Must be a valid hostname or ip, please enter again', 
 						InputValidator::createHostValidator(), 
 						null);
-$app->set(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, $host_name);
+AppConfig::set(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, $host_name);
 						
 $admin_email = $user->getInput(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, 
 						"Your primary system administrator email address", 
 						"Email must be in a valid email format, please enter again", 
 						InputValidator::createEmailValidator(false), 
 						null);
-$app->set(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, $admin_email);
+AppConfig::set(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, $admin_email);
 
 $password = $user->getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, 
 						"The password you want to set for your primary administrator", 
@@ -70,13 +69,13 @@ $password = $user->getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD,
 						InputValidator::createNoWhitespaceValidator(), 
 						null, 
 						true);
-$app->set(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, $password);						
+AppConfig::set(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, $password);						
 						
 $install_config = parse_ini_file(FILE_CONFIG, true);
 
-$app->definePostInstallationConfigurationTokens();
+AppConfig::definePostInstallationConfigurationTokens();
 foreach ($install_config['token_files'] as $file) {
-	if (!$app->replaceTokensInFile($file)) {
+	if (!AppConfig::replaceTokensInFile($file)) {
 		echo "Failed to replace tokens in $file";
 	}
 }
@@ -93,8 +92,8 @@ if (!DatabaseUtils::runScript($sql_file, $db_params, 'kaltura')) {
 }
 
 if (strcasecmp($type, K_TM_TYPE) !== 0) {
-	$app->set(AppConfigAttribute::APP_DIR, APPLICATION_DIR);
-	$app->simMafteach();
+	AppConfig::set(AppConfigAttribute::APP_DIR, APPLICATION_DIR);
+	AppConfig::simMafteach();
 	require_once(SECRET_REPLACE_SCRIPT);
 }
 
@@ -106,12 +105,12 @@ logMessage(L_USER, sprintf(
 	"\tSystem Admin password: %s\n\n" . 
 	"Please keep this information for future use.\n\n",
  
-	$app->get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), 
-	$app->get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)
+	AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), 
+	AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)
 ));
 
-$virtualHostName = $app->get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
-$appDir = realpath($app->get(AppConfigAttribute::APP_DIR));
+$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+$appDir = realpath(AppConfig::get(AppConfigAttribute::APP_DIR));
 
 logMessage(L_USER, 
 	"To start using Kaltura, please complete the following steps:\n" .
