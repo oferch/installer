@@ -217,11 +217,6 @@ class UserInput
 						"Input is not valid", 
 						InputValidator::createYesNoValidator(), 
 						null);
-		$this->getInput('XYMON_URL', 
-						"The URL to your xymon/hobbit monitoring location. Xymon is an optional installation. Leave empty to set manually later\nExamples:\nhttp://www.xymondomain.com/xymon/\nhttp://www.xymondomain.com/hobbit/", 
-						null, 
-						null, 
-						null);
 		$this->getInput('RED5_INSTALL', 
 						"Would you like to install Red5 on this machine?", 
 						"Please input yes/no.", 
