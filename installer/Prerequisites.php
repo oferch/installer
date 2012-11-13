@@ -27,7 +27,7 @@ $prerequisites = "";
 
 // check php version
 if (!checkVersion(phpversion(), $prerequisites_config["php_min_version"])) {
-	$prerequisites .= "PHP version should be >= $php_min_version (current version is ".phpversion().")".PHP_EOL;
+	$prerequisites .= "PHP version should be >= " . $prerequisites_config["php_min_version"] . " (current version is ".phpversion().")".PHP_EOL;
 }
 
 // check php ini
@@ -55,6 +55,7 @@ foreach ($prerequisites_config["php_extensions"] as $ext) {
 }
 
 // check mysql
+$link = null;
 if (!extension_loaded('mysqli')) {
 	$prerequisites .= "Cannot check MySQL connection, version and settings because PHP mysqli extension is not loaded".PHP_EOL;
 } else if (!DatabaseUtils::connect($link, $db_params, null)) {
@@ -144,13 +145,13 @@ if (empty($prerequisites)) {
 // if $allow_greater it also checks if the value is greater the the $expected (not only equal)
 function getMysqlSetting(&$link, $key) {	
 	$result = mysqli_query($link, "SELECT @@$key;");
-	if ($result === false) {
+	if ($result === false)
 		return null;
-	} else {			
-		$tmp = '@@'.$key;
-		$current = $result->fetch_object()->$tmp;
-		return $current;
-	}		
+		
+	/* @var $result mysqli_result */
+	$tmp = '@@'.$key;
+	$current = $result->fetch_object()->$tmp;
+	return $current;
 }
 
 // check if the given $version is equal or bigger than the $expected
