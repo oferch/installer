@@ -5,21 +5,158 @@ define('TEMPLATE_FILE', '.template'); // how to recognize a template file, templ
 define('KCONF_LOCAL_LOCATION', '/configurations/local.ini'); // the location of kConf
 define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini'); // the location where to save configuration for the uninstaller
 
-/* 
-* This class handles all the configuration of the application:
-* Defining application configuration values according to user input, 
-* replaceing configuration tokens in needed files and other application configuration actions 
-*/
+class AppConfigAttribute {
+	
+	const BASE_DIR								= 'BASE_DIR';
+	const APP_DIR								= 'APP_DIR';
+	const WEB_DIR								= 'WEB_DIR';
+	const BIN_DIR								= 'BIN_DIR';
+	const LOG_DIR								= 'LOG_DIR';
+	const TMP_DIR								= 'TMP_DIR';
+	const DWH_DIR								= 'DWH_DIR';
+	const ETL_HOME_DIR							= 'ETL_HOME_DIR';
+	
+	const PHP_BIN								= 'PHP_BIN';
+	const HTTPD_BIN								= 'HTTPD_BIN';
+	const IMAGE_MAGICK_BIN_DIR					= 'IMAGE_MAGICK_BIN_DIR';
+	const CURL_BIN_DIR							= 'CURL_BIN_DIR';
+	const SPHINX_BIN_DIR						= 'SPHINX_BIN_DIR';
+	
+	const DB1_HOST								= 'DB1_HOST';
+	const DB1_PORT								= 'DB1_PORT';
+	const DB1_USER								= 'DB1_USER';
+	const DB1_PASS								= 'DB1_PASS';
+	const DB1_NAME								= 'DB1_NAME';
+	
+	const SPHINX_SERVER							= 'SPHINX_SERVER';
+	const SPHINX_DB_HOST						= 'SPHINX_DB_HOST';
+	const SPHINX_DB_PORT						= 'SPHINX_DB_PORT';
+	const SPHINX_DB_USER						= 'SPHINX_DB_USER';
+	const SPHINX_DB_PASS						= 'SPHINX_DB_PASS';
+	const SPHINX_DB_NAME						= 'SPHINX_DB_NAME';
+	
+	const DWH_HOST								= 'DWH_HOST';
+	const DWH_PORT								= 'DWH_PORT';
+	const DWH_USER								= 'DWH_USER';
+	const DWH_PASS								= 'DWH_PASS';
+	const DWH_DATABASE_NAME						= 'DWH_DATABASE_NAME';
+	
+	const RED5_INSTALL							= 'RED5_INSTALL';
+	const DB1_CREATE_NEW_DB						= 'DB1_CREATE_NEW_DB';
+	
+	const ADMIN_CONSOLE_PARTNER_ALIAS			= 'ADMIN_CONSOLE_PARTNER_ALIAS';
+	const SYSTEM_USER_ADMIN_EMAIL				= 'SYSTEM_USER_ADMIN_EMAIL';
+	const ADMIN_CONSOLE_KUSER_MAIL				= 'ADMIN_CONSOLE_KUSER_MAIL';
+	const SYSTEM_USER_ADMIN_SALT				= 'SYSTEM_USER_ADMIN_SALT';
+	const ADMIN_CONSOLE_KUSER_SHA1				= 'ADMIN_CONSOLE_KUSER_SHA1';
+	const SYSTEM_USER_ADMIN_SHA1				= 'SYSTEM_USER_ADMIN_SHA1';
+	const ADMIN_CONSOLE_KUSER_SALT				= 'ADMIN_CONSOLE_KUSER_SALT';
+	const DWH_SEND_REPORT_MAIL					= 'DWH_SEND_REPORT_MAIL';
+	const EVENTS_LOGS_DIR						= 'EVENTS_LOGS_DIR';
+	const EVENTS_WILDCARD						= 'EVENTS_WILDCARD';
+	const EVENTS_FETCH_METHOD					= 'EVENTS_FETCH_METHOD';
+	const ADMIN_CONSOLE_ADMIN_MAIL				= 'ADMIN_CONSOLE_ADMIN_MAIL';
+	const ADMIN_CONSOLE_PASSWORD				= 'ADMIN_CONSOLE_PASSWORD';
+	const REPORT_ADMIN_EMAIL					= 'REPORT_ADMIN_EMAIL';
+	
+	const BATCH_PARTNER_ADMIN_SECRET			= 'BATCH_PARTNER_ADMIN_SECRET';
+	const BATCH_PARTNER_SECRET					= 'BATCH_PARTNER_SECRET';
+	const PARTNER_ZERO_SECRET					= 'PARTNER_ZERO_SECRET';
+	const PARTNER_ZERO_ADMIN_SECRET				= 'PARTNER_ZERO_ADMIN_SECRET';
+	const ADMIN_CONSOLE_PARTNER_SECRET			= 'ADMIN_CONSOLE_PARTNER_SECRET';
+	const ADMIN_CONSOLE_PARTNER_ADMIN_SECRET	= 'ADMIN_CONSOLE_PARTNER_ADMIN_SECRET';
+	const BATCH_ADMIN_MAIL						= 'BATCH_ADMIN_MAIL';
+	const BATCH_KUSER_MAIL						= 'BATCH_KUSER_MAIL';
+	const TEMPLATE_PARTNER_MAIL					= 'TEMPLATE_PARTNER_MAIL';
+	const TEMPLATE_KUSER_MAIL					= 'TEMPLATE_KUSER_MAIL';
+	const TEMPLATE_ADMIN_KUSER_SALT				= 'TEMPLATE_ADMIN_KUSER_SALT';
+	const TEMPLATE_ADMIN_KUSER_SHA1				= 'TEMPLATE_ADMIN_KUSER_SHA1';
+	const PARTNER_ZERO_PARTNER_ALIAS			= 'PARTNER_ZERO_PARTNER_ALIAS';
+	
+	const PARTNERS_USAGE_REPORT_SEND_FROM		= 'PARTNERS_USAGE_REPORT_SEND_FROM';
+	const PARTNERS_USAGE_REPORT_SEND_TO			= 'PARTNERS_USAGE_REPORT_SEND_TO';
+	const SYSTEM_PAGES_LOGIN_USER				= 'SYSTEM_PAGES_LOGIN_USER';
+	const SYSTEM_PAGES_LOGIN_PASS				= 'SYSTEM_PAGES_LOGIN_PASS';
+	const KMC_BACKDOR_SHA1_PASS					= 'KMC_BACKDOR_SHA1_PASS';
+	const DC0_SECRET							= 'DC0_SECRET';
+	const APACHE_CONF							= 'APACHE_CONF';
+	const DC_NAME								= 'DC_NAME';
+	const DC_DESCRIPTION						= 'DC_DESCRIPTION';
+	const STORAGE_BASE_DIR						= 'STORAGE_BASE_DIR';
+	const DELIVERY_HTTP_BASE_URL				= 'DELIVERY_HTTP_BASE_URL';
+	const DELIVERY_RTMP_BASE_URL				= 'DELIVERY_RTMP_BASE_URL';
+	const DELIVERY_ISS_BASE_URL					= 'DELIVERY_ISS_BASE_URL';	
+	
+	const PROVISION_PROVIDE_USER				= 'PROVISION_PROVIDE_USER';
+	const PROVISION_PROVIDE_PASS				= 'PROVISION_PROVIDE_PASS';
+	const PROVISION_PROVIDE_CPCODE				= 'PROVISION_PROVIDE_CPCODE';
+	const PROVISION_PROVIDE_EMAIL_ID			= 'PROVISION_PROVIDE_EMAIL_ID';
+	const PROVISION_PROVIDE_PRIMARY_CONTACT		= 'PROVISION_PROVIDE_PRIMARY_CONTACT';
+	const PROVISION_PROVIDE_SECONDARY_CONTACT	= 'PROVISION_PROVIDE_SECONDARY_CONTACT';
+	
+	const SERVICE_URL							= 'SERVICE_URL';
+	const TIME_ZONE								= 'TIME_ZONE';
+	const CDN_HOST								= 'CDN_HOST';
+	const IIS_HOST								= 'IIS_HOST';
+	const WWW_HOST								= 'WWW_HOST';
+	const RTMP_URL								= 'RTMP_URL';
+	const CORP_REDIRECT							= 'CORP_REDIRECT';
+	const MEMCACHE_HOST							= 'MEMCACHE_HOST';
+	const GLOBAL_MEMCACHE_HOST					= 'GLOBAL_MEMCACHE_HOST';
+	const KALTURA_VIRTUAL_HOST_NAME				= 'KALTURA_VIRTUAL_HOST_NAME';
+	const KALTURA_FULL_VIRTUAL_HOST_NAME		= 'KALTURA_FULL_VIRTUAL_HOST_NAME';
+	const POST_INST_VIRTUAL_HOST_NAME			= 'POST_INST_VIRTUAL_HOST_NAME';
+	const POST_INST_ADMIN_CONSOLE_ADMIN_MAIL	= 'POST_INST_ADMIN_CONSOLE_ADMIN_MAIL';
+	const ENVIRONMENT_NAME						= 'ENVIRONMENT_NAME';
+	const BATCH_HOST_NAME						= 'BATCH_HOST_NAME';
+	const BATCH_PARTNER_PARTNER_ALIAS			= 'BATCH_PARTNER_PARTNER_ALIAS';
+	const APACHE_RESTART_COMMAND				= 'APACHE_RESTART_COMMAND';
+	
+	const CONTACT_URL							= 'CONTACT_URL';
+	const SIGNUP_URL							= 'SIGNUP_URL';
+	const CONTACT_PHONE_NUMBER					= 'CONTACT_PHONE_NUMBER';
+	const BEGINNERS_TUTORIAL_URL				= 'BEGINNERS_TUTORIAL_URL';
+	const QUICK_START_GUIDE_URL					= 'QUICK_START_GUIDE_URL';
+	const FORUMS_URLS							= 'FORUMS_URLS';
+	const UNSUBSCRIBE_EMAIL_URL					= 'UNSUBSCRIBE_EMAIL_URL';
+	const GOOGLE_ANALYTICS_ACCOUNT				= 'GOOGLE_ANALYTICS_ACCOUNT';
+	const INSTALLATION_TYPE						= 'INSTALLATION_TYPE';
+	
+	const KALTURA_VERSION_TYPE					= 'KALTURA_VERSION_TYPE';
+	const KALTURA_VERSION						= 'KALTURA_VERSION';
+	const INSTALL_SEQUENCE_UID					= 'INSTALL_SEQUENCE_UID';
+	const INSTALL_UID							= 'INSTALL_UID';
+	
+	const UICONF_TAB_ACCESS						= 'UICONF_TAB_ACCESS';
+	
+	const KALTURA_PREINSTALLED					= 'KALTURA_PREINSTALLED';
+	const REPLACE_PASSWORDS						= 'REPLACE_PASSWORDS';
+	const TRACK_KDPWRAPPER						= 'TRACK_KDPWRAPPER';
+	const USAGE_TRACKING_OPTIN					= 'USAGE_TRACKING_OPTIN';
+}
+
+/**
+ * This class handles all the configuration of the application:
+ * Defining application configuration values according to user input, 
+ * replaceing configuration tokens in needed files and other application configuration actions 
+ */
 class AppConfig {
+	
 	private $app_config = array();
 	
 	// gets the application value set for the given key
 	public function get($key) {
+		if(!defined("AppConfigAttribute::$key"))
+			throw new Exception("Configuration key [$key] not defined");
+			
 		return $this->app_config[$key];
 	}
 	
 	// sets the application value for the given key
 	public function set($key, $value) {
+		if(!defined("AppConfigAttribute::$key"))
+			throw new Exception("Configuration key [$key] not defined");
+			
 		$this->app_config[$key] = $value;
 	}
 	
@@ -63,22 +200,22 @@ class AppConfig {
 	
 	// saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
 	public function saveUninstallerConfig() {
-		$file = $this->app_config['BASE_DIR'].UNINSTALLER_LOCATION;
-		$data = "BASE_DIR = ".$this->app_config["BASE_DIR"].PHP_EOL;	
-		$data = $data."DB_HOST = ".$this->app_config["DB1_HOST"].PHP_EOL;
-		$data = $data."DB_USER = ".$this->app_config["DB1_USER"].PHP_EOL;
-		$data = $data."DB_PASS = ".$this->app_config["DB1_PASS"].PHP_EOL;
-		$data = $data."DB_PORT = ".$this->app_config["DB1_PORT"].PHP_EOL;
+		$file = $this->app_config[AppConfigAttribute::BASE_DIR].UNINSTALLER_LOCATION;
+		$data = "BASE_DIR = ".$this->app_config[AppConfigAttribute::BASE_DIR].PHP_EOL;	
+		$data = $data."DB_HOST = ".$this->app_config[AppConfigAttribute::DB1_HOST].PHP_EOL;
+		$data = $data."DB_USER = ".$this->app_config[AppConfigAttribute::DB1_USER].PHP_EOL;
+		$data = $data."DB_PASS = ".$this->app_config[AppConfigAttribute::DB1_PASS].PHP_EOL;
+		$data = $data."DB_PORT = ".$this->app_config[AppConfigAttribute::DB1_PORT].PHP_EOL;
 		return OsUtils::writeFile($file, $data);
 	}	
 	
 	// update uninstaller config with symlinks definitions
 	public function updateUninstallerConfig($symlinks) {
-		$file = $this->app_config['BASE_DIR'].UNINSTALLER_LOCATION;
+		$file = $this->app_config[AppConfigAttribute::BASE_DIR].UNINSTALLER_LOCATION;
 		$data ='';
 		foreach ($symlinks as $slink) {
 			$link_items = explode(SYMLINK_SEPARATOR, $this->replaceTokensInString($slink));	
-			if (is_file($link_items[1]) && (strpos($link_items[1], $this->app_config["BASE_DIR"]) === false)) {
+			if (is_file($link_items[1]) && (strpos($link_items[1], $this->app_config[AppConfigAttribute::BASE_DIR]) === false)) {
 				$data = $data."symlinks[] = ".$link_items[1].PHP_EOL;
 			}
 		} 
@@ -91,157 +228,154 @@ class AppConfig {
 	private function defineInstallationTokens() {
 		logMessage(L_INFO, "Defining installation tokens for config");
 		// directories
-		$this->app_config['APP_DIR'] = $this->app_config['BASE_DIR'].'/app';	
-		$this->app_config['WEB_DIR'] = $this->app_config['BASE_DIR'].'/web';	
-		$this->app_config['LOG_DIR'] = $this->app_config['BASE_DIR'].'/log';	
-		$this->app_config['BIN_DIR'] = $this->app_config['BASE_DIR'].'/bin';	
-		$this->app_config['TMP_DIR'] = $this->app_config['BASE_DIR'].'/tmp/';
-		$this->app_config['DWH_DIR'] = $this->app_config['BASE_DIR'].'/dwh';
-		$this->app_config['ETL_HOME_DIR'] = $this->app_config['BASE_DIR'].'/dwh'; // For backward compatibility
-		$this->app_config['SPHINX_BIN_DIR'] = $this->app_config['BIN_DIR'].'/sphinx';
+		$this->app_config[AppConfigAttribute::APP_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/app';	
+		$this->app_config[AppConfigAttribute::WEB_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/web';	
+		$this->app_config[AppConfigAttribute::LOG_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/log';	
+		$this->app_config[AppConfigAttribute::BIN_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/bin';	
+		$this->app_config[AppConfigAttribute::TMP_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/tmp/';
+		$this->app_config[AppConfigAttribute::DWH_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/dwh';
+		$this->app_config[AppConfigAttribute::ETL_HOME_DIR] = $this->app_config[AppConfigAttribute::BASE_DIR].'/dwh'; // For backward compatibility
+		$this->app_config[AppConfigAttribute::SPHINX_BIN_DIR] = $this->app_config[AppConfigAttribute::BIN_DIR].'/sphinx';
 		
-		$this->app_config['IMAGE_MAGICK_BIN_DIR'] = "/usr/bin";
-		$this->app_config['CURL_BIN_DIR'] = "/usr/bin";
+		$this->app_config[AppConfigAttribute::IMAGE_MAGICK_BIN_DIR] = "/usr/bin";
+		$this->app_config[AppConfigAttribute::CURL_BIN_DIR] = "/usr/bin";
 		
 		
 		// site settings
-		$this->app_config['KALTURA_VIRTUAL_HOST_NAME'] = $this->removeHttp($this->app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
-		$this->app_config['CORP_REDIRECT'] = '';	
-		$this->app_config['CDN_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['IIS_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['RTMP_URL'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['GLOBAL_MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['WWW_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['SERVICE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['ENVIRONMENT_NAME'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
+		$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = $this->removeHttp($this->app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
+		$this->app_config[AppConfigAttribute::CORP_REDIRECT] = '';	
+		$this->app_config[AppConfigAttribute::CDN_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::IIS_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::RTMP_URL] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::MEMCACHE_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::GLOBAL_MEMCACHE_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::WWW_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::SERVICE_URL] = 'http://'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::ENVIRONMENT_NAME] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		
 		// databases (copy information collected during prerequisites
-		if ($this->app_config['DB1_HOST'] == 'localhost') {
-			$this->app_config['DB1_HOST'] = '127.0.0.1';
+		if ($this->app_config[AppConfigAttribute::DB1_HOST] == 'localhost') {
+			$this->app_config[AppConfigAttribute::DB1_HOST] = '127.0.0.1';
 		}
 		$this->collectDatabaseCopier('DB1', 'DB2');
 		$this->collectDatabaseCopier('DB1', 'DB3');
 
 		//sphinx
-		$this->app_config['SPHINX_SERVER'] = $this->app_config['DB1_HOST'];
-		$this->app_config['SPHINX_DB_NAME'] = 'kaltura_sphinx_log';
-		$this->app_config['SPHINX_DB_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['SPHINX_DB_PORT'] = $this->app_config['DB1_PORT'];
-	    $this->app_config['SPHINX_DB_USER'] = $this->app_config['DB1_USER'];
-		$this->app_config['SPHINX_DB_PASS'] = $this->app_config['DB1_PASS'];
+		$this->app_config[AppConfigAttribute::SPHINX_SERVER] = $this->app_config[AppConfigAttribute::DB1_HOST];
+		$this->app_config[AppConfigAttribute::SPHINX_DB_NAME] = 'kaltura_sphinx_log';
+		$this->app_config[AppConfigAttribute::SPHINX_DB_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::SPHINX_DB_PORT] = $this->app_config[AppConfigAttribute::DB1_PORT];
+	    $this->app_config[AppConfigAttribute::SPHINX_DB_USER] = $this->app_config[AppConfigAttribute::DB1_USER];
+		$this->app_config[AppConfigAttribute::SPHINX_DB_PASS] = $this->app_config[AppConfigAttribute::DB1_PASS];
 		
 		// admin console defaults
-		$this->app_config['SYSTEM_USER_ADMIN_EMAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['ADMIN_CONSOLE_PARTNER_ALIAS'] = md5('-2kaltura partner');
-		$this->app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];	
-		$this->generateSha1Salt($this->app_config['ADMIN_CONSOLE_PASSWORD'], $salt, $sha1);	
-		$this->app_config['SYSTEM_USER_ADMIN_SALT'] = $salt;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $salt;
-		$this->app_config['SYSTEM_USER_ADMIN_SHA1'] = $sha1;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SALT'] = $sha1;
-		$this->app_config['UICONF_TAB_ACCESS'] = 'SYSTEM_ADMIN_BATCH_CONTROL';
-		//$this->app_config['XYMON_SERVER_MONITORING_CONTROL_SCRIPT'] = // Not set
-		
-		// stats DB
-		$this->collectDatabaseCopier('DB1', 'DB_STATS');
-		$this->app_config['DB_STATS_NAME'] = 'kaltura_stats';
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_EMAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ALIAS] = md5('-2kaltura partner');
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_MAIL] = 'admin_console@'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$salt = null;
+		$sha1 = null;
+		$this->generateSha1Salt($this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PASSWORD], $salt, $sha1);	
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT] = $salt;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $salt;
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1] = $sha1;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SALT] = $sha1;
+		$this->app_config[AppConfigAttribute::UICONF_TAB_ACCESS] = 'SYSTEM_ADMIN_BATCH_CONTROL';
 		
 		// data warehouse
-		$this->app_config['DWH_HOST'] = $this->app_config['DB1_HOST'];
-		$this->app_config['DWH_PORT'] = $this->app_config['DB1_PORT'];
-		$this->app_config['DWH_DATABASE_NAME'] = 'kalturadw';
-		$this->app_config['DWH_USER'] = 'etl';
-		$this->app_config['DWH_PASS'] = 'etl';
-		$this->app_config['DWH_SEND_REPORT_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['EVENTS_LOGS_DIR'] = $this->app_config['LOG_DIR'];
-		$this->app_config['EVENTS_WILDCARD'] = 'kaltura_apache_access.log-.*';
-		$this->app_config['EVENTS_FETCH_METHOD'] = 'local';
+		$this->app_config[AppConfigAttribute::DWH_HOST] = $this->app_config[AppConfigAttribute::DB1_HOST];
+		$this->app_config[AppConfigAttribute::DWH_PORT] = $this->app_config[AppConfigAttribute::DB1_PORT];
+		$this->app_config[AppConfigAttribute::DWH_DATABASE_NAME] = 'kalturadw';
+		$this->app_config[AppConfigAttribute::DWH_USER] = 'etl';
+		$this->app_config[AppConfigAttribute::DWH_PASS] = 'etl';
+		$this->app_config[AppConfigAttribute::DWH_SEND_REPORT_MAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::EVENTS_LOGS_DIR] = $this->app_config[AppConfigAttribute::LOG_DIR];
+		$this->app_config[AppConfigAttribute::EVENTS_WILDCARD] = 'kaltura_apache_access.log-.*';
+		$this->app_config[AppConfigAttribute::EVENTS_FETCH_METHOD] = 'local';
 		
 				
 		// default partners and kusers
-		$this->app_config['TEMPLATE_PARTNER_MAIL'] = 'template@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['TEMPLATE_KUSER_MAIL'] = $this->app_config['TEMPLATE_PARTNER_MAIL'];
-		$this->app_config['TEMPLATE_ADMIN_KUSER_SALT'] = $this->app_config['SYSTEM_USER_ADMIN_SALT'];
-		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];		
+		$this->app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL] = 'template@'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::TEMPLATE_KUSER_MAIL] = $this->app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL];
+		$this->app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SALT] = $this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT];
+		$this->app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SHA1] = $this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1];		
 		
-		$this->app_config['PARTNER_ZERO_PARTNER_ALIAS'] = md5('-1kaltura partner zero');		
+		$this->app_config[AppConfigAttribute::PARTNER_ZERO_PARTNER_ALIAS] = md5('-1kaltura partner zero');		
 		
 		// batch
-		$this->app_config['BATCH_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['BATCH_KUSER_MAIL'] = 'batch@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['BATCH_HOST_NAME'] = OsUtils::getComputerName();
-		$this->app_config['BATCH_PARTNER_PARTNER_ALIAS'] = md5('-1kaltura partner');		
+		$this->app_config[AppConfigAttribute::BATCH_ADMIN_MAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::BATCH_KUSER_MAIL] = 'batch@'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::BATCH_HOST_NAME] = OsUtils::getComputerName();
+		$this->app_config[AppConfigAttribute::BATCH_PARTNER_PARTNER_ALIAS] = md5('-1kaltura partner');		
 				
 		// other configurations
-		$this->app_config['APACHE_RESTART_COMMAND'] = $this->app_config['HTTPD_BIN'].' -k restart';
-		date_default_timezone_set($this->app_config['TIME_ZONE']);
-		$this->app_config['GOOGLE_ANALYTICS_ACCOUNT'] = 'UA-7714780-1';
-		$this->app_config['INSTALLATION_TYPE'] = '';
-		$this->app_config['PARTNERS_USAGE_REPORT_SEND_FROM'] = ''; 
-		$this->app_config['PARTNERS_USAGE_REPORT_SEND_TO'] = '';
-		$this->app_config['SYSTEM_PAGES_LOGIN_USER'] = '';
-		$this->app_config['SYSTEM_PAGES_LOGIN_PASS'] = '';
-		$this->app_config['KMC_BACKDOR_SHA1_PASS'] = '';
-		$this->app_config['DC0_SECRET'] = '';
-		$this->app_config['APACHE_CONF'] = '';
+		$this->app_config[AppConfigAttribute::APACHE_RESTART_COMMAND] = $this->app_config[AppConfigAttribute::HTTPD_BIN].' -k restart';
+		date_default_timezone_set($this->app_config[AppConfigAttribute::TIME_ZONE]);
+		$this->app_config[AppConfigAttribute::GOOGLE_ANALYTICS_ACCOUNT] = 'UA-7714780-1';
+		$this->app_config[AppConfigAttribute::INSTALLATION_TYPE] = '';
+		$this->app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_FROM] = ''; 
+		$this->app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_TO] = '';
+		$this->app_config[AppConfigAttribute::SYSTEM_PAGES_LOGIN_USER] = '';
+		$this->app_config[AppConfigAttribute::SYSTEM_PAGES_LOGIN_PASS] = '';
+		$this->app_config[AppConfigAttribute::KMC_BACKDOR_SHA1_PASS] = '';
+		$this->app_config[AppConfigAttribute::DC0_SECRET] = '';
+		$this->app_config[AppConfigAttribute::APACHE_CONF] = '';
 		
 		// storage profile related
-		$this->app_config['DC_NAME'] = 'local';
-		$this->app_config['DC_DESCRIPTION'] = 'local';
-		$this->app_config['STORAGE_BASE_DIR'] = $this->app_config['WEB_DIR'];
-		$this->app_config['DELIVERY_HTTP_BASE_URL'] = $this->app_config['SERVICE_URL'];
-		$this->app_config['DELIVERY_RTMP_BASE_URL'] = $this->app_config['RTMP_URL'];
-		$this->app_config['DELIVERY_ISS_BASE_URL'] = $this->app_config['SERVICE_URL'];	
-		$this->app_config['ENVIRONMENT_NAME'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
+		$this->app_config[AppConfigAttribute::DC_NAME] = 'local';
+		$this->app_config[AppConfigAttribute::DC_DESCRIPTION] = 'local';
+		$this->app_config[AppConfigAttribute::STORAGE_BASE_DIR] = $this->app_config[AppConfigAttribute::WEB_DIR];
+		$this->app_config[AppConfigAttribute::DELIVERY_HTTP_BASE_URL] = $this->app_config[AppConfigAttribute::SERVICE_URL];
+		$this->app_config[AppConfigAttribute::DELIVERY_RTMP_BASE_URL] = $this->app_config[AppConfigAttribute::RTMP_URL];
+		$this->app_config[AppConfigAttribute::DELIVERY_ISS_BASE_URL] = $this->app_config[AppConfigAttribute::SERVICE_URL];	
+		$this->app_config[AppConfigAttribute::ENVIRONMENT_NAME] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		
 		// set the usage tracking for Kaltura TM
-		if (strcasecmp($this->app_config['KALTURA_VERSION_TYPE'], K_TM_TYPE) === 0) {
-			$this->app_config['PARTNERS_USAGE_REPORT_SEND_FROM'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];	
-			$this->app_config['PARTNERS_USAGE_REPORT_SEND_TO'] = "on-prem-monthly@kaltura.com";
+		if (strcasecmp($this->app_config[AppConfigAttribute::KALTURA_VERSION_TYPE], K_TM_TYPE) === 0) {
+			$this->app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_FROM] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];	
+			$this->app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_TO] = "on-prem-monthly@kaltura.com";
 		}
 		
 		// mails configurations
-		$this->app_config['FORUMS_URLS'] = 'http://www.kaltura.org/forum';
-		$this->app_config['CONTACT_URL'] = 'http://corp.kaltura.com/contact';
-		$this->app_config['CONTACT_PHONE_NUMBER'] = '+1 800 871-5224';
-		$this->app_config['BEGINNERS_TUTORIAL_URL'] = 'http://corp.kaltura.com/about/dosignup';
-		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
-		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = '"http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e="';
+		$this->app_config[AppConfigAttribute::FORUMS_URLS] = 'http://www.kaltura.org/forum';
+		$this->app_config[AppConfigAttribute::CONTACT_URL] = 'http://corp.kaltura.com/contact';
+		$this->app_config[AppConfigAttribute::CONTACT_PHONE_NUMBER] = '+1 800 871-5224';
+		$this->app_config[AppConfigAttribute::BEGINNERS_TUTORIAL_URL] = 'http://corp.kaltura.com/about/dosignup';
+		$this->app_config[AppConfigAttribute::QUICK_START_GUIDE_URL] = 'http://'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/content/docs/KMC_Quick_Start_Guide.pdf';
+		$this->app_config[AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL] = '"http://'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/index.php/extwidget/blockMail?e="';
 
-		if(!isset($this->app_config['DB1_CREATE_NEW_DB']))
-			$this->app_config['DB1_CREATE_NEW_DB'] = true;
+		if(!isset($this->app_config[AppConfigAttribute::DB1_CREATE_NEW_DB]))
+			$this->app_config[AppConfigAttribute::DB1_CREATE_NEW_DB] = true;
 		else
-			$this->app_config['DB1_CREATE_NEW_DB'] = ((strcasecmp('y',$this->app_config['DB1_CREATE_NEW_DB']) === 0) || (strcasecmp('yes',$this->app_config['DB1_CREATE_NEW_DB']) === 0));
+			$this->app_config[AppConfigAttribute::DB1_CREATE_NEW_DB] = ((strcasecmp('y',$this->app_config[AppConfigAttribute::DB1_CREATE_NEW_DB]) === 0) || (strcasecmp('yes',$this->app_config[AppConfigAttribute::DB1_CREATE_NEW_DB]) === 0));
 	
-		if (!isset($this->app_config['RED5_INSTALL']))
-			$this->app_config['RED5_INSTALL'] = false;
+		if (!isset($this->app_config[AppConfigAttribute::RED5_INSTALL]))
+			$this->app_config[AppConfigAttribute::RED5_INSTALL] = false;
 		else
-			$this->app_config['RED5_INSTALL'] = ((strcasecmp('y',$this->app_config['RED5_INSTALL']) === 0) || (strcasecmp('yes',$this->app_config['RED5_INSTALL']) === 0));
+			$this->app_config[AppConfigAttribute::RED5_INSTALL] = ((strcasecmp('y',$this->app_config[AppConfigAttribute::RED5_INSTALL]) === 0) || (strcasecmp('yes',$this->app_config[AppConfigAttribute::RED5_INSTALL]) === 0));
 
-		if ($this->app_config['DB1_CREATE_NEW_DB'])
+		if ($this->app_config[AppConfigAttribute::DB1_CREATE_NEW_DB])
 		{
-			$this->app_config['PARTNER_ZERO_SECRET'] = $this->generateSecret();
-			$this->app_config['PARTNER_ZERO_ADMIN_SECRET'] = $this->generateSecret();
-			$this->app_config['BATCH_PARTNER_SECRET'] = $this->generateSecret();
-			$this->app_config['BATCH_PARTNER_ADMIN_SECRET'] = $this->generateSecret();
-			$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $this->generateSecret();
-			$this->app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  $this->generateSecret();
+			$this->app_config[AppConfigAttribute::PARTNER_ZERO_SECRET] = $this->generateSecret();
+			$this->app_config[AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET] = $this->generateSecret();
+			$this->app_config[AppConfigAttribute::BATCH_PARTNER_SECRET] = $this->generateSecret();
+			$this->app_config[AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET] = $this->generateSecret();
+			$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_SECRET] = $this->generateSecret();
+			$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET] =  $this->generateSecret();
 		}
 		else 
 		{
-			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=0" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );;
-			$this->app_config['PARTNER_ZERO_SECRET'] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=0" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
-			$this->app_config['PARTNER_ZERO_ADMIN_SECRET'] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-1" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
-			$this->app_config['BATCH_PARTNER_SECRET'] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-1" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
-			$this->app_config['BATCH_PARTNER_ADMIN_SECRET'] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-2" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
-			$this->app_config['ADMIN_CONSOLE_PARTNER_SECRET'] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-2" | mysql -h'.$this->app_config['DB1_HOST']. ' -P'.$this->app_config['DB1_PORT'] . ' -u'.$this->app_config['DB1_USER'] . ' -p'. $this->app_config['DB1_PASS'] . ' '. $this->app_config['DB1_NAME'] . ' --skip-column-names' );
-			$this->app_config['ADMIN_CONSOLE_PARTNER_ADMIN_SECRET'] =  $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=0" | mysql -h'.$this->app_config[AppConfigAttribute::DB1_HOST]. ' -P'.$this->app_config[AppConfigAttribute::DB1_PORT] . ' -u'.$this->app_config[AppConfigAttribute::DB1_USER] . ' -p'. $this->app_config[AppConfigAttribute::DB1_PASS] . ' '. $this->app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );;
+			$this->app_config[AppConfigAttribute::PARTNER_ZERO_SECRET] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=0" | mysql -h'.$this->app_config[AppConfigAttribute::DB1_HOST]. ' -P'.$this->app_config[AppConfigAttribute::DB1_PORT] . ' -u'.$this->app_config[AppConfigAttribute::DB1_USER] . ' -p'. $this->app_config[AppConfigAttribute::DB1_PASS] . ' '. $this->app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			$this->app_config[AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-1" | mysql -h'.$this->app_config[AppConfigAttribute::DB1_HOST]. ' -P'.$this->app_config[AppConfigAttribute::DB1_PORT] . ' -u'.$this->app_config[AppConfigAttribute::DB1_USER] . ' -p'. $this->app_config[AppConfigAttribute::DB1_PASS] . ' '. $this->app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			$this->app_config[AppConfigAttribute::BATCH_PARTNER_SECRET] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-1" | mysql -h'.$this->app_config[AppConfigAttribute::DB1_HOST]. ' -P'.$this->app_config[AppConfigAttribute::DB1_PORT] . ' -u'.$this->app_config[AppConfigAttribute::DB1_USER] . ' -p'. $this->app_config[AppConfigAttribute::DB1_PASS] . ' '. $this->app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			$this->app_config[AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-2" | mysql -h'.$this->app_config[AppConfigAttribute::DB1_HOST]. ' -P'.$this->app_config[AppConfigAttribute::DB1_PORT] . ' -u'.$this->app_config[AppConfigAttribute::DB1_USER] . ' -p'. $this->app_config[AppConfigAttribute::DB1_PASS] . ' '. $this->app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_SECRET] = $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-2" | mysql -h'.$this->app_config[AppConfigAttribute::DB1_HOST]. ' -P'.$this->app_config[AppConfigAttribute::DB1_PORT] . ' -u'.$this->app_config[AppConfigAttribute::DB1_USER] . ' -p'. $this->app_config[AppConfigAttribute::DB1_PASS] . ' '. $this->app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET] =  $output[0];
 		}
 			
 		
@@ -249,64 +383,67 @@ class AppConfig {
 	
 	public function defineConfigurationTokens() {
 
-		$this->app_config['KALTURA_VIRTUAL_HOST_NAME'] = $this->removeHttp($this->app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
-		$this->app_config['CDN_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['IIS_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['RTMP_URL'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['GLOBAL_MEMCACHE_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['WWW_HOST'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['SERVICE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['ENVIRONMENT_NAME'] = $this->app_config['KALTURA_VIRTUAL_HOST_NAME'];		
-		$this->app_config['BATCH_KUSER_MAIL'] = 'batch@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['TEMPLATE_PARTNER_MAIL'] = 'template@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['TEMPLATE_KUSER_MAIL'] = $this->app_config['TEMPLATE_PARTNER_MAIL'];
-		$this->app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'];
-		$this->app_config['DELIVERY_HTTP_BASE_URL'] = $this->app_config['SERVICE_URL'];
-		$this->app_config['DELIVERY_ISS_BASE_URL'] = $this->app_config['SERVICE_URL'];	
-		$this->app_config['DELIVERY_RTMP_BASE_URL'] = $this->app_config['RTMP_URL'];
-		$this->app_config['SYSTEM_USER_ADMIN_EMAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['DWH_SEND_REPORT_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['BATCH_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['PARTNERS_USAGE_REPORT_SEND_FROM'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
+		$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = $this->removeHttp($this->app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
+		$this->app_config[AppConfigAttribute::CDN_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::IIS_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::RTMP_URL] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::MEMCACHE_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::GLOBAL_MEMCACHE_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::WWW_HOST] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::SERVICE_URL] = 'http://'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::ENVIRONMENT_NAME] = $this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];		
+		$this->app_config[AppConfigAttribute::BATCH_KUSER_MAIL] = 'batch@'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL] = 'template@'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::TEMPLATE_KUSER_MAIL] = $this->app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL];
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_MAIL] = 'admin_console@'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::DELIVERY_HTTP_BASE_URL] = $this->app_config[AppConfigAttribute::SERVICE_URL];
+		$this->app_config[AppConfigAttribute::DELIVERY_ISS_BASE_URL] = $this->app_config[AppConfigAttribute::SERVICE_URL];	
+		$this->app_config[AppConfigAttribute::DELIVERY_RTMP_BASE_URL] = $this->app_config[AppConfigAttribute::RTMP_URL];
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_EMAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::DWH_SEND_REPORT_MAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::BATCH_ADMIN_MAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_FROM] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
 		
-		$this->generateSha1Salt($this->app_config['ADMIN_CONSOLE_PASSWORD'], $salt, $sha1);	
-		$this->app_config['SYSTEM_USER_ADMIN_SALT'] = $salt;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $salt;
-		$this->app_config['SYSTEM_USER_ADMIN_SHA1'] = $sha1;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SALT'] = $sha1;
-		$this->app_config['TEMPLATE_ADMIN_KUSER_SALT'] = $this->app_config['SYSTEM_USER_ADMIN_SALT'];
-		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];
+		$salt = null;
+		$sha1 = null;
+		$this->generateSha1Salt($this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PASSWORD], $salt, $sha1);	
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT] = $salt;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $salt;
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1] = $sha1;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SALT] = $sha1;
+		$this->app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SALT] = $this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT];
+		$this->app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SHA1] = $this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1];
 		
-		$this->app_config['XYMON_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/xymon/';
-		$this->app_config['QUICK_START_GUIDE_URL'] = 'http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/content/docs/KMC_Quick_Start_Guide.pdf';
-		$this->app_config['UNSUBSCRIBE_EMAIL_URL'] = '"http://'.$this->app_config['KALTURA_VIRTUAL_HOST_NAME'].'/index.php/extwidget/blockMail?e="';
+		$this->app_config[AppConfigAttribute::QUICK_START_GUIDE_URL] = 'http://'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/content/docs/KMC_Quick_Start_Guide.pdf';
+		$this->app_config[AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL] = '"http://'.$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/index.php/extwidget/blockMail?e="';
 	}
 	
 	public function definePostInstallationConfigurationTokens()
 	{
-		$this->app_config['POST_INST_VIRTUAL_HOST_NAME'] = $this->removeHttp($this->app_config['KALTURA_FULL_VIRTUAL_HOST_NAME']);
-		$this->app_config['KALTURA_VIRTUAL_HOST_NAME'] = $this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
-		$this->app_config['DELIVERY_HTTP_BASE_URL'] = 'http://'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
-		$this->app_config['DELIVERY_ISS_BASE_URL'] = 'http://'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
-		$this->app_config['DELIVERY_RTMP_BASE_URL'] = $this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
+		$this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME] = $this->removeHttp($this->app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
+		$this->app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = $this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::DELIVERY_HTTP_BASE_URL] = 'http://'.$this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::DELIVERY_ISS_BASE_URL] = 'http://'.$this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::DELIVERY_RTMP_BASE_URL] = $this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
 		
-		$this->app_config['POST_INST_ADMIN_CONSOLE_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];		
-		$this->app_config['BATCH_KUSER_MAIL'] = 'batch@'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
-		$this->app_config['TEMPLATE_PARTNER_MAIL'] = 'template@'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
-		$this->app_config['TEMPLATE_KUSER_MAIL'] = $this->app_config['TEMPLATE_PARTNER_MAIL'];
-		$this->app_config['SYSTEM_USER_ADMIN_EMAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
-		$this->app_config['ADMIN_CONSOLE_KUSER_MAIL'] = 'admin_console@'.$this->app_config['POST_INST_VIRTUAL_HOST_NAME'];
-		$this->app_config['BATCH_ADMIN_MAIL'] = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL'];
+		$this->app_config[AppConfigAttribute::POST_INST_ADMIN_CONSOLE_ADMIN_MAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];		
+		$this->app_config[AppConfigAttribute::BATCH_KUSER_MAIL] = 'batch@'.$this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL] = 'template@'.$this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::TEMPLATE_KUSER_MAIL] = $this->app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL];
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_EMAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_MAIL] = 'admin_console@'.$this->app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		$this->app_config[AppConfigAttribute::BATCH_ADMIN_MAIL] = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
 
-		$this->generateSha1Salt($this->app_config['ADMIN_CONSOLE_PASSWORD'], $salt, $sha1);	
-		$this->app_config['SYSTEM_USER_ADMIN_SALT'] = $salt;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $salt;
-		$this->app_config['SYSTEM_USER_ADMIN_SHA1'] = $sha1;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SALT'] = $sha1;
-		$this->app_config['ADMIN_CONSOLE_KUSER_SHA1'] = $sha1;		
-		$this->app_config['TEMPLATE_ADMIN_KUSER_SALT'] = $this->app_config['SYSTEM_USER_ADMIN_SALT'];
-		$this->app_config['TEMPLATE_ADMIN_KUSER_SHA1'] = $this->app_config['SYSTEM_USER_ADMIN_SHA1'];		
+		$salt = null;
+		$sha1 = null;
+		$this->generateSha1Salt($this->app_config[AppConfigAttribute::ADMIN_CONSOLE_PASSWORD], $salt, $sha1);	
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT] = $salt;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $salt;
+		$this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1] = $sha1;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SALT] = $sha1;
+		$this->app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $sha1;		
+		$this->app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SALT] = $this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT];
+		$this->app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SHA1] = $this->app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1];		
 	}
 
 	// copies DB parametes from one DB configuration to another
@@ -340,8 +477,8 @@ class AppConfig {
 	
 	// puts a Kaltura CE activation key
 	public function simMafteach() {
-		$admin_email = $this->app_config['ADMIN_CONSOLE_ADMIN_MAIL']; 
-		$kConfLocalFile = $this->app_config['APP_DIR'].KCONF_LOCAL_LOCATION;
+		$admin_email = $this->app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL]; 
+		$kConfLocalFile = $this->app_config[AppConfigAttribute::APP_DIR].KCONF_LOCAL_LOCATION;
 		logMessage(L_INFO, "Setting application key");
 		$token = md5(uniqid(rand(), true));
 		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
