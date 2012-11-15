@@ -115,7 +115,7 @@ class Installer {
 			}
 			
 			if (!OsUtils::fullCopy('configure.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/installer/")) {
-				return "Failed to copy configure.php file to targer directory";
+				return "Failed to copy configure.php file to target directory";
 			}		
 		}
 		
