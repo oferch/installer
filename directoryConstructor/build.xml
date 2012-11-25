@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="test" default="construct">
+	<taskdef name="foreachxmlelementtask" classpath="../lib" classname="phing.ForEachXmlElementTask" />
+	
+	<target name="load-config">
+		<property file="build.properties" override="false" />
+	</target>
+	
+	<target name="construct">
+		<phingcall target="construct-tree" />
+		<phingcall target="set-permissions" />
+	</target>
+	
+	<target name="construct-tree" depends="load-config">
+		<echo message="Construct Kaltura directories tree [${BASE_DIR}]" />
+		<foreachxmlelementtask file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" elementPrefix="directory" xPathParam="directory.path" target="construct-directory" />
+	</target>
+    
+	<target name="construct-directory">
+		
+		<property name="directory.fullPath" value="${BASE_DIR}${directory.path}" />
+		<echo message="Construct directory [${directory.fullPath}]" />
+		
+		<!-- Create directory -->
+		<available file="${directory.fullPath}" type="dir" property="directory.exists" />
+		<if>
+			<equals arg1="${directory.exists}"  arg2="true"/>
+			<then><echo message="Directory [${directory.fullPath}] already exists" /></then>
+			<else><mkdir dir="${directory.fullPath}" /></else>
+		</if>
+		
+		<!-- Get directory contnet -->
+		<if>
+			<isset property="directory.attributes.${directory.id}.gitUrl" />
+			<then>
+				<if>
+					<equals arg1="${directory.exists}"  arg2="true"/>
+					<then>
+						<echo message="git URL [${directory.attributes.${directory.id}.gitUrl}]" />
+						<!-- TODO - user name from user input? -->
+						<!-- TODO - make sure it's updating the files - strategy from user input? -->
+						<gitpull gitPath="git" all="true" repository="${directory.fullPath}" />
+					</then>
+					<else><gitclone gitPath="git" repository="${directory.attributes.${directory.id}.gitUrl}" targetPath="${directory.fullPath}" /></else>
+				</if>
+			</then>
+		</if>
+		
+		<!-- Change directory permissions and ownership -->
+		<if>
+			<!-- owner default value -->
+			<isset property="permissions.owner" />
+			<then><property name="${owner}" value="${permissions.owner}" override="true" /></then>
+		</if>
+		<if>
+			<!-- group default value -->
+			<isset property="permissions.group" />
+			<then><property name="${group}" value="${permissions.group}" override="true" /></then>
+		</if>
+		<if>
+			<!-- owner value from xml -->
+			<isset property="directory.attributes.${directory.id}.owner" />
+			<then><property name="${owner}" value="${directory.attributes.${directory.id}.owner}" override="true" /></then>
+		</if>
+		<if>
+			<!-- group value from xml -->
+			<isset property="directory.attributes.${directory.id}.group" />
+			<then><property name="${group}" value="${directory.attributes.${directory.id}.group}" override="true" /></then>
+		</if>
+		<if>
+			<!-- change owner and group -->
+			<and>
+				<isset property="owner" />
+				<isset property="group" />
+			</and>
+			<then><chown file="${directory.fullPath}" user="${owner}.${group}" failonerror="${permissions.required}" /></then>
+		</if>
+		
+		<if>
+			<!-- mode default value -->
+			<isset property="permissions.mode.directory" />
+			<then><property name="${mode}" value="${permissions.mode.directory}" override="true" /></then>
+		</if>
+		<if>
+			<!-- mode value from xml -->
+			<isset property="directory.attributes.${directory.id}.mode" />
+			<then><property name="${mode}" value="${directory.attributes.${directory.id}.mode}" override="true" /></then>
+		</if>
+		<if>
+			<!-- change mode -->
+			<isset property="mode" />
+			<then><chmod file="${directory.fullPath}" mode="${mode}" failonerror="${permissions.required}" /></then>
+		</if>
+		
+	</target>
+	
+	<target name="set-permissions-file">
+
+		<!-- TODO - make sure it's not a folder -->		
+		<echo message="Set file permissions [${filename}]" />
+		<if>
+			<!-- change mode -->
+			<isset property="mode" />
+			<then><chmod file="${filename}" mode="${mode}" failonerror="${permissions.required}" /></then>
+		</if>
+		
+	</target>
+	
+	<target name="set-permissions" depends="load-config">
+		
+		<echo message="Set content files permissions [${BASE_DIR}]" />
+		<property name="${mode}" value="${permissions.mode.content}" override="true" />
+		<foreach param="filename" target="set-permissions-file">
+			<fileset dir="${BASE_DIR}" defaultexcludes="false">
+				<exclude name="${permissions.mode.scripts.pattern}"/>
+			</fileset>
+		</foreach>
+		
+		<echo message="Set executable files permissions [${BASE_DIR}]" />
+		<property name="${mode}" value="${permissions.mode.scripts}" override="true" />
+		<foreach param="filename" target="set-permissions-file">
+			<fileset dir="${BASE_DIR}" defaultexcludes="false">
+				<include name="${permissions.mode.scripts.pattern}"/>
+			</fileset>
+		</foreach>
+		
+	</target>
+	
+</project>

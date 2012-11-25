@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<base group="kaltura" user="kaltura" mode="700">
+	<app mode="750" filesMode="640" scriptsMode="740" gitPath="/kaltura/KalturaServer.git">
+		<cache mode="770" />
+		<batch mode="700" />
+	</app>
+	<apps mode="750" filesMode="640">
+		<clipapp>
+			<v1.0.7 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7" />
+		</clipapp>
+		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages" />
+	</apps>
+	<log mode="770" filesMode="644">
+		<batch mode="700" />
+		<sphinx mode="700">
+			<data />
+		</sphinx>
+	</log>
+	<sphinx />
+	<tmp mode="750" filesMode="640">
+		<convert />
+		<emailIngestion />
+		<imports />
+		<thumb />
+	</tmp>
+	<uninstaller />
+	<web>
+		<content group="kaltura" user="apache" mode="750">
+			<uploads mode="700" filesMode="600" />
+			<webcam mode="700" filesMode="600" />
+			<cacheswf mode="700" filesMode="600" />
+			<generatedUiConf mode="700" filesMode="600" />
+			<reports mode="700" filesMode="600" />
+			<syndication mode="700" filesMode="600" />
+			<uiconf mode="700" filesMode="600" />
+			<entry mode="750" filesMode="640" />
+			<metadata mode="750" filesMode="640" />
+			<batchfiles mode="750" filesMode="640" />
+			<clientlibs mode="770" filesMode="660" />
+			<docs mode="500" filesMode="400" />
+			<templates mode="500" filesMode="400" />
+		</content>
+		<tmp mode="750" filesMode="660">
+			<convert />
+			<imports />
+			<thumb />
+			<xml />
+		</tmp>
+	</web>
+</base>
