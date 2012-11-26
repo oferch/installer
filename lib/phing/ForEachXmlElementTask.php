@@ -160,30 +160,6 @@ class ForEachXmlElementTask extends Task
 	}
 
 	/**
-	 * @param string $elementAttributesParam
-	 */
-	public function setElementAttributesParam($elementAttributesParam)
-	{
-		$this->elementAttributesParam = $elementAttributesParam;
-	}
-
-	/**
-	 * @param string $elementContentParam
-	 */
-	public function setElementContentParam($elementContentParam)
-	{
-		$this->elementContentParam = $elementContentParam;
-	}
-
-	/**
-	 * @param string $elementChildrenCountParam
-	 */
-	public function setElementChildrenCountParam($elementChildrenCountParam)
-	{
-		$this->elementChildrenCountParam = $elementChildrenCountParam;
-	}
-
-	/**
 	 * @param string $xPathParam
 	 */
 	public function setXPathParam($xPathParam)

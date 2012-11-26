@@ -1,46 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<base group="kaltura" user="kaltura" mode="700">
-	<app mode="750" filesMode="640" scriptsMode="740" gitPath="/kaltura/KalturaServer.git">
-		<cache mode="770" />
-		<batch mode="700" />
+<base group="kaltura" user="root" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true">
+	<app gitPath="/kaltura/KalturaServer.git">
+		<cache mode="0770" filesMode="0660" />
 	</app>
-	<apps mode="750" filesMode="640">
-		<clipapp>
+	<apps skipFilesMode="true">
+		<clipapp skipFilesMode="true">
 			<v1.0.7 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7" />
 		</clipapp>
 		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages" />
 	</apps>
-	<log mode="770" filesMode="644">
-		<batch mode="700" />
-		<sphinx mode="700">
-			<data />
+	<log group="kaltura" user="kaltura" mode="0770" filesMode="0660">
+		<batch mode="0700" skipFilesMode="true" />
+		<sphinx mode="0700" skipFilesMode="true" >
+			<data skipFilesMode="true" />
 		</sphinx>
 	</log>
-	<sphinx />
-	<tmp mode="750" filesMode="640">
+	<sphinx group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
+	<tmp group="kaltura" user="kaltura" mode="0700" skipFilesMode="true">
 		<convert />
 		<emailIngestion />
 		<imports />
 		<thumb />
 	</tmp>
-	<uninstaller />
+	<uninstaller group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
 	<web>
-		<content group="kaltura" user="apache" mode="750">
-			<uploads mode="700" filesMode="600" />
-			<webcam mode="700" filesMode="600" />
-			<cacheswf mode="700" filesMode="600" />
-			<generatedUiConf mode="700" filesMode="600" />
-			<reports mode="700" filesMode="600" />
-			<syndication mode="700" filesMode="600" />
-			<uiconf mode="700" filesMode="600" />
-			<entry mode="750" filesMode="640" />
-			<metadata mode="750" filesMode="640" />
-			<batchfiles mode="750" filesMode="640" />
-			<clientlibs mode="770" filesMode="660" />
-			<docs mode="500" filesMode="400" />
-			<templates mode="500" filesMode="400" />
+		<content group="kaltura" user="apache" mode="0750" skipFilesMode="true">
+			<uploads mode="0700" skipFilesMode="true" />
+			<webcam mode="0700" skipFilesMode="true" />
+			<cacheswf mode="0700" skipFilesMode="true" />
+			<generatedUiConf mode="0700" skipFilesMode="true" />
+			<reports mode="0700" skipFilesMode="true" />
+			<syndication mode="0700" skipFilesMode="true" />
+			<uiconf mode="0700" skipFilesMode="true" />
+			<entry mode="0750" filesMode="0640" />
+			<metadata mode="0750" filesMode="0640" />
+			<batchfiles mode="0750" filesMode="0640" />
+			<docs mode="0500" filesMode="0400" skipFilesMode="true" />
+			<templates mode="0500" filesMode="0400" skipFilesMode="true" />
+			<clientlibs group="kaltura" user="kaltura" mode="0750" filesMode="0640" />
 		</content>
-		<tmp mode="750" filesMode="660">
+		<tmp group="kaltura" user="kaltura" mode="0750" filesMode="0660" skipFilesMode="true">
 			<convert />
 			<imports />
 			<thumb />
