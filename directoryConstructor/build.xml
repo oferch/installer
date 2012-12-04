@@ -71,17 +71,30 @@
 				<if>
 					<isset property="directory.attributes.${directory.id}.gitPath" />
 					<then>
-						<available file="${directory.fullPath}/.git" type="dir" property="directory.git.exists" />
 						<if>
-							<equals arg1="${directory.git.exists}" arg2="true" />
+							<isset property="directory.attributes.${directory.id}.gitTag" />
 							<then>
-								<echo message="Pull git repository [${directory.fullPath}]" />
-								<gitpull gitPath="git" all="true" repository="${directory.fullPath}" strategy="recursive" />
+								<echo message="Fetch git repository [${directory.fullPath}] tag [${directory.attributes.${directory.id}.gitTag}]" />
+								<property name="directory.gitTagUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}/tarball/${directory.attributes.${directory.id}.gitTag}" />
+								<httpget url="${directory.gitTagUrl}" dir="${directory.fullPath}/../" followRedirects="true" sslVerifyPeer="false" />
+								<resolvepath propertyName="tar" file="${directory.fullPath}/../${directory.attributes.${directory.id}.gitTag}"/>
+								<untar file="${tar}" todir="${directory.fullPath}" />
+								<delete file="${tar}" />
 							</then>
 							<else>
-								<property name="directory.gitUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}" />
-								<echo message="Clone from git URL [${directory.gitUrl}]" />
-								<gitclone gitPath="git" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
+								<available file="${directory.fullPath}/.git" type="dir" property="directory.git.exists" />
+								<if>
+									<equals arg1="${directory.git.exists}" arg2="true" />
+									<then>
+										<echo message="Pull git repository [${directory.fullPath}]" />
+										<gitpull gitPath="git" all="true" repository="${directory.fullPath}" strategy="recursive" />
+									</then>
+									<else>
+										<echo message="Clone from git URL [${directory.gitUrl}]" />
+										<property name="directory.gitUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}" />
+										<gitclone gitPath="git" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
+									</else>
+								</if>
 							</else>
 						</if>
 					</then>

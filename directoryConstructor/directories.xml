@@ -5,9 +5,13 @@
 	</app>
 	<apps skipFilesMode="true">
 		<clipapp skipFilesMode="true">
+			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" />
 			<v1.0.7 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7" />
 		</clipapp>
 		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages" />
+		<html5>
+			<html5lib gitPath="/kaltura/mwEmbed" gitTag="v1.6.12.27g" />
+		</html5>
 	</apps>
 	<log group="kaltura" user="kaltura" mode="0770" filesMode="0660">
 		<batch mode="0700" skipFilesMode="true" />
@@ -24,6 +28,191 @@
 	</tmp>
 	<uninstaller group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
 	<web>
+		<flash>
+			<!-- KMC -->
+			<cvfsdk>
+				<v1.0 svnPath="/usr/local/kalprod/flash/cvfsdk/v1.0" />
+			</cvfsdk>
+			<kdp3plugins  svnPath="/usr/local/kalprod/flash/kdp3plugins" />
+			<kdp3wrapper>
+				<v34.0 svnPath="/usr/local/kalprod/flash/kdp3wrapper/v34.0" />
+			</kdp3wrapper>
+			<flexwrapper>
+				<v1.2 svnPath="/usr/local/kalprod/flash/flexwrapper/v1.2" />
+				<v1.01 svnPath="/usr/local/kalprod/flash/flexwrapper/v1.01" />
+			</flexwrapper>
+			<kcw>
+				<v2.1.6.7 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.7" />
+			</kcw>
+			<kclip>
+				<v1.1.2.1 svnPath="/usr/local/kalprod/flash/kclip/v1.1.2.1" />
+			</kclip>
+			<!-- for now we need also v1.1.2 due to a bug in kmc -->
+			<kclip>
+				<v1.1.2 svnPath="/usr/local/kalprod/flash/kclip/v1.1.2" />
+			</kclip>
+			<kmc>
+				<login>
+					<v1.2.2 svnPath="/usr/local/kalprod/flash/kmc/login/v1.2.2" />
+				</login>
+			</kmc>
+			
+			<!-- MediaSpace4 -->
+			<kdp3>
+				<v3.6.5 svnPath="/usr/local/kalprod/flash/kdp3/v3.6.5" />
+				<v3.5.9 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.9" />
+			</kdp3>
+			<krecord>
+				<v1.5.12 svnPath="/usr/local/kalprod/flash/krecord/v1.5.12" />
+			</krecord>
+			<kupload>
+				<v1.2.8 svnPath="/usr/local/kalprod/flash/kupload/v1.2.8" />
+			</kupload>
+
+			<!-- Sakai (Eagle) -->
+			<kcw>
+				<v2.1.4  svnPath="/usr/local/kalprod/flash/kcw/v2.1.4 " />
+			</kcw>
+			<kae>
+				<v1.2.3 svnPath="/usr/local/kalprod/flash/kae/v1.2.3" />
+			</kae>
+			<mixplugins svnPath="/usr/local/kalprod/flash/mixplugins" />
+			<kdp3>
+				<v3.5.6 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.6" />
+			</kdp3>
+
+			<!-- Sakai (Falcon) -->
+			<kclip>
+				<v1.0.13 svnPath="/usr/local/kalprod/flash/kclip/v1.0.13" />
+			</kclip>
+
+			<!-- Moodle (Eagle) -->
+			<kdp3>
+				<v3.5.7.6 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.7.6" />
+				<v3.5.7.7 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.7.7" />
+			</kdp3>
+			<kcw>
+				<v2.1.6.7 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.7" />
+			</kcw>
+			<kupload>
+				<v1.2.8 svnPath="/usr/local/kalprod/flash/kupload/v1.2.8" />
+			</kupload>
+
+			<!-- MS3 -->
+			<kdp3>
+				<v3.5.45 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.45" />
+			</kdp3>
+			<krecord>
+				<v1.5.2  svnPath="/usr/local/kalprod/flash/krecord/v1.5.2 " />
+			</krecord>
+
+			<!-- Sharepoint -->
+			<kdp3>
+				<v3.5.50 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.50" />
+				<v3.5.7.6 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.7.6" />
+			</kdp3>
+			<kcw>
+				<v2.1.6.7 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.7" />
+			</kcw>
+
+			<!-- Drupal -->
+			<kae>
+				<v1.0.10.23657 svnPath="/usr/local/kalprod/flash/kae/v1.0.10.23657" />
+			</kae>
+			<mixplugins svnPath="/usr/local/kalprod/flash/mixplugins" />
+			<kupload>
+				<v1.1.7 svnPath="/usr/local/kalprod/flash/kupload/v1.1.7" />
+			</kupload>
+			<kdp>
+				<v1.0.3 svnPath="/usr/local/kalprod/flash/kdp/v1.0.3" />
+				<v1.2.3 svnPath="/usr/local/kalprod/flash/kdp/v1.2.3" />
+			</kdp>
+			<kcw>
+				<v1.5.4 svnPath="/usr/local/kalprod/flash/kcw/v1.5.4" />
+				<v2.1.6.7 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.7" />
+			</kcw>
+			<kdp3>
+				<v3.1.6 svnPath="/usr/local/kalprod/flash/kdp3/v3.1.6" />
+			</kdp3>
+
+			<!-- BB -->
+			<kdp3>
+				<v3.5.33 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.33" />
+			</kdp3>
+			<kclip>
+				<v1.1.4 svnPath="/usr/local/kalprod/flash/kclip/v1.1.4" />
+			</kclip>
+
+			<!-- wordpress -->
+			<kse>
+				<v2.1.3CE svnPath="/usr/local/kalprod/flash/kse/v2.1.3CE" />
+			</kse>
+
+			<!-- Legacy Dragonfly -->
+			<kdp3>
+				<v3.5.14 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.14" />
+			</kdp3>
+			<kdp3wrapper>
+				<v33.0 svnPath="/usr/local/kalprod/flash/kdp3wrapper/v33.0" />
+			</kdp3wrapper>
+			<flexwrapper>
+				<v1.3 svnPath="/usr/local/kalprod/flash/flexwrapper/v1.3" />
+			</flexwrapper>
+
+			<!-- Legacy -->
+			<kae>
+				<v1.2 svnPath="/usr/local/kalprod/flash/kae/v1.2" />
+				<v1.2.1 svnPath="/usr/local/kalprod/flash/kae/v1.2.1" />
+				<v1.2.2 svnPath="/usr/local/kalprod/flash/kae/v1.2.2" />
+				<v1.0.15.1 svnPath="/usr/local/kalprod/flash/kae/v1.0.15.1" />
+				<v1.1.1 svnPath="/usr/local/kalprod/flash/kae/v1.1.1" />
+				<v1.0.10CE svnPath="/usr/local/kalprod/flash/kae/v1.0.10CE" />
+			</kae>
+			<kcw>
+				<v2.1.2 svnPath="/usr/local/kalprod/flash/kcw/v2.1.2" />
+				<v2.0.7 svnPath="/usr/local/kalprod/flash/kcw/v2.0.7" />
+				<v2.1.6.3 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.3" />
+				<v1.6.5 svnPath="/usr/local/kalprod/flash/kcw/v1.6.5" />
+				<v1.6.5.24461 svnPath="/usr/local/kalprod/flash/kcw/v1.6.5.24461" />
+			</kcw>
+			<kdp>
+				<dev>
+					<_2tor_sync name="2tor_sync">
+						<carousel svnPath="/usr/local/kalprod/flash/kdp/dev/2tor_sync/carousel" />
+					</_2tor_sync>
+				</dev>
+				<v2.0.12 svnPath="/usr/local/kalprod/flash/kdp/v2.0.12" />
+				<v2.7.0 svnPath="/usr/local/kalprod/flash/kdp/v2.7.0" />
+			</kdp>
+			<kdp3>
+				<v3.4.10.1 svnPath="/usr/local/kalprod/flash/kdp3/v3.4.10.1" />
+				<v3.4.5 svnPath="/usr/local/kalprod/flash/kdp3/v3.4.5" />
+				<v3.3.9.2 svnPath="/usr/local/kalprod/flash/kdp3/v3.3.9.2" />
+			</kdp3>
+			<kdp3wrapper>
+				<v32.0 svnPath="/usr/local/kalprod/flash/kdp3wrapper/v32.0" />
+			</kdp3wrapper>
+			<kdpwrapper>
+				<v11.0 svnPath="/usr/local/kalprod/flash/kdpwrapper/v11.0" />
+			</kdpwrapper>
+			<kpaint>
+				<v1.0.4 svnPath="/usr/local/kalprod/flash/kpaint/v1.0.4" />
+				<v1.0.1 svnPath="/usr/local/kalprod/flash/kpaint/v1.0.1" />
+			</kpaint>
+			<kse>
+				<v2.3 svnPath="/usr/local/kalprod/flash/kse/v2.3" />
+				<v2.2.2 svnPath="/usr/local/kalprod/flash/kse/v2.2.2" />
+				<v2.1.8 svnPath="/usr/local/kalprod/flash/kse/v2.1.8" />
+				<v2.1.4 svnPath="/usr/local/kalprod/flash/kse/v2.1.4" />
+				<v2.0.7 svnPath="/usr/local/kalprod/flash/kse/v2.0.7" />
+				<v2.3.1 svnPath="/usr/local/kalprod/flash/kse/v2.3.1" />
+				<v2.3.2 svnPath="/usr/local/kalprod/flash/kse/v2.3.2" />
+			</kse>
+			<kupload>
+				<v1.1.23 svnPath="/usr/local/kalprod/flash/kupload/v1.1.23" />
+				<v1.0.23 svnPath="/usr/local/kalprod/flash/kupload/v1.0.23" />
+			</kupload>
+		</flash>
 		<content group="kaltura" user="apache" mode="0750" skipFilesMode="true">
 			<uploads mode="0700" skipFilesMode="true" />
 			<webcam mode="0700" skipFilesMode="true" />
@@ -31,7 +220,18 @@
 			<generatedUiConf mode="0700" skipFilesMode="true" />
 			<reports mode="0700" skipFilesMode="true" />
 			<syndication mode="0700" skipFilesMode="true" />
-			<uiconf mode="0700" skipFilesMode="true" />
+			<uiconf mode="0700" skipFilesMode="true">
+				<moodle svnPath="/usr/local/kalsource/uiconf/moodle" />
+				<kaltura svnPath="/usr/local/kalsource/uiconf/kaltura" />
+				<kcweditor svnPath="/usr/local/kalsource/uiconf/kcweditor" />
+				<ps>
+					<kaltura>
+						<kvpm>
+							<v1.0.5 svnPath="/usr/local/kalsource/uiconf/ps/kaltura/kvpm/v1.0.5" />
+						</kvpm>
+					</kaltura>
+				</ps>
+			</uiconf>
 			<entry mode="0750" filesMode="0640" />
 			<metadata mode="0750" filesMode="0640" />
 			<batchfiles mode="0750" filesMode="0640" />
@@ -46,4 +246,9 @@
 			<xml />
 		</tmp>
 	</web>
+	<dwh svnPath="/usr/local/kalprod/dwh/core/trunk">
+		<ddl>
+			<migrations svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" />
+		</ddl>
+	</dwh>
 </base>
