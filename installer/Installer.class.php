@@ -276,7 +276,7 @@ class Installer {
 		OsUtils::executeInBackground('chkconfig sphinx_watch.sh on');
 		$this->changeDirsAndFilesPermissions();
 		
-		OsUtils::execute('cp /package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
+		OsUtils::execute('cp package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
 		return null;
 	}
