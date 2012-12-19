@@ -95,7 +95,7 @@
 										<gitcheckout gitPath="git" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitTag}" />
 									</then>
 									<else>
-										<gitcheckout gitPath="git" repository="${directory.fullPath}" />												
+										<gitcheckout gitPath="git" repository="${directory.fullPath}" branchname="." />												
 									</else>
 								</if>
 							</else>
