@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Directory Constructor" default="Construct">
-	<taskdef name="foreachxmlelementtask" classpath="../lib" classname="phing.ForEachXmlElementTask" />
+<project name="Directory Constructor" default="Construct" phingVersion="2.4.13">
+	<taskdef name="foreachxmlelement" classpath="../lib" classname="phing.ForEachXmlElementTask" />
 	
 	<target name="Init">
 		<property name="actions.makeDir" value="false" />
@@ -38,7 +38,7 @@
 	
 	<target name="Construct tree" depends="Load configuration">
 		<echo message="Construct Kaltura directories tree [${BASE_DIR}]" />
-		<foreachxmlelementtask file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" elementPrefix="directory" xPathParam="directory.path" target="Construct directory" />
+		<foreachxmlelement file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" elementPrefix="directory" xPathParam="directory.path" target="Construct directory" />
 	</target>
     
 	<target name="Construct directory">
@@ -47,12 +47,11 @@
 		<echo message="Construct directory [${directory.fullPath}]" />
 		
 		<!-- Create directory -->
-		<available file="${directory.fullPath}" type="dir" property="directory.exists" />
 		<if>
 			<istrue value="${actions.makeDir}" />
 			<then>
 				<if>
-					<equals arg1="${directory.exists}" arg2="true" />
+					<available file="${directory.fullPath}" type="dir" />
 					<then>
 						<echo message="Directory [${directory.fullPath}] already exists" />
 					</then>
@@ -72,27 +71,60 @@
 					<isset property="directory.attributes.${directory.id}.gitPath" />
 					<then>
 						<if>
-							<isset property="directory.attributes.${directory.id}.gitTag" />
+							<available file="${directory.fullPath}/.git" type="dir" />
 							<then>
-								<echo message="Fetch git repository [${directory.fullPath}] tag [${directory.attributes.${directory.id}.gitTag}]" />
-								<property name="directory.gitTagUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}/tarball/${directory.attributes.${directory.id}.gitTag}" />
-								<httpget url="${directory.gitTagUrl}" dir="${directory.fullPath}/../" followRedirects="true" sslVerifyPeer="false" />
-								<resolvepath propertyName="tar" file="${directory.fullPath}/../${directory.attributes.${directory.id}.gitTag}"/>
-								<untar file="${tar}" todir="${directory.fullPath}" />
-								<delete file="${tar}" />
-							</then>
-							<else>
-								<available file="${directory.fullPath}/.git" type="dir" property="directory.git.exists" />
+								<echo message="Pull git repository [${directory.fullPath}]" />
 								<if>
-									<equals arg1="${directory.git.exists}" arg2="true" />
+									<isset property="directory.attributes.${directory.id}.gitTag" />
 									<then>
-										<echo message="Pull git repository [${directory.fullPath}]" />
-										<gitpull gitPath="git" all="true" repository="${directory.fullPath}" strategy="recursive" />
+										<gitpull gitPath="git" repository="${directory.fullPath}" strategy="recursive" source="." refspec="${directory.attributes.${directory.id}.gitTag}" />
 									</then>
 									<else>
-										<echo message="Clone from git URL [${directory.gitUrl}]" />
-										<property name="directory.gitUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}" />
-										<gitclone gitPath="git" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
+										<gitpull gitPath="git" repository="${directory.fullPath}" strategy="recursive" all="true" />
+									</else>
+								</if>
+							</then>
+							<else>
+								<property name="directory.gitUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}" />
+								<echo message="Clone from git URL [${directory.gitUrl}]" />
+								<gitclone gitPath="git" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
+								<if>
+									<isset property="directory.attributes.${directory.id}.gitTag" />
+									<then>
+										<gitbranch gitPath="git" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitTag}" />
+										<gitcheckout gitPath="git" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitTag}" />
+									</then>
+									<else>
+										<gitcheckout gitPath="git" repository="${directory.fullPath}" />												
+									</else>
+								</if>
+							</else>
+						</if>
+					</then>
+				</if>
+				
+				<if>
+					<isset property="directory.attributes.${directory.id}.svnPath" />
+					<then>
+						<if>
+							<available file="${directory.fullPath}/.svn" type="dir" />
+							<then>
+								<echo message="Update svn repository [${directory.fullPath}]" />
+								<echo message="Executing: ${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update &quot;${directory.fullPath}&quot;" />
+								<exec passthru="true" checkreturn="true" command="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update &quot;${directory.fullPath}&quot;" />
+							</then>
+							<else>
+								<if>
+									<isset property="directory.attributes.${directory.id}.overwrite" />
+									<then>
+										<echo message="Export from svn [${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath}] to [${directory.fullPath}]" />
+										<echo message="Executing: ${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; --force export ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
+										<exec passthru="true" checkreturn="true" command="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; --force export ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
+									</then>
+									<else>
+										<echo message="Checkout from svn [${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath}] to [${directory.fullPath}]" />
+										<echo message="Executing: ${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; checkout ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
+										<exec passthru="true" checkreturn="true" command="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; checkout ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
 									</else>
 								</if>
 							</else>
@@ -158,6 +190,7 @@
 		<if>
 			<!-- change user and group -->
 			<and>
+				<not><os family="windows" /></not>
 				<isset property="user" />
 				<isset property="group" />
 			</and>

@@ -20,7 +20,7 @@
 		</sphinx>
 	</log>
 	<sphinx group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
-	<tmp group="kaltura" user="kaltura" mode="0700" skipFilesMode="true">
+	<tmp group="kaltura" user="kaltura" mode="0700" filesMode="0600" skipFilesMode="true">
 		<convert />
 		<emailIngestion />
 		<imports />
@@ -217,7 +217,7 @@
 			<uploads mode="0700" skipFilesMode="true" />
 			<webcam mode="0700" skipFilesMode="true" />
 			<cacheswf mode="0700" skipFilesMode="true" />
-			<generatedUiConf mode="0700" skipFilesMode="true" />
+			<generatedUiConf mode="0770" skipFilesMode="true" />
 			<reports mode="0700" skipFilesMode="true" />
 			<syndication mode="0700" skipFilesMode="true" />
 			<uiconf mode="0700" skipFilesMode="true">
@@ -232,8 +232,8 @@
 					</kaltura>
 				</ps>
 			</uiconf>
-			<entry mode="0750" filesMode="0640" />
-			<metadata mode="0750" filesMode="0640" />
+			<entry mode="0770" filesMode="0640" />
+			<metadata mode="0770" filesMode="0640" />
 			<batchfiles mode="0750" filesMode="0640" />
 			<docs mode="0500" filesMode="0400" skipFilesMode="true" />
 			<templates mode="0500" filesMode="0400" skipFilesMode="true" />
@@ -248,7 +248,7 @@
 	</web>
 	<dwh svnPath="/usr/local/kalprod/dwh/core/trunk">
 		<ddl>
-			<migrations svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" />
+			<migrations svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" />
 		</ddl>
 	</dwh>
 </base>
