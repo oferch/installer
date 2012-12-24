@@ -22,10 +22,22 @@ class ForEachXmlElementTask extends Task
 	private $xPathSkipRoot;
 	
 	/**
+	 * Sets the start point in the XML
+	 * @var string
+	 */
+	private $xPathStart = null;
+	
+	/**
 	 * Indicates that root node should be skipped
 	 * @var bool
 	 */
 	private $skipRoot;
+	
+	/**
+	 * Indicates that child nodes should be processed
+	 * @var bool
+	 */
+	private $recursive = true;
 	
 	/**
 	 * The path to the XML file.
@@ -79,12 +91,28 @@ class ForEachXmlElementTask extends Task
 		
 		$xml = new SimpleXMLElement(file_get_contents($this->file));
 		
-		if($this->skipRoot)
+		if($this->xPathStart)
 		{
+			$this->log("Loading element by xPath [$this->xPathStart]", Project::MSG_INFO);
+			$xmlNodes = $xml->xpath($this->xPathStart);
+			if(count($xmlNodes))
+			{
+				foreach($xmlNodes as $xmlNode)
+					$this->eachElement($xmlNode);
+			}
+			else
+			{
+				$this->log("No element found for the xPath", Project::MSG_WARN);
+			}
+		}
+		elseif($this->skipRoot)
+		{
+			$this->log("Loading all child elements", Project::MSG_INFO);
 			$this->foreachElement($xml);
 		}
 		else
 		{
+			$this->log("Loading all elements", Project::MSG_INFO);
 			$this->eachElement($xml);
 		}
 	}
@@ -98,6 +126,9 @@ class ForEachXmlElementTask extends Task
 	public function eachElement(SimpleXMLElement $xml, $xPath = '')
 	{
 		$nodeId = uniqid();
+		if(isset($xml['id']))
+			$nodeId = $xml['id'];
+			
 		$nodeName = $xml->getName();
 		$elementChildrenCount = $xml->count();
 		
@@ -131,7 +162,7 @@ class ForEachXmlElementTask extends Task
 			$elementAttributesParam = "$this->elementPrefix.attributes.$nodeId.$attributeName";
 			$this->log("Setting param '$elementAttributesParam' to value '$attributeValue'", Project::MSG_VERBOSE);
 			$prop = $this->callee->createProperty();
-			$prop->setOverride(true);
+			$prop->setOverride(false);
 			$prop->setName($elementAttributesParam);
 			$prop->setValue("$attributeValue");
 		}
@@ -147,7 +178,7 @@ class ForEachXmlElementTask extends Task
 		
 		$this->callee->main();
 		
-		if($elementChildrenCount)
+		if($elementChildrenCount && $this->recursive)
 			$this->foreachElement($xml, $xPath);		
 	}
 	
@@ -181,6 +212,22 @@ class ForEachXmlElementTask extends Task
 	public function setSkipRoot($skipRoot)
 	{
 		$this->skipRoot = $skipRoot;
+	}
+
+	/**
+	 * @param string $xPathStart
+	 */
+	public function setXPathStart($xPathStart)
+	{
+		$this->xPathStart = $xPathStart;
+	}
+
+	/**
+	 * @param bool $recursive
+	 */
+	public function setRecursive($recursive)
+	{
+		$this->recursive = $recursive;
 	}
 
 	/**
