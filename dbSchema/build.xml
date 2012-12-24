@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DB Schema" default="Create Schemas" phingVersion="2.4.13">
+	<taskdef name="foreachxmlelement"			classpath="../lib" classname="phing.ForEachXmlElementTask" />
+	<taskdef name="exportspecificproperties"	classpath="../lib" classname="phing.ExportSpecificPropertiesTask" />
+	<taskdef name="grantdbuser"					classpath="../lib" classname="phing.db.GrantDbUserTask" />
+	<taskdef name="createdbuser"				classpath="../lib" classname="phing.db.CreateDbUserTask" />
+	<taskdef name="createdb"					classpath="../lib" classname="phing.db.CreateDbTask" />
+	
+	<target name="Init">
+		<property name="actions.createDatabases" value="false" />
+		<property name="actions.createUsers" value="false" />
+		<property name="actions.setPermissions" value="false" />
+	</target>
+	
+	<target name="Create Schemas">
+		<property name="actions.createDatabases" value="true" override="true" />
+		<property name="actions.createUsers" value="true" override="true" />
+		<property name="actions.setPermissions" value="true" override="true" />
+		
+		<phingcall target="Create" />
+	</target>
+	
+	<target name="Create Databases" depends="Init">
+		<property name="actions.createDatabases" value="true" override="true" />
+		
+		<phingcall target="Create" />
+	</target>
+	
+	<target name="Create Users" depends="Init">
+		<property name="actions.createUsers" value="true" override="true" />
+		<phingcall target="Create" />
+	</target>
+	
+	<target name="Set Permissions" depends="Init">
+		<property name="actions.setPermissions" value="true" override="true" />
+		
+		<phingcall target="Create" />
+	</target>
+	
+	<target name="Load configuration">
+		<property file="build.properties" override="false" />
+	</target>
+	
+	<target name="Create" depends="Load configuration">
+		
+		<foreachxmlelement file="${xml.uri}" xPathStart="/db/databases/host" elementPrefix="host" recursive="false" target="Create By Host" />
+		
+	</target>
+    
+	<target name="Create By Host">
+		
+		<property name="host.hostname" value="${host.id}" override="true" />
+		<if>
+			<isset property="host.attributes.${host.id}.hostname" />
+			<then>
+				<property name="host.hostname" value="${host.attributes.${host.id}.hostname}" override="true" />
+			</then>
+		</if>
+		
+		<if>
+			<istrue value="${actions.createDatabases}" />
+			<then>
+				<foreachxmlelement file="${xml.uri}" xPathStart="/db/databases/host/database" elementPrefix="database" recursive="false" target="Create Database" />
+			</then>
+		</if>
+		
+		<foreachxmlelement file="${xml.uri}" xPathStart="/db/users/user" elementPrefix="user" recursive="false" target="Create By User" />
+		
+	</target>
+    
+	<target name="Create By User">
+		
+		<property name="user.fromHost" value="%" override="true" />
+		<if>
+			<isset property="user.attributes.${user.id}.fromHost" />
+			<then>
+				<property name="user.fromHost" value="${user.attributes.${user.id}.fromHost}" override="true" />
+			</then>
+		</if>
+		
+		<if>
+			<istrue value="${actions.createUsers}" />
+			<then>
+				<if>
+					<isset property="user.attributes.${user.id}.password" />
+					<then>
+						<property name="user.password" value="${user.attributes.${user.id}.password}" override="true" />
+					</then>
+					<else>
+						<php function="uniqid" returnProperty="user.password" />
+						<echo message="Generated unique password [${user.password}]" />
+					</else>
+				</if>
+				<echo message="Creating user [${user.id}] on server [${host.hostname}]" />
+				<createdbuser host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" newUsername="${user.id}" newPassword="${user.password}" fromHost="${user.fromHost}" dryRun="${dryRun}" />
+			</then>
+		</if>
+		
+		<if>
+			<istrue value="${actions.setPermissions}" />
+			<then>
+				<foreachxmlelement file="${xml.uri}" xPathStart="/db/users/user[@id = '${user.id}']/databases/database[@host = '${host.id}']" elementPrefix="database" recursive="false" target="Set User Database Permissions" />
+			</then>
+		</if>
+		
+	</target>
+    
+	<target name="Create Database">
+		<echo message="Creating database [${database.attributes.${database.id}.dbname}]"/>
+		<createdb host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" name="${database.attributes.${database.id}.dbname}" dryRun="${dryRun}" />
+		<!-- TODO run sql scripts  -->
+	</target>
+    
+	<target name="Set User Database Permissions">
+		<echo message="Setting user permissions for user [${user.id}] database [${database.attributes.${database.id}.dbname}] on host [${host.id}] hostname [${host.hostname}] with privileges [${database.attributes.${database.id}.privileges}] from host [${database.attributes.${database.id}.fromHost}]" />
+		<grantdbuser host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" user="${user.id}" database="${database.attributes.${database.id}.dbname}" privileges="${database.attributes.${database.id}.privileges}" fromHost="${user.fromHost}" dryRun="${dryRun}" />
+	</target>
+	
+</project>
