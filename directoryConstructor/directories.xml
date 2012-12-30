@@ -19,6 +19,7 @@
 			<data skipFilesMode="true" />
 		</sphinx>
 	</log>
+	<bin group="kaltura" user="kaltura" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/package_skeleton/bin/linux/64bit" mode="0640" filesMode="0750" />
 	<sphinx group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
 	<tmp group="kaltura" user="kaltura" mode="0700" filesMode="0600" skipFilesMode="true">
 		<convert />
@@ -235,7 +236,7 @@
 			<entry mode="0770" filesMode="0640" />
 			<metadata mode="0770" filesMode="0640" />
 			<batchfiles mode="0750" filesMode="0640" />
-			<docs mode="0500" filesMode="0400" skipFilesMode="true" />
+			<docs svnPath="/usr/local/kalsource/docs" mode="0500" filesMode="0400" skipFilesMode="true" />
 			<templates mode="0500" filesMode="0400" skipFilesMode="true" />
 			<clientlibs group="kaltura" user="kaltura" mode="0750" filesMode="0640" />
 		</content>
