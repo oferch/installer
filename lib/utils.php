@@ -7,8 +7,12 @@
 	 * Omits .svn directories.
 	 **/
 	function recurse_copy($src, $dst) { 
-		$dir = opendir($src); 
 		@mkdir($dst); 
+		
+		$dir = opendir($src);
+		if(!$dir)
+			return;
+			 
 		while(false !== ( $file = readdir($dir)) ) { 
 			if (($file != '.') && ($file != '..') && ($file != '.svn')) { 
 				if (is_dir($src . '/' . $file)) { 
@@ -231,37 +235,6 @@
 				svn_checkout($global['svn_repo'] . $group['svn_path'] . $current, $global['svn_user'], $global['svn_pass'], $base_dir . $group['local_path'] . $current);
 			}
 		}
-	}
-	
-	// manupliates all the uiconfs in the given directory (and subdirs recursively)
-	function manipulateUiConfs($uiconfsdir)
-	{
-		$dir_handle = @opendir($uiconfsdir);
-
-		if ($dir_handle == false) {
-			echo "Failed to manipulate uiconfs in directory $uiconfsdir\n";
-			die(1);
-		}
-		
-		while (false !== ($file = readdir($dir_handle))) {
-			$current = $uiconfsdir . '/' . $file;
-
-			if (is_dir($current) && $file != '.' && $file !='..' ) {
-				manipulateUiConfs($current);
-			} elseif($file != '.' && $file !='..') {
-				manipulateUiConf($current);
-			}
-		}
-
-		closedir($dir_handle);
-    }
-		
-	// manipulates a single uiconf by adding disableUrlHashing="true" to it in the kalturaMix plugin
-	function manipulateUiConf($uiconf)
-	{
-		$uiconf_content = file_get_contents($uiconf);
-		$manipulated_content = str_replace('<Plugin id="kalturaMix"','<Plugin id="kalturaMix" disableUrlHashing="true" ',$uiconf_content);
-		file_put_contents($uiconf, $manipulated_content);
 	}
 	
 	function getVersionFromKconf($kconf, $label)
