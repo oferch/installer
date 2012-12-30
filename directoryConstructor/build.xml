@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Directory Constructor" default="Construct" phingVersion="2.4.13">
+<project name="Directory Constructor" default="Pack" phingVersion="2.4.13">
 	<taskdef name="foreachxmlelement" classpath="../lib" classname="phing.ForEachXmlElementTask" />
+	<taskdef name="dos2unix" classpath="../lib" classname="phing.Dos2UnixTask" />
+	<taskdef name="createuser" classpath="../lib" classname="phing.user.CreateUserTask" />
 	
 	<target name="Init">
 		<property name="actions.makeDir" value="false" />
 		<property name="actions.fetchCode" value="false" />
+		<property name="actions.createUser" value="false" />
+		<property name="actions.setOwner" value="false" />
 		<property name="actions.setPermissions" value="false" />
+		<property name="actions.dos2Unix" value="false" />
 	</target>
 	
-	<target name="Construct">
+	<target name="Pack" depends="Init">
 		<property name="actions.makeDir" value="true" override="true" />
 		<property name="actions.fetchCode" value="true" override="true" />
+		<property name="actions.setPermissions" value="true" override="true" />
+		<property name="actions.dos2Unix" value="true" override="true" />
+		
+		<phingcall target="Construct tree" />
+	</target>
+	
+	<target name="Construct" depends="Init">
+		<property name="actions.makeDir" value="true" override="true" />
+		<property name="actions.fetchCode" value="true" override="true" />
+		<property name="actions.createUser" value="true" override="true" />
+		<property name="actions.setOwner" value="true" override="true" />
 		<property name="actions.setPermissions" value="true" override="true" />
 		
 		<phingcall target="Construct tree" />
 	</target>
 	
+	<target name="Create user" depends="Init">
+		<property name="actions.createUser" value="true" override="true" />
+		<phingcall target="Construct tree" />
+	</target>
+	
 	<target name="Update permissions" depends="Init">
 		<property name="actions.setPermissions" value="true" override="true" />
+		<phingcall target="Construct tree" />
+	</target>
+	
+	<target name="Dos2Unix" depends="Init">
+		<property name="actions.dos2Unix" value="true" override="true" />
 		<phingcall target="Construct tree" />
 	</target>
 	
@@ -32,13 +58,26 @@
 		<phingcall target="Construct tree" />
 	</target>
 	
-	<target name="Load configuration">
+	<target name="Load configuration" depends="Init">
 		<property file="build.properties" override="false" />
 	</target>
 	
 	<target name="Construct tree" depends="Load configuration">
 		<echo message="Construct Kaltura directories tree [${BASE_DIR}]" />
 		<foreachxmlelement file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" elementPrefix="directory" xPathParam="directory.path" target="Construct directory" />
+		
+		<if>
+			<istrue value="${actions.dos2Unix}" />
+			<then>
+				<dos2unix>
+					<fileset dir="${BASE_DIR}" defaultexcludes="false">
+						<type type="file" />
+						<include name="**/*.php" />
+						<include name="**/*template*" />
+					</fileset>
+				</dos2unix>
+			</then>
+		</if>
 	</target>
     
 	<target name="Construct directory">
@@ -106,6 +145,7 @@
 				<if>
 					<isset property="directory.attributes.${directory.id}.svnPath" />
 					<then>
+						<chmod file="${svn.key}" mode="600" />
 						<if>
 							<available file="${directory.fullPath}/.svn" type="dir" />
 							<then>
@@ -134,23 +174,15 @@
 			</then>
 		</if>
 		
+		
 		<if>
-			<istrue value="${actions.setPermissions}" />
+			<or>
+				<istrue value="${actions.setOwner}" />
+				<istrue value="${actions.setPermissions}" />
+				<istrue value="${actions.createUser}" />
+			</or>
 			<then>
 				<phingcall target="Set permissions folder" />
-			</then>
-		</if>
-	</target>
-	
-	<target name="Set permissions file">
-
-		<!-- TODO - make sure it's not a folder -->		
-		<echo message="Set folder [${directory.fullPath}] file [${filename}] permissions [${currentMode}]" />
-		<if>
-			<!-- change mode -->
-			<isset property="currentMode" />
-			<then>
-				<chmod file="${directory.fullPath}/${filename}" mode="${currentMode}" failonerror="${permissions.required}" />
 			</then>
 		</if>
 		
@@ -195,16 +227,33 @@
 				<isset property="group" />
 			</and>
 			<then>
-				<echo message="Change directory [${directory.fullPath}] group [${group}] and user [${user}]" />
-				<chown file="${directory.fullPath}" user="${user}.${group}" failonerror="${permissions.required}" />
+				
 				<if>
-					<not><isset property="directory.attributes.${directory.id}.skipFilesOwner" /></not>
+					<istrue value="${actions.setOwner}" />
 					<then>
-						<chown user="${user}.${group}" failonerror="${permissions.required}" >
-							<fileset dir="${directory.fullPath}" defaultexcludes="false" />
-						</chown>
+						<echo message="Change directory [${directory.fullPath}] group [${group}] and user [${user}]" />
+						<chown file="${directory.fullPath}" user="${user}.${group}" failonerror="${permissions.required}" />
+						<if>
+							<not><isset property="directory.attributes.${directory.id}.skipFilesOwner" /></not>
+							<then>
+								<chown user="${user}.${group}" failonerror="${permissions.required}" >
+									<fileset dir="${directory.fullPath}" defaultexcludes="false" />
+								</chown>
+							</then>
+						</if>
 					</then>
 				</if>
+				
+				<if>
+					<and>
+						<istrue value="${actions.createUser}" />
+						<os family="unix" />
+					</and>
+					<then>
+						<createuser username="${user}" groups="${group}" ifNotExists="true" />
+					</then>
+				</if>
+				
 			</then>
 		</if>
 		
@@ -253,30 +302,35 @@
 			</then>
 		</if>
 		
-		<echo message="Set directory [${directory.fullPath}] permissions [${mode}]" />
-		<chmod file="${directory.fullPath}" mode="${mode}" failonerror="${permissions.required}" />
 		<if>
-			<not><isset property="directory.attributes.${directory.id}.skipFilesMode" /></not>
+			<istrue value="${actions.setPermissions}" />
 			<then>
-				
-				<chmod mode="${mode}" failonerror="${permissions.required}">
-					<fileset dir="${directory.fullPath}" defaultexcludes="false">
-						<type type="dir" />
-					</fileset>
-				</chmod>
-				
-				<chmod mode="${filesMode}" failonerror="${permissions.required}">
-					<fileset dir="${directory.fullPath}" defaultexcludes="false" excludes="${permissions.mode.scripts.pattern}">
-						<type type="file" />
-					</fileset>
-				</chmod>
-				
-				<chmod mode="${scriptsMode}" failonerror="${permissions.required}">
-					<fileset dir="${directory.fullPath}" defaultexcludes="false" includes="${permissions.mode.scripts.pattern}">
-						<type type="file" />
-					</fileset>
-				</chmod>
-				
+				<echo message="Set directory [${directory.fullPath}] permissions [${mode}]" />
+				<chmod file="${directory.fullPath}" mode="${mode}" failonerror="${permissions.required}" />
+				<if>
+					<not><isset property="directory.attributes.${directory.id}.skipFilesMode" /></not>
+					<then>
+						
+						<chmod mode="${mode}" failonerror="${permissions.required}">
+							<fileset dir="${directory.fullPath}" defaultexcludes="false">
+								<type type="dir" />
+							</fileset>
+						</chmod>
+						
+						<chmod mode="${filesMode}" failonerror="${permissions.required}">
+							<fileset dir="${directory.fullPath}" defaultexcludes="false" excludes="${permissions.mode.scripts.pattern}">
+								<type type="file" />
+							</fileset>
+						</chmod>
+						
+						<chmod mode="${scriptsMode}" failonerror="${permissions.required}">
+							<fileset dir="${directory.fullPath}" defaultexcludes="false" includes="${permissions.mode.scripts.pattern}">
+								<type type="file" />
+							</fileset>
+						</chmod>
+						
+					</then>
+				</if>
 			</then>
 		</if>
 		
