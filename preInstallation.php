@@ -136,12 +136,19 @@ if (!OsUtils::execute("su $kalturaUserName --command='$installerCommand'")) {
 //}
 
 logMessage(L_USER, 'add crons');
-$cron_content = file_get_contents('/opt/kaltura/crontab/kaltura_crontab');
-logMessage(L_USER, 'apending crons: '.$cron_content);
-OsUtils::appendFile('/etc/crontab', $cron_content);
-$cron_content = file_get_contents('/opt/kaltura/dwh/crontab/dwh_crontab');
-logMessage(L_USER, 'apending crons: '.$cron_content);
-OsUtils::appendFile('/etc/crontab', $cron_content);
+$crons = array(
+	'/opt/kaltura/app/configurations/cron/api',
+	'/opt/kaltura/app/configurations/cron/batch',
+	'/opt/kaltura/app/configurations/cron/sphinx',
+	'/opt/kaltura/app/configurations/cron/admin',
+	'/opt/kaltura/dwh/crontab/dwh_crontab',
+);
+foreach($crons as $cron)
+{
+	$cron_content = file_get_contents($cron);
+	logMessage(L_USER, 'apending crons: '.$cron_content);
+	OsUtils::appendFile('/etc/crontab', $cron_content);
+}
 
 logMessage(L_USER, 'restart cron');
 if (!OsUtils::execute("/etc/init.d/crond restart")) {

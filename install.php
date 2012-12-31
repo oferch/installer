@@ -212,12 +212,6 @@ if (AppConfig::get(AppConfigAttribute::RED5_INSTALL))
 	$installer->installRed5();	
 }
 
-// add usage tracking crontab for onprem TM
-if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) === 0) {
-	$tracking_cron = sprintf("\n0 8 5 * * kaltura %s %s/admin_console/scripts/send-usage-report.php\n", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR));
-	OsUtils::appendFile(AppConfig::get(AppConfigAttribute::BASE_DIR).'/crontab/kaltura_crontab', $tracking_cron);
-}
-
 // send settings mail if possible
 $msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour kaltura administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME), AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME), AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)).PHP_EOL;
 $mailer = new PHPMailer();
