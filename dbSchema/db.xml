@@ -1,47 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <db>
 	<databases>
-		<host id="mysql1" port="3306" hostname="localhost">
-			<database dbname="kaltura" host="mysql1" id="database.propel1" />
-			<database dbname="kaltura_sphinx_log" host="mysql1" id="database.sphinx_log" />
-			<database dbname="kalturadw" host="mysql1" id="database.kalturadw" />
+		<host id="mysql1" port="${DB1_PORT}" hostname="${DB1_HOST}">
+			<database dbname="${DB1_NAME}" host="mysql1" id="database.propel1">
+				<script path="${BASE_DIR}/app/deployment/final/sql/01.kaltura_ce_tables.sql" />
+				<script path="${BASE_DIR}/app/deployment/final/sql/04.stored_procedures.sql" />
+			</database>
+			<database dbname="${SPHINX_DB_NAME}" host="mysql1" id="database.sphinx_log">
+				<script path="${BASE_DIR}/app/deployment/final/sql/01.kaltura_sphinx_ce_tables.sql" />
+			</database>
+			<database dbname="${DWH_DATABASE_NAME}" host="mysql1" id="database.kalturadw" />
 			<database dbname="kalturadw_bisources" host="mysql1" id="database.kalturadw_bisources" />
 			<database dbname="kalturadw_ds" host="mysql1" id="database.kalturadw_ds" />
 			<database dbname="kalturalog" host="mysql1" id="database.kalturalog" />
 		</host>
-		<host id="mysql2" port="3306" hostname="localhost">
-			<database dbname="kaltura" host="mysql2" master="database.propel1" />
-			<database dbname="kaltura_sphinx_log" host="mysql2" master="database.sphinx_log" />
-			<database dbname="kalturadw" host="mysql2" master="database.kalturadw" />
+		<host id="mysql2" port="${DB2_PORT}" hostname="${DB2_HOST}">
+			<database dbname="${DB2_NAME}" host="mysql2" master="database.propel1" />
+			<database dbname="${SPHINX_DB_NAME}" host="mysql2" master="database.sphinx_log" />
+			<database dbname="${DWH_DATABASE_NAME}" host="mysql2" master="database.kalturadw" />
 			<database dbname="kalturadw_bisources" host="mysql2" master="database.kalturadw_bisources" />
 			<database dbname="kalturadw_ds" host="mysql2" master="database.kalturadw_ds" />
 			<database dbname="kalturalog" host="mysql2" master="database.kalturalog" />
 		</host>
-		<host id="mysql3" port="3306" hostname="localhost">
-			<database dbname="kaltura" host="mysql3" master="database.propel1" />
+		<host id="mysql3" port="${DB3_PORT}" hostname="${DB1_HOST}">
+			<database dbname="${DB3_NAME}" host="mysql3" master="database.propel1" />
 		</host>
 	</databases>
 	<users>
-		<user id="kaltura" fromHost="%">
+		<user id="${DB1_USER}" password="${DB1_PASS}" fromHost="%">
 			<databases>
-				<database dbname="kaltura" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" id="propel" />
-				<database dbname="kaltura" privileges="SELECT" host="mysql2" id="propel2" />
-				<database dbname="kaltura" privileges="SELECT" host="mysql3" id="propel3" />
-				<database dbname="kalturadw" privileges="SELECT" host="mysql2" id="dwh" />
-				<database dbname="kaltura_sphinx_log" privileges="INSERT" host="mysql1" id="sphinx_log" />
+				<database dbname="${DB1_NAME}" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" id="propel" />
+				<database dbname="${DB2_NAME}" privileges="SELECT" host="mysql2" id="propel2" />
+				<database dbname="${DB3_NAME}" privileges="SELECT" host="mysql3" id="propel3" />
+				<database dbname="${DWH_DATABASE_NAME}" privileges="SELECT" host="mysql2" id="dwh" />
+				<database dbname="${SPHINX_DB_NAME}" privileges="INSERT" host="mysql1" id="sphinx_log" />
 			</databases>
 		</user>
-		<user id="kaltura_sphinx" fromHost="%">
+		<user id="${SPHINX_DB_USER}" password="${SPHINX_DB_PASS}" fromHost="%">
 			<databases>
-				<database dbname="kaltura_sphinx_log" privileges="SELECT" host="mysql1" id="sphinx_log_read" />
+				<database dbname="${SPHINX_DB_NAME}" privileges="SELECT" host="mysql1" id="sphinx_log_read" />
 			</databases>
 		</user>
-		<user id="kaltura_etl" fromHost="%">
+		<user id="${DWH_USER}" password="${DWH_PASS}" fromHost="%">
 			<databases>
-				<database dbname="kaltura" privileges="SELECT" host="mysql2" />
-				<database dbname="kalturadw" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" />
+				<database dbname="${DB2_NAME}" privileges="SELECT,EXECUTE" host="mysql2" />
+				<database dbname="${DWH_DATABASE_NAME}" privileges="INSERT,UPDATE,DELETE,SELECT,EXECUTE" host="mysql1" />
 				<database dbname="kalturadw_bisources" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" />
-				<database dbname="kalturadw_ds" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" />
+				<database dbname="kalturadw_ds" privileges="INSERT,UPDATE,DELETE,SELECT,EXECUTE" host="mysql1" />
 				<database dbname="kalturalog" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" />
 			</databases>
 		</user>
