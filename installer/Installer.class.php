@@ -300,7 +300,7 @@ class Installer {
 		passthru($command, $returnedValue);			
 		chdir($originalDir);
 	
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php %s/deployment/base/scripts/init_data", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "Default content inserted");
 		} else {
 			return "Failed to insert default content";
