@@ -32,29 +32,15 @@
 		<phingcall target="Construct tree" />
 	</target>
 	
-	<target name="Create user" depends="Init">
+	<target name="Update-Permissions" depends="Init">
 		<property name="actions.createUser" value="true" override="true" />
-		<phingcall target="Construct tree" />
-	</target>
-	
-	<target name="Update permissions" depends="Init">
+		<property name="actions.setOwner" value="true" override="true" />
 		<property name="actions.setPermissions" value="true" override="true" />
 		<phingcall target="Construct tree" />
 	</target>
 	
 	<target name="Dos2Unix" depends="Init">
 		<property name="actions.dos2Unix" value="true" override="true" />
-		<phingcall target="Construct tree" />
-	</target>
-	
-	<target name="Update code" depends="Init">
-		<property name="actions.fetchCode" value="true" override="true" />
-		
-		<phingcall target="Construct tree" />
-	</target>
-	
-	<target name="Make directories" depends="Init">
-		<property name="actions.makeDir" value="true" override="true" />
 		<phingcall target="Construct tree" />
 	</target>
 	
