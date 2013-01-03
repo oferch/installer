@@ -26,20 +26,6 @@ if (OsUtils::execute("useradd $kalturaUserName -g root")) {
 	}
 }
 
-
-//logMessage(L_USER, 'chmod');
-//if (!OsUtils::execute("chmod -R 740 /home/$kalturaUserName ")) {
-//echo "Failed chmod ";			
-//return "\nFailed chmod \n";
-//}
-
-
-//logMessage(L_USER, 'chmod');
-//if (!OsUtils::execute("chmod 664 /opt/kaltura/app/batch/KGenericBatchMgr.class")) {
-//	echo "Failed chmod";			
-//	return "\nFailed chmod\n";
-//}
-
 logMessage(L_USER, 'chmod');
 if (!OsUtils::execute("chmod 770 /etc/cron.d")) {
 	echo "Failed chmod";			
@@ -51,13 +37,6 @@ if (!OsUtils::execute("chmod 770 /etc/rc.d/init.d")) {
 	echo "Failed chmod";			
 	return "\nFailed chmod\n";
 }
-
-
-//logMessage(L_USER, 'adding group');
-//if (!OsUtils::execute("groupadd $kalturaUserName")) {
-//	logMessage(L_USER, 'Failed add group');			
-//	return "\nFailed add group\n";
-//}
 
 logMessage(L_USER, 'adding ownership to user');
 if (!OsUtils::execute("chown -R $kalturaUserName:root $currWD")) {
@@ -123,18 +102,6 @@ if (!OsUtils::execute("su $kalturaUserName --command='$installerCommand'")) {
 	return "\nFailed switch to batch user\n";
 }
 
-//logMessage(L_USER, 'switch to user');
-//if (!OsUtils::execute("su ".$kalturaUserName." --command='/opt/kaltura/app/scripts/serviceBatchMgr.sh start'")) {
-//	echo "Failed switch to batch user";			
-//	return "\nFailed switch to batch user\n";
-//}
-
-
-//if (!OsUtils::execute("/userTest/batchuser.sh $kalturaUserName")) {
-//echo "\nFailed running script batchuser\n";			
-//return "\nFailed running script batchuser\n";
-//}
-
 logMessage(L_USER, 'add crons');
 $crons = array(
 	'/opt/kaltura/app/configurations/cron/api',
@@ -161,13 +128,6 @@ if (!OsUtils::execute("chmod 700 /etc/cron.d")) {
 	echo "Failed chmod";			
 	return "\nFailed chmod\n";
 }
-
-//logMessage(L_USER, 'chmod');
-//if (!OsUtils::execute("chmod 700 /etc/rc.d/init.d")) {
-//	echo "Failed chmod";			
-//	return "\nFailed chmod\n";
-//}
-
 
 $kalturaProcesses = implode(OsUtils::executeReturnOutput("ps -ef | grep kaltura"));
 logMessage(L_USER, 'ps -ef | grep kaltura: '.$kalturaProcesses);
