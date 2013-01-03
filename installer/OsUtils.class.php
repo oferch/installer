@@ -177,11 +177,6 @@ class OsUtils {
 		return self::execute("rm -rf $path");
     }
 	
-	// execute chmod with the given $chmod command and return true/false according to success
-	public static function chmod($chmod) {
-		return self::execute("chmod $chmod");	
-	}
-	
 	/**
 	 * Function receives an .ini file path and an array of values and writes the array into the file.
 	 * @param string $file
