@@ -91,8 +91,6 @@ class Dos2UnixTask extends Task
 			$fromDir = $fileSet->getDir($this->project);
 			
 			$srcFiles = $ds->getIncludedFiles();
-			$srcDirs = $ds->getIncludedDirectories();
-			
 			$filecount = count($srcFiles);
 			$total_files = $total_files + $filecount;
 			for($j = 0; $j < $filecount; $j++)
