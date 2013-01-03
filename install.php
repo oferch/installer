@@ -76,7 +76,7 @@ if (is_file(FILE_INSTALL_SEQ_ID)) {
 }
 
 // read package version
-$version = parse_ini_file('package/version.ini');
+$version = parse_ini_file('../package/version.ini');
 logMessage(L_INFO, "Installing Kaltura ".$version['type'].' '.$version['number']);
 AppConfig::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura '.$version['type'].' '.$version['number']);
 AppConfig::set(AppConfigAttribute::KALTURA_PREINSTALLED, $version['preinstalled']);
@@ -154,7 +154,7 @@ if ($user->isInputLoaded()) {
 }
 
 // get from kConf.php the latest versions of kmc , clipapp and HTML5
-$kconf = file_get_contents("package/app/app/configurations/base.ini");
+$kconf = file_get_contents("../package/app/app/configurations/base.ini");
 $latestVersions = array();
 $latestVersions["KMC_VERSION"] = getVersionFromKconf($kconf,"kmc_version");
 $latestVersions["CLIPAPP_VERSION"] = getVersionFromKconf($kconf,"clipapp_version");

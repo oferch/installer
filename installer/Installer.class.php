@@ -82,17 +82,10 @@ class Installer {
 	public function install($db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::rsync('package/app/', AppConfig::get(AppConfigAttribute::BASE_DIR))) {
+		if (!OsUtils::rsync('../package/', AppConfig::get(AppConfigAttribute::BASE_DIR))) {
 			return "Failed to copy application files to target directory";
 		}
 
-		$os_name = 	OsUtils::getOsName();
-		$architecture = OsUtils::getSystemArchitecture();	
-		logMessage(L_USER, "Copying binaries for $os_name $architecture");
-		if (!OsUtils::fullCopy("package/bin/$os_name/$architecture", AppConfig::get(AppConfigAttribute::BIN_DIR))) {
-			return "Failed to copy binaris for $os_name $architecture";
-		}
-		
 		logMessage(L_USER, "Creating the uninstaller");
 		if (!OsUtils::fullCopy('installer/uninstall.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
 			return "Failed to create the uninstaller";
@@ -239,7 +232,7 @@ class Installer {
 		OsUtils::executeInBackground('nohup '.AppConfig::get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/watch.daemon.sh');
 		OsUtils::executeInBackground('chkconfig sphinx_watch.sh on');
 		
-		OsUtils::execute('cp package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
+		OsUtils::execute('cp ../package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
 		return null;
 	}

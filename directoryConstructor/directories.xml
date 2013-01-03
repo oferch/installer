@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<base group="kaltura" user="root" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true" svnPath="/usr/local/kalsource/on-premise/trunk/installer">
+<base group="kaltura" user="root" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true">
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
 	-->
@@ -30,7 +30,6 @@
 		<imports />
 		<thumb />
 	</tmp>
-	<uninstaller group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
 	<web>
 		<flash>
 			<!-- KMC -->

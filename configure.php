@@ -12,7 +12,7 @@ include_once('installer/OsUtils.class.php');
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");
 
-$version = parse_ini_file('package/version.ini');
+$version = parse_ini_file('../package/version.ini');
 $type = $version['type'];
 
 //start user interaction
