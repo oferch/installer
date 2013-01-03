@@ -128,42 +128,8 @@ class Installer {
 		}		
 
 		$this->changeDirsAndFilesPermissions();
+		$this->createdDatabases();
 		
-		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, AppConfig::get(AppConfigAttribute::DB1_NAME)) === true))
-		{		
-			logMessage(L_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DB1_NAME)));
-		}
-		else 
-		{
-			$sql_files = parse_ini_file(AppConfig::get(AppConfigAttribute::BASE_DIR).APP_SQL_DIR.'create_kaltura_db.ini', true);
-			logMessage(L_USER, sprintf("Creating and initializing '%s' database", AppConfig::get(AppConfigAttribute::DB1_NAME)));
-			if (!DatabaseUtils::createDb($db_params, AppConfig::get(AppConfigAttribute::DB1_NAME))) {
-				return "Failed to create '".AppConfig::get(AppConfigAttribute::DB1_NAME)."' database";
-			}
-			foreach ($sql_files['kaltura']['sql'] as $sql) {
-				$sql_file = AppConfig::get(AppConfigAttribute::BASE_DIR).APP_SQL_DIR.$sql;
-				if (!DatabaseUtils::runScript($sql_file, $db_params, AppConfig::get(AppConfigAttribute::DB1_NAME))) {
-					return "Failed running database script $sql_file";
-				}
-			}
-		}
-		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME)) === true))
-		{		
-			logMessage(L_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME)));
-		}
-		else 
-		{		
-			logMessage(L_USER, sprintf("Creating and initializing '%s' database", AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME)));
-			if (!DatabaseUtils::createDb($db_params, AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME))) {
-				return "Failed to create '".AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME)."' database";
-			}
-			foreach ($sql_files[AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME)]['sql'] as $sql) {
-				$sql_file = AppConfig::get(AppConfigAttribute::BASE_DIR).APP_SQL_DIR.$sql;
-				if (!DatabaseUtils::runScript($sql_file, $db_params, AppConfig::get(AppConfigAttribute::SPHINX_DB_NAME))) {
-					return "Failed running database script $sql_file";
-				}
-			}
-		}
 		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
 		{		
 			logMessage(L_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)));
@@ -221,8 +187,6 @@ class Installer {
 		} else {
 			return "Failed to populate sphinx log from categories";
 		}
-
-		$this->changeDirsAndFilesPermissions();
 		
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
@@ -274,7 +238,6 @@ class Installer {
 		print("Executing sphinx dameon \n");
 		OsUtils::executeInBackground('nohup '.AppConfig::get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/watch.daemon.sh');
 		OsUtils::executeInBackground('chkconfig sphinx_watch.sh on');
-		$this->changeDirsAndFilesPermissions();
 		
 		OsUtils::execute('cp package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
@@ -305,13 +268,42 @@ class Installer {
 		return $verify;
 	}	
 	
-	private function changeDirsAndFilesPermissions(){
-	logMessage(L_USER, "Changing permissions of directories and files");
-		foreach ($this->install_config['chmod_items'] as $item) {
-			$chmod_item = AppConfig::replaceTokensInString($item);
-			if (!OsUtils::chmod($chmod_item)) {
-				return "Failed to change permissions for $chmod_item";
-			}
+	private function changeDirsAndFilesPermissions()
+	{
+		logMessage(L_USER, "Changing permissions of directories and files");
+		$baseDir = AppConfig::get(AppConfigAttribute::BASE_DIR);
+
+		$originalDir = getcwd();
+		chdir(__DIR__ . '/../directoryConstructor');
+		$command = "phing -DBASE_DIR=$baseDir Update-Permissions";
+		$returnedValue = null;
+		passthru($command, $returnedValue);			
+		chdir($originalDir);
+	}	
+	
+	private function createdDatabases()
+	{
+		logMessage(L_USER, "Creating databases and database users");
+		$baseDir = AppConfig::get(AppConfigAttribute::BASE_DIR);
+
+		$originalDir = getcwd();
+		chdir(__DIR__ . '/../dbSchema');
+		
+		$attributes = array(
+			'-DBASE_DIR=' . $baseDir,
+			'-Duser.attributes.kaltura.password=' . AppConfig::get(AppConfigAttribute::DB1_PASS),
+			'-Duser.attributes.kaltura_sphinx.password=' . AppConfig::get(AppConfigAttribute::SPHINX_DB_PASS),
+			'-Duser.attributes.kaltura_etl.password=' . AppConfig::get(AppConfigAttribute::DWH_PASS),
+		);
+		$command = "phing " . implode(' ', $attributes);
+		$returnedValue = null;
+		passthru($command, $returnedValue);			
+		chdir($originalDir);
+	
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
+				logMessage(L_INFO, "Default content inserted");
+		} else {
+			return "Failed to insert default content";
 		}
 	}	
 	
