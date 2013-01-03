@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <base group="kaltura" user="root" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true">
+	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
+	-->
+	<app svnPath="/usr/local/kalsource/backend/server/trunk/core">
 		<cache mode="0770" filesMode="0660" />
 	</app>
 	<apps skipFilesMode="true">
