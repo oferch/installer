@@ -289,7 +289,7 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::DWH_PASS] = 'etl';
 		self::$app_config[AppConfigAttribute::DWH_SEND_REPORT_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
 		self::$app_config[AppConfigAttribute::EVENTS_LOGS_DIR] = self::$app_config[AppConfigAttribute::LOG_DIR];
-		self::$app_config[AppConfigAttribute::EVENTS_WILDCARD] = 'kaltura_apache_access.log-.*';
+		self::$app_config[AppConfigAttribute::EVENTS_WILDCARD] = '*kaltura.*_apache_access.log-.*';
 		self::$app_config[AppConfigAttribute::EVENTS_FETCH_METHOD] = 'local';
 		
 				
