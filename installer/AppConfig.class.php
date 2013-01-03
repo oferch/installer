@@ -432,7 +432,7 @@ class AppConfig
 	 * @param string $sha1 sha1 will be generated
 	 * @return $sha1 & $salt by reference
 	 */
-	public static static function generateSha1Salt($password, &$salt, &$sha1) {
+	public static function generateSha1Salt($password, &$salt, &$sha1) {
 		logMessage(L_INFO, "Generating sh1 and salf from password");
 		$salt = md5(rand(100000, 999999).$password); 
 		$sha1 = sha1($salt.$password);  
@@ -477,7 +477,7 @@ class AppConfig
 	}
 	
 	// creates a random key used to generate a secret
-	private static static function makeRandomString($minlength, $maxlength, $useupper, $usespecial, $usenumbers) {
+	private static function makeRandomString($minlength, $maxlength, $useupper, $usespecial, $usenumbers) {
 		$charset = "abcdefghijklmnopqrstuvwxyz";
 		if ($useupper) $charset .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		if ($usenumbers) $charset .= "0123456789";
