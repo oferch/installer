@@ -95,7 +95,7 @@ class ForEachXmlElementTask extends Task
 		{
 			$this->log("Loading element by xPath [$this->xPathStart]", Project::MSG_INFO);
 			$xmlNodes = $xml->xpath($this->xPathStart);
-			if(count($xmlNodes))
+			if($xmlNodes && count($xmlNodes))
 			{
 				foreach($xmlNodes as $xmlNode)
 					$this->eachElement($xmlNode);
@@ -128,52 +128,54 @@ class ForEachXmlElementTask extends Task
 		$nodeId = uniqid();
 		if(isset($xml['id']))
 			$nodeId = $xml['id'];
+		$nodeId = $this->project->replaceProperties($nodeId);
 			
 		$nodeName = $xml->getName();
 		$elementChildrenCount = $xml->count();
 		
-		$this->log("Setting param '$this->elementPrefix.id' to value '$nodeId'", Project::MSG_VERBOSE);
 		$prop = $this->callee->createProperty();
 		$prop->setOverride(true);
 		$prop->setName("$this->elementPrefix.id");
 		$prop->setValue($nodeId);
+		$this->log("Setting param '$this->elementPrefix.id' to value '$nodeId'", Project::MSG_VERBOSE);
 		
-		$this->log("Setting param '$this->elementPrefix.name' to value '$nodeName'", Project::MSG_VERBOSE);
 		$prop = $this->callee->createProperty();
 		$prop->setOverride(true);
 		$prop->setName("$this->elementPrefix.name");
 		$prop->setValue($nodeName);
+		$this->log("Setting param '$this->elementPrefix.name' to value '$nodeName'", Project::MSG_VERBOSE);
 		
-		$this->log("Setting param '$this->elementPrefix.count' to value '$elementChildrenCount'", Project::MSG_VERBOSE);
 		$prop = $this->callee->createProperty();
 		$prop->setOverride(true);
 		$prop->setName("$this->elementPrefix.count");
 		$prop->setValue($elementChildrenCount);
+		$this->log("Setting param '$this->elementPrefix.count' to value '$elementChildrenCount'", Project::MSG_VERBOSE);
 		
 		$elementContent = "$xml";
-		$this->log("Setting param '$this->elementPrefix.content' to value '$elementContent'", Project::MSG_VERBOSE);
 		$prop = $this->callee->createProperty();
 		$prop->setOverride(true);
 		$prop->setName("$this->elementPrefix.content");
 		$prop->setValue($elementContent);
+		$this->log("Setting param '$this->elementPrefix.content' to value '$elementContent'", Project::MSG_VERBOSE);
 	
 		foreach($xml->attributes() as $attributeName => $attributeValue)
 		{
+			$attributeValue = $this->project->replaceProperties($attributeValue);
 			$elementAttributesParam = "$this->elementPrefix.attributes.$nodeId.$attributeName";
-			$this->log("Setting param '$elementAttributesParam' to value '$attributeValue'", Project::MSG_VERBOSE);
 			$prop = $this->callee->createProperty();
 			$prop->setOverride(false);
 			$prop->setName($elementAttributesParam);
 			$prop->setValue("$attributeValue");
+			$this->log("Setting param '$elementAttributesParam' to value '$attributeValue'", Project::MSG_VERBOSE);
 		}
 		
 		if (!is_null($this->xPathParam))
 		{
-			$this->log("Setting param '$this->xPathParam' to value '$xPath'", Project::MSG_VERBOSE);
 			$prop = $this->callee->createProperty();
 			$prop->setOverride(true);
 			$prop->setName($this->xPathParam);
 			$prop->setValue($xPath);
+			$this->log("Setting param '$this->xPathParam' to value '$xPath'", Project::MSG_VERBOSE);
 		}
 		
 		$this->callee->main();
