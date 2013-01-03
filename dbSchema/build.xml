@@ -5,17 +5,20 @@
 	<taskdef name="grantdbuser"					classpath="../lib" classname="phing.db.GrantDbUserTask" />
 	<taskdef name="createdbuser"				classpath="../lib" classname="phing.db.CreateDbUserTask" />
 	<taskdef name="createdb"					classpath="../lib" classname="phing.db.CreateDbTask" />
+	<taskdef name="execsql"						classpath="../lib" classname="phing.db.ExecSqlTask" />
 	
 	<target name="Init">
 		<property name="actions.createDatabases" value="false" />
 		<property name="actions.createUsers" value="false" />
 		<property name="actions.setPermissions" value="false" />
+		<property name="actions.execScripts" value="false" />
 	</target>
 	
 	<target name="Create Schemas">
 		<property name="actions.createDatabases" value="true" override="true" />
 		<property name="actions.createUsers" value="true" override="true" />
 		<property name="actions.setPermissions" value="true" override="true" />
+		<property name="actions.execScripts" value="true" override="true" />
 		
 		<phingcall target="Create" />
 	</target>
@@ -39,6 +42,7 @@
 	
 	<target name="Load configuration">
 		<property file="build.properties" override="false" />
+		<property file="${BASE_DIR}/app/configurations/system.ini" override="false" />
 	</target>
 	
 	<target name="Create" depends="Load configuration">
@@ -105,15 +109,25 @@
 		
 	</target>
     
-	<target name="Create Database">
-		<echo message="Creating database [${database.attributes.${database.id}.dbname}]"/>
-		<createdb host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" name="${database.attributes.${database.id}.dbname}" dryRun="${dryRun}" />
-		<!-- TODO run sql scripts  -->
-	</target>
-    
 	<target name="Set User Database Permissions">
 		<echo message="Setting user permissions for user [${user.id}] database [${database.attributes.${database.id}.dbname}] on host [${host.id}] hostname [${host.hostname}] with privileges [${database.attributes.${database.id}.privileges}] from host [${database.attributes.${database.id}.fromHost}]" />
 		<grantdbuser host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" user="${user.id}" database="${database.attributes.${database.id}.dbname}" privileges="${database.attributes.${database.id}.privileges}" fromHost="${user.fromHost}" dryRun="${dryRun}" />
 	</target>
-	
+    
+	<target name="Create Database">
+		<echo message="Creating database [${database.attributes.${database.id}.dbname}]" />
+		<createdb host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" name="${database.attributes.${database.id}.dbname}" dryRun="${dryRun}" />
+
+		<if>
+			<istrue value="${actions.execScripts}" />
+			<then>
+				<foreachxmlelement file="${xml.uri}" xPathStart="/db/databases/host[@id = '${host.id}']/database[@id = '${database.id}']/script" elementPrefix="script" recursive="false" target="Exec Script" />
+			</then>
+		</if>
+	</target>
+    
+	<target name="Exec Script">
+		<echo message="Executing database script [${script.attributes.${script.id}.path}]" />
+		<execsql mysql="${mysql.bin}" host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" name="${database.attributes.${database.id}.dbname}" file="${script.attributes.${script.id}.path}" dryRun="${dryRun}" />
+	</target>
 </project>
