@@ -58,13 +58,13 @@ class Installer {
 			} else {
 				logMessage(L_USER, "killing sphinx daemon if running");
 				$currentWorkingDir = getcwd();
-				chdir(AppConfig::get(AppConfigAttribute::APP_DIR).'/app/plugins/sphinx_search/scripts/');
-				@exec(AppConfig::get(AppConfigAttribute::BASE_DIR).'/app/plugins/sphinx_search/scripts/watch.stop.sh -u kaltura');
+				chdir(AppConfig::get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/');
+				@exec('./watch.stop.sh -u kaltura');
 				logMessage(L_USER, "Stopping sphinx if running");
-				@exec(AppConfig::get(AppConfigAttribute::BASE_DIR).'/app/plugins/sphinx_search/scripts/searchd.sh stop 2>&1', $output, $return_var);
+				@exec('./searchd.sh stop 2>&1', $output, $return_var);
 				logMessage(L_USER, "Stopping the batch manager if running");
 				chdir(AppConfig::get(AppConfigAttribute::APP_DIR).'/scripts/');
-				@exec(AppConfig::get(AppConfigAttribute::BASE_DIR).'/app/scripts/serviceBatchMgr.sh stop 2>&1', $output, $return_var);
+				@exec('./serviceBatchMgr.sh stop 2>&1', $output, $return_var);
 				chdir($currentWorkingDir);
 				logMessage(L_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
 				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));			
