@@ -90,7 +90,7 @@ class GrantDbUserTask extends Task
 		if($pdoStatement->rowCount() == 0)
 			throw new Exception("User [{$this->user}] not found", $errInfo[0], null);
 		
-		$statement = "GRANT {$this->privileges} ON {$this->database}.* TO '{$this->user}'@'{$this->fromHost}';";
+		$statement = "GRANT {$this->privileges} ON {$this->database}.* TO '{$this->user}'@'{$this->fromHost}'";
 		$this->log("Executing: $statement");
 		if(!$this->dryRun && $pdo->exec($statement) === false)
 		{
