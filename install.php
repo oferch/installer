@@ -195,13 +195,6 @@ if (isset($leftovers)) {
 	}
 }
 
-// last chance to stop the installation
-echo PHP_EOL;
-if ((!$silentRun) && (!$user->getTrueFalse('', "Installation is now ready to begin. Start installation now?", 'y'))) {
-	echo "Bye".PHP_EOL;
-	die(1);	
-}
-
 // run the installation
 $install_output = $installer->install($db_params);
 if ($install_output !== null) {
