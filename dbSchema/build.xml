@@ -42,7 +42,7 @@
 	
 	<target name="Load configuration">
 		<property file="build.properties" override="false" />
-		<property file="${BASE_DIR}/app/configurations/system.ini" override="false" />
+		<property file="${phing.dir}/../configurator/db.ini" override="false" />
 	</target>
 	
 	<target name="Create" depends="Load configuration">
