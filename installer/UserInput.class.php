@@ -202,12 +202,12 @@ class UserInput
 						InputValidator::createRangeValidator(1, 65535), 
 						'3306');
 		$this->set('DB1_NAME','kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
-		$this->getInput('DB1_USER', 
+		$this->getInput('DB_ROOT_USER', 
 						"Database username (with create & write privileges)", 
 						"Database username cannot be empty, please enter again", 
 						InputValidator::createNonEmptyValidator(), 
 						null);
-		$this->getInput('DB1_PASS', 
+		$this->getInput('DB_ROOT_PASS', 
 						"Database password (leave empty for no password)", 
 						null, 
 						null, 

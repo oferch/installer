@@ -22,6 +22,9 @@ class AppConfigAttribute
 	const CURL_BIN_DIR							= 'CURL_BIN_DIR';
 	const SPHINX_BIN_DIR						= 'SPHINX_BIN_DIR';
 	
+	const DB_ROOT_USER							= 'DB_ROOT_USER';
+	const DB_ROOT_PASS							= 'DB_ROOT_PASS';
+	
 	const DB1_HOST								= 'DB1_HOST';
 	const DB1_PORT								= 'DB1_PORT';
 	const DB1_USER								= 'DB1_USER';
@@ -257,6 +260,13 @@ class AppConfig
 		if (self::$app_config[AppConfigAttribute::DB1_HOST] == 'localhost') {
 			self::$app_config[AppConfigAttribute::DB1_HOST] = '127.0.0.1';
 		}
+		self::$app_config[AppConfigAttribute::DB1_USER] = 'kaltura';
+		self::$app_config[AppConfigAttribute::DB1_PASS] = 'kaltura';
+	    self::$app_config[AppConfigAttribute::SPHINX_DB_USER] = 'kaltura_sphinx';
+		self::$app_config[AppConfigAttribute::SPHINX_DB_PASS] = 'kaltura_sphinx';
+		self::$app_config[AppConfigAttribute::DWH_USER] = 'kaltura_etl';
+		self::$app_config[AppConfigAttribute::DWH_PASS] = 'kaltura_etl';
+		
 		self::collectDatabaseCopier('DB1', 'DB2');
 		self::collectDatabaseCopier('DB1', 'DB3');
 
@@ -265,8 +275,6 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::SPHINX_DB_NAME] = 'kaltura_sphinx_log';
 		self::$app_config[AppConfigAttribute::SPHINX_DB_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::SPHINX_DB_PORT] = self::$app_config[AppConfigAttribute::DB1_PORT];
-	    self::$app_config[AppConfigAttribute::SPHINX_DB_USER] = self::$app_config[AppConfigAttribute::DB1_USER];
-		self::$app_config[AppConfigAttribute::SPHINX_DB_PASS] = self::$app_config[AppConfigAttribute::DB1_PASS];
 		
 		// admin console defaults
 		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_EMAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
@@ -285,8 +293,6 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::DWH_HOST] = self::$app_config[AppConfigAttribute::DB1_HOST];
 		self::$app_config[AppConfigAttribute::DWH_PORT] = self::$app_config[AppConfigAttribute::DB1_PORT];
 		self::$app_config[AppConfigAttribute::DWH_DATABASE_NAME] = 'kalturadw';
-		self::$app_config[AppConfigAttribute::DWH_USER] = 'etl';
-		self::$app_config[AppConfigAttribute::DWH_PASS] = 'etl';
 		self::$app_config[AppConfigAttribute::DWH_SEND_REPORT_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
 		self::$app_config[AppConfigAttribute::EVENTS_LOGS_DIR] = self::$app_config[AppConfigAttribute::LOG_DIR];
 		self::$app_config[AppConfigAttribute::EVENTS_WILDCARD] = '*kaltura.*_apache_access.log-.*';
