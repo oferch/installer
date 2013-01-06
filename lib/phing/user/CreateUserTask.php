@@ -89,6 +89,12 @@ class CreateUserTask extends Task
 	 */
 	public function main()
 	{
+		if(getmyuid() == $this->username)
+		{
+			$this->log("User [$this->username] already exists, can't modify current user.");
+			return;
+		}
+			
 		if($this->ifNotExists)
 		{
 			$returnedValue = null;
