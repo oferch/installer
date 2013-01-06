@@ -145,6 +145,7 @@ class CreateUserTask extends Task
 		
 		$command = implode(' ', $commandArguments);
 		$returnedValue = null;
+		$this->log("Executing: $command", Project::MSG_VERBOSE);
 		passthru($command, $returnedValue);
 		
 		if($returnedValue != 0)
@@ -187,6 +188,7 @@ class CreateUserTask extends Task
 		
 		$command = implode(' ', $commandArguments);
 		$returnedValue = null;
+		$this->log("Executing: $command", Project::MSG_VERBOSE);
 		passthru($command, $returnedValue);
 		
 		switch($returnedValue)
