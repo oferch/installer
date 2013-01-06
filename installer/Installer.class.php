@@ -120,8 +120,11 @@ class Installer {
 			}
 		}		
 
-		$this->changeDirsAndFilesPermissions();
-		$this->createdDatabases();
+		if(!$this->changeDirsAndFilesPermissions())
+			return "Failed to set files permissions";
+				
+		if(!$this->createDatabases())
+			return "Failed to create databases";
 		
 		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
 		{		
@@ -268,13 +271,18 @@ class Installer {
 
 		$originalDir = getcwd();
 		chdir(__DIR__ . '/../directoryConstructor');
-		$command = "phing -DBASE_DIR=$baseDir Update-Permissions";
+		$command = "phing -verbose -DBASE_DIR=$baseDir Update-Permissions";
 		$returnedValue = null;
 		passthru($command, $returnedValue);			
 		chdir($originalDir);
+		
+		if($returnedValue != 0)
+			return false;
+			
+		return true;
 	}	
 	
-	private function createdDatabases()
+	private function createDatabases()
 	{
 		logMessage(L_USER, "Creating databases and database users");
 		$baseDir = AppConfig::get(AppConfigAttribute::BASE_DIR);
@@ -288,16 +296,22 @@ class Installer {
 			'-Duser.attributes.kaltura_sphinx.password=' . AppConfig::get(AppConfigAttribute::SPHINX_DB_PASS),
 			'-Duser.attributes.kaltura_etl.password=' . AppConfig::get(AppConfigAttribute::DWH_PASS),
 		);
-		$command = "phing " . implode(' ', $attributes);
+		$command = "phing -verbose " . implode(' ', $attributes);
 		$returnedValue = null;
 		passthru($command, $returnedValue);			
 		chdir($originalDir);
 	
+		if($returnedValue != 0)
+			return false;
+			
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php %s/deployment/base/scripts/init_data", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				logMessage(L_INFO, "Default content inserted");
+			logMessage(L_INFO, "Default content inserted");
 		} else {
-			return "Failed to insert default content";
+			logMessage(L_ERROR, "Failed to insert default content");
+			return false;
 		}
+		
+		return true;
 	}	
 	
 	public function installRed5 ()
