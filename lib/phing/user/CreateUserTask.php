@@ -66,7 +66,7 @@ class CreateUserTask extends Task
 	 * A group number must refer to an already existing group. 
 	 * The default is for the user to belong only to the initial group.
 	 * 
-	 * @var array
+	 * @var string comma seperated
 	 */
 	private $groups = null;
 	
@@ -125,11 +125,10 @@ class CreateUserTask extends Task
 		if($this->group)
 			$commandArguments[] = "--gid '{$this->group}'";
 		
-		if($this->groups && count($this->groups))
+		if($this->groups)
 		{
-			$groups = implode(',', $this->groups);
 			$commandArguments[] = "--append";
-			$commandArguments[] = "--groups '$groups'";
+			$commandArguments[] = "--groups '{$this->groups}'";
 		}
 		
 		// there is nothing to update
@@ -173,10 +172,9 @@ class CreateUserTask extends Task
 		else
 			$commandArguments[] = "--user-group";
 		
-		if($this->groups && count($this->groups))
+		if($this->groups)
 		{
-			$groups = implode(',', $this->groups);
-			$commandArguments[] = "--groups '$groups'";
+			$commandArguments[] = "--groups '{$this->groups}'";
 		}
 		
 		$commandArguments[] = $this->username;
