@@ -66,6 +66,21 @@ class CreateDbUserTask extends Task
 		$dsn = "mysql:host={$this->host};port={$this->port}";
 		$pdo = new PDO($dsn, $this->loginUsername, $this->loginPassword);
 		
+		$statement = "DELETE FROM mysql.user WHERE User = '' OR Host = ''";
+		$this->log("Executing: $statement");
+		$pdoStatement = $pdo->query($statement);
+		if($pdoStatement === false)
+		{
+			/**
+			 * $pdo->errorInfo()
+			 * 0	SQLSTATE error code (a five characters alphanumeric identifier defined in the ANSI SQL standard).
+			 * 1	Driver-specific error code.
+			 * 2	Driver-specific error message.
+			 */
+			$errInfo = $pdo->errorInfo();
+			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+		}
+		
 		$statement = "SELECT User FROM mysql.user WHERE User = '{$this->newUsername}' AND Host = '{$this->fromHost}'";
 		$this->log("Executing: $statement");
 		$pdoStatement = $pdo->query($statement);
@@ -84,7 +99,7 @@ class CreateDbUserTask extends Task
 		if($pdoStatement->rowCount() == 1)
 		{
 			$this->log("User [{$this->newUsername}] already exists");
-			$statement = "SET PASSWORD FOR '{$this->newUsername}'@'{$this->fromHost}' = PASSWORD('{$this->newPassword}');'";
+			$statement = "SET PASSWORD FOR '{$this->newUsername}'@'{$this->fromHost}' = PASSWORD('{$this->newPassword}')";
 		}
 		else
 		{
