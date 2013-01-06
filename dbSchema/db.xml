@@ -3,11 +3,11 @@
 	<databases>
 		<host id="mysql1" port="@DB1_PORT@" hostname="@DB1_HOST@">
 			<database dbname="@DB1_NAME@" host="mysql1" id="database.propel1">
-				<script path="@BASE_DIR@/app/deployment/final/sql/01.kaltura_ce_tables.sql" />
-				<script path="@BASE_DIR@/app/deployment/final/sql/04.stored_procedures.sql" />
+				<script path="@BASE_DIR@/app/deployment/base/sql/01.kaltura_ce_tables.sql" />
+				<script path="@BASE_DIR@/app/deployment/base/sql/04.stored_procedures.sql" />
 			</database>
 			<database dbname="@SPHINX_DB_NAME@" host="mysql1" id="database.sphinx_log">
-				<script path="@BASE_DIR@/app/deployment/final/sql/01.kaltura_sphinx_ce_tables.sql" />
+				<script path="@BASE_DIR@/app/deployment/base/sql/01.kaltura_sphinx_ce_tables.sql" />
 			</database>
 			<database dbname="@DWH_DATABASE_NAME@" host="mysql1" id="database.kalturadw" />
 			<database dbname="kalturadw_bisources" host="mysql1" id="database.kalturadw_bisources" />

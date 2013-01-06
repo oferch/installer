@@ -1,7 +1,6 @@
 <?php
 
 define("FILE_INSTALL_CONFIG", "installer/installation.ini"); // this file contains the definitions of the installation itself
-define("APP_SQL_DIR", "/app/deployment/final/sql/"); // this is the relative directory where the final sql files are
 define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts of the symbolic link definition
 
 /*
