@@ -165,8 +165,8 @@ $latestVersions["HTML5_VERSION"] = getVersionFromKconf($kconf,"html5_version");
 AppConfig::initFromUserInput(array_merge((array)$user->getAll(), (array)$latestVersions));
 $db_params['db_host'] = AppConfig::get(AppConfigAttribute::DB1_HOST);
 $db_params['db_port'] = AppConfig::get(AppConfigAttribute::DB1_PORT);
-$db_params['db_user'] = AppConfig::get(AppConfigAttribute::DB1_USER);
-$db_params['db_pass'] = AppConfig::get(AppConfigAttribute::DB1_PASS);
+$db_params['db_user'] = AppConfig::get(AppConfigAttribute::DB_ROOT_USER);
+$db_params['db_pass'] = AppConfig::get(AppConfigAttribute::DB_ROOT_PASS);
 
 // verify prerequisites
 echo PHP_EOL;
