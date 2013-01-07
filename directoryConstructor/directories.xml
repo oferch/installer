@@ -55,6 +55,7 @@
 				<v1.1.2 svnPath="/usr/local/kalprod/flash/kclip/v1.1.2" />
 			</kclip>
 			<kmc>
+				<v5.27 svnPath="/usr/local/kalprod/flash/kmc/v5.27" />
 				<login>
 					<v1.2.2 svnPath="/usr/local/kalprod/flash/kmc/login/v1.2.2" />
 				</login>
