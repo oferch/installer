@@ -112,17 +112,17 @@ foreach ($prerequisites_config["binaries"] as $bin) {
 
 // Check that SELinux is not enabled (enforcing)
 exec("getenforce", $statusresponse, $exit_code);
-if($exit_code != 127) // command not found - SE-Linux is not installed
+if($exit_code != 127) // command not found - SELinux is not installed
 {
 	if ($exit_code !== 0) 
 	{
-		$prerequisites .= "Could not resolve SE-Linux status, run again.".PHP_EOL;
+		$prerequisites .= "Could not resolve SELinux status, run again.".PHP_EOL;
 	} 
 	elseif(!empty($statusresponse[0])) 
 	{
 		if(!strcmp($statusresponse[0],'Enforcing')) 
 		{
-			$prerequisites .= "SE linux is Enabled, please set as permissive.".PHP_EOL;
+			$prerequisites .= "SELinux is Enabled, please set to permissive.".PHP_EOL;
 		}
 	}
 }
