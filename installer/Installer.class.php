@@ -24,13 +24,13 @@ class Installer {
 		
 		// symbloic links leftovers
 		foreach ($this->install_config['symlinks'] as $slink) {
-			$link_items = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));	
-			if (is_file($link_items[1]) && (strpos($link_items[1], AppConfig::get(AppConfigAttribute::BASE_DIR)) === false)) {
+			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));	
+			if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false)) {
 				if ($report_only) {
-					$leftovers .= "   ".$link_items[1]." symbolic link exists".PHP_EOL;
+					$leftovers .= "   ".$link." symbolic link exists".PHP_EOL;
 				} else {
-					logMessage(L_USER, "Removing symbolic link $link_items[1]");
-					OsUtils::recursiveDelete($link_items[1]);
+					logMessage(L_USER, "Removing symbolic link $link");
+					OsUtils::recursiveDelete($link);
 				}
 			}
 		}
@@ -185,11 +185,12 @@ class Installer {
 		
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
-			$link_items = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));	
-			if (symlink($link_items[0], $link_items[1])) {
-				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
+			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
+			logMessage(L_USER, "Creating symbolic link [$link] for target [$target]");	
+			if (symlink($target, $link)) {
+				logMessage(L_INFO, "Created symbolic link [$link] for target [$target]");
 			} else {
-				return sprintf("Failed to create symblic link from %s to %s", $link_items[0], $link_items[1]);
+				return sprintf("Failed to create symblic link from %s to %s", $target, $link);
 			}
 		}
 		
