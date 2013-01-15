@@ -310,6 +310,13 @@ class Installer {
 			logMessage(L_ERROR, "Failed to insert default content");
 			return false;
 		}
+			
+		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertPermissions.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
+			logMessage(L_INFO, "Default permissions inserted");
+		} else {
+			logMessage(L_ERROR, "Failed to insert permissions");
+			return false;
+		}
 		
 		return true;
 	}	
