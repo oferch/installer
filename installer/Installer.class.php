@@ -81,13 +81,13 @@ class Installer {
 	public function install($db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::rsync('../package/app/', $app->get('BASE_DIR'), "--exclude web/content")) {
+		if (!OsUtils::rsync('../package/app/', AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content")) {
 			return "Failed to copy application files to target directory";
 		}
-		if ($app->get('DB1_CREATE_NEW_DB'))
+		if (AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
-			if (!OsUtils::rsync("../package/app/web/content", $app->get('WEB_DIR'))) {
-				return "Failed to copy default content into ". $app->get('WEB_DIR');
+			if (!OsUtils::rsync("../package/app/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR))) {
+				return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
 			}
 		}		
 
