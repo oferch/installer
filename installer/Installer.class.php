@@ -81,13 +81,13 @@ class Installer {
 	public function install($db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::rsync('package/app/', $app->get('BASE_DIR'), "--exclude web/content")) {
+		if (!OsUtils::rsync('../package/app/', $app->get('BASE_DIR'), "--exclude web/content")) {
 			return "Failed to copy application files to target directory";
 		}
 		if ($app->get('DB1_CREATE_NEW_DB'))
 		{
-			if (!OsUtils::rsync("package/app/web/content", $app->get('WEB_DIR'))) {
-				return "Failed to copy default content into /opt/kaltura/web";
+			if (!OsUtils::rsync("../package/app/web/content", $app->get('WEB_DIR'))) {
+				return "Failed to copy default content into ". $app->get('WEB_DIR');
 			}
 		}		
 
@@ -191,13 +191,13 @@ class Installer {
 		
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
-			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
-			if (symlink($link_items[0], $link_items[1])) {
-				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
+			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));	
+			if (symlink(target, $link)) {
+				logMessage(L_INFO, "Created symbolic link $link -> $target");
 			} else {
-				logMessage(L_INFO, "Failed to create symbolic link from ". $link_items[0]." to ".$link_items[1].", retyring..");
-				unlink($link_items[1]);
-				symlink($link_items[0], $link_items[1]);
+				logMessage(L_INFO, "Failed to create symbolic link from $link to $target, retyring..");
+				unlink($target);
+				symlink($link, $target);
 			}
 		}
 		
