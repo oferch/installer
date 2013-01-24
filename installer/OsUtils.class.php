@@ -168,8 +168,8 @@ class OsUtils {
 	}
 	
 	// full copy $source to $target and return true/false according to success
-	public static function rsync($source, $target) {
-		return self::execute("rsync -r $source $target");
+	public static function rsync($source, $target, $options = "") {
+		return self::execute("rsync -r $options $source $target");
 	}
 	
 	// recursive delete the $path and return true/false according to success

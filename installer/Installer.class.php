@@ -81,9 +81,15 @@ class Installer {
 	public function install($db_params) {
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::rsync('../package/', AppConfig::get(AppConfigAttribute::BASE_DIR))) {
+		if (!OsUtils::rsync('package/app/', $app->get('BASE_DIR'), "--exclude web/content")) {
 			return "Failed to copy application files to target directory";
 		}
+		if ($app->get('DB1_CREATE_NEW_DB'))
+		{
+			if (!OsUtils::rsync("package/app/web/content", $app->get('WEB_DIR'))) {
+				return "Failed to copy default content into /opt/kaltura/web";
+			}
+		}		
 
 		logMessage(L_USER, "Creating the uninstaller");
 		if (!mkdir(AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/", 0750, true) || !OsUtils::fullCopy('installer/uninstall.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
@@ -185,12 +191,13 @@ class Installer {
 		
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
-			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
-			logMessage(L_USER, "Creating symbolic link [$link] for target [$target]");	
-			if (symlink($target, $link)) {
-				logMessage(L_INFO, "Created symbolic link [$link] for target [$target]");
+			$link_items = explode(SYMLINK_SEPARATOR, $app->replaceTokensInString($slink));	
+			if (symlink($link_items[0], $link_items[1])) {
+				logMessage(L_INFO, "Created symbolic link $link_items[0] -> $link_items[1]");
 			} else {
-				return sprintf("Failed to create symblic link from %s to %s", $target, $link);
+				logMessage(L_INFO, "Failed to create symbolic link from ". $link_items[0]." to ".$link_items[1].", retyring..");
+				unlink($link_items[1]);
+				symlink($link_items[0], $link_items[1]);
 			}
 		}
 		
