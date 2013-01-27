@@ -75,7 +75,7 @@ if ($exit_code !== 0) {
 		$found = false;
 		
 		for ($i=0; !$found && $i<count($current_modules); $i++) {
-			if (strpos($current_modules[$i],$module) !== false) {
+			if (strpos($current_modules[$i],$module) === 0) {
 				$found = true;
 			}				
 		}
