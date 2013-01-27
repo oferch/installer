@@ -180,8 +180,22 @@ class ForEachXmlElementTask extends Task
 		
 		$this->callee->main();
 		
-		if($elementChildrenCount && $this->recursive)
-			$this->foreachElement($xml, $xPath);		
+		if(!$this->recursive)
+			return;
+			
+		if($elementChildrenCount)
+		{
+			$this->foreachElement($xml, $xPath);
+		}
+		elseif(isset($xml['sourcePath']))
+		{
+			$sourcePath = strval($xml['sourcePath']);
+			if (!file_exists($sourcePath)) 
+				throw new BuildException("Supplied file path [$sourcePath] doesn't exist.");
+			
+			$sourceXml = new SimpleXMLElement(file_get_contents($sourcePath));
+			$this->foreachElement($sourceXml, $xPath);
+		}
 	}
 	
 	/**
