@@ -47,7 +47,7 @@ date_default_timezone_set(@date_default_timezone_get());
 // TODO: parameters - config name, debug level and force
 
 // start the log
-startLog("install_log_".date("d.m.Y_H.i.s"));
+startLog(__DIR__ . "/install_log_".date("d.m.Y_H.i.s"));
 logMessage(L_INFO, "Installation started");
 
 // variables
