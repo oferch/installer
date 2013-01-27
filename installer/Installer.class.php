@@ -118,12 +118,15 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Replacing configuration tokens in files");
-		foreach ($this->install_config['token_files'] as $file) {
-			$replace_file = AppConfig::replaceTokensInString($file);
-			if (!AppConfig::replaceTokensInFile($replace_file)) {
-				return "Failed to replace tokens in $replace_file";
+		foreach ($this->install_config['token_files'] as $tokenFile) 
+		{
+			$files = glob(AppConfig::replaceTokensInString($tokenFile));
+			foreach($files as $file)
+			{
+				if (!AppConfig::replaceTokensInFile($file))
+					return "Failed to replace tokens in $file";
 			}
-		}		
+		}
 
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";

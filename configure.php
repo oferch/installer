@@ -74,9 +74,13 @@ AppConfig::set(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, $password);
 $install_config = parse_ini_file(FILE_CONFIG, true);
 
 AppConfig::definePostInstallationConfigurationTokens();
-foreach ($install_config['token_files'] as $file) {
-	if (!AppConfig::replaceTokensInFile($file)) {
-		echo "Failed to replace tokens in $file";
+foreach ($install_config['token_files'] as $tokenFile) 
+{
+	$files = glob(AppConfig::replaceTokensInString($tokenFile));
+	foreach($files as $file)
+	{
+		if (!AppConfig::replaceTokensInFile($file))
+			return "Failed to replace tokens in $file";
 	}
 }
 
@@ -116,8 +120,8 @@ logMessage(L_USER,
 	"To start using Kaltura, please complete the following steps:\n" .
 	"1. Add the following line to your /etc/hosts file:\n" .
 		"\t127.0.0.1 $virtualHostName\n" .
-	"2. Locate your Apache conf.d directory (usually found under /etc/httpd/conf.d) and create there a symlink to $appDir/configurations/apache/my_kaltura.conf:\n" .
-		"\tln -s $appDir/app/configurations/apache/my_kaltura.conf /etc/httpd/conf.d/my_kaltura.conf\n" . 
+	"2. Locate your Apache conf.d directory (usually found under /etc/httpd/conf.d) and create there a symlink to $appDir/configurations/apache/kaltura.conf:\n" .
+		"\tln -s $appDir/app/configurations/apache/kaltura.conf /etc/httpd/conf.d/kaltura.conf\n" . 
 	"3. Locate your Log-Rotate conf.d directory (usually found under /etc/logrotate.d) and create there a symlink to $appDir/configurations/logrotate:\n" .
 		"\tln -s $appDir/app/configurations/logrotate/kaltura_api /etc/logrotate.d/kaltura_api\n" .
 		"\tln -s $appDir/app/configurations/logrotate/kaltura_apps /etc/logrotate.d/kaltura_apps\n" .

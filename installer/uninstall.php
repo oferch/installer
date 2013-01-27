@@ -178,8 +178,8 @@ if (execute("rm -rf ".$config['BASE_DIR'])) {
 echo "Removing apache and red5 symlinks...";
 if (!execute("rm -f /etc/init.d/red5"))
 	echo "Failed to remove the red5 symlink from /etc/init.d/red5, maybe red5 was not installed..";
-if (!execute("rm -f /etc/httpd/conf.d/my_kaltura.conf"))
-	echo "Failed to delete my_kaltura.conf symlink from /etc/httpd/conf.d";
+if (!execute("rm -f /etc/httpd/conf.d/kaltura.conf"))
+	echo "Failed to delete kaltura.conf symlink from /etc/httpd/conf.d";
 
 	
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
