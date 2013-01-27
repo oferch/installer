@@ -107,7 +107,7 @@ class OsUtils {
 		$attributes = '-D' . implode(' -D', $attributes);
 		$originalDir = getcwd();
 		chdir($dir);
-		$command = "phing -verbose -logger phing.listener.AnsiColorLogger $attributes $target > '$logFile' 2>&1";
+		$command = "phing -verbose -logger phing.listener.AnsiColorLogger $attributes $target >> '$logFile' 2>&1";
 		logMessage(L_INFO, "Executing $command");
 		$returnedValue = null;
 		passthru($command, $returnedValue);			
