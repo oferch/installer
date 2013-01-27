@@ -63,11 +63,10 @@ class AppConfigAttribute
 	const REPORT_ADMIN_EMAIL					= 'REPORT_ADMIN_EMAIL';
 	
 	const BATCH_PARTNER_ADMIN_SECRET			= 'BATCH_PARTNER_ADMIN_SECRET';
-	const BATCH_PARTNER_SECRET					= 'BATCH_PARTNER_SECRET';
-	const PARTNER_ZERO_SECRET					= 'PARTNER_ZERO_SECRET';
 	const PARTNER_ZERO_ADMIN_SECRET				= 'PARTNER_ZERO_ADMIN_SECRET';
-	const ADMIN_CONSOLE_PARTNER_SECRET			= 'ADMIN_CONSOLE_PARTNER_SECRET';
 	const ADMIN_CONSOLE_PARTNER_ADMIN_SECRET	= 'ADMIN_CONSOLE_PARTNER_ADMIN_SECRET';
+	const HOSTED_PAGES_PARTNER_ADMIN_SECRET		= 'HOSTED_PAGES_PARTNER_ADMIN_SECRET';
+	
 	const BATCH_ADMIN_MAIL						= 'BATCH_ADMIN_MAIL';
 	const BATCH_KUSER_MAIL						= 'BATCH_KUSER_MAIL';
 	const TEMPLATE_PARTNER_MAIL					= 'TEMPLATE_PARTNER_MAIL';
@@ -362,27 +361,21 @@ class AppConfig
 
 		if (self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB])
 		{
-			self::$app_config[AppConfigAttribute::PARTNER_ZERO_SECRET] = self::generateSecret();
 			self::$app_config[AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET] = self::generateSecret();
-			self::$app_config[AppConfigAttribute::BATCH_PARTNER_SECRET] = self::generateSecret();
 			self::$app_config[AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET] = self::generateSecret();
-			self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_SECRET] = self::generateSecret();
 			self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET] =  self::generateSecret();
+			self::$app_config[AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET] =  self::generateSecret();
 		}
 		else 
 		{
-			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=0" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );;
-			self::$app_config[AppConfigAttribute::PARTNER_ZERO_SECRET] = $output[0];
 			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=0" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
 			self::$app_config[AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-1" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
-			self::$app_config[AppConfigAttribute::BATCH_PARTNER_SECRET] = $output[0];
 			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-1" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
 			self::$app_config[AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET] = $output[0];
-			$output = OsUtils::executeReturnOutput('echo "select secret from partner where id=-2" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
-			self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_SECRET] = $output[0];
 			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-2" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
 			self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET] =  $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-3" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			self::$app_config[AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET] =  $output[0];
 		}
 			
 		
