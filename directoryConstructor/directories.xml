@@ -216,6 +216,9 @@
 				<v1.1.23 svnPath="/usr/local/kalprod/flash/kupload/v1.1.23" />
 				<v1.0.23 svnPath="/usr/local/kalprod/flash/kupload/v1.0.23" />
 			</kupload>
+			<ksr>
+				<v1.0.33s svnPath="/usr/local/kalprod/flash/ksr/v1.0.33s" />
+			</ksr>
 		</flash>
 		<content group="kaltura" user="apache" mode="0750" skipFilesMode="true">
 			<uploads mode="0700" skipFilesMode="true" />
