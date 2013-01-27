@@ -183,7 +183,8 @@ class AppConfig
 	// replaces all the tokens in the given file with the configuration values and returns true/false upon success/failure
 	// will override the file if it is not a template file
 	// if it is a template file it will save it to a non template file and then override it
-	public static function replaceTokensInFile($file) {		
+	public static function replaceTokensInFile($file) {	
+		logMessage(L_USER, "Replacing configuration tokens in file [$file]");	
 		$newfile = self::copyTemplateFileIfNeeded($file);
 		$data = @file_get_contents($newfile);
 		if (!$data) {

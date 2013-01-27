@@ -99,6 +99,26 @@ class OsUtils {
 		return OsUtils::writeFile($filename, $data);
 	}
 
+	// executes the phing and returns true/false according to the execution return value
+	public static function phing($dir, array $attributes = array(), $target = '') 
+	{
+		global $logFile;
+	
+		$attributes = '-D' . implode(' -D', $attributes);
+		$originalDir = getcwd();
+		chdir($dir);
+		$command = "phing -verbose -logfile '$logFile' -logger phing.listener.AnsiColorLogger $attributes $target";
+		logMessage(L_INFO, "Executing $command");
+		$returnedValue = null;
+		passthru($command, $returnedValue);			
+		chdir($originalDir);
+		
+		if($returnedValue != 0)
+			return false;
+			
+		return true;
+	}
+
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");

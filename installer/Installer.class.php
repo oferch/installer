@@ -79,16 +79,16 @@ class Installer {
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
 	 */
 	public function install($db_params) {
+		logMessage(L_USER, sprintf("Current working dir is %s", getcwd()));
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
-		logMessage(L_USER, sprintf("current working dir is %s", getcwd()));
-		if (!OsUtils::rsync('../package/app/', AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content")) {
+		if (!OsUtils::rsync('../package/', AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
 			return "Failed to copy application files to target directory";
-		}
+			
 		if (AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
-			if (!OsUtils::rsync("../package/app/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR))) {
+			logMessage(L_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
+			if (!OsUtils::rsync("../package/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
 				return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
-			}
 		}		
 
 		logMessage(L_USER, "Creating the uninstaller");
@@ -131,7 +131,7 @@ class Installer {
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";
 				
-		if(!$this->createDatabases())
+		if(!$this->createDatabases()) // TODO
 			return "Failed to create databases";
 		
 		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
@@ -277,41 +277,26 @@ class Installer {
 	private function changeDirsAndFilesPermissions()
 	{
 		logMessage(L_USER, "Changing permissions of directories and files");
-		$baseDir = AppConfig::get(AppConfigAttribute::BASE_DIR);
-
-		$originalDir = getcwd();
-		chdir(__DIR__ . '/../directoryConstructor');
-		$command = "phing -verbose -DBASE_DIR=$baseDir Update-Permissions";
-		$returnedValue = null;
-		passthru($command, $returnedValue);			
-		chdir($originalDir);
-		
-		if($returnedValue != 0)
-			return false;
-			
-		return true;
+		$dir = __DIR__ . '/../directoryConstructor';
+		$attributes = array('BASE_DIR=' . AppConfig::get(AppConfigAttribute::BASE_DIR));
+		return OsUtils::phing($dir, $attributes, 'Update-Permissions');
 	}	
 	
 	private function createDatabases()
 	{
-		logMessage(L_USER, "Creating databases and database users");
-		$baseDir = AppConfig::get(AppConfigAttribute::BASE_DIR);
-
-		$originalDir = getcwd();
-		chdir(__DIR__ . '/../dbSchema');
+		global $logFile;
 		
+		logMessage(L_USER, "Creating databases and database users");
+
+		$dir = __DIR__ . '/../dbSchema';
 		$attributes = array(
-			'-DBASE_DIR=' . $baseDir,
-			'-Duser.attributes.kaltura.password=' . AppConfig::get(AppConfigAttribute::DB1_PASS),
-			'-Duser.attributes.kaltura_sphinx.password=' . AppConfig::get(AppConfigAttribute::SPHINX_DB_PASS),
-			'-Duser.attributes.kaltura_etl.password=' . AppConfig::get(AppConfigAttribute::DWH_PASS),
+			'BASE_DIR=' . AppConfig::get(AppConfigAttribute::BASE_DIR),
+			'user.attributes.kaltura.password=' . AppConfig::get(AppConfigAttribute::DB1_PASS),
+			'user.attributes.kaltura_sphinx.password=' . AppConfig::get(AppConfigAttribute::SPHINX_DB_PASS),
+			'user.attributes.kaltura_etl.password=' . AppConfig::get(AppConfigAttribute::DWH_PASS),
 		);
-		$command = "phing -verbose " . implode(' ', $attributes);
-		$returnedValue = null;
-		passthru($command, $returnedValue);			
-		chdir($originalDir);
-	
-		if($returnedValue != 0)
+		
+		if(!OsUtils::phing($dir, $attributes))
 			return false;
 			
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php %s/deployment/base/scripts/init_data", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
