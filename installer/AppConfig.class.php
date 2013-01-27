@@ -66,6 +66,7 @@ class AppConfigAttribute
 	const PARTNER_ZERO_ADMIN_SECRET				= 'PARTNER_ZERO_ADMIN_SECRET';
 	const ADMIN_CONSOLE_PARTNER_ADMIN_SECRET	= 'ADMIN_CONSOLE_PARTNER_ADMIN_SECRET';
 	const HOSTED_PAGES_PARTNER_ADMIN_SECRET		= 'HOSTED_PAGES_PARTNER_ADMIN_SECRET';
+	const TEMPLATE_PARTNER_ADMIN_SECRET			= 'TEMPLATE_PARTNER_ADMIN_SECRET';
 	
 	const BATCH_ADMIN_MAIL						= 'BATCH_ADMIN_MAIL';
 	const BATCH_KUSER_MAIL						= 'BATCH_KUSER_MAIL';
@@ -365,6 +366,7 @@ class AppConfig
 			self::$app_config[AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET] = self::generateSecret();
 			self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET] =  self::generateSecret();
 			self::$app_config[AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET] =  self::generateSecret();
+			self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET] =  self::generateSecret();
 		}
 		else 
 		{
@@ -376,6 +378,8 @@ class AppConfig
 			self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET] =  $output[0];
 			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=-3" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
 			self::$app_config[AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET] =  $output[0];
+			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=99" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
+			self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET] =  $output[0];
 		}
 			
 		
