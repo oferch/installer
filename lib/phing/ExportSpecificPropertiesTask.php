@@ -63,15 +63,7 @@ class ExportSpecificPropertiesTask extends Task
      * @return bool
      */
     public function setTargetFile($file)
-    {
-        if(!is_dir(dirname($file))) {
-            throw new BuildException("Parent directory of target file doesn't exist");
-        }
-        
-        if(!is_writable(dirname($file)) && (file_exists($file) && !is_writable($file))) {
-            throw new BuildException("Target file isn't writable");
-        }
-        
+    {   
         $this->_targetFile = $file;
         return true;
     }
@@ -164,6 +156,14 @@ class ExportSpecificPropertiesTask extends Task
      */
     public function main()
     {
+        if(!is_dir(dirname($this->_targetFile))) {
+            throw new BuildException("Parent directory of target file doesn't exist");
+        }
+        
+        if(!is_writable(dirname($this->_targetFile)) && (file_exists($this->_targetFile) && !is_writable($this->_targetFile))) {
+            throw new BuildException("Target file isn't writable");
+        }
+        
         // Sets the currently declared properties
         $this->_properties = $this->getProject()->getProperties();
         
