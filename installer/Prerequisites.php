@@ -68,21 +68,27 @@ if (!extension_loaded('mysqli')) {
 
 // check apache modules
 @exec("$httpd_bin -M 2>&1", $current_modules, $exit_code);
-if ($exit_code !== 0) {
+array_walk($current_modules, create_function('&$str', '$str = trim($str);'));
+if ($exit_code !== 0) 
+{
 	$prerequisites .= "Cannot check apache modules, please make sure that '$httpd_bin -t' command runs properly".PHP_EOL;
-} else {	
-	foreach ($prerequisites_config["apache_modules"] as $module) {
+} 
+else 
+{	
+	foreach ($prerequisites_config["apache_modules"] as $module) 
+	{
 		$found = false;
-		
-		for ($i=0; !$found && $i<count($current_modules); $i++) {
-			if (strpos($current_modules[$i],$module) === 0) {
+		foreach($current_modules as $current_module) 
+		{
+			if (strpos($current_module, $module) === 0)
+			{ 
 				$found = true;
-			}				
+				break;
+			}
 		}
 		
-		if (!$found) {
+		if (!$found) 
 			$prerequisites .= "Missing $module Apache module".PHP_EOL;
-		}
 	}
 }	
 
