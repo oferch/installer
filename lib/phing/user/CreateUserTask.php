@@ -91,13 +91,17 @@ class CreateUserTask extends Task
 	{
 		if($this->ifNotExists)
 		{
+			$output = null;
 			$returnedValue = null;
-			exec("id {$this->username}", $returnedValue);
+			$this->log("Checking if user [{$this->username}] exists", Project::MSG_VERBOSE);
+			exec("id {$this->username}", $output, $returnedValue);
 			if($returnedValue === 0)
 			{
+				$this->log("User [{$this->username}] already exists", Project::MSG_VERBOSE);
 				$this->updateUser();
 				return;
 			}
+			$this->log("User [{$this->username}] does not exist", Project::MSG_VERBOSE);
 		}
 		
 		$this->createUser();
