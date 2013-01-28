@@ -225,16 +225,11 @@ class Installer {
 			}
 		}
 				
-		logMessage(L_USER, "clear cache");
-		if (!OsUtils::execute(sprintf("%s %s/scripts/clear_cache.php -y", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			return "Failed clear cache";
-		}
-		
 		logMessage(L_USER, "Running the generate script");
-		OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::APP_DIR) . "/cache/api_v3");
-		if (!OsUtils::execute(sprintf("su -l %s -c %s/generator/generate.sh", AppConfig::get(AppConfigAttribute::OS_KALTURA_USER), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
+		if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			return "Failed running the generate script";
 		}
+		OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::APP_DIR) . "/cache/api_v3");
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
