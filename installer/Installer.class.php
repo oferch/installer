@@ -231,6 +231,7 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Running the generate script");
+		OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::APP_DIR) . "/cache/api_v3");
 		if (!OsUtils::execute(sprintf("su -l %s -c %s/generator/generate.sh", AppConfig::get(AppConfigAttribute::OS_KALTURA_USER), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			return "Failed running the generate script";
 		}
