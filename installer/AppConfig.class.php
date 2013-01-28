@@ -215,7 +215,7 @@ class AppConfig
 	{
 		if(!self::$filePath)
 		{	
-			self::$filePath = tempnam(sys_get_temp_dir());
+			self::$filePath = tempnam(sys_get_temp_dir(), 'kaltura.installer.');
 			OsUtils::writeConfigToFile(self::$app_config, self::$filePath);
 		}
 		
