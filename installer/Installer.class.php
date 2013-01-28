@@ -231,7 +231,7 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Running the generate script");
-		if (!OsUtils::execute('su -kaltura -c ' . AppConfig::get(AppConfigAttribute::APP_DIR).'/generator/generate.sh')) {
+		if (!OsUtils::execute(sprintf("su -l %s -c %s/generator/generate.sh", AppConfig::get(AppConfigAttribute::OS_KALTURA_USER), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			return "Failed running the generate script";
 		}
 		
