@@ -281,7 +281,7 @@ class Installer {
 	{
 		logMessage(L_USER, "Changing permissions of directories and files");
 		$dir = __DIR__ . '/../directoryConstructor';
-		return OsUtils::phing($dir, null, 'Update-Permissions');
+		return OsUtils::phing($dir, 'Update-Permissions');
 	}	
 	
 	private function createDatabases()

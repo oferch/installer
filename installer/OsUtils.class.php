@@ -100,7 +100,7 @@ class OsUtils {
 	}
 
 	// executes the phing and returns true/false according to the execution return value
-	public static function phing($dir, array $attributes = array(), $target = '') 
+	public static function phing($dir, $target = '', array $attributes = array()) 
 	{
 		global $logFile;
 		
