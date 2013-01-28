@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<base group="kaltura" user="root" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true">
+<base group="${OS_KALTURA_GROUP}" user="${OS_ROOT_USER}" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true">
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
 	-->
@@ -16,15 +16,15 @@
 			<html5lib gitPath="/kaltura/mwEmbed.git" gitTag="v1.6.12.27g" />
 		</html5>
 	</apps>
-	<log group="kaltura" user="kaltura" mode="0770" filesMode="0660">
+	<log group="${OS_KALTURA_GROUP}" user="${OS_KALTURA_USER}" mode="0770" filesMode="0660">
 		<batch mode="0700" skipFilesMode="true" />
 		<sphinx mode="0700" skipFilesMode="true" >
 			<data skipFilesMode="true" />
 		</sphinx>
 	</log>
-	<bin group="kaltura" user="kaltura" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/package_skeleton/bin/linux/64bit" mode="0640" filesMode="0750" />
-	<sphinx group="kaltura" user="kaltura" mode="0700" skipFilesMode="true" />
-	<tmp group="kaltura" user="kaltura" mode="0700" filesMode="0600" skipFilesMode="true">
+	<bin group="${OS_KALTURA_GROUP}" user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/package_skeleton/bin/linux/64bit" mode="0640" filesMode="0750" />
+	<sphinx group="${OS_KALTURA_GROUP}" user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
+	<tmp group="${OS_KALTURA_GROUP}" user="${OS_KALTURA_USER}" mode="0700" filesMode="0600" skipFilesMode="true">
 		<convert />
 		<emailIngestion />
 		<imports />
@@ -220,7 +220,7 @@
 				<v1.0.33s svnPath="/usr/local/kalprod/flash/ksr/v1.0.33s" />
 			</ksr>
 		</flash>
-		<content group="kaltura" user="apache" mode="0750" skipFilesMode="true">
+		<content group="${OS_KALTURA_GROUP}" user="${OS_APACHE_USER}" mode="0750" skipFilesMode="true">
 			<uploads mode="0700" skipFilesMode="true" />
 			<webcam mode="0700" skipFilesMode="true" />
 			<cacheswf mode="0700" skipFilesMode="true" />
@@ -244,9 +244,9 @@
 			<batchfiles mode="0750" filesMode="0640" />
 			<docs svnPath="/usr/local/kalsource/docs" mode="0500" filesMode="0400" skipFilesMode="true" />
 			<templates mode="0500" filesMode="0400" skipFilesMode="true" />
-			<clientlibs group="kaltura" user="kaltura" mode="0750" filesMode="0640" />
+			<clientlibs group="${OS_KALTURA_GROUP}" user="${OS_KALTURA_USER}" mode="0750" filesMode="0640" />
 		</content>
-		<tmp group="kaltura" user="kaltura" mode="0750" filesMode="0660" skipFilesMode="true">
+		<tmp group="${OS_KALTURA_GROUP}" user="${OS_KALTURA_USER}" mode="0750" filesMode="0660" skipFilesMode="true">
 			<convert />
 			<imports />
 			<thumb />

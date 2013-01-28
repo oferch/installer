@@ -22,6 +22,14 @@ class AppConfigAttribute
 	const CURL_BIN_DIR							= 'CURL_BIN_DIR';
 	const SPHINX_BIN_DIR						= 'SPHINX_BIN_DIR';
 	
+	const OS_ROOT_USER							= 'OS_ROOT_USER';
+	const OS_APACHE_USER						= 'OS_APACHE_USER';
+	const OS_KALTURA_USER						= 'OS_KALTURA_USER';
+	
+	const OS_ROOT_GROUP							= 'OS_ROOT_GROUP';
+	const OS_APACHE_GROUP						= 'OS_APACHE_GROUP';
+	const OS_KALTURA_GROUP						= 'OS_KALTURA_GROUP';
+	
 	const DB_ROOT_USER							= 'DB_ROOT_USER';
 	const DB_ROOT_PASS							= 'DB_ROOT_PASS';
 	
@@ -146,6 +154,7 @@ class AppConfigAttribute
 class AppConfig 
 {
 	private static $app_config = array();
+	private static $filePath = null;
 	
 	// gets the application value set for the given key
 	public static function get($key) {
@@ -201,6 +210,17 @@ class AppConfig
 		}
 		return true;
 	}	
+	
+	public static function getFilePath() 
+	{
+		if(!self::$filePath)
+		{	
+			self::$filePath = tempnam(sys_get_temp_dir());
+			OsUtils::writeConfigToFile(self::$app_config, self::$filePath);
+		}
+		
+		return self::$filePath;
+	}		
 	
 	// saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
 	public static function saveUninstallerConfig() {
@@ -381,8 +401,24 @@ class AppConfig
 			$output = OsUtils::executeReturnOutput('echo "select admin_secret from partner where id=99" | mysql -h'.self::$app_config[AppConfigAttribute::DB1_HOST]. ' -P'.self::$app_config[AppConfigAttribute::DB1_PORT] . ' -u'.self::$app_config[AppConfigAttribute::DB1_USER] . ' -p'. self::$app_config[AppConfigAttribute::DB1_PASS] . ' '. self::$app_config[AppConfigAttribute::DB1_NAME] . ' --skip-column-names' );
 			self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET] =  $output[0];
 		}
-			
 		
+		if (!isset(self::$app_config[AppConfigAttribute::OS_ROOT_USER]))
+			self::$app_config[AppConfigAttribute::OS_ROOT_USER] = (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root');
+			
+		if (!isset(self::$app_config[AppConfigAttribute::OS_APACHE_USER]))
+			self::$app_config[AppConfigAttribute::OS_APACHE_USER] = 'apache';
+			
+		if (!isset(self::$app_config[AppConfigAttribute::OS_KALTURA_USER]))
+			self::$app_config[AppConfigAttribute::OS_KALTURA_USER] = 'kaltura';
+			
+		if (!isset(self::$app_config[AppConfigAttribute::OS_ROOT_GROUP]))
+			self::$app_config[AppConfigAttribute::OS_ROOT_GROUP] = self::$app_config[AppConfigAttribute::OS_ROOT_USER];
+			
+		if (!isset(self::$app_config[AppConfigAttribute::OS_APACHE_GROUP]))
+			self::$app_config[AppConfigAttribute::OS_APACHE_GROUP] = self::$app_config[AppConfigAttribute::OS_APACHE_USER];
+			
+		if (!isset(self::$app_config[AppConfigAttribute::OS_KALTURA_GROUP]))
+			self::$app_config[AppConfigAttribute::OS_KALTURA_GROUP] = self::$app_config[AppConfigAttribute::OS_KALTURA_USER];
 	}
 	
 	public static function definePostInstallationConfigurationTokens()
