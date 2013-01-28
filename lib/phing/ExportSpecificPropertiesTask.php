@@ -1,8 +1,44 @@
 <?php
-require_once "phing/tasks/ext/ExportPropertiesTask.php";
+require_once "phing/Task.php";
 
-class ExportSpecificPropertiesTask extends ExportPropertiesTask
+class ExportSpecificPropertiesTask extends Task
 {
+    /**
+     * Array of project properties
+     * 
+     * (default value: null)
+     * 
+     * @var array
+     * @access private
+     */
+    private $_properties = null;
+    
+    /**
+     * Target file for saved properties
+     * 
+     * (default value: null)
+     * 
+     * @var string
+     * @access private
+     */
+    private $_targetFile = null;
+    
+    /**
+     * Exclude properties starting with these prefixes
+     * 
+     * @var array
+     * @access private
+     */
+    private $_disallowedPropertyPrefixes = array(
+        'host.',
+        'phing.',
+        'os.',
+        'php.',
+        'line.',
+        'env.',
+        'user.'
+    );
+    
 	/**
 	 * Include properties starting with these prefixes
 	 * 
@@ -17,7 +53,41 @@ class ExportSpecificPropertiesTask extends ExportPropertiesTask
 	 * @var boolean
 	 * @access private
 	 */
-	private $_removePrefix = array();
+	private $_removePrefix = false;
+
+    /**
+     * setter for _targetFile
+     * 
+     * @access public
+     * @param string $file
+     * @return bool
+     */
+    public function setTargetFile($file)
+    {
+        if(!is_dir(dirname($file))) {
+            throw new BuildException("Parent directory of target file doesn't exist");
+        }
+        
+        if(!is_writable(dirname($file)) && (file_exists($file) && !is_writable($file))) {
+            throw new BuildException("Target file isn't writable");
+        }
+        
+        $this->_targetFile = $file;
+        return true;
+    }
+    
+    /**
+     * setter for _disallowedPropertyPrefixes
+     * 
+     * @access public
+     * @param string $file
+     * @return bool
+     */
+    public function setDisallowedPropertyPrefixes($prefixes)
+    {
+        $this->_disallowedPropertyPrefixes = explode(",", $prefixes);
+        return true;
+    }  
 	
 	/**
 	 * setter for _allowedPropertyPrefixes
@@ -44,13 +114,35 @@ class ExportSpecificPropertiesTask extends ExportPropertiesTask
 		$this->_removePrefix = $remove;
 		return true;
 	}
+    
+    /**
+     * Checks if a property name is disallowed
+     * 
+     * @access protected
+     * @param string $propertyName
+     * @return bool
+     */
+    protected function isDisallowedPropery($propertyName)
+    {
+        foreach($this->_disallowedPropertyPrefixes as $property) {
+            if(substr($propertyName, 0, strlen($property)) == $property) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 	
-	/* (non-PHPdoc)
-	 * @see ExportPropertiesTask::isDisallowedPropery()
-	 */
+    /**
+     * Checks if a property name is allowed
+     * 
+     * @access protected
+     * @param string $propertyName
+     * @return bool
+     */
 	protected function isAllowedPropery(&$propertyName)
 	{
-		if(parent::isDisallowedPropery($propertyName))
+		if($this->isDisallowedPropery($propertyName))
 			return false;
 		
 		foreach($this->_allowedPropertyPrefixes as $property)
