@@ -155,7 +155,7 @@
 							<available file="${directory.fullPath}/.svn" type="dir" />
 							<then>
 								<echo message="Update svn repository [${directory.fullPath}]" />
-								<echo message="Executing: ${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update &quot;${directory.fullPath}&quot;" />
+								<echo message="Executing: ${svn.bin} --non-interactive --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update --force --accept theirs-full &quot;${directory.fullPath}&quot;" />
 								<exec passthru="true" checkreturn="true" command="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update &quot;${directory.fullPath}&quot;" />
 							</then>
 							<else>
@@ -163,7 +163,7 @@
 									<isset property="directory.attributes.${directory.id}.overwrite" />
 									<then>
 										<echo message="Export from svn [${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath}] to [${directory.fullPath}]" />
-										<echo message="Executing: ${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; --force export ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
+										<echo message="Executing: ${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; export --force ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
 										<exec passthru="true" checkreturn="true" command="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; --force export ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
 									</then>
 									<else>
