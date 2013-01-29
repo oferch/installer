@@ -102,8 +102,6 @@ class OsUtils {
 	// executes the phing and returns true/false according to the execution return value
 	public static function phing($dir, $target = '', array $attributes = array()) 
 	{
-		global $logFile;
-		
 		$propertyFile = AppConfig::getFilePath();
 		$options = array();
 		foreach($attributes as $attribute => $value)
@@ -113,7 +111,7 @@ class OsUtils {
 		 
 		$originalDir = getcwd();
 		chdir($dir);
-		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target >> '$logFile' 2>&1";
+		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target >> " . self::$logDir . "/kaltura_deploy.log 2>&1";
 		logMessage(L_INFO, "Executing $command");
 		$returnedValue = null;
 		passthru($command, $returnedValue);			
@@ -128,7 +126,7 @@ class OsUtils {
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
-		@exec($command . ' >> ' . self::$logDir .'/instlBkgrndRun.log 2>&1 ', $output, $return_var);
+		@exec($command . ' >> ' . self::$logDir .'/kaltura_deploy.log 2>&1 ', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
@@ -162,7 +160,7 @@ class OsUtils {
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
 		print("Executing in background $command \n");
-		@exec($command. ' >> ' . self::$logDir .'/instlBkgrndRun.log 2>&1 &', $output, $return_var);
+		@exec($command. ' >> ' . self::$logDir .'/kaltura_deploy.log 2>&1 &', $output, $return_var);
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
