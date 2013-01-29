@@ -199,14 +199,18 @@ class Installer {
 		logMessage(L_USER, "Creating system symbolic links");
 		foreach ($this->install_config['symlinks'] as $slink) {
 			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
+			
 			if(!file_exists(dirname($link)))
 				mkdir(dirname($link), 0755, true);
+				
+			if(file_exists($link))
+				unlink($link);
 					
 			if (symlink($target, $link)) {
 				logMessage(L_INFO, "Created symbolic link $link -> $target");
 			} else {
 				logMessage(L_INFO, "Failed to create symbolic link from $link to $target, retyring..");
-				unlink($target);
+				unlink($link);
 				symlink($target, $link);
 			}
 		}
