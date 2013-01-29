@@ -103,6 +103,20 @@ class GrantDbUserTask extends Task
 			$errInfo = $pdo->errorInfo();
 			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
+		
+		$statement = "FLUSH PRIVILEGES";
+		$this->log("Executing: $statement");
+		if(!$this->dryRun && $pdo->exec($statement) === false)
+		{
+			/**
+			 * $pdo->errorInfo()
+			 * 0	SQLSTATE error code (a five characters alphanumeric identifier defined in the ANSI SQL standard).
+			 * 1	Driver-specific error code.
+			 * 2	Driver-specific error message.
+			 */
+			$errInfo = $pdo->errorInfo();
+			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+		}
 	}
 	
 	/**
