@@ -244,15 +244,7 @@ logMessage(L_USER,
 	"To start using Kaltura, please complete the following steps:\n" .
 	"1. Add the following line to your /etc/hosts file:\n" .
 		"\t127.0.0.1 $virtualHostName\n" .
-	"2. Locate your Apache conf.d directory (usually found under /etc/httpd/conf.d) and create there a symlink to $appDir/configurations/apache/kaltura.conf:\n" .
-		"\tln -s $appDir/app/configurations/apache/kaltura.conf /etc/httpd/conf.d/kaltura.conf\n" . 
-	"3. Locate your Log-Rotate conf.d directory (usually found under /etc/logrotate.d) and create there a symlink to $appDir/configurations/logrotate:\n" .
-		"\tln -s $appDir/app/configurations/logrotate/kaltura_api /etc/logrotate.d/kaltura_api\n" .
-		"\tln -s $appDir/app/configurations/logrotate/kaltura_apps /etc/logrotate.d/kaltura_apps\n" .
-		"\tln -s $appDir/app/configurations/logrotate/kaltura_batch /etc/logrotate.d/kaltura_batch\n" .
-		"\tln -s $appDir/app/configurations/logrotate/kaltura_cron /etc/logrotate.d/kaltura_cron\n" .
-	"4. Restart apache by: \"/etc/init.d/httpd restart\"\n" .
-	"5. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
+	"2. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
 );
 
 if (isset($report)) {
