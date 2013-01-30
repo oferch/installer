@@ -55,14 +55,6 @@ class AppConfigAttribute
 	const RED5_INSTALL							= 'RED5_INSTALL';
 	const DB1_CREATE_NEW_DB						= 'DB1_CREATE_NEW_DB';
 	
-	const ADMIN_CONSOLE_PARTNER_ALIAS			= 'ADMIN_CONSOLE_PARTNER_ALIAS';
-	const SYSTEM_USER_ADMIN_EMAIL				= 'SYSTEM_USER_ADMIN_EMAIL';
-	const ADMIN_CONSOLE_KUSER_MAIL				= 'ADMIN_CONSOLE_KUSER_MAIL';
-	const SYSTEM_USER_ADMIN_SALT				= 'SYSTEM_USER_ADMIN_SALT';
-	const ADMIN_CONSOLE_KUSER_SHA1				= 'ADMIN_CONSOLE_KUSER_SHA1';
-	const SYSTEM_USER_ADMIN_SHA1				= 'SYSTEM_USER_ADMIN_SHA1';
-	const ADMIN_CONSOLE_KUSER_SALT				= 'ADMIN_CONSOLE_KUSER_SALT';
-	const DWH_SEND_REPORT_MAIL					= 'DWH_SEND_REPORT_MAIL';
 	const EVENTS_LOGS_DIR						= 'EVENTS_LOGS_DIR';
 	const EVENTS_WILDCARD						= 'EVENTS_WILDCARD';
 	const EVENTS_FETCH_METHOD					= 'EVENTS_FETCH_METHOD';
@@ -76,23 +68,9 @@ class AppConfigAttribute
 	const HOSTED_PAGES_PARTNER_ADMIN_SECRET		= 'HOSTED_PAGES_PARTNER_ADMIN_SECRET';
 	const TEMPLATE_PARTNER_ADMIN_SECRET			= 'TEMPLATE_PARTNER_ADMIN_SECRET';
 	
-	const BATCH_ADMIN_MAIL						= 'BATCH_ADMIN_MAIL';
-	const BATCH_KUSER_MAIL						= 'BATCH_KUSER_MAIL';
-	const TEMPLATE_PARTNER_MAIL					= 'TEMPLATE_PARTNER_MAIL';
-	const TEMPLATE_KUSER_MAIL					= 'TEMPLATE_KUSER_MAIL';
-	const TEMPLATE_ADMIN_KUSER_SALT				= 'TEMPLATE_ADMIN_KUSER_SALT';
-	const TEMPLATE_ADMIN_KUSER_SHA1				= 'TEMPLATE_ADMIN_KUSER_SHA1';
-	const PARTNER_ZERO_PARTNER_ALIAS			= 'PARTNER_ZERO_PARTNER_ALIAS';
-	
 	const PARTNERS_USAGE_REPORT_SEND_FROM		= 'PARTNERS_USAGE_REPORT_SEND_FROM';
 	const PARTNERS_USAGE_REPORT_SEND_TO			= 'PARTNERS_USAGE_REPORT_SEND_TO';
-	const SYSTEM_PAGES_LOGIN_USER				= 'SYSTEM_PAGES_LOGIN_USER';
-	const SYSTEM_PAGES_LOGIN_PASS				= 'SYSTEM_PAGES_LOGIN_PASS';
-	const KMC_BACKDOR_SHA1_PASS					= 'KMC_BACKDOR_SHA1_PASS';
 	const DC0_SECRET							= 'DC0_SECRET';
-	const APACHE_CONF							= 'APACHE_CONF';
-	const DC_NAME								= 'DC_NAME';
-	const DC_DESCRIPTION						= 'DC_DESCRIPTION';
 	const STORAGE_BASE_DIR						= 'STORAGE_BASE_DIR';
 	const DELIVERY_HTTP_BASE_URL				= 'DELIVERY_HTTP_BASE_URL';
 	const DELIVERY_RTMP_BASE_URL				= 'DELIVERY_RTMP_BASE_URL';
@@ -298,39 +276,17 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::SPHINX_DB_PORT] = self::$app_config[AppConfigAttribute::DB1_PORT];
 		
 		// admin console defaults
-		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_EMAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ALIAS] = md5('-2kaltura partner');
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_MAIL] = 'admin_console@'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
-		$salt = null;
-		$sha1 = null;
-		self::generateSha1Salt(self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PASSWORD], $salt, $sha1);	
-		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT] = $salt;
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $salt;
-		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1] = $sha1;
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SALT] = $sha1;
 		self::$app_config[AppConfigAttribute::UICONF_TAB_ACCESS] = 'SYSTEM_ADMIN_BATCH_CONTROL';
 		
 		// data warehouse
 		self::$app_config[AppConfigAttribute::DWH_HOST] = self::$app_config[AppConfigAttribute::DB1_HOST];
 		self::$app_config[AppConfigAttribute::DWH_PORT] = self::$app_config[AppConfigAttribute::DB1_PORT];
 		self::$app_config[AppConfigAttribute::DWH_DATABASE_NAME] = 'kalturadw';
-		self::$app_config[AppConfigAttribute::DWH_SEND_REPORT_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
 		self::$app_config[AppConfigAttribute::EVENTS_LOGS_DIR] = self::$app_config[AppConfigAttribute::LOG_DIR];
 		self::$app_config[AppConfigAttribute::EVENTS_WILDCARD] = '*kaltura.*_apache_access.log-.*';
 		self::$app_config[AppConfigAttribute::EVENTS_FETCH_METHOD] = 'local';
 		
-				
-		// default partners and kusers
-		self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL] = 'template@'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::TEMPLATE_KUSER_MAIL] = self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL];
-		self::$app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SALT] = self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT];
-		self::$app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SHA1] = self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1];		
-		
-		self::$app_config[AppConfigAttribute::PARTNER_ZERO_PARTNER_ALIAS] = md5('-1kaltura partner zero');		
-		
 		// batch
-		self::$app_config[AppConfigAttribute::BATCH_ADMIN_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
-		self::$app_config[AppConfigAttribute::BATCH_KUSER_MAIL] = 'batch@'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::BATCH_HOST_NAME] = OsUtils::getComputerName();
 		self::$app_config[AppConfigAttribute::BATCH_PARTNER_PARTNER_ALIAS] = md5('-1kaltura partner');		
 				
@@ -341,15 +297,9 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::INSTALLATION_TYPE] = '';
 		self::$app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_FROM] = ''; 
 		self::$app_config[AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_TO] = '';
-		self::$app_config[AppConfigAttribute::SYSTEM_PAGES_LOGIN_USER] = '';
-		self::$app_config[AppConfigAttribute::SYSTEM_PAGES_LOGIN_PASS] = '';
-		self::$app_config[AppConfigAttribute::KMC_BACKDOR_SHA1_PASS] = '';
 		self::$app_config[AppConfigAttribute::DC0_SECRET] = '';
-		self::$app_config[AppConfigAttribute::APACHE_CONF] = '';
 		
 		// storage profile related
-		self::$app_config[AppConfigAttribute::DC_NAME] = 'local';
-		self::$app_config[AppConfigAttribute::DC_DESCRIPTION] = 'local';
 		self::$app_config[AppConfigAttribute::STORAGE_BASE_DIR] = self::$app_config[AppConfigAttribute::WEB_DIR];
 		self::$app_config[AppConfigAttribute::DELIVERY_HTTP_BASE_URL] = self::$app_config[AppConfigAttribute::SERVICE_URL];
 		self::$app_config[AppConfigAttribute::DELIVERY_RTMP_BASE_URL] = self::$app_config[AppConfigAttribute::RTMP_URL];
@@ -430,23 +380,6 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::DELIVERY_RTMP_BASE_URL] = self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
 		
 		self::$app_config[AppConfigAttribute::POST_INST_ADMIN_CONSOLE_ADMIN_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];		
-		self::$app_config[AppConfigAttribute::BATCH_KUSER_MAIL] = 'batch@'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL] = 'template@'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::TEMPLATE_KUSER_MAIL] = self::$app_config[AppConfigAttribute::TEMPLATE_PARTNER_MAIL];
-		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_EMAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_MAIL] = 'admin_console@'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::BATCH_ADMIN_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];
-
-		$salt = null;
-		$sha1 = null;
-		self::generateSha1Salt(self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_PASSWORD], $salt, $sha1);	
-		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT] = $salt;
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $salt;
-		self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1] = $sha1;
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SALT] = $sha1;
-		self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_KUSER_SHA1] = $sha1;		
-		self::$app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SALT] = self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SALT];
-		self::$app_config[AppConfigAttribute::TEMPLATE_ADMIN_KUSER_SHA1] = self::$app_config[AppConfigAttribute::SYSTEM_USER_ADMIN_SHA1];		
 	}
 
 	// copies DB parametes from one DB configuration to another
