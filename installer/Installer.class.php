@@ -151,9 +151,6 @@ class Installer {
 			return "Failed to create dynamic enums";
 		}
 			
-		if(!$this->changeDirsAndFilesPermissions())
-			return "Failed to set files permissions";
-			
 		if(!$this->createInitialContent())
 			return "Failed to create initial content";
 		
@@ -236,12 +233,14 @@ class Installer {
 		if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			return "Failed running the generate script";
 		}
-		OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::APP_DIR) . "/cache/api_v3");
 		
 		logMessage(L_USER, "Running the sphinx search deamon");
 		print("Executing sphinx dameon \n");
 		OsUtils::executeInBackground('nohup '.AppConfig::get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/watch.daemon.sh');
 		
+		if(!$this->changeDirsAndFilesPermissions())
+			return "Failed to set files permissions";
+			
 		logMessage(L_USER, "Restarting apache http server");
 		if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::APACHE_RESTART_COMMAND))) {
 			return "Failed restarting apache http server";
