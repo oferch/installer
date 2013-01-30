@@ -42,8 +42,6 @@ class AppConfigAttribute
 	const SPHINX_SERVER							= 'SPHINX_SERVER';
 	const SPHINX_DB_HOST						= 'SPHINX_DB_HOST';
 	const SPHINX_DB_PORT						= 'SPHINX_DB_PORT';
-	const SPHINX_DB_USER						= 'SPHINX_DB_USER';
-	const SPHINX_DB_PASS						= 'SPHINX_DB_PASS';
 	const SPHINX_DB_NAME						= 'SPHINX_DB_NAME';
 	
 	const DWH_HOST								= 'DWH_HOST';
@@ -261,8 +259,6 @@ class AppConfig
 		}
 		self::$app_config[AppConfigAttribute::DB1_USER] = 'kaltura';
 		self::$app_config[AppConfigAttribute::DB1_PASS] = 'kaltura';
-	    self::$app_config[AppConfigAttribute::SPHINX_DB_USER] = 'kaltura_sphinx';
-		self::$app_config[AppConfigAttribute::SPHINX_DB_PASS] = 'kaltura_sphinx';
 		self::$app_config[AppConfigAttribute::DWH_USER] = 'kaltura_etl';
 		self::$app_config[AppConfigAttribute::DWH_PASS] = 'kaltura_etl';
 		
