@@ -29,7 +29,7 @@ class InputValidator {
 
 		$valid = true;
 		if ($this->validateNumberRange) $valid = is_numeric($input) && ($input >= $this->numberRange[0]) && ($input <= $this->numberRange[1]);
-		else if ($this->validateHostnameOrIp) $valid = (preg_match(HOSTNAME_IP_REGEX, $input) === 1);
+		else if ($this->validateHostnameOrIp) $valid = (preg_match(HOSTNAME_IP_REGEX, parse_url($input, PHP_URL_HOST)) === 1);
 		else if ($this->validateEmail) $valid = (preg_match(EMAIL_REGEX, $input) === 1);
 		else if ($this->validateFileExists) $valid = is_file($input);
 		else if ($this->validateNoWhitespace) $valid = (preg_match(WHITESPACE_REGEX, $input) === 0);

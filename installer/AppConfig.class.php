@@ -91,6 +91,7 @@ class AppConfigAttribute
 	const MEMCACHE_HOST							= 'MEMCACHE_HOST';
 	const GLOBAL_MEMCACHE_HOST					= 'GLOBAL_MEMCACHE_HOST';
 	const KALTURA_VIRTUAL_HOST_NAME				= 'KALTURA_VIRTUAL_HOST_NAME';
+	const KALTURA_VIRTUAL_HOST_PORT				= 'KALTURA_VIRTUAL_HOST_PORT';
 	const KALTURA_FULL_VIRTUAL_HOST_NAME		= 'KALTURA_FULL_VIRTUAL_HOST_NAME';
 	const POST_INST_VIRTUAL_HOST_NAME			= 'POST_INST_VIRTUAL_HOST_NAME';
 	const POST_INST_ADMIN_CONSOLE_ADMIN_MAIL	= 'POST_INST_ADMIN_CONSOLE_ADMIN_MAIL';
@@ -242,6 +243,15 @@ class AppConfig
 		
 		
 		// site settings
+		if (strpos(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME], ":") !== false)
+		{
+			list(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME],self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT]) = explode(":", self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]));
+		}
+		else
+		{
+			self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
+			self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT] = 80;
+		}
 		self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
 		self::$app_config[AppConfigAttribute::CORP_REDIRECT] = '';	
 		self::$app_config[AppConfigAttribute::CDN_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
