@@ -53,9 +53,9 @@ if (!extension_loaded('mysqli')) {
 	
 	$lower_case_table_names = getMysqlSetting($link, 'lower_case_table_names');
 	if (!isset($lower_case_table_names)) {
-		$prerequisites .= "Please set 'lower_case_table_names = ".$prerequisites_config["lower_case_table_names"]."' in my.cnf and restart MySQL".PHP_EOL;
+	    $prerequisites .= "Please set\n'lower_case_table_names = ".$prerequisites_config["lower_case_table_names"]."\n' in my.cnf and restart MySQL".PHP_EOL;
 	} else if (intval($lower_case_table_names) != intval($prerequisites_config["lower_case_table_names"])) {
-		$prerequisites .= "Please set 'lower_case_table_names = ".$prerequisites_config["lower_case_table_names"]."' in my.cnf and restart MySQL (current value is $lower_case_table_names)".PHP_EOL;
+	    $prerequisites .= "Please set\n'lower_case_table_names = ".$prerequisites_config["lower_case_table_names"]."\n' in my.cnf and restart MySQL (current value is $lower_case_table_names)".PHP_EOL;
 	}
 	
 	$thread_stack = getMysqlSetting($link, 'thread_stack');
@@ -101,20 +101,13 @@ foreach ($prerequisites_config["binaries"] as $bin) {
 }
 
 // Check that SELinux is not enabled (enforcing)
-exec("getenforce", $statusresponse, $exit_code);
-if($exit_code != 127) // command not found - SELinux is not installed
-{
-	if ($exit_code !== 0) 
-	{
-		$prerequisites .= "Could not resolve SELinux status, run again.".PHP_EOL;
-	} 
-	elseif(!empty($statusresponse[0])) 
-	{
-		if(!strcmp($statusresponse[0],'Enforcing')) 
-		{
-			$prerequisites .= "SELinux is Enabled, please set to permissive.".PHP_EOL;
-		}
-	}
+exec("which getenforce 2>/dev/null",$out,$rc);
+if ($rc === 0){
+    echo "running getenforce\n";
+    exec("getenforce", $out, $rc);
+    if($out[1]==='Enforcing') {
+	$prerequisites .= "SELinux is Enabled, please disable.".PHP_EOL;
+    }
 }
 
 // check pentaho exists
