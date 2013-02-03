@@ -245,11 +245,10 @@ class AppConfig
 		// site settings
 		if (strpos(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME], ":") !== false)
 		{
-			list(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME],self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT]) = explode(":", self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]));
+			self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT] = parse_url(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME], PHP_URL_PORT);
 		}
 		else
 		{
-			self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
 			self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT] = 80;
 		}
 		self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
