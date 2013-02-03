@@ -155,73 +155,79 @@ class UserInput
 		logMessage(L_USER, "Please provide the following information:");
 		echo PHP_EOL;
 		
-		$this->getInput(AppConfigAttribute::HTTPD_BIN, 
+		$this->getInput('HTTPD_BIN', 
 						$httpd_bin_message, 
 						$httpd_error_message, 
 						InputValidator::createFileValidator(), 
 						$httpd_bin_found);		
-		$this->getInput(AppConfigAttribute::PHP_BIN, 
+		$this->getInput('PHP_BIN', 
 						$php_bin_message, 
 						$php_error_message, 
 						InputValidator::createFileValidator(), 
 						$php_bin_found);
-		$this->getInput(AppConfigAttribute::TIME_ZONE, 
+		$this->getInput('TIME_ZONE', 
 						"Default time zone for Kaltura application (leave empty to use system timezone: ". date_default_timezone_get()." )",
 						"Timezone must be a valid timezone, please enter again", 
 						InputValidator::createTimezoneValidator(), 
 						date_default_timezone_get());
-		$this->getInput(AppConfigAttribute::BASE_DIR, 
+		$this->getInput('BASE_DIR', 
 						"Full target directory path for Kaltura application (leave empty for /opt/kaltura)",
 						"Target directory must be a valid directory path, please enter again", 
 						InputValidator::createDirectoryValidator(), 
 						'/opt/kaltura');
-		$this->getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, 
+		$this->getInput('KALTURA_FULL_VIRTUAL_HOST_NAME', 
 						"Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://)", 
 						'Must be a valid hostname or ip, please enter again', 
 						InputValidator::createHostValidator(), 
 						null);
-		$this->getInput(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, 
+		$this->getInput('ADMIN_CONSOLE_ADMIN_MAIL', 
 						"Your primary system administrator email address", 
 						"Email must be in a valid email format, please enter again", 
 						InputValidator::createEmailValidator(false), 
 						null);
-		$this->getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, 
+		$this->getInput('ADMIN_CONSOLE_PASSWORD', 
 						"The password you want to set for your primary administrator", 
 						"Password should not be empty and should not contain whitespaces, please enter again", 
 						InputValidator::createNoWhitespaceValidator(), 
 						null, 
 						true);
-		$this->getInput(AppConfigAttribute::DB1_HOST, 
+		$this->getInput('DB1_HOST', 
 						"Database host (leave empty for 'localhost')", 
 						"Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", 
 						InputValidator::createHostValidator(), 
 						'localhost');
-		$this->getInput(AppConfigAttribute::DB1_PORT, 
+		$this->getInput('DB1_PORT', 
 						"Database port (leave empty for '3306')", 
 						"Must be a valid port (1-65535), please enter again (leave empty for '3306')", 
 						InputValidator::createRangeValidator(1, 65535), 
 						'3306');
-		$this->set(AppConfigAttribute::DB1_NAME,'kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
-		$this->getInput(AppConfigAttribute::DB_ROOT_USER, 
+		$this->set('DB1_NAME','kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
+		$this->getInput('DB_ROOT_USER', 
 						"Database username (with create & write privileges)", 
 						"Database username cannot be empty, please enter again", 
 						InputValidator::createNonEmptyValidator(), 
 						null);
-		$this->getInput(AppConfigAttribute::DB_ROOT_PASS, 
+		$this->getInput('DB_ROOT_PASS', 
 						"Database password (leave empty for no password)", 
 						null, 
 						null, 
 						null);
-		$this->getInput(AppConfigAttribute::DB1_CREATE_NEW_DB, 
+		$this->getInput('DB1_CREATE_NEW_DB', 
 						"Would you like to create a new kaltura database or use an exisiting one? (Y/n)", 
 						"Input is not valid", 
 						InputValidator::createYesNoValidator(), 
 						null);
-		$this->getInput(AppConfigAttribute::RED5_INSTALL, 
+		$this->getInput('RED5_INSTALL', 
 						"Would you like to install Red5 on this machine?", 
 						"Please input yes/no.", 
 						InputValidator::createYesNoValidator(), 
 						"no");
+		$this->getInput('SPHINX_DB_HOST', 
+						"Sphinx host (leave empty if Sphinx is running on this machine).", 
+						null, 
+						null, 
+						'127.0.0.1');
+						
 		$this->saveInput();	
 	}
 }
