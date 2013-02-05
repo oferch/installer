@@ -221,6 +221,16 @@ class AppConfig
 			}
 		} 
 		return OsUtils::appendFile($file, $data);
+	}		
+	
+	// update uninstaller config with chkconfig definitions
+	public static function updateUninstallerServices($chkconfig) {
+		$data ='';
+		foreach ($chkconfig as $service)
+			$data .= "chkconfig[] = $service" . PHP_EOL;
+			
+		$file = self::$app_config[AppConfigAttribute::BASE_DIR].UNINSTALLER_LOCATION;
+		return OsUtils::appendFile($file, $data);
 	}	
 	
 	// private functions

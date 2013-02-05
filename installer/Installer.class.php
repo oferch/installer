@@ -55,16 +55,9 @@ class Installer {
 			if ($report_only) {
 				$leftovers .= "   Target directory ".AppConfig::get(AppConfigAttribute::BASE_DIR)." already exists".PHP_EOL;
 			} else {
-				logMessage(L_USER, "killing sphinx daemon if running");
-				$currentWorkingDir = getcwd();
-				chdir(AppConfig::get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/');
-				@exec('./watch.stop.sh -u kaltura');
-				logMessage(L_USER, "Stopping sphinx if running");
-				@exec('./searchd.sh stop 2>&1', $output, $return_var);
-				logMessage(L_USER, "Stopping the batch manager if running");
-				chdir(AppConfig::get(AppConfigAttribute::APP_DIR).'/scripts/');
-				@exec('./serviceBatchMgr.sh stop 2>&1', $output, $return_var);
-				chdir($currentWorkingDir);
+				
+				foreach ($this->install_config['chkconfig'] as $service)
+					OsUtils::stopService($service);
 				
 				logMessage(L_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
 				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));			
@@ -234,10 +227,6 @@ class Installer {
 			return "Failed running the generate script";
 		}
 		
-		logMessage(L_USER, "Running the sphinx search deamon");
-		print("Executing sphinx dameon \n");
-		OsUtils::executeInBackground('nohup '.AppConfig::get(AppConfigAttribute::APP_DIR).'/plugins/sphinx_search/scripts/watch.daemon.sh');
-		
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";
 			
@@ -246,10 +235,15 @@ class Installer {
 			return "Failed restarting apache http server";
 		}
 		
-		logMessage(L_USER, "Running the batch manager");
-		if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::APP_DIR).'/scripts/serviceBatchMgr.sh start')) {
-			return "Failed running the batch manager";
+		logMessage(L_USER, "Running kaltura services");
+		foreach ($this->install_config['chkconfig'] as $service)
+		{
+			if (!OsUtils::startService($service))
+				return "Failed starting service [$service]";
 		}
+		
+		//update uninstaller config
+		AppConfig::updateUninstallerServices($this->install_config['chkconfig']);
 		
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";

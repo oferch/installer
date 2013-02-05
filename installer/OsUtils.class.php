@@ -123,6 +123,22 @@ class OsUtils {
 		return true;
 	}
 
+	public static function startService($service, $alwaysStartAutomtically = true) 
+	{
+		if($alwaysStartAutomtically)
+			OsUtils::executeInBackground("chkconfig $service on");
+			
+		return self::execute("/etc/ini.d/$service start");
+	}
+
+	public static function stopService($service, $neverStartAutomtically = true) 
+	{
+		if($neverStartAutomtically)
+			OsUtils::executeInBackground("chkconfig $service off");
+			
+		return self::execute("/etc/ini.d/$service stop");
+	}
+
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");

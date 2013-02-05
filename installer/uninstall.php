@@ -118,20 +118,22 @@ if(is_array($config['symlinks']))
 	}
 }
 
-echo 'Stopping sphinx daemon and sphinx... ';
-if (execute($config['BASE_DIR'].'/app/plugins/sphinx_search/scripts/watch.stop.sh')) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
-}
 
-echo 'Stopping the batch manager... ';
-if (execute($config['BASE_DIR'].'/app/scripts/serviceBatchMgr.sh stop')) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
+if(is_array($config['chkconfig']))
+{
+	foreach ($config['chkconfig'] as $service)
+	{
+		echo "Stopping $service... ";
+		if (execute("/etc/ini.d/$service stop"))
+		{
+			echo 'OK'.PHP_EOL;
+		}
+		else 
+		{
+			echo 'Failed'.PHP_EOL;
+			$success = false;
+		}
+	}
 }
 
 echo 'Deleting dwh pentaho directories... ';
