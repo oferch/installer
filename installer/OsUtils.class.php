@@ -128,7 +128,7 @@ class OsUtils {
 		if($alwaysStartAutomtically)
 			OsUtils::executeInBackground("chkconfig $service on");
 			
-		return self::execute("/etc/ini.d/$service start");
+		return self::execute("/etc/init.d/$service start");
 	}
 
 	public static function stopService($service, $neverStartAutomtically = true) 
@@ -136,7 +136,7 @@ class OsUtils {
 		if($neverStartAutomtically)
 			OsUtils::executeInBackground("chkconfig $service off");
 			
-		return self::execute("/etc/ini.d/$service stop");
+		return self::execute("/etc/init.d/$service stop");
 	}
 
 	// executes the shell $commands and returns true/false according to the execution return value
