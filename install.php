@@ -32,6 +32,15 @@ function installationFailed($what_happened, $description, $what_to_do, $cleanup 
 	die(1);
 }
 
+
+function getVersionFromKconf($kconf, $label)
+{
+	if (preg_match("/".$label." = .*/", $kconf, $matches)) {
+		$firstPos = stripos($matches[0],"=");
+		return trim(substr($matches[0],1+$firstPos));
+	}
+}
+
 // constants
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");

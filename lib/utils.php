@@ -237,10 +237,3 @@
 		}
 	}
 	
-	function getVersionFromKconf($kconf, $label)
-	{
-		if (preg_match("/".$label." = .*/", $kconf, $matches)) {
-			$firstPos = stripos($matches[0],"=");
-			return trim(substr($matches[0],1+$firstPos));
-		}
-	}
