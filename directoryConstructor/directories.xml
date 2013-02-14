@@ -24,7 +24,7 @@
 	</log>
 	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0640" filesMode="0750" />
 	<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
-	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600" skipFilesMode="true">
+	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600">
 		<convert skipFilesOwner="true" />
 		<emailIngestion skipFilesOwner="true" />
 		<imports skipFilesOwner="true" />
@@ -245,11 +245,11 @@
 			<entry mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<metadata mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<batchfiles mode="0750" filesMode="0640" skipFilesOwner="true" />
-			<docs svnPath="/usr/local/kalsource/docs" mode="0500" filesMode="0400" skipFilesMode="true" skipFilesOwner="true" />
-			<templates svnPath="/usr/local/kalsource/on-premise/trunk/packaging/templates" mode="0500" filesMode="0400" skipFilesMode="true" skipFilesOwner="true" />
+			<docs svnPath="/usr/local/kalsource/docs" mode="0700" filesMode="0400" skipFilesOwner="true" />
+			<templates svnPath="/usr/local/kalsource/on-premise/trunk/packaging/templates" mode="0700" filesMode="0400" skipFilesOwner="true" />
 			<clientlibs user="${OS_KALTURA_USER}" mode="0750" filesMode="0640" skipFilesOwner="true" />
 		</content>
-		<tmp user="${OS_KALTURA_USER}" mode="0750" filesMode="0660" skipFilesMode="true">
+		<tmp user="${OS_KALTURA_USER}" mode="0750" filesMode="0660">
 			<convert skipFilesOwner="true" />
 			<imports skipFilesOwner="true" />
 			<thumb skipFilesOwner="true" />
