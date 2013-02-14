@@ -22,7 +22,7 @@
 			<data skipFilesMode="true" skipFilesOwner="true" />
 		</sphinx>
 	</log>
-	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin" mode="0640" filesMode="0750" />
+	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0640" filesMode="0750" />
 	<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
 	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600" skipFilesMode="true">
 		<convert skipFilesOwner="true" />
