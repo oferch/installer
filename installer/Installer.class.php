@@ -250,7 +250,56 @@ class Installer {
 		
 		OsUtils::execute('cp ../package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
+		logMessage(L_USER, "Verifying installation");
+		if(!$this->verifyInstallation())
+			return "Failed to verify installation";
+		
 		return null;
+	}
+	
+	private function verifyInstallation()
+	{
+		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
+		if(!file_exists($dirName) || !is_dir($dirName))
+		{
+			logMessage(L_ERROR, "Defaults sanity test files directory [$dirName] is not a valid directory");
+			return false;
+		}
+		$dirName = realpath($dirName);
+		
+		$configPath = "$dirName/lib/config.ini";
+		if(!file_exists($configPath) || !is_file($configPath) || !parse_ini_file($configPath, true))
+		{
+			logMessage(L_ERROR, "Sanity test configuration file [$configPath] is not a valid ini file");
+			return false;
+		}
+		
+		$dir = dir($dirName);
+		/* @var $dir Directory */
+		
+		$fileNames = array();
+		$errors = array();
+		while (false !== ($fileName = $dir->read())) 
+		{
+			if(preg_match('/^\d+\.\w+\.php$/', $fileName))
+				$fileNames[] = $fileName;
+		}
+		$dir->close();
+		sort($fileNames);
+		
+		$returnValue = null;
+		foreach($fileNames as $fileName)
+		{
+			$filePath = realpath("$dirName/$fileName");
+			passthru("php $filePath $configPath", $returnValue);
+			if($returnValue !== 0)
+			{
+				logMessage(L_ERROR, "Sanity test [$filePath] failed");
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	// detects if there are databases leftovers
