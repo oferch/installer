@@ -291,10 +291,9 @@ class Installer {
 		foreach($fileNames as $fileName)
 		{
 			$filePath = realpath("$dirName/$fileName");
-			passthru("php $filePath $configPath", $returnValue);
-			if($returnValue !== 0)
-			{
-				logMessage(L_ERROR, "Sanity test [$filePath] failed");
+		
+			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN . " $filePath $configPath"))) {
+				logMessage(L_ERROR, "Verification failed [$filePath]");
 				return false;
 			}
 		}
