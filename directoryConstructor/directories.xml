@@ -60,7 +60,7 @@
 			<kmc skipFilesOwner="true">
 				<v5.27 svnPath="/usr/local/kalprod/flash/kmc/v5.27" skipFilesOwner="true" />
 				<login skipFilesOwner="true">
-					<v1.2.2 svnPath="/usr/local/kalprod/flash/kmc/login/v1.2.2" skipFilesOwner="true" />
+					<v1.2.3 svnPath="/usr/local/kalprod/flash/kmc/login/v1.2.3" skipFilesOwner="true" />
 				</login>
 			</kmc>
 			
