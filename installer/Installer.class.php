@@ -11,7 +11,7 @@ class Installer {
 
 	// crteate a new installer, loads installation configurations from installation configuration file
 	public function __construct() {
-		$this->install_config = parse_ini_file(FILE_INSTALL_CONFIG, true);
+		$this->install_config = parse_ini_file(FILE_INSTALL_CONFIG, false);
 	}
 	
 	// detects if there are leftovers of an installation
@@ -121,13 +121,16 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Replacing configuration tokens in files");
-		foreach ($this->install_config['token_files'] as $tokenFile) 
+		if(isset($this->install_config['token_files']) && is_array($this->install_config['token_files']))
 		{
-			$files = glob(AppConfig::replaceTokensInString($tokenFile));
-			foreach($files as $file)
+			foreach ($this->install_config['token_files'] as $tokenFile) 
 			{
-				if (!AppConfig::replaceTokensInFile($file))
-					return "Failed to replace tokens in $file";
+				$files = glob(AppConfig::replaceTokensInString($tokenFile));
+				foreach($files as $file)
+				{
+					if (!AppConfig::replaceTokensInFile($file))
+						return "Failed to replace tokens in $file";
+				}
 			}
 		}
 	
@@ -196,38 +199,53 @@ class Installer {
 		}
 		
 		logMessage(L_USER, "Creating system symbolic links");
-		foreach ($this->install_config['symlinks'] as $slink) {
-			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
-			
-			if(!file_exists(dirname($link)))
-				mkdir(dirname($link), 0755, true);
+		if(isset($this->install_config['symlinks']) && is_array($this->install_config['symlinks']))
+		{
+			foreach ($this->install_config['symlinks'] as $slink) 
+			{
+				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
 				
-			if(file_exists($link))
-				unlink($link);
+				if(!file_exists(dirname($link)))
+					mkdir(dirname($link), 0755, true);
 					
-			if (symlink($target, $link)) {
-				logMessage(L_INFO, "Created symbolic link $link -> $target");
-			} else {
-				logMessage(L_INFO, "Failed to create symbolic link from $link to $target, retyring..");
-				unlink($link);
-				symlink($target, $link);
+				if(file_exists($link))
+					unlink($link);
+						
+				if (symlink($target, $link)) 
+				{
+					logMessage(L_INFO, "Created symbolic link $link -> $target");
+				} 
+				else 
+				{
+					logMessage(L_INFO, "Failed to create symbolic link from $link to $target, retyring..");
+					unlink($link);
+					symlink($target, $link);
+				}
 			}
 		}
 		
 		//update uninstaller config
-		AppConfig::updateUninstallerConfig($this->install_config['symlinks']);
+		if(isset($this->install_config['symlinks']) && is_array($this->install_config['symlinks']))
+			AppConfig::updateUninstallerConfig($this->install_config['symlinks']);
 		
 		if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_CE_TYPE) == 0) {
 			AppConfig::simMafteach();
 		}
 	
 		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
-		foreach ($this->install_config['uiconfs_2'] as $uiconfapp) {
-			$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
-			if (OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy))) {
-				logMessage(L_INFO, "Deployed uiconf $to_deploy");
-			} else {
-				return "Failed to deploy uiconf $to_deploy";
+		if(isset($this->install_config['uiconfs_2']) && is_array($this->install_config['uiconfs_2']))
+		{
+			foreach($this->install_config['uiconfs_2'] as $uiconfapp)
+			{
+				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
+				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
+				{
+					logMessage(L_INFO, "Deployed uiconf $to_deploy");
+				}
+				else
+				{
+					return "Failed to deploy uiconf $to_deploy";
+				}
 			}
 		}
 				
