@@ -23,14 +23,22 @@ class Installer {
 		$leftovers = null;		
 		
 		// symbloic links leftovers
-		foreach ($this->install_config['symlinks'] as $slink) {
-			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));	
-			if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false)) {
-				if ($report_only) {
-					$leftovers .= "   ".$link." symbolic link exists".PHP_EOL;
-				} else {
-					logMessage(L_USER, "Removing symbolic link $link");
-					OsUtils::recursiveDelete($link);
+		if(isset($this->install_config['symlinks']) && is_array($this->install_config['symlinks']))
+		{
+			foreach ($this->install_config['symlinks'] as $slink) 
+			{
+				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));	
+				if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false)) 
+				{
+					if ($report_only) 
+					{
+						$leftovers .= "   ".$link." symbolic link exists".PHP_EOL;
+					} 
+					else 
+					{
+						logMessage(L_USER, "Removing symbolic link $link");
+						OsUtils::recursiveDelete($link);
+					}
 				}
 			}
 		}
@@ -56,8 +64,9 @@ class Installer {
 				$leftovers .= "   Target directory ".AppConfig::get(AppConfigAttribute::BASE_DIR)." already exists".PHP_EOL;
 			} else {
 				
-				foreach ($this->install_config['chkconfig'] as $service)
-					OsUtils::stopService($service);
+				if(isset($this->install_config['chkconfig']) && is_array($this->install_config['chkconfig']))
+					foreach ($this->install_config['chkconfig'] as $service)
+						OsUtils::stopService($service);
 				
 				logMessage(L_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
 				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));			
@@ -313,6 +322,10 @@ class Installer {
 	// $should_drop - whether to drop the databases that are found or not (default - false) 
 	// returns null if no leftovers are found or a text containing all the leftovers found
 	private function detectDatabases($db_params, $should_drop=false) {
+		
+		if(!isset($this->install_config['databases']) || !is_array($this->install_config['databases']))
+			return null;
+			
 		$verify = null;
 		foreach ($this->install_config['databases'] as $db) {
 			$result = DatabaseUtils::dbExists($db_params, $db);
