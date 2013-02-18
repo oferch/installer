@@ -248,6 +248,12 @@ class Installer {
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 		
+		if (AppConfig::get(AppConfigAttribute::RED5_INSTALL))
+		{
+			if(!$this->installRed5())
+				return "Failed to install red5";
+		}
+					
 		OsUtils::execute('cp ../package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
 		logMessage(L_USER, "Verifying installation");
@@ -381,9 +387,23 @@ class Installer {
 	
 	public function installRed5 ()
 	{
-		OsUtils::execute("dos2unix " . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/red5");
-		OsUtils::execute("ln -s ". AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/red5 /etc/init.d/red5");
-		OsUtils::execute("/etc/init.d/red5 start");
+		if(!OsUtils::execute("dos2unix " . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/red5"))
+		{
+			logMessage(L_ERROR, "Failed running dos2unix on red5 directory");
+			return false;
+		}
+		
+		if(!OsUtils::execute("ln -s ". AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/red5 /etc/init.d/red5"))
+		{
+			logMessage(L_ERROR, "Failed creating symlink [/etc/init.d/red5]");
+			return false;
+		}
+		
+		if(!OsUtils::execute("/etc/init.d/red5 start"))
+		{
+			logMessage(L_ERROR, "Failed starting red5");
+			return false;
+		}
 		OsUtils::executeInBackground('chkconfig red5 on');
 		
 		//Replace rtmp_url parameter in the local.ini configuration file
@@ -404,9 +424,25 @@ class Installer {
 		logMessage(L_USER, "If you are insterested in recording entries from webcam, please adjust the RTMP server URL in each of the following uiConfs:\r\n". implode("\r\n", $uiconfIds));
 	    logMessage(L_USER, "By replacing 'rtmp://yoursite.com/oflaDemo' with 'rtmp://". AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME) . "/oflaDemo");
 		
-		OsUtils::execute("mv ". AppConfig::get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams " . AppConfig::get(AppConfigAttribute::BIN_DIR). "/red5/webapps/oflaDemo/streams_x");
-		OsUtils::execute ("ln -s " .AppConfig::get(AppConfigAttribute::WEB_DIR). "/content/webcam " . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/webapps/oflaDemo/streams");
-		OsUtils::execute ("ln -s " .AppConfig::get(AppConfigAttribute::WEB_DIR). "/content " . AppConfig::get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams");
+		if(!OsUtils::execute("mv ". AppConfig::get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams " . AppConfig::get(AppConfigAttribute::BIN_DIR). "/red5/webapps/oflaDemo/streams_x"))
+		{
+			logMessage(L_ERROR, "Failed renaming oflaDemo streams");
+			return false;
+		}
+		
+		if(!OsUtils::execute ("ln -s " .AppConfig::get(AppConfigAttribute::WEB_DIR). "/content/webcam " . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/webapps/oflaDemo/streams"))
+		{
+			logMessage(L_ERROR, "Failed creating symlink [" .AppConfig::get(AppConfigAttribute::WEB_DIR). "/content/webcam] [" . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/webapps/oflaDemo/streams]");
+			return false;
+		}
+		
+		if(!OsUtils::execute ("ln -s " .AppConfig::get(AppConfigAttribute::WEB_DIR). "/content " . AppConfig::get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams"))
+		{
+			logMessage(L_ERROR, "Failed creating symlink [" .AppConfig::get(AppConfigAttribute::WEB_DIR). "/content] [" . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/webapps/oflaDemo/streams]");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	private function extractKCWUiconfIds ()
