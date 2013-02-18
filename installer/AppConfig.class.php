@@ -436,7 +436,7 @@ class AppConfig
 		$key = base64_encode($str);
 		$data = @file_get_contents($kConfLocalFile);
 		$key_line = '/kaltura_activation_key(\s)*=(\s)*(.+)/';
-		$replacement = 'kaltura_activation_key = '.$key;
+		$replacement = 'kaltura_activation_key = "' . $key . '"';
 		$data = preg_replace($key_line, $replacement ,$data);
 		@file_put_contents($kConfLocalFile, $data);
 	}
