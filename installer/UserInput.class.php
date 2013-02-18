@@ -134,37 +134,10 @@ class UserInput
 	
 	// get all the user input for the installation
 	public function getApplicationInput() {				
-		$httpd_bin_found = OsUtils::findBinary(array('apachectl', 'apache2ctl'));					
-		if (!empty($httpd_bin_found)) {
-			$httpd_bin_message = "The following apachectl script has been detected: $httpd_bin_found. Do you want to use this script to run your Kaltura application? Leave empty to use or provide a pathname to an alternative apachectl script on your server.";
-			$httpd_error_message = "Invalid pathname for apachectl script, leave empty to use $httpd_bin_found or enter an alternative apachectl path";
-		} else {
-			$httpd_bin_message = "Installation could not automatically detect any apachectl script. Please provide a pathname to the apachectl script on your server.";
-			$httpd_error_message = "Invalid pathname for apachectl script, please enter the apachectl pathname again";
-		}
-		
-		$php_bin_found = OsUtils::findBinary('php');
-		if (!empty($php_bin_found)) {
-			$php_bin_message = "The following PHP binary has been detected: $php_bin_found. Do you want to use this script to run your Kaltura application? Leave empty to use or provide a pathname to an alternative PHP binary on your server.";
-			$php_error_message = "Invalid pathname for PHP binary, leave empty to use $php_bin_found or enter an alternative PHP path";
-		} else {
-			$php_bin_message = "Installation could not automatically detect any PHP binary. Please provide a pathname to the PHP binary on your server.";
-			$php_error_message = "Invalid pathname for PHP binary, please enter the PHP pathname again";
-		}
 
 		logMessage(L_USER, "Please provide the following information:");
 		echo PHP_EOL;
 		
-		$this->getInput(AppConfigAttribute::HTTPD_BIN, 
-						$httpd_bin_message, 
-						$httpd_error_message, 
-						InputValidator::createFileValidator(), 
-						$httpd_bin_found);		
-		$this->getInput(AppConfigAttribute::PHP_BIN, 
-						$php_bin_message, 
-						$php_error_message, 
-						InputValidator::createFileValidator(), 
-						$php_bin_found);
 		$this->getInput(AppConfigAttribute::TIME_ZONE, 
 						"Default time zone for Kaltura application (leave empty to use system timezone: ". date_default_timezone_get()." )",
 						"Timezone must be a valid timezone, please enter again", 
@@ -218,7 +191,7 @@ class UserInput
 						InputValidator::createYesNoValidator(), 
 						null);
 		$this->getInput(AppConfigAttribute::RED5_INSTALL, 
-						"Would you like to install Red5 on this machine?", 
+						"Would you like to install Red5 on this machine? (Y/n)", 
 						"Please input yes/no.", 
 						InputValidator::createYesNoValidator(), 
 						"no");
