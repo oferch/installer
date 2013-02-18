@@ -292,7 +292,7 @@ class Installer {
 		{
 			$filePath = realpath("$dirName/$fileName");
 		
-			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN . " $filePath $configPath"))) {
+			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $filePath $configPath")) {
 				logMessage(L_ERROR, "Verification failed [$filePath]");
 				return false;
 			}
