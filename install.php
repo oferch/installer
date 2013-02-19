@@ -23,7 +23,7 @@ function installationFailed($what_happened, $description, $what_to_do, $cleanup 
 	if (!empty($description)) logMessage(L_USER, $description);
 	if ($cleanup) {
 		$leftovers = $installer->detectLeftovers(true, $db_params);
-		if (isset($leftovers) && $user->getTrueFalse(null, "Do you want to cleanup?", 'y')) {
+		if (isset($leftovers) && $user->getTrueFalse(null, "Do you want to cleanup?", 'n')) {
 			$installer->detectLeftovers(false, $db_params);
 		}	
 	}
