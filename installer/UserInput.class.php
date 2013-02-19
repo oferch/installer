@@ -200,6 +200,11 @@ class UserInput
 						null, 
 						InputValidator::createHostValidator(), 
 						'127.0.0.1');
+		$this->getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 
+						"Environment protocol - enter http/https", 
+						null, 
+						null, 
+						'http');
 						
 		$this->saveInput();	
 	}

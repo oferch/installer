@@ -100,6 +100,8 @@ class AppConfigAttribute
 	const BATCH_HOST_NAME						= 'BATCH_HOST_NAME';
 	const BATCH_PARTNER_PARTNER_ALIAS			= 'BATCH_PARTNER_PARTNER_ALIAS';
 	const APACHE_RESTART_COMMAND				= 'APACHE_RESTART_COMMAND';
+	const BASE_HOST_NO_PORT						= 'BASE_HOST_NO_PORT';
+	const ENVIRONMENT_PROTOCOL					= 'ENVIRONMENT_PROTOCOL';
 	
 	const CONTACT_URL							= 'CONTACT_URL';
 	const SIGNUP_URL							= 'SIGNUP_URL';
@@ -266,11 +268,11 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::CORP_REDIRECT] = '';	
 		self::$app_config[AppConfigAttribute::CDN_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::IIS_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::RTMP_URL] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::MEMCACHE_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::GLOBAL_MEMCACHE_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		self::$app_config[AppConfigAttribute::RTMP_URL] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
+		self::$app_config[AppConfigAttribute::MEMCACHE_HOST] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
+		self::$app_config[AppConfigAttribute::GLOBAL_MEMCACHE_HOST] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
 		self::$app_config[AppConfigAttribute::WWW_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::SERVICE_URL] = 'http://'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
+		self::$app_config[AppConfigAttribute::SERVICE_URL] = self::$app_config[AppConfigAttribute::ENVIRONMENT_PROTOCOL].'://'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::ENVIRONMENT_NAME] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		
 		// databases (copy information collected during prerequisites
@@ -341,8 +343,8 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::CONTACT_URL] = 'http://corp.kaltura.com/contact';
 		self::$app_config[AppConfigAttribute::CONTACT_PHONE_NUMBER] = '+1 800 871-5224';
 		self::$app_config[AppConfigAttribute::BEGINNERS_TUTORIAL_URL] = 'http://corp.kaltura.com/about/dosignup';
-		self::$app_config[AppConfigAttribute::QUICK_START_GUIDE_URL] = 'http://'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/content/docs/KMC_Quick_Start_Guide.pdf';
-		self::$app_config[AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL] = '"http://'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/index.php/extwidget/blockMail?e="';
+		self::$app_config[AppConfigAttribute::QUICK_START_GUIDE_URL] = self::$app_config[AppConfigAttribute::ENVIRONMENT_PROTOCOL].'://'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/content/docs/KMC_Quick_Start_Guide.pdf';
+		self::$app_config[AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL] = '"'.self::$app_config[AppConfigAttribute::ENVIRONMENT_PROTOCOL].'://'.self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME].'/index.php/extwidget/blockMail?e="';
 
 		if(!isset(self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB]))
 			self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB] = true;
@@ -399,8 +401,8 @@ class AppConfig
 	{
 		self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME] = self::removeHttp(self::$app_config[AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME]);
 		self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME] = self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::DELIVERY_HTTP_BASE_URL] = 'http://'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
-		self::$app_config[AppConfigAttribute::DELIVERY_ISS_BASE_URL] = 'http://'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		self::$app_config[AppConfigAttribute::DELIVERY_HTTP_BASE_URL] = self::$app_config[AppConfigAttribute::ENVIRONMENT_PROTOCOL].'://'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
+		self::$app_config[AppConfigAttribute::DELIVERY_ISS_BASE_URL] = self::$app_config[AppConfigAttribute::ENVIRONMENT_PROTOCOL].'://'.self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::DELIVERY_RTMP_BASE_URL] = self::$app_config[AppConfigAttribute::POST_INST_VIRTUAL_HOST_NAME];
 		
 		self::$app_config[AppConfigAttribute::POST_INST_ADMIN_CONSOLE_ADMIN_MAIL] = self::$app_config[AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL];		
@@ -485,4 +487,14 @@ class AppConfig
 		for ($i=0; $i<$length; $i++) $key .= $charset[(mt_rand(0,(strlen($charset)-1)))];
 		return $key;
 	}	
+	
+	private static function extractHostName($url)
+	{
+		if (strpos($url, ":"))
+		{
+			return parse_url($url, PHP_URL_HOST);
+		}
+		
+		return $url;
+	}
 }
