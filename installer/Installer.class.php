@@ -193,23 +193,6 @@ class Installer {
 		foreach($this->components as $component)
 			$this->installComponent($component, $db_params);
 		
-		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
-		if(isset($this->install_config['all']['uiconfs_2']) && is_array($this->install_config['all']['uiconfs_2']))
-		{
-			foreach($this->install_config['all']['uiconfs_2'] as $uiconfapp)
-			{
-				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
-				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
-				{
-					logMessage(L_INFO, "Deployed uiconf $to_deploy");
-				}
-				else
-				{
-					return "Failed to deploy uiconf $to_deploy";
-				}
-			}
-		}
-			
 		logMessage(L_USER, "Creating Dynamic Enums");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "Dynamic Enums created");
@@ -259,6 +242,23 @@ class Installer {
 			return "Failed to populate sphinx log from categories";
 		}
 		
+		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		if(isset($this->install_config['all']['uiconfs_2']) && is_array($this->install_config['all']['uiconfs_2']))
+		{
+			foreach($this->install_config['all']['uiconfs_2'] as $uiconfapp)
+			{
+				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
+				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
+				{
+					logMessage(L_INFO, "Deployed uiconf $to_deploy");
+				}
+				else
+				{
+					return "Failed to deploy uiconf $to_deploy";
+				}
+			}
+		}
+			
 		if(in_array('generateClients', $this->run_once))
 		{			
 			logMessage(L_USER, "Running the generate script");
@@ -475,7 +475,10 @@ class Installer {
 		logMessage(L_USER, "Creating databases and database users");
 		
 		$dir = __DIR__ . '/../dbSchema';
-		return OsUtils::phing($dir);
+		if(!OsUtils::phing($dir))
+			return false;
+			
+		return true;
 	}	
 	
 	private function createInitialContent ()
