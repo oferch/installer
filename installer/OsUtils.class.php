@@ -126,7 +126,7 @@ class OsUtils {
 	public static function startService($service, $alwaysStartAutomtically = true) 
 	{
 		if($alwaysStartAutomtically)
-			OsUtils::executeInBackground("chkconfig $service on");
+			OsUtils::execute("chkconfig $service on");
 			
 		return self::execute("/etc/init.d/$service start");
 	}
