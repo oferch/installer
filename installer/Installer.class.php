@@ -183,6 +183,33 @@ class Installer {
 			}
 		}
 		
+		foreach($this->components as $component)
+			$this->installComponentSymlinks($component);
+		
+		if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_CE_TYPE) == 0) {
+			AppConfig::simMafteach();
+		}
+				
+		foreach($this->components as $component)
+			$this->installComponent($component, $db_params);
+		
+		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		if(isset($this->install_config['all']['uiconfs_2']) && is_array($this->install_config['all']['uiconfs_2']))
+		{
+			foreach($this->install_config['all']['uiconfs_2'] as $uiconfapp)
+			{
+				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
+				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
+				{
+					logMessage(L_INFO, "Deployed uiconf $to_deploy");
+				}
+				else
+				{
+					return "Failed to deploy uiconf $to_deploy";
+				}
+			}
+		}
+			
 		logMessage(L_USER, "Creating Dynamic Enums");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 				logMessage(L_INFO, "Dynamic Enums created");
@@ -231,33 +258,6 @@ class Installer {
 		} else {
 			return "Failed to populate sphinx log from categories";
 		}
-		
-		foreach($this->components as $component)
-			$this->installComponentSymlinks($component);
-		
-		if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_CE_TYPE) == 0) {
-			AppConfig::simMafteach();
-		}
-	
-		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
-		if(isset($this->install_config['all']['uiconfs_2']) && is_array($this->install_config['all']['uiconfs_2']))
-		{
-			foreach($this->install_config['all']['uiconfs_2'] as $uiconfapp)
-			{
-				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
-				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
-				{
-					logMessage(L_INFO, "Deployed uiconf $to_deploy");
-				}
-				else
-				{
-					return "Failed to deploy uiconf $to_deploy";
-				}
-			}
-		}
-						
-		foreach($this->components as $component)
-			$this->installComponent($component, $db_params);
 		
 		if(in_array('generateClients', $this->run_once))
 		{			
