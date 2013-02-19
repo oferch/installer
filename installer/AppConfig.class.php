@@ -269,6 +269,7 @@ class AppConfig
 		self::$app_config[AppConfigAttribute::CDN_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::IIS_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
 		self::$app_config[AppConfigAttribute::RTMP_URL] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
+		self::$app_config[AppConfigAttribute::BASE_HOST_NO_PORT] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
 		self::$app_config[AppConfigAttribute::MEMCACHE_HOST] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
 		self::$app_config[AppConfigAttribute::GLOBAL_MEMCACHE_HOST] = self::extractHostName(self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME]);
 		self::$app_config[AppConfigAttribute::WWW_HOST] = self::$app_config[AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME];
