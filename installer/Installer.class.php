@@ -275,11 +275,8 @@ class Installer {
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 		
-		if (AppConfig::get(AppConfigAttribute::RED5_INSTALL))
-		{
-			if(!$this->installRed5())
-				return "Failed to install red5";
-		}
+		if (!$this->finalizeInstallation())
+			return "Failed to finalize installation";
 					
 		OsUtils::execute('cp ../package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
@@ -416,8 +413,43 @@ class Installer {
 		return true;
 	}	
 	
+	public function finalizeInstallation ()
+	{
+		return $this->installRed5() || $this->configureSSL();
+	}
+	
+	private function configureSSL ()
+	{
+		@exec(AppConfig::get(AppConfigAttribute::HTTPD_BIN) . ' -M 2>&1', $loadedModules, $exitCode);
+		if ($exitCode !== 0) {
+			logMessage(L_USER, "Unable to get list of loaded apache modules. Cannot enable SSL configuration for this installation. Please investigate the issue.");
+			return false;
+		}
+		array_walk($loadedModules, create_function('&$str', '$str = trim($str);'));
+		
+		foreach ($loadedModules as $loadedModule)
+		{
+			if (strpos($loadedModule,'ssl_module') === 0) {
+				$found = true;
+				break;
+			}		
+		}
+		if (!$found)
+		{
+			logMessage(L_USER, "Required SSL module is missing. Cannot enable SSL configuration for this installation. Please investigate the issue.");
+			return false;
+		}
+		
+		symlink(AppConfig::get(AppConfigAttribute::APP_DIR). "/configurations/apache/my_kaltura.ssl.conf", "/etc/httpd/conf.d/my_kaltura.ssl.conf");
+		
+		return true;
+	}
+	
 	public function installRed5 ()
 	{
+		if (!AppConfig::get(AppConfigAttribute::RED5_INSTALL))
+			return true;
+		
 		if(!OsUtils::execute("dos2unix " . AppConfig::get(AppConfigAttribute::BIN_DIR) ."/red5/red5"))
 		{
 			logMessage(L_ERROR, "Failed running dos2unix on red5 directory");
@@ -440,20 +472,20 @@ class Installer {
 		//Replace rtmp_url parameter in the local.ini configuration file
 		$location = AppConfig::get(AppConfigAttribute::APP_DIR)."/configurations/local.ini";
 		$localValues = parse_ini_file($location, true);
-		$localValues['rtmp_url'] = 'rtmp://' . AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/oflaDemo'; 
+		$localValues['rtmp_url'] = 'rtmp://' . AppConfig::get(AppConfigAttribute::BASE_HOST_NO_PORT) . '/oflaDemo'; 
 		OsUtils::writeToIniFile($location, $localValues);
 		
 		//url-managers.ini change
 		$location  = AppConfig::get(AppConfigAttribute::APP_DIR)."/configurations/url_managers.ini";
 		$urlManagersValues = parse_ini_file($location);
 		$red5Addition = array ('class' => 'kLocalPathUrlManager');
-		$urlManagersValues[AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME)] = $red5Addition;
+		$urlManagersValues[AppConfig::get(AppConfigAttribute::BASE_HOST_NO_PORT)] = $red5Addition;
 		OsUtils::writeToIniFile($location, $urlManagersValues);
 		
 		//Retrieve KCW uiconf ids
 		$uiconfIds = $this->extractKCWUiconfIds();
 		logMessage(L_USER, "If you are insterested in recording entries from webcam, please adjust the RTMP server URL in each of the following uiConfs:\r\n". implode("\r\n", $uiconfIds));
-	    logMessage(L_USER, "By replacing 'rtmp://yoursite.com/oflaDemo' with 'rtmp://". AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME) . "/oflaDemo");
+	    logMessage(L_USER, "By replacing 'rtmp://yoursite.com/oflaDemo' with 'rtmp://". AppConfig::get(AppConfigAttribute::BASE_HOST_NO_PORT) . "/oflaDemo");
 		
 		if(!OsUtils::execute("mv ". AppConfig::get(AppConfigAttribute::BIN_DIR) . "/red5/webapps/oflaDemo/streams " . AppConfig::get(AppConfigAttribute::BIN_DIR). "/red5/webapps/oflaDemo/streams_x"))
 		{
