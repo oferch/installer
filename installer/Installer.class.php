@@ -468,6 +468,14 @@ class Installer {
 		logMessage(L_USER, "Changing permissions of directories and files");
 		$dir = __DIR__ . '/../directoryConstructor';
 		return OsUtils::phing($dir, 'Update-Permissions');
+	}		
+	
+	private function installDB()
+	{
+		logMessage(L_USER, "Creating databases and database users");
+		
+		$dir = __DIR__ . '/../dbSchema';
+		return OsUtils::phing($dir);
 	}	
 	
 	private function createInitialContent ()
