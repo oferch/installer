@@ -7,6 +7,7 @@ include_once('installer/Log.php');
 include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
 include_once('installer/Installer.class.php');
+include_once('installer/Validator.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/phpmailer/class.phpmailer.php');
 
@@ -60,13 +61,30 @@ logMessage(L_INFO, "Installation started");
 
 // variables
 $silentRun = false;
-if($argc > 1 && $argv[1] == '-s') $silentRun = true;
+if($argc > 1 && $argv[1] == '-s') 
+	$silentRun = true;
+
 $cleanupIfFail = true;
-if($argc > 1 && $argv[1] == '-c') {
+if($argc > 1 && $argv[1] == '-c') 
+{
 	$cleanupIfFail = false;
 	$silentRun = true;
+}
+
+$components = '*';
+if($argc > 2)
+{
+	foreach($argv as $arg)
+	{
+		if(is_array($components))
+			$components[] = $arg;
+			
+		if($arg == '-C')
+			$components = array();
+	}
 } 
-$installer = new Installer();
+
+$installer = new Installer($components);
 $user = new UserInput();
 $db_params = array();
 
@@ -179,10 +197,13 @@ $db_params['db_pass'] = AppConfig::get(AppConfigAttribute::DB_ROOT_PASS);
 // verify prerequisites
 echo PHP_EOL;
 logMessage(L_USER, "Verifing prerequisites");
-@exec(sprintf("%s installer/Prerequisites.php %s %s %s %s %s 2>&1", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::HTTPD_BIN), $db_params['db_host'], $db_params['db_port'], $db_params['db_user'], $db_params['db_pass']), $output, $exit_value);
-if ($exit_value !== 0) {
-	$description = "   ".implode("\n   ", $output)."\n";
-	echo PHP_EOL;
+
+$validator = new Validator($components);
+$prerequisites = $validator->validate($db_params, AppConfig::get(AppConfigAttribute::HTTPD_BIN));
+
+if (count($prerequisites))
+{
+	$description = implode("\n", $prerequisites);
 	installationFailed("One or more prerequisites required to install Kaltura failed:",
 					   $description,
 					   "Please resolve the issues and run the installation again.");

@@ -190,11 +190,6 @@ class UserInput
 						"Input is not valid", 
 						InputValidator::createYesNoValidator(), 
 						null);
-		$this->getInput(AppConfigAttribute::RED5_INSTALL, 
-						"Would you like to install Red5 on this machine? (Y/n)", 
-						"Please input yes/no.", 
-						InputValidator::createYesNoValidator(), 
-						"no");
 		$this->getInput(AppConfigAttribute::SPHINX_DB_HOST,
 						"Sphinx host (leave empty if Sphinx is running on this machine).", 
 						null, 

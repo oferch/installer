@@ -1,6 +1,5 @@
 <?php
 
-define("FILE_INSTALL_CONFIG", "installer/installation.ini"); // this file contains the definitions of the installation itself
 define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts of the symbolic link definition
 
 /*
@@ -15,9 +14,29 @@ class Installer {
 	 */
 	private $run_once = array();
 	
+	/**
+	 * Array of the components that should be installed
+	 * @var array
+	 */
+	private $components = array('all');
+	
 	// crteate a new installer, loads installation configurations from installation configuration file
-	public function __construct() {
-		$this->install_config = parse_ini_file(FILE_INSTALL_CONFIG, true);
+	public function __construct($components = '*') 
+	{
+		$this->install_config = parse_ini_file(__DIR__ . '/installation.ini', true);
+		
+		if($components && is_array($components))
+		{
+			foreach($components as $component)
+				if(isset($this->install_config[$component]))
+					$this->components[] = $component;
+		}
+		else
+		{
+			foreach($this->install_config as $component => $config)
+				if($component != 'all' && $config['install_by_default'] || $components == '*')
+					$this->components[] = $component;
+		}
 	}
 	
 	// detects if there are leftovers of an installation
@@ -213,9 +232,8 @@ class Installer {
 			return "Failed to populate sphinx log from categories";
 		}
 		
-		foreach ($this->install_config as $component => $config)
-			if($config['install_by_default'])
-				$this->installComponentSymlinks($component);
+		foreach($this->components as $component)
+			$this->installComponentSymlinks($component);
 		
 		if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_CE_TYPE) == 0) {
 			AppConfig::simMafteach();
@@ -238,9 +256,8 @@ class Installer {
 			}
 		}
 						
-		foreach ($this->install_config as $component => $config)
-			if($config['install_by_default'])
-				$this->installComponent($component, $db_params);
+		foreach($this->components as $component)
+			$this->installComponent($component, $db_params);
 		
 		if(in_array('generateClients', $this->run_once))
 		{			
@@ -261,22 +278,12 @@ class Installer {
 			}
 		}
 		
-		foreach ($this->install_config as $component => $config)
-			if($config['install_by_default'])
-				$this->installComponentServices($component);
-		
-		if (!$this->configureSSL())
-			return "Failed to configure SSL";
+		foreach($this->components as $component)
+			$this->installComponentServices($component);
 		
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 		
-		if (AppConfig::get(AppConfigAttribute::RED5_INSTALL))
-		{
-			if(!$this->installRed5())
-				return "Failed to install red5";
-		}
-					
 		OsUtils::execute('cp ../package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 		
 		logMessage(L_USER, "Verifying installation");
@@ -496,52 +503,6 @@ class Installer {
 		
 		return true;
 	}	
-	
-	private function configureSSL ()
-	{
-		// TODO - move the modules verification to be components pending
-		
-		@exec(AppConfig::get(AppConfigAttribute::HTTPD_BIN) . ' -M 2>&1', $loadedModules, $exitCode);
-		if ($exitCode !== 0) {
-			logMessage(L_USER, "Unable to get list of loaded apache modules. Cannot enable SSL configuration for this installation. Please investigate the issue.");
-			return true;
-		}
-		array_walk($loadedModules, create_function('&$str', '$str = trim($str);'));
-		
-		foreach ($loadedModules as $loadedModule)
-		{
-			if (strpos($loadedModule,'ssl_module') === 0) {
-				$found = true;
-				break;
-			}		
-		}
-		if (!$found)
-		{
-			logMessage(L_USER, "Required SSL module is missing. Cannot enable SSL configuration for this installation. Please investigate the issue.");
-			return true;
-		}
-		
-		symlink(AppConfig::get(AppConfigAttribute::APP_DIR). "/configurations/apache/my_kaltura.ssl.conf", "/etc/httpd/conf.d/my_kaltura.ssl.conf");
-		
-		return true;
-	}
-	
-	private function installRed5 ()
-	{
-		$symlinks = $this->installComponentSymlinks('red5');
-		if($symlinks !== true)
-			return $symlinks;
-			
-		$component = $this->installComponent('red5', null);
-		if($component !== true)
-			return $component;
-			
-		$services = $this->installComponentServices('red5');
-		if($services !== true)
-			return $services;
-			
-		return true;
-	}
 	
 	private function extractKCWUiconfIds ()
 	{

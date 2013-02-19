@@ -51,7 +51,6 @@ class AppConfigAttribute
 	const DWH_PASS								= 'DWH_PASS';
 	const DWH_DATABASE_NAME						= 'DWH_DATABASE_NAME';
 	
-	const RED5_INSTALL							= 'RED5_INSTALL';
 	const DB1_CREATE_NEW_DB						= 'DB1_CREATE_NEW_DB';
 	
 	const EVENTS_LOGS_DIR						= 'EVENTS_LOGS_DIR';
@@ -352,11 +351,6 @@ class AppConfig
 		else
 			self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB] = ((strcasecmp('y',self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB]) === 0) || (strcasecmp('yes',self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB]) === 0));
 	
-		if (!isset(self::$app_config[AppConfigAttribute::RED5_INSTALL]))
-			self::$app_config[AppConfigAttribute::RED5_INSTALL] = false;
-		else
-			self::$app_config[AppConfigAttribute::RED5_INSTALL] = ((strcasecmp('y',self::$app_config[AppConfigAttribute::RED5_INSTALL]) === 0) || (strcasecmp('yes',self::$app_config[AppConfigAttribute::RED5_INSTALL]) === 0));
-
 		if (self::$app_config[AppConfigAttribute::DB1_CREATE_NEW_DB])
 		{
 			self::$app_config[AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET] = self::generateSecret();
