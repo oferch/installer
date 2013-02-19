@@ -31,10 +31,10 @@ class Installer {
 				if(isset($this->install_config[$component]))
 					$this->components[] = $component;
 		}
-		else
+		elseif($components == '*')
 		{
 			foreach($this->install_config as $component => $config)
-				if($component != 'all' && $config['install_by_default'] || $components == '*')
+				if($component != 'all' && $config['install_by_default'])
 					$this->components[] = $component;
 		}
 	}
