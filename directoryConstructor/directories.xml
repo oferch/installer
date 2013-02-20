@@ -17,9 +17,9 @@
 		</html5>
 	</apps>
 	<log user="${OS_KALTURA_USER}" mode="0770" filesMode="0660" skipFilesOwner="true">
-		<batch mode="0700" skipFilesMode="true" skipFilesOwner="true" />
-		<sphinx mode="0700" skipFilesMode="true" skipFilesOwner="true" >
-			<data skipFilesMode="true" skipFilesOwner="true" />
+		<batch user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
+		<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" >
+			<data user="${OS_KALTURA_USER}" skipFilesMode="true" />
 		</sphinx>
 	</log>
 	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0770" filesMode="0770" />
