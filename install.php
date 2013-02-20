@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 include_once('installer/DatabaseUtils.class.php');
 include_once('installer/OsUtils.class.php');
@@ -26,9 +26,9 @@ function installationFailed($what_happened, $description, $what_to_do, $cleanup 
 		$leftovers = $installer->detectLeftovers(true, $db_params);
 		if (isset($leftovers) && $user->getTrueFalse(null, "Do you want to cleanup?", 'n')) {
 			$installer->detectLeftovers(false, $db_params);
-		}	
+		}
 	}
-	if (!empty($what_to_do)) logMessage(L_USER, $what_to_do);		
+	if (!empty($what_to_do)) logMessage(L_USER, $what_to_do);
 	die(1);
 }
 
@@ -61,11 +61,11 @@ logMessage(L_INFO, "Installation started");
 
 // variables
 $silentRun = false;
-if($argc > 1 && $argv[1] == '-s') 
+if($argc > 1 && $argv[1] == '-s')
 	$silentRun = true;
 
 $cleanupIfFail = true;
-if($argc > 1 && $argv[1] == '-c') 
+if($argc > 1 && $argv[1] == '-c')
 {
 	$cleanupIfFail = false;
 	$silentRun = true;
@@ -78,11 +78,11 @@ if($argc > 2)
 	{
 		if(is_array($components))
 			$components[] = $arg;
-			
+
 		if($arg == '-C')
 			$components = array();
 	}
-} 
+}
 
 $installer = new Installer($components);
 $user = new UserInput();
@@ -97,7 +97,7 @@ if (is_file(FILE_INSTALL_SEQ_ID)) {
 	AppConfig::set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq);
 } else {
 	$install_seq = uniqid("ISEQID"); // unique id per a set of installations
-	AppConfig::set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq); 
+	AppConfig::set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq);
 	file_put_contents(FILE_INSTALL_SEQ_ID, $install_seq);
 }
 
@@ -121,29 +121,22 @@ if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TY
 logMessage(L_USER, $hello_message);
 echo PHP_EOL;
 
-// If previous installation found and the user wants to use it
-if ($user->hasInput()){ 
-	if(($silentRun) || ($user->getTrueFalse(null, "A previous installation attempt has been detected, do you want to use the input you provided during you last installation?", 'y'))) {
-		$user->loadInput();
-	}
-}
-
 // if user wants or have to report
-if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) == 0 || 
-	$user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y')) 
-{	
+if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) == 0 ||
+	$user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y'))
+{
 	$report_message = "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)";
 	$report_error_message = "Email must be in a valid email format";
-	$report_validator = InputValidator::createEmailValidator(true);		
-	
+	$report_validator = InputValidator::createEmailValidator(true);
+
 	$email = $user->getInput(AppConfigAttribute::REPORT_ADMIN_EMAIL, $report_message, $report_error_message, $report_validator, null);
 	AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
 	AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER,'true');
-	AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');	
+	AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');
 	$report = new InstallReport($email, AppConfig::get(AppConfigAttribute::KALTURA_VERSION), AppConfig::get(AppConfigAttribute::INSTALLATION_SEQUENCE_UID), AppConfig::get(AppConfigAttribute::INSTALLATION_UID));
 	$report->reportInstallationStart();
-} 
-else 
+}
+else
 {
 	AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, "");
 	AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER,'false');
@@ -154,28 +147,28 @@ else
 AppConfig::set(AppConfigAttribute::REPLACE_PASSWORDS,AppConfig::get(AppConfigAttribute::KALTURA_PREINSTALLED));
 
 // allow ui conf tab only for CE installation
-if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) !== 0) 
+if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) !== 0)
 	AppConfig::set(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
 
 
 // verify that the installation can continue
 //if (!OsUtils::verifyRootUser()) {
-//	installationFailed("Installation cannot continue, you must have root privileges to continue with the installation process.", 
+//	installationFailed("Installation cannot continue, you must have root privileges to continue with the installation process.",
 //					   null, null);
 //}
 if (!OsUtils::verifyOS()) {
-	installationFailed("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.", 
+	installationFailed("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.",
 					   null, null);
 }
 
 if (!extension_loaded('mysqli')) {
-	installationFailed("You must have PHP mysqli extension loaded to continue with the installation.", 
+	installationFailed("You must have PHP mysqli extension loaded to continue with the installation.",
 					   null, null);
 }
 
 // get the user input if needed
 if ($user->isInputLoaded()) {
-	logMessage(L_USER, "Skipping user input, previous installation input will be used.");	
+	logMessage(L_USER, "Skipping user input, previous installation input will be used.");
 } else {
 	$user->getApplicationInput();
 }
@@ -218,7 +211,7 @@ if (isset($leftovers)) {
 	if ($user->getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
 		$installer->detectLeftovers(false, $db_params);
 	} else {
-		installationFailed("Installation cannot continue because a previous installation of Kaltura was detected.", 
+		installationFailed("Installation cannot continue because a previous installation of Kaltura was detected.",
 						   $leftovers,
 						   "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
 	}
@@ -255,16 +248,16 @@ logMessage(L_USER, sprintf(
 	"Your Kaltura Admin Console credentials:\n" .
 	"System Admin user: %s\n" .
 	"System Admin password: %s\n\n" .
-	"Please keep this information for future use.\n", 
+	"Please keep this information for future use.\n",
 
-	AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), 
+	AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL),
 	AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)
 ));
 
 $virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
 $appDir = realpath(AppConfig::get(AppConfigAttribute::APP_DIR));
 
-logMessage(L_USER, 
+logMessage(L_USER,
 	"To start using Kaltura, please complete the following steps:\n" .
 	"1. Add the following line to your /etc/hosts file:\n" .
 		"\t127.0.0.1 $virtualHostName\n" .
