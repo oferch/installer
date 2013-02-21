@@ -112,7 +112,7 @@ class OsUtils {
 		if($alwaysStartAutomtically)
 			OsUtils::execute("chkconfig $service on");
 
-		return self::execute("/etc/init.d/$service start");
+		return self::execute("/etc/init.d/$service restart");
 	}
 
 	public static function stopService($service, $neverStartAutomtically = true)
