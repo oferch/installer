@@ -80,9 +80,8 @@ class Installer
 	// detects if there are leftovers of an installation
 	// can be used both before installation to verify and when the installation failed for cleaning up
 	// $report_only - if set to true only returns the leftovers found and does not removes them
-	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
 	// returns null if no leftovers are found or it is not report only or a text containing all the leftovers found
-	public function detectLeftovers($report_only, $db_params) {
+	public function detectLeftovers($report_only) {
 		$leftovers = null;
 
 		// symbloic links leftovers
@@ -111,7 +110,7 @@ class Installer
 			if(isset($config['databases']) && is_array($config['databases']))
 			{
 				// database leftovers
-				$verify = $this->detectDatabases($config['databases'], $db_params);
+				$verify = $this->detectDatabases($config['databases']);
 				if (isset($verify)) {
 					if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 					{
@@ -121,7 +120,7 @@ class Installer
 						$leftovers .= $verify;
 					}
 					else {
-						$this->detectDatabases($config['databases'], $db_params, true);
+						$this->detectDatabases($config['databases'], true);
 					}
 				}
 			}
@@ -157,10 +156,9 @@ class Installer
 
 	/**
 	 * Installs the application according to the given parameters\
-	 * @param unknown_type $db_params database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
 	 */
-	public function install($db_params) {
+	public function install() {
 		logMessage(L_USER, sprintf("Current working dir is %s", getcwd()));
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		if (!OsUtils::rsync('../package/', AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
@@ -207,7 +205,7 @@ class Installer
 			}
 		}
 
-		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists($db_params, AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
+		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists(AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
 		{
 			logMessage(L_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)));
 		}
@@ -227,7 +225,7 @@ class Installer
 		}
 
 		foreach($this->components as $component)
-			$this->installComponent($component, $db_params);
+			$this->installComponent($component);
 
 		logMessage(L_USER, "Creating Dynamic Enums");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
@@ -392,7 +390,7 @@ class Installer
 		return true;
 	}
 
-	public function installComponent($component, $db_params)
+	public function installComponent($component)
 	{
 		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
@@ -475,14 +473,13 @@ class Installer
 
 	// detects if there are databases leftovers
 	// can be used both for verification and for dropping the databases
-	// $db_params - the database parameters array used for the installation ('db_host', 'db_user', 'db_pass', 'db_port')
 	// $should_drop - whether to drop the databases that are found or not (default - false)
 	// returns null if no leftovers are found or a text containing all the leftovers found
-	private function detectDatabases(array $databases, $db_params, $should_drop=false) {
+	private function detectDatabases(array $databases, $should_drop=false) {
 
 		$verify = null;
 		foreach ($databases as $db) {
-			$result = DatabaseUtils::dbExists($db_params, $db);
+			$result = DatabaseUtils::dbExists($db);
 
 			if ($result === -1) {
 				$verify .= "   Cannot verify if '$db' database exists".PHP_EOL;
@@ -491,7 +488,7 @@ class Installer
 					$verify .= "   '$db' database already exists ".PHP_EOL;
 				} else {
 					logMessage(L_USER, "Dropping '$db' database");
-					DatabaseUtils::dropDb($db_params, $db);
+					DatabaseUtils::dropDb($db);
 				}
 			}
 		}

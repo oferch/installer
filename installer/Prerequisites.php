@@ -10,17 +10,22 @@ if (count($argv) < 5) {
 	exit(1);
 }
 
-// get user arguments
-$db_params = array();
-$httpd_bin = trim($argv[1]);
-$db_params['db_host'] = trim($argv[2]);
-$db_params['db_port'] = trim($argv[3]);
-$db_params['db_user'] = trim($argv[4]);
-if (count($argv) > 5) $db_params['db_pass'] = trim($argv[5]);
-else $db_params['db_pass'] = "";
+
+AppConfig::init();
+
+if(isset($argv[1]))
+	AppConfig::set(AppConfigAttribute::HTTPD_BIN, $argv[1]);
+if(isset($argv[2]))
+	AppConfig::set(AppConfigAttribute::DB1_HOST, $argv[2]);
+if(isset($argv[3]))
+	AppConfig::set(AppConfigAttribute::DB1_PORT, $argv[3]);
+if(isset($argv[4]))
+	AppConfig::set(AppConfigAttribute::DB_ROOT_USER, $argv[4]);
+if(isset($argv[5]))
+	AppConfig::set(AppConfigAttribute::DB_ROOT_PASS, $argv[5]);
 
 $validator = new Validator();
-$prerequisites = $validator->validate($db_params, $httpd_bin);
+$prerequisites = $validator->validate();
 
 if (count($prerequisites))
 {

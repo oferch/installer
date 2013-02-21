@@ -2,7 +2,6 @@
 
 include_once('installer/DatabaseUtils.class.php');
 include_once('installer/OsUtils.class.php');
-include_once('installer/UserInput.class.php');
 include_once('installer/Log.php');
 include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
@@ -15,7 +14,7 @@ include_once('installer/phpmailer/class.phpmailer.php');
 // $error - the error to print to the user
 // if $cleanup and there is something to cleanup it will prompt the user whether to cleanup
 function installationFailed($what_happened, $description, $what_to_do, $cleanup = false) {
-	global $report, $installer, $db_params, $user;
+	global $report, $installer;
 
 	if (isset($report)) {
 		$report->reportInstallationFailed($what_happened."\n".$description);
@@ -23,9 +22,9 @@ function installationFailed($what_happened, $description, $what_to_do, $cleanup 
 	if (!empty($what_happened)) logMessage(L_USER, $what_happened);
 	if (!empty($description)) logMessage(L_USER, $description);
 	if ($cleanup) {
-		$leftovers = $installer->detectLeftovers(true, $db_params);
-		if (isset($leftovers) && $user->getTrueFalse(null, "Do you want to cleanup?", 'n')) {
-			$installer->detectLeftovers(false, $db_params);
+		$leftovers = $installer->detectLeftovers(true);
+		if (isset($leftovers) && AppConfig::getTrueFalse(null, "Do you want to cleanup?", 'n')) {
+			$installer->detectLeftovers(false);
 		}
 	}
 	if (!empty($what_to_do)) logMessage(L_USER, $what_to_do);
@@ -44,7 +43,6 @@ function getVersionFromKconf($kconf, $label)
 // constants
 define("K_TM_TYPE", "TM");
 define("K_CE_TYPE", "CE");
-define("FILE_INSTALL_SEQ_ID", "install_seq"); // this file is used to store a sequence of installations
 
 // installation might take a few minutes
 ini_set('max_execution_time', 0);
@@ -53,22 +51,16 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-// TODO: parameters - config name, debug level and force
-
 // start the log
 startLog(__DIR__ . "/install_log_".date("d.m.Y_H.i.s"));
 logMessage(L_INFO, "Installation started");
 
 // variables
-$silentRun = false;
-if($argc > 1 && $argv[1] == '-s')
-	$silentRun = true;
 
 $cleanupIfFail = true;
 if($argc > 1 && $argv[1] == '-c')
 {
 	$cleanupIfFail = false;
-	$silentRun = true;
 }
 
 $components = '*';
@@ -84,28 +76,11 @@ if($argc > 2)
 	}
 }
 
-$user = new UserInput();
-$db_params = array();
+@system('clear');
 
-// set the installation ids
-AppConfig::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
-
-// load or create installation sequence id
-if (is_file(FILE_INSTALL_SEQ_ID)) {
-	$install_seq = @file_get_contents(FILE_INSTALL_SEQ_ID);
-	AppConfig::set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq);
-} else {
-	$install_seq = uniqid("ISEQID"); // unique id per a set of installations
-	AppConfig::set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq);
-	file_put_contents(FILE_INSTALL_SEQ_ID, $install_seq);
-}
+AppConfig::init();
 
 // read package version
-$packageDir = realpath('../package');
-$version = parse_ini_file("$packageDir/version.ini");
-AppConfig::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura '.$version['type'].' '.$version['number']);
-AppConfig::set(AppConfigAttribute::KALTURA_PREINSTALLED, $version['preinstalled']);
-AppConfig::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
 logMessage(L_INFO, "Installing Kaltura ".AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
 if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) !== 0) {
 	$hello_message = "Thank you for installing Kaltura Video Platform - Community Edition";
@@ -116,82 +91,34 @@ if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TY
 }
 
 // start user interaction
-@system('clear');
 logMessage(L_USER, $hello_message);
 echo PHP_EOL;
 
 // if user wants or have to report
 if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) == 0 ||
-	$user->getTrueFalse('ASK_TO_REPORT', "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y'))
+	AppConfig::getTrueFalse(null, "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y'))
 {
 	$report_message = "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)";
 	$report_error_message = "Email must be in a valid email format";
 	$report_validator = InputValidator::createEmailValidator(true);
 
-	$email = $user->getInput(AppConfigAttribute::REPORT_ADMIN_EMAIL, $report_message, $report_error_message, $report_validator, null);
-	AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
-	AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER,'true');
-	AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'true');
-	$report = new InstallReport($email, AppConfig::get(AppConfigAttribute::KALTURA_VERSION), AppConfig::get(AppConfigAttribute::INSTALLATION_SEQUENCE_UID), AppConfig::get(AppConfigAttribute::INSTALLATION_UID));
-	$report->reportInstallationStart();
+	$email = AppConfig::getInput(AppConfigAttribute::REPORT_ADMIN_EMAIL, $report_message, $report_error_message, $report_validator, null);
+	if($email)
+	{
+		AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, $email);
+		AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER, 'true');
+		AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'true');
+		$report = new InstallReport($email, AppConfig::get(AppConfigAttribute::KALTURA_VERSION), AppConfig::get(AppConfigAttribute::INSTALLATION_SEQUENCE_UID), AppConfig::get(AppConfigAttribute::INSTALLATION_UID));
+		$report->reportInstallationStart();
+	}
 }
-else
-{
-	AppConfig::set(AppConfigAttribute::REPORT_ADMIN_EMAIL, "");
-	AppConfig::set(AppConfigAttribute::TRACK_KDPWRAPPER,'false');
-	AppConfig::set(AppConfigAttribute::USAGE_TRACKING_OPTIN,'false');
-}
-
-// set to replace passwords on first activiation if this installation is preinstalled
-AppConfig::set(AppConfigAttribute::REPLACE_PASSWORDS,AppConfig::get(AppConfigAttribute::KALTURA_PREINSTALLED));
-
-// allow ui conf tab only for CE installation
-if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_TM_TYPE) !== 0)
-	AppConfig::set(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
-
-
-// verify that the installation can continue
-//if (!OsUtils::verifyRootUser()) {
-//	installationFailed("Installation cannot continue, you must have root privileges to continue with the installation process.",
-//					   null, null);
-//}
-if (!OsUtils::verifyOS()) {
-	installationFailed("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.",
-					   null, null);
-}
-
-if (!extension_loaded('mysqli')) {
-	installationFailed("You must have PHP mysqli extension loaded to continue with the installation.",
-					   null, null);
-}
-
-// get the user input if needed
-if ($user->isInputLoaded()) {
-	logMessage(L_USER, "Skipping user input, previous installation input will be used.");
-} else {
-	$user->getApplicationInput();
-}
-
-// get from kConf.php the latest versions of kmc , clipapp and HTML5
-$kconf = file_get_contents("$packageDir/app/configurations/base.ini");
-$latestVersions = array();
-$latestVersions["KMC_VERSION"] = getVersionFromKconf($kconf,"kmc_version");
-$latestVersions["CLIPAPP_VERSION"] = getVersionFromKconf($kconf,"clipapp_version");
-$latestVersions["HTML5_VERSION"] = getVersionFromKconf($kconf,"html5_version");
-
-// init the application configuration
-AppConfig::initFromUserInput(array_merge((array)$user->getAll(), (array)$latestVersions));
-$db_params['db_host'] = AppConfig::get(AppConfigAttribute::DB1_HOST);
-$db_params['db_port'] = AppConfig::get(AppConfigAttribute::DB1_PORT);
-$db_params['db_user'] = AppConfig::get(AppConfigAttribute::DB_ROOT_USER);
-$db_params['db_pass'] = AppConfig::get(AppConfigAttribute::DB_ROOT_PASS);
 
 // verify prerequisites
 echo PHP_EOL;
 logMessage(L_USER, "Verifing prerequisites");
 
 $validator = new Validator($components);
-$prerequisites = $validator->validate($db_params, AppConfig::get(AppConfigAttribute::HTTPD_BIN));
+$prerequisites = $validator->validate();
 
 if (count($prerequisites))
 {
@@ -206,11 +133,11 @@ echo PHP_EOL;
 logMessage(L_USER, "Checking for leftovers from a previous installation");
 
 $installer = new Installer($components);
-$leftovers = $installer->detectLeftovers(true, $db_params);
+$leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	logMessage(L_USER, $leftovers);
-	if ($user->getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
-		$installer->detectLeftovers(false, $db_params);
+	if (AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
+		$installer->detectLeftovers(false);
 	} else {
 		installationFailed("Installation cannot continue because a previous installation of Kaltura was detected.",
 						   $leftovers,
@@ -219,7 +146,7 @@ if (isset($leftovers)) {
 }
 
 // run the installation
-$install_output = $installer->install($db_params);
+$install_output = $installer->install();
 if ($install_output !== null) {
 	installationFailed("Installation failed.", $install_output, $fail_action, $cleanupIfFail);
 }
