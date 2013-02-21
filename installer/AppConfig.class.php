@@ -177,13 +177,9 @@ class AppConfig
 	{
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 		if(file_exists(self::$inputFilePath) && self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y'))
-		{
 			self::$config = parse_ini_file(self::$inputFilePath, true);
-		}
-		else
-		{
-			self::runWizard();
-		}
+
+		self::runWizard();
 
 		self::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
 
@@ -387,9 +383,6 @@ class AppConfig
 
 	private static function runWizard()
 	{
-		logMessage(L_USER, "Please provide the following information:");
-		echo PHP_EOL;
-
 		$hostname = self::getHostname();
 
 		self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . " )", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
@@ -406,7 +399,7 @@ class AppConfig
 
 		self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 
-		$this->set(AppConfigAttribute::DB1_NAME, 'kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
+		self::set(AppConfigAttribute::DB1_NAME, 'kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
 		self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
 
 		self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password (leave empty for no password)", null, null, 'root');
