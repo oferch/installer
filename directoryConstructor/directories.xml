@@ -249,11 +249,11 @@
 			<templates svnPath="/usr/local/kalsource/on-premise/trunk/packaging/templates" mode="0700" filesMode="0400" skipFilesOwner="true" />
 			<clientlibs user="${OS_KALTURA_USER}" mode="0750" filesMode="0640" skipFilesOwner="true" />
 		</content>
-		<tmp user="${OS_KALTURA_USER}" mode="0750" filesMode="0660">
-			<convert skipFilesOwner="true" />
-			<imports skipFilesOwner="true" />
-			<thumb skipFilesOwner="true" />
-			<xml skipFilesOwner="true" />
+		<tmp mode="0750" filesMode="0660" skipFilesOwner="true">
+			<convert mode="0770" skipFilesOwner="true" />
+			<imports mode="0770" skipFilesOwner="true" />
+			<thumb mode="0770" skipFilesOwner="true" />
+			<xml mode="0770" skipFilesOwner="true" />
 		</tmp>
 	</web>
 	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk">
