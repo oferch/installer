@@ -40,6 +40,18 @@ class AppConfigAttribute
 	const DB1_PASS = 'DB1_PASS';
 	const DB1_NAME = 'DB1_NAME';
 
+	const DB2_HOST = 'DB2_HOST';
+	const DB2_PORT = 'DB2_PORT';
+	const DB2_USER = 'DB2_USER';
+	const DB2_PASS = 'DB2_PASS';
+	const DB2_NAME = 'DB2_NAME';
+
+	const DB3_HOST = 'DB3_HOST';
+	const DB3_PORT = 'DB3_PORT';
+	const DB3_USER = 'DB3_USER';
+	const DB3_PASS = 'DB3_PASS';
+	const DB3_NAME = 'DB3_NAME';
+
 	const SPHINX_SERVER = 'SPHINX_SERVER';
 	const SPHINX_DB_HOST = 'SPHINX_DB_HOST';
 	const SPHINX_DB_PORT = 'SPHINX_DB_PORT';
