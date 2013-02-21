@@ -11,7 +11,7 @@ class DatabaseUtils
 	 * @param string $db_name database name
 	 * @return true on success, false otherwise
 	 */
-	public static function connect(&$link, $db_name)
+	public static function connect(&$link, $db_name = null)
 	{
 		// set mysqli to connect via tcp
 		$password = trim(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS));
