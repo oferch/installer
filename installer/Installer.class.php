@@ -69,11 +69,11 @@ class Installer
 
 		$this->uninstallConfig = fopen("$uninstallerDir/uninstall.ini", 'w');
 
-		fwrite($this->uninstallConfig, "BASE_DIR=" . self::$app_config[AppConfigAttribute::BASE_DIR] . PHP_EOL);
-		fwrite($this->uninstallConfig, "DB_HOST=" . self::$app_config[AppConfigAttribute::DB1_HOST] . PHP_EOL);
-		fwrite($this->uninstallConfig, "DB_USER=" . self::$app_config[AppConfigAttribute::DB1_USER] . PHP_EOL);
-		fwrite($this->uninstallConfig, "DB_PASS=" . self::$app_config[AppConfigAttribute::DB1_PASS] . PHP_EOL);
-		fwrite($this->uninstallConfig, "DB_PORT=" . self::$app_config[AppConfigAttribute::DB1_PORT] . PHP_EOL);
+		fwrite($this->uninstallConfig, "BASE_DIR=" . AppConfig::get(AppConfigAttribute::BASE_DIR) . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_HOST=" . AppConfig::get(AppConfigAttribute::DB1_HOST) . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_USER=" . AppConfig::get(AppConfigAttribute::DB1_USER) . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_PASS=" . AppConfig::get(AppConfigAttribute::DB1_PASS) . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_PORT=" . AppConfig::get(AppConfigAttribute::DB1_PORT) . PHP_EOL);
 		fwrite($this->uninstallConfig, PHP_EOL);
 	}
 
