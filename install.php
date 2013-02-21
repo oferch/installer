@@ -84,7 +84,6 @@ if($argc > 2)
 	}
 }
 
-$installer = new Installer($components);
 $user = new UserInput();
 $db_params = array();
 
@@ -205,6 +204,8 @@ if (count($prerequisites))
 // verify that there are no leftovers from previous installations
 echo PHP_EOL;
 logMessage(L_USER, "Checking for leftovers from a previous installation");
+
+$installer = new Installer($components);
 $leftovers = $installer->detectLeftovers(true, $db_params);
 if (isset($leftovers)) {
 	logMessage(L_USER, $leftovers);

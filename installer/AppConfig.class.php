@@ -3,7 +3,6 @@
 define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
 define('TEMPLATE_FILE', '.template'); // how to recognize a template file, template files are copyed to non-template and then the tokens are replaced
 define('KCONF_LOCAL_LOCATION', '/configurations/local.ini'); // the location of kConf
-define('UNINSTALLER_LOCATION', '/uninstaller/uninstall.ini'); // the location where to save configuration for the uninstaller
 
 class AppConfigAttribute
 {
@@ -200,42 +199,6 @@ class AppConfig
 
 		return self::$filePath;
 	}
-
-	// saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
-	public static function saveUninstallerConfig() {
-		$file = self::$app_config[AppConfigAttribute::BASE_DIR].UNINSTALLER_LOCATION;
-		$data = "BASE_DIR = ".self::$app_config[AppConfigAttribute::BASE_DIR].PHP_EOL;
-		$data = $data."DB_HOST = ".self::$app_config[AppConfigAttribute::DB1_HOST].PHP_EOL;
-		$data = $data."DB_USER = ".self::$app_config[AppConfigAttribute::DB1_USER].PHP_EOL;
-		$data = $data."DB_PASS = ".self::$app_config[AppConfigAttribute::DB1_PASS].PHP_EOL;
-		$data = $data."DB_PORT = ".self::$app_config[AppConfigAttribute::DB1_PORT].PHP_EOL;
-		return file_put_contents($file, $data);
-	}
-
-	// update uninstaller config with symlinks definitions
-	public static function updateUninstallerConfig($symlinks) {
-		$file = self::$app_config[AppConfigAttribute::BASE_DIR].UNINSTALLER_LOCATION;
-		$data ='';
-		foreach ($symlinks as $slink) {
-			$link_items = explode(SYMLINK_SEPARATOR, self::replaceTokensInString($slink));
-			if (is_file($link_items[1]) && (strpos($link_items[1], self::$app_config[AppConfigAttribute::BASE_DIR]) === false)) {
-				$data = $data."symlinks[] = ".$link_items[1].PHP_EOL;
-			}
-		}
-		return file_put_contents($file, $data, FILE_APPEND);
-	}
-
-	// update uninstaller config with chkconfig definitions
-	public static function updateUninstallerServices($chkconfig) {
-		$data ='';
-		foreach ($chkconfig as $service)
-			$data .= "chkconfig[] = $service" . PHP_EOL;
-
-		$file = self::$app_config[AppConfigAttribute::BASE_DIR].UNINSTALLER_LOCATION;
-		return file_put_contents($file, $data, FILE_APPEND);
-	}
-
-	// private functions
 
 	// defines all the installation configuration values according to the user input and the default values
 	private static function defineInstallationTokens() {

@@ -5,14 +5,23 @@ define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts
 /*
 * This class handles the installation itself. It has functions for installing and for cleaning up.
 */
-class Installer {
-	private $install_config;
+class Installer
+{
+	/**
+	 * @var resource
+	 */
+	private $uninstallConfig;
+
+	/**
+	 * @var array
+	 */
+	private $installConfig;
 
 	/**
 	 * Array of tasks that should be done once during the installation, for different components
 	 * @var array
 	 */
-	private $run_once = array();
+	private $runOnce = array();
 
 	/**
 	 * Array of the components that should be installed
@@ -20,23 +29,52 @@ class Installer {
 	 */
 	private $components = array('all');
 
-	// crteate a new installer, loads installation configurations from installation configuration file
+	/**
+	 * Crteate a new installer, loads installation configurations from installation configuration file
+	 * @param array|string $components
+	 */
 	public function __construct($components = '*')
 	{
-		$this->install_config = parse_ini_file(__DIR__ . '/installation.ini', true);
+		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
 		if($components && is_array($components))
 		{
 			foreach($components as $component)
-				if(isset($this->install_config[$component]))
+				if(isset($this->installConfig[$component]))
 					$this->components[] = $component;
 		}
 		elseif($components == '*')
 		{
-			foreach($this->install_config as $component => $config)
+			foreach($this->installConfig as $component => $config)
 				if($component != 'all' && $config['install_by_default'])
 					$this->components[] = $component;
 		}
+
+		$this->saveUninstallerConfig();
+	}
+
+	public function __destruct()
+	{
+		fclose($this->uninstallConfig);
+	}
+
+	/**
+	 * Saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
+	 */
+	public function saveUninstallerConfig()
+	{
+		$uninstallerDir = AppConfig::get(AppConfigAttribute::BASE_DIR) . '/uninstaller';
+		if(!file_exists($uninstallerDir))
+			mkdir($uninstallerDir);
+
+		$this->uninstallConfig = fopen("$uninstallerDir/uninstall.ini", 'w');
+
+		fwrite($this->uninstallConfig, "BASE_DIR=" . self::$app_config[AppConfigAttribute::BASE_DIR] . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_HOST=" . self::$app_config[AppConfigAttribute::DB1_HOST] . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_USER=" . self::$app_config[AppConfigAttribute::DB1_USER] . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_PASS=" . self::$app_config[AppConfigAttribute::DB1_PASS] . PHP_EOL);
+		fwrite($this->uninstallConfig, "DB_PORT=" . self::$app_config[AppConfigAttribute::DB1_PORT] . PHP_EOL);
+		fwrite($this->uninstallConfig, PHP_EOL);
 	}
 
 	// detects if there are leftovers of an installation
@@ -48,7 +86,7 @@ class Installer {
 		$leftovers = null;
 
 		// symbloic links leftovers
-		foreach($this->install_config as $component => $config)
+		foreach($this->installConfig as $component => $config)
 		{
 			if(isset($config['symlinks']) && is_array($config['symlinks']))
 			{
@@ -109,12 +147,12 @@ class Installer {
 
 	private function restartApache()
 	{
-		$this->run_once[] = 'restartApache';
+		$this->runOnce[] = 'restartApache';
 	}
 
 	private function generateClients()
 	{
-		$this->run_once[] = 'generateClients';
+		$this->runOnce[] = 'generateClients';
 	}
 
 	/**
@@ -139,8 +177,6 @@ class Installer {
 		if (!mkdir(AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/", 0750, true) || !OsUtils::fullCopy('installer/uninstall.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
 			return "Failed to create the uninstaller";
 		}
-		//create uninstaller.ini with minimal definitions
-		AppConfig::saveUninstallerConfig();
 
 		//OsUtils::logDir definition
 		OsUtils::$logDir = AppConfig::get(AppConfigAttribute::LOG_DIR);
@@ -158,9 +194,9 @@ class Installer {
 		}
 
 		logMessage(L_USER, "Replacing configuration tokens in files");
-		if(isset($this->install_config['all']['token_files']) && is_array($this->install_config['all']['token_files']))
+		if(isset($this->installConfig['all']['token_files']) && is_array($this->installConfig['all']['token_files']))
 		{
-			foreach ($this->install_config['all']['token_files'] as $tokenFile)
+			foreach ($this->installConfig['all']['token_files'] as $tokenFile)
 			{
 				$files = glob(AppConfig::replaceTokensInString($tokenFile));
 				foreach($files as $file)
@@ -243,9 +279,9 @@ class Installer {
 		}
 
 		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
-		if(isset($this->install_config['all']['uiconfs_2']) && is_array($this->install_config['all']['uiconfs_2']))
+		if(isset($this->installConfig['all']['uiconfs_2']) && is_array($this->installConfig['all']['uiconfs_2']))
 		{
-			foreach($this->install_config['all']['uiconfs_2'] as $uiconfapp)
+			foreach($this->installConfig['all']['uiconfs_2'] as $uiconfapp)
 			{
 				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
 				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
@@ -259,7 +295,7 @@ class Installer {
 			}
 		}
 
-		if(in_array('generateClients', $this->run_once))
+		if(in_array('generateClients', $this->runOnce))
 		{
 			logMessage(L_USER, "Generating client libraries");
 			if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
@@ -270,7 +306,7 @@ class Installer {
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";
 
-		if(in_array('restartApache', $this->run_once))
+		if(in_array('restartApache', $this->runOnce))
 		{
 			logMessage(L_USER, "Restarting apache http server");
 			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::APACHE_RESTART_COMMAND))) {
@@ -317,9 +353,9 @@ class Installer {
 				unlink($link);
 				symlink($target, $link);
 			}
-		}
 
-		AppConfig::updateUninstallerConfig($symlinks);
+			fwrite($this->uninstallConfig, "symlinks[]=$link" . PHP_EOL);
+		}
 
 		return true;
 	}
@@ -331,23 +367,22 @@ class Installer {
 		{
 			if (!OsUtils::startService($service))
 				return "Failed starting service [$service]";
-		}
 
-		//update uninstaller config
-		AppConfig::updateUninstallerServices($services);
+			fwrite($this->uninstallConfig, "chkconfig[]=$service" . PHP_EOL);
+		}
 
 		return true;
 	}
 
 	public function installComponentSymlinks($component)
 	{
-		if(!isset($this->install_config[$component]))
+		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
 
-		if(!isset($this->install_config[$component]['symlinks']))
+		if(!isset($this->installConfig[$component]['symlinks']))
 			return true;
 
-		$componentConfig = $this->install_config[$component];
+		$componentConfig = $this->installConfig[$component];
 		logMessage(L_USER, "Installing component [$component]");
 
 		$createSymlinks = $this->createSymlinks($componentConfig['symlinks']);
@@ -359,10 +394,10 @@ class Installer {
 
 	public function installComponent($component, $db_params)
 	{
-		if(!isset($this->install_config[$component]))
+		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
 
-		$componentConfig = $this->install_config[$component];
+		$componentConfig = $this->installConfig[$component];
 		logMessage(L_USER, "Installing component [$component]");
 
 		$includeFile = __DIR__ . "/components/$component.php";
@@ -378,13 +413,13 @@ class Installer {
 
 	public function installComponentServices($component)
 	{
-		if(!isset($this->install_config[$component]))
+		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
 
-		if(!isset($this->install_config[$component]['chkconfig']))
+		if(!isset($this->installConfig[$component]['chkconfig']))
 			return true;
 
-		$componentConfig = $this->install_config[$component];
+		$componentConfig = $this->installConfig[$component];
 		logMessage(L_USER, "Installing component [$component] services");
 
 		$startServices = $this->startServices($componentConfig['chkconfig']);
