@@ -14,15 +14,13 @@ class DatabaseUtils
 	public static function connect(&$link, $db_name)
 	{
 		// set mysqli to connect via tcp
-		if (AppConfig::get(AppConfigAttribute::DB1_HOST) == 'localhost') {
-			AppConfig::get(AppConfigAttribute::DB1_HOST) = '127.0.0.1';
-		}
-		if (trim(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS)) == '') {
-			AppConfig::get(AppConfigAttribute::DB_ROOT_PASS) = null;
+		$password = trim(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS));
+		if (!$password) {
+			$password = null;
 		}
 		$link = @mysqli_init();
 		/* @var $link mysqli */
-		$result = @mysqli_real_connect($link, AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB_ROOT_PASS), $db_name, AppConfig::get(AppConfigAttribute::DB1_PORT));
+		$result = @mysqli_real_connect($link, AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $password, $db_name, AppConfig::get(AppConfigAttribute::DB1_PORT));
 		if (!$result) {
 			logMessage(L_ERROR, sprintf("Cannot connect to db: %s, %s, %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $link->error));
 			return false;
