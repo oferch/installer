@@ -25,10 +25,10 @@
 	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0770" filesMode="0770" />
 	<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
 	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600">
-		<convert />
-		<emailIngestion />
-		<imports />
-		<thumb />
+		<convert user="${OS_KALTURA_USER}" />
+		<emailIngestion user="${OS_KALTURA_USER}" />
+		<imports user="${OS_KALTURA_USER}" />
+		<thumb user="${OS_KALTURA_USER}" />
 	</tmp>
 	<web>
 		<flash skipFilesOwner="true">
