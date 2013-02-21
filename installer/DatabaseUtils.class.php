@@ -114,7 +114,7 @@ class DatabaseUtils
 			return false;
 		}
 
-		if (empty(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS))) {
+		if (!AppConfig::get(AppConfigAttribute::DB_ROOT_PASS)) {
 			$cmd = sprintf("mysql -h%s -u%s -P%s %s < %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB1_PORT), $db_name, $file);
 		} else {
 			$cmd = sprintf("mysql -h%s -u%s -p%s -P%s %s < %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB_ROOT_PASS), AppConfig::get(AppConfigAttribute::DB1_PORT), $db_name, $file);
