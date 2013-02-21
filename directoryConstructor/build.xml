@@ -152,7 +152,13 @@
 					<then>
 						<chmod file="${svn.key}" mode="600" />
 						<if>
-							<available file="${directory.fullPath}/.svn" type="dir" />
+							<and>
+								<available file="${directory.fullPath}/.svn" type="dir" />
+								<or>
+									<not><isset property="directory.attributes.${directory.id}.override" /></not>
+									<equals arg1="directory.attributes.${directory.id}.override" arg2="false" />
+								</or>
+							</and>
 							<then>
 								<echo message="Update svn repository [${directory.fullPath}]" />
 								<echo message="Executing: ${svn.bin} --non-interactive --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update --force --accept theirs-full &quot;${directory.fullPath}&quot;" />

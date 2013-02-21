@@ -3,7 +3,7 @@
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
 	-->
-	<app user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/trunk/core">
+	<app user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/trunk/core" override="true">
 		<cache mode="0770" filesMode="0660" skipFilesOwner="true" />
 	</app>
 	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
