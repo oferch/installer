@@ -30,11 +30,18 @@ class Installer
 	private $components = array('all');
 
 	/**
+	 * Path to package dir
+	 * @var string
+	 */
+	private $packageDir = array('all');
+
+	/**
 	 * Crteate a new installer, loads installation configurations from installation configuration file
 	 * @param array|string $components
 	 */
 	public function __construct($components = '*')
 	{
+		$this->packageDir = realpath(__DIR__ . '/../package');
 		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
 		if($components && is_array($components))
@@ -161,13 +168,13 @@ class Installer
 	public function install() {
 		logMessage(L_USER, sprintf("Current working dir is %s", getcwd()));
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
-		if (!OsUtils::rsync('../package/', AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
+		if (!OsUtils::rsync("$this->packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
 			return "Failed to copy application files to target directory";
 
 		if (AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
 			logMessage(L_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
-			if (!OsUtils::rsync("../package/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
+			if (!OsUtils::rsync("$this->packageDir/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
 				return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
 		}
 
@@ -318,7 +325,7 @@ class Installer
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 
-		OsUtils::execute('cp ../package/version.ini ' . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
+		OsUtils::execute("cp $this->packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 
 		logMessage(L_USER, "Verifying installation");
 		if(!$this->verifyInstallation())
