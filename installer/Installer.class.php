@@ -65,7 +65,7 @@ class Installer
 	{
 		$uninstallerDir = AppConfig::get(AppConfigAttribute::BASE_DIR) . '/uninstaller';
 		if(!file_exists($uninstallerDir))
-			mkdir($uninstallerDir);
+			mkdir($uninstallerDir, 0750, true);
 
 		$this->uninstallConfig = fopen("$uninstallerDir/uninstall.ini", 'w');
 
