@@ -42,7 +42,7 @@
 				<database dbname="@DWH_DATABASE_NAME@" privileges="INSERT,UPDATE,DELETE,SELECT,EXECUTE" host="mysql1" />
 				<database dbname="kalturadw_bisources" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" />
 				<database dbname="kalturadw_ds" privileges="INSERT,UPDATE,DELETE,SELECT,EXECUTE" host="mysql1" />
-				<database dbname="kalturalog" privileges="INSERT,UPDATE,DELETE,SELECT" host="mysql1" />
+				<database dbname="kalturalog" privileges="INSERT,UPDATE,DELETE,SELECT,LOCK TABLES" host="mysql1" />
 			</databases>
 		</user>
 	</users>	
