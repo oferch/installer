@@ -10,7 +10,7 @@
 		</configurations>
 	</app>
 	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
-		<clipapp skipFilesMode="true" skipFilesOwner="true" skipFilesMode="true">
+		<clipapp skipFilesOwner="true" skipFilesMode="true">
 			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" skipFilesOwner="true" skipFilesMode="true" />
 			<v1.0.7 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7" skipFilesOwner="true" skipFilesMode="true" />
 		</clipapp>
