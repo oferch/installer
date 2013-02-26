@@ -209,7 +209,7 @@ class Installer
 		foreach($this->components as $component)
 			$this->installComponentSymlinks($component);
 
-		if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
+		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
 			AppConfig::simMafteach();
 		}
 
