@@ -39,7 +39,7 @@ AppConfig::init($packageDir);
 AppConfig::configure();
 
 logMessage(L_INFO, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
-if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
+if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
 	logMessage(L_USER, "Thank you for installing Kaltura Video Platform - Community Edition");
 } else {
 	logMessage(L_USER, "Thank you for installing Kaltura Video Platform");
@@ -50,7 +50,7 @@ echo PHP_EOL;
 
 $report = null;
 // if user wants or have to report
-if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE ||
+if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE ||
 	AppConfig::getTrueFalse(null, "In order to improve Kaltura Community Edition, we would like your permission to send system data to Kaltura.\nThis information will be used exclusively for improving our software and our service quality. I agree", 'y'))
 {
 	$report_message = "If you wish, please provide your email address so that we can offer you future assistance (leave empty to pass)";
@@ -121,7 +121,7 @@ if ($install_output !== null)
 		$installer->detectLeftovers(false);
 	}
 
-	if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
+	if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
 		logMessage(L_USER, "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org");
 	else
 		logMessage(L_USER, "For assistance, please contant the support team at support@kaltura.com with the installation log attached");
