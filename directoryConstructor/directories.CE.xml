@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<base skipFilesMode="true" skipFilesOwner="true">
+	<installer group="${OS_ROOT_GROUP}" user="${OS_ROOT_USER}" mode="0700" filesMode="0600" scriptsMode="0700" svnPath="/usr/local/kalsource/on-premise/trunk/installer" />
+	<package group="${OS_KALTURA_GROUP}" user="${OS_ROOT_USER}" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true" skipFilesOwner="true" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/package_root/CE" sourcePath="directories.xml" overwrite="true" />
+</base>

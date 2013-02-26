@@ -18,7 +18,7 @@ ini_set('max_input_time ', 0);
 date_default_timezone_set(@date_default_timezone_get());
 
 // start the log
-startLog(__DIR__ . "/install_log_".date("d.m.Y_H.i.s"));
+startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
 logMessage(L_INFO, "Installation started");
 
 $components = '*';
@@ -37,6 +37,8 @@ if($argc > 2)
 $packageDir = realpath(__DIR__ . '/../package');
 AppConfig::init($packageDir);
 AppConfig::configure();
+
+OsUtils::setLogPath(AppConfig::get(AppConfigAttribute::LOG_DIR) . DIRECTORY_SEPARATOR . 'kaltura_deploy.log');
 
 logMessage(L_INFO, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
 if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
@@ -170,8 +172,7 @@ logMessage(L_USER,
 	"2. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
 );
 
-if (isset($report)) {
+if ($report)
 	$report->reportInstallationSuccess();
-}
 
 exit(0);

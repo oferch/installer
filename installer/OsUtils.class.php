@@ -7,7 +7,12 @@ class OsUtils {
 	const WINDOWS_OS = 'Windows';
 	const LINUX_OS   = 'linux';
 
-	public static $logDir;
+	private static $log;
+
+	public static function setLogPath($path)
+	{
+		self::$log = $path;
+	}
 
 	// returns true if the user is root, false otherwise
 	public static function verifyRootUser() {
@@ -41,7 +46,6 @@ class OsUtils {
 
 	// returns the OS name or empty string if not recognized
 	public static function getOsName() {
-		logMessage(L_INFO, "OS: ".PHP_OS);
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			return self::WINDOWS_OS;
 		} else if (strtoupper(substr(PHP_OS, 0, 5)) === 'LINUX') {
@@ -89,13 +93,20 @@ class OsUtils {
 		$propertyFile = AppConfig::getFilePath();
 		$options = array();
 		foreach($attributes as $attribute => $value)
+		{
+			if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+				$value = "\"$value\"";
+			else
+				$value = "'$value'";
+
 			$options[] = "-D{$attribute}={$value}";
+		}
 		$options = implode(' ', $options);
 
 
 		$originalDir = getcwd();
 		chdir($dir);
-		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target >> " . self::$logDir . "/kaltura_deploy.log 2>&1";
+		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target >> " . self::$log . " 2>&1";
 		logMessage(L_INFO, "Executing $command");
 		$returnedValue = null;
 		passthru($command, $returnedValue);
@@ -126,7 +137,7 @@ class OsUtils {
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
 		logMessage(L_INFO, "Executing $command");
-		exec($command . ' >> ' . self::$logDir .'/kaltura_deploy.log 2>&1 ', $output, $return_var);
+		exec($command . ' >> ' . self::$log .' 2>&1 ', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
@@ -160,7 +171,7 @@ class OsUtils {
 	public static function executeInBackground($command) {
 		logMessage(L_INFO, "Executing in background $command");
 		print("Executing in background $command \n");
-		exec($command. ' >> ' . self::$logDir .'/kaltura_deploy.log 2>&1 &', $output, $return_var);
+		exec($command. ' >> ' . self::$log . ' 2>&1 &', $output, $return_var);
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)

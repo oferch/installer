@@ -191,6 +191,14 @@ class AppConfig
 		if(OsUtils::getOsName() == OsUtils::LINUX_OS)
 			system('clear');
 
+		$versionPath = self::$packageDir . "/version.ini";
+		if(file_exists($versionPath))
+		{
+			$version = parse_ini_file($versionPath);
+			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura ' . $version['type'] . ' ' . $version['number']);
+			self::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
+		}
+
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 		if(file_exists(self::$inputFilePath) && self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y'))
 			self::$config = parse_ini_file(self::$inputFilePath, true);
@@ -231,14 +239,6 @@ class AppConfig
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 
 		self::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
-
-		$versionPath = self::$packageDir . "/version.ini";
-		if(file_exists($versionPath))
-		{
-			$version = parse_ini_file($versionPath);
-			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura ' . $version['type'] . ' ' . $version['number']);
-			self::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
-		}
 
 		// set to replace passwords on first activiation if this installation is preinstalled
 		self::initField(AppConfigAttribute::REPLACE_PASSWORDS, 'false');

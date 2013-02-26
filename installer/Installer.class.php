@@ -177,9 +177,6 @@ class Installer
 			return "Failed to create the uninstaller";
 		}
 
-		//OsUtils::logDir definition
-		OsUtils::$logDir = AppConfig::get(AppConfigAttribute::LOG_DIR);
-
 		logMessage(L_USER, "Replacing configuration tokens in files");
 		if(isset($this->installConfig['all']['token_files']) && is_array($this->installConfig['all']['token_files']))
 		{
