@@ -21,6 +21,10 @@ date_default_timezone_set(@date_default_timezone_get());
 startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
 logMessage(L_INFO, "Installation started");
 
+$silentRun = false;
+if($argc > 1 && $argv[1] == '-s')
+	$silentRun = true;
+
 $components = '*';
 if($argc > 2)
 {
@@ -36,7 +40,7 @@ if($argc > 2)
 
 $packageDir = realpath(__DIR__ . '/../package');
 AppConfig::init($packageDir);
-AppConfig::configure();
+AppConfig::configure($silentRun);
 
 OsUtils::setLogPath(AppConfig::get(AppConfigAttribute::LOG_DIR) . DIRECTORY_SEPARATOR . 'kaltura_deploy.log');
 

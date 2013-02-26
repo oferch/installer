@@ -131,7 +131,6 @@ class AppConfigAttribute
 
 	const UICONF_TAB_ACCESS = 'UICONF_TAB_ACCESS';
 
-	const REPLACE_PASSWORDS = 'REPLACE_PASSWORDS';
 	const TRACK_KDPWRAPPER = 'TRACK_KDPWRAPPER';
 	const USAGE_TRACKING_OPTIN = 'USAGE_TRACKING_OPTIN';
 
@@ -198,50 +197,66 @@ class AppConfig
 			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura ' . $version['type'] . ' ' . $version['number']);
 			self::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
 		}
-
-		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
-		if(file_exists(self::$inputFilePath) && self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y'))
-			self::$config = parse_ini_file(self::$inputFilePath, true);
 	}
 
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
-	public static function configure()
+	public static function configure($silentRun = false)
 	{
+		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
+
+		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
+			self::$config = parse_ini_file(self::$inputFilePath, true);
+
 		$hostname = self::getHostname();
 
-		self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . " )", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
+		if($silentRun)
+		{
+			self::initField(AppConfigAttribute::TIME_ZONE, date_default_timezone_get());
+			self::initField(AppConfigAttribute::BASE_DIR, '/opt/kaltura');
+			self::initField(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, $hostname);
+			self::initField(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, "admin@$hostname");
+			self::initField(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, 'admin');
+			self::initField(AppConfigAttribute::DB1_HOST, $hostname);
+			self::initField(AppConfigAttribute::DB1_PORT, 3306);
+			self::initField(AppConfigAttribute::DB_ROOT_USER, 'root');
+			self::initField(AppConfigAttribute::DB_ROOT_PASS, 'root');
+			self::initField(AppConfigAttribute::DB1_CREATE_NEW_DB, 'y');
+			self::initField(AppConfigAttribute::SPHINX_DB_HOST, ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
+			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
+		}
+		else
+		{
+			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . " )", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
 
-		self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
+			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
 
-		self::getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, "Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://)", 'Must be a valid hostname or ip, please enter again', InputValidator::createHostValidator(), null);
+			self::getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, "Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://)", 'Must be a valid hostname or ip, please enter again', InputValidator::createHostValidator(), null);
 
-		self::getInput(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, "Your primary system administrator email address", "Email must be in a valid email format, please enter again", InputValidator::createEmailValidator(false), null);
+			self::getInput(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, "Your primary system administrator email address", "Email must be in a valid email format, please enter again", InputValidator::createEmailValidator(false), null);
 
-		self::getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, "The password you want to set for your primary administrator", "Password should not be empty and should not contain whitespaces, please enter again", InputValidator::createNoWhitespaceValidator(), null, true);
+			self::getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, "The password you want to set for your primary administrator", "Password should not be empty and should not contain whitespaces, please enter again", InputValidator::createNoWhitespaceValidator(), null, true);
 
-		self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
+			self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
 
-		self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+			self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 
-		self::set(AppConfigAttribute::DB1_NAME, 'kaltura'); // currently we do not support getting the DB name from the user because of the DWH implementation
-		self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
+			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
 
-		self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password (leave empty for no password)", null, null, 'root');
+			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password (leave empty for no password)", null, null, 'root');
 
-		self::getTrueFalse(AppConfigAttribute::DB1_CREATE_NEW_DB, "Would you like to create a new kaltura database or use an exisiting one?", 'y');
+			self::getTrueFalse(AppConfigAttribute::DB1_CREATE_NEW_DB, "Would you like to create a new kaltura database or use an exisiting one?", 'y');
 
-		self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty if Sphinx is running on this machine).", null, InputValidator::createHostValidator(), ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
+			self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty if Sphinx is running on this machine).", null, InputValidator::createHostValidator(), ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
 
-		self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https", null, null, 'http');
+			self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+		}
+		self::initField(AppConfigAttribute::DB1_NAME, 'kaltura');
 
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 
 		self::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
-
-		// set to replace passwords on first activiation if this installation is preinstalled
-		self::initField(AppConfigAttribute::REPLACE_PASSWORDS, 'false');
 
 		// load or create installation sequence id
 		$installSeqFilePath = __DIR__ . '/../install_seq';
@@ -262,7 +277,7 @@ class AppConfig
 
 		// allow ui conf tab only for CE installation
 		if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
-			self::set(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
+			self::initField(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
 
 		// directories
 		self::initField(AppConfigAttribute::APP_DIR, self::get(AppConfigAttribute::BASE_DIR) . '/app');
