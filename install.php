@@ -34,7 +34,7 @@ if($argc > 2)
 	}
 }
 
-$packageDir = realpath(__DIR__ . '/../../package');
+$packageDir = realpath(__DIR__ . '/../package');
 AppConfig::init($packageDir);
 AppConfig::configure();
 
@@ -109,7 +109,7 @@ if (isset($leftovers)) {
 }
 
 // run the installation
-$install_output = $installer->install(realpath(__DIR__ . '/../package'));
+$install_output = $installer->install($packageDir);
 if ($install_output !== null)
 {
 	$description = "Installation failed.\n" . $install_output;
