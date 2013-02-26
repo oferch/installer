@@ -30,18 +30,11 @@ class Installer
 	private $components = array('all');
 
 	/**
-	 * Path to package dir
-	 * @var string
-	 */
-	private $packageDir = array('all');
-
-	/**
 	 * Crteate a new installer, loads installation configurations from installation configuration file
 	 * @param array|string $components
 	 */
 	public function __construct($components = '*')
 	{
-		$this->packageDir = realpath(__DIR__ . '/../package');
 		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
 		if($components && is_array($components))
@@ -165,16 +158,17 @@ class Installer
 	 * Installs the application according to the given parameters\
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
 	 */
-	public function install() {
+	public function install($packageDir = null) {
+
 		logMessage(L_USER, sprintf("Current working dir is %s", getcwd()));
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
-		if (!OsUtils::rsync("$this->packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
+		if ($packageDir && !OsUtils::rsync("$packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
 			return "Failed to copy application files to target directory";
 
-		if (AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+		if ($packageDir && AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
 			logMessage(L_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
-			if (!OsUtils::rsync("$this->packageDir/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
+			if (!OsUtils::rsync("$packageDir/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
 				return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
 		}
 
@@ -185,18 +179,6 @@ class Installer
 
 		//OsUtils::logDir definition
 		OsUtils::$logDir = AppConfig::get(AppConfigAttribute::LOG_DIR);
-
-		// if vmware installation copy configurator folders
-		if (AppConfig::get(AppConfigAttribute::KALTURA_PREINSTALLED)) {
-			mkdir(AppConfig::get(AppConfigAttribute::BASE_DIR).'/installer', 0777, true);
-			if (!OsUtils::rsync('installer/', AppConfig::get(AppConfigAttribute::BASE_DIR).'/installer')) {
-				return "Failed to copy installer files to target directory";
-			}
-
-			if (!OsUtils::fullCopy('configurator/', AppConfig::get(AppConfigAttribute::BASE_DIR).'/installer')) {
-				return "Failed to copy configurator files to target directory";
-			}
-		}
 
 		logMessage(L_USER, "Replacing configuration tokens in files");
 		if(isset($this->installConfig['all']['token_files']) && is_array($this->installConfig['all']['token_files']))
@@ -227,7 +209,7 @@ class Installer
 		foreach($this->components as $component)
 			$this->installComponentSymlinks($component);
 
-		if (strcasecmp(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE), K_CE_TYPE) == 0) {
+		if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
 			AppConfig::simMafteach();
 		}
 
@@ -325,7 +307,8 @@ class Installer
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 
-		OsUtils::execute("cp $this->packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
+		if($packageDir)
+			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 
 		logMessage(L_USER, "Verifying installation");
 		if(!$this->verifyInstallation())

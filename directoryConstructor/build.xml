@@ -77,10 +77,9 @@
 			<istrue value="${actions.package}" />
 			<then>
 				<property name="version.ini.type" value="${package.type}" />
-				<property name="version.ini.number" value="${package.version} ${package.beta}" />
-				<property name="version.ini.preinstalled" value="${package.preinstalled}" />
+				<property name="version.ini.number" value="${package.version}" />
 				<exportspecificproperties allowedPropertyPrefixes="version.ini." removePrefix="true" targetFile="${BASE_DIR}/package/version.ini" />
-				<tar destfile="${package.dir}/${package.type}-${package.version}-${package.beta}.tgz" basedir="${BASE_DIR}" />
+				<tar destfile="${package.dir}/${package.type}-${package.version}.tgz" basedir="${BASE_DIR}" />
 			</then>
 		</if>
 	</target>
