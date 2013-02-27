@@ -242,7 +242,7 @@ class AppConfig
 
 			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges on all database servers, leave empty for root)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
 
-			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password on all database servers (leave empty for no password)");
+			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password on all database servers (leave empty for no password)", null, null, null, true);
 
 			if(!$enableMultipleServers || !self::configureMultipleServers())
 			{
@@ -852,14 +852,22 @@ class AppConfig
 		while(! $inputOk)
 		{
 			echo '> ';
-			$input = trim(fgets(STDIN));
 
 			if($hideValue)
 			{
+				if(OsUtils::getOsName() == OsUtils::LINUX_OS)
+					system('stty -echo');
+
+				$input = trim(fgets(STDIN));
+
+				if(OsUtils::getOsName() == OsUtils::LINUX_OS)
+					system('stty echo');
+
 				logMessage(L_INFO, "User input accepted");
 			}
 			else
 			{
+				$input = trim(fgets(STDIN));
 				logMessage(L_INFO, "User input is $input");
 			}
 
