@@ -78,11 +78,22 @@ class OsUtils {
 	}
 
 	// Write $config to ini $filename key = value
-	public static function writeConfigToFile($config, $filename) {
+	public static function writeConfigToFile($config, $filename)
+	{
 		logMessage(L_INFO, "Writing config to file $filename");
 		$data = '';
-		foreach ($config as $key => $value) {
-			$data .= "$key=$value" . PHP_EOL;
+		foreach ($config as $key => $value)
+		{
+			if(is_array($value))
+			{
+				$data .= "[$key]" . PHP_EOL;
+				foreach ($value as $subKey => $subValue)
+					$data .= "$subKey=$subValue" . PHP_EOL;
+			}
+			else
+			{
+				$data .= "$key=$value" . PHP_EOL;
+			}
 		}
 		return file_put_contents($filename, $data);
 	}
