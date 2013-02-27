@@ -238,23 +238,24 @@ class AppConfig
 
 			self::getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, "The password you want to set for your primary administrator", "Password should not be empty and should not contain whitespaces, please enter again", InputValidator::createNoWhitespaceValidator(), null, true);
 
-			self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
-
-			self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
-
-			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges, leave empty for root)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
-
-			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password (leave empty for no password)");
-
 			self::getTrueFalse(AppConfigAttribute::DB1_CREATE_NEW_DB, "Would you like to create a new kaltura database or use an exisiting one (choose yes (y) for new database)?", 'y');
 
-			self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use localhost).", null, InputValidator::createHostValidator(), '127.0.0.1');
+			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges on all database servers, leave empty for root)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
 
-			self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password on all database servers (leave empty for no password)");
+
+			if(!$enableMultipleServers)
+			{
+				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
+
+				self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+
+				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use localhost).", null, InputValidator::createHostValidator(), '127.0.0.1');
+
+				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+			}
 		}
 		self::initField(AppConfigAttribute::DB1_NAME, 'kaltura');
-
-		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 
 		self::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
 
@@ -309,33 +310,6 @@ class AppConfig
 		self::initField(AppConfigAttribute::SERVICE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
 		self::initField(AppConfigAttribute::ENVIRONMENT_NAME, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
 
-		// databases (copy information collected during prerequisites
-		if(self::get(AppConfigAttribute::DB1_HOST) == 'localhost')
-			self::set(AppConfigAttribute::DB1_HOST, '127.0.0.1');
-
-		self::initField(AppConfigAttribute::DB1_USER, 'kaltura');
-		self::initField(AppConfigAttribute::DB1_PASS, 'kaltura');
-		self::initField(AppConfigAttribute::DWH_USER, 'kaltura_etl');
-		self::initField(AppConfigAttribute::DWH_PASS, 'kaltura_etl');
-
-		self::initField(AppConfigAttribute::DB2_HOST, self::get(AppConfigAttribute::DB1_HOST));
-		self::initField(AppConfigAttribute::DB2_PORT, self::get(AppConfigAttribute::DB1_PORT));
-		self::initField(AppConfigAttribute::DB2_NAME, self::get(AppConfigAttribute::DB1_NAME));
-		self::initField(AppConfigAttribute::DB2_USER, self::get(AppConfigAttribute::DB1_USER));
-		self::initField(AppConfigAttribute::DB2_PASS, self::get(AppConfigAttribute::DB1_PASS));
-
-		self::initField(AppConfigAttribute::DB3_HOST, self::get(AppConfigAttribute::DB1_HOST));
-		self::initField(AppConfigAttribute::DB3_PORT, self::get(AppConfigAttribute::DB1_PORT));
-		self::initField(AppConfigAttribute::DB3_NAME, self::get(AppConfigAttribute::DB1_NAME));
-		self::initField(AppConfigAttribute::DB3_USER, self::get(AppConfigAttribute::DB1_USER));
-		self::initField(AppConfigAttribute::DB3_PASS, self::get(AppConfigAttribute::DB1_PASS));
-
-		//sphinx
-		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::DB1_HOST));
-		self::initField(AppConfigAttribute::SPHINX_DB_NAME, 'kaltura_sphinx_log');
-		self::initField(AppConfigAttribute::SPHINX_DB_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
-		self::initField(AppConfigAttribute::SPHINX_DB_PORT, self::get(AppConfigAttribute::DB1_PORT));
-
 		// admin console defaults
 		self::initField(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
 
@@ -387,6 +361,60 @@ class AppConfig
 		self::initField(AppConfigAttribute::QUICK_START_GUIDE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/content/docs/KMC_Quick_Start_Guide.pdf');
 		self::initField(AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL, '"' . self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/index.php/extwidget/blockMail?e="');
 
+		self::initField(AppConfigAttribute::OS_ROOT_USER, (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root'));
+		self::initField(AppConfigAttribute::OS_APACHE_USER, 'apache');
+		self::initField(AppConfigAttribute::OS_KALTURA_USER, 'kaltura');
+		self::initField(AppConfigAttribute::OS_ROOT_GROUP, self::get(AppConfigAttribute::OS_ROOT_USER));
+		self::initField(AppConfigAttribute::OS_APACHE_GROUP, self::get(AppConfigAttribute::OS_APACHE_USER));
+		self::initField(AppConfigAttribute::OS_KALTURA_GROUP, self::get(AppConfigAttribute::OS_KALTURA_USER));
+
+
+		self::initField(AppConfigAttribute::REPORT_ADMIN_EMAIL, '');
+		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
+		self::initField(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'false');
+
+		if($enableMultipleServers && !$silentRun)
+		{
+			if(!self::configureMultipleServers())
+			{
+				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
+
+				self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+
+				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use localhost).", null, InputValidator::createHostValidator(), '127.0.0.1');
+
+				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+			}
+		}
+
+
+		// databases (copy information collected during prerequisites
+		if(self::get(AppConfigAttribute::DB1_HOST) == 'localhost')
+			self::set(AppConfigAttribute::DB1_HOST, '127.0.0.1');
+
+		self::initField(AppConfigAttribute::DB1_USER, 'kaltura');
+		self::initField(AppConfigAttribute::DB1_PASS, 'kaltura');
+		self::initField(AppConfigAttribute::DWH_USER, 'kaltura_etl');
+		self::initField(AppConfigAttribute::DWH_PASS, 'kaltura_etl');
+
+		self::initField(AppConfigAttribute::DB2_HOST, self::get(AppConfigAttribute::DB1_HOST));
+		self::initField(AppConfigAttribute::DB2_PORT, self::get(AppConfigAttribute::DB1_PORT));
+		self::initField(AppConfigAttribute::DB2_NAME, self::get(AppConfigAttribute::DB1_NAME));
+		self::initField(AppConfigAttribute::DB2_USER, self::get(AppConfigAttribute::DB1_USER));
+		self::initField(AppConfigAttribute::DB2_PASS, self::get(AppConfigAttribute::DB1_PASS));
+
+		self::initField(AppConfigAttribute::DB3_HOST, self::get(AppConfigAttribute::DB1_HOST));
+		self::initField(AppConfigAttribute::DB3_PORT, self::get(AppConfigAttribute::DB1_PORT));
+		self::initField(AppConfigAttribute::DB3_NAME, self::get(AppConfigAttribute::DB1_NAME));
+		self::initField(AppConfigAttribute::DB3_USER, self::get(AppConfigAttribute::DB1_USER));
+		self::initField(AppConfigAttribute::DB3_PASS, self::get(AppConfigAttribute::DB1_PASS));
+
+		//sphinx
+		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::DB1_HOST));
+		self::initField(AppConfigAttribute::SPHINX_DB_NAME, 'kaltura_sphinx_log');
+		self::initField(AppConfigAttribute::SPHINX_DB_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::SPHINX_DB_PORT, self::get(AppConfigAttribute::DB1_PORT));
+
 		if(self::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
 			self::initField(AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET, self::generateSecret());
@@ -409,26 +437,13 @@ class AppConfig
 			self::initField(AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET, $output[0]);
 		}
 
-		self::initField(AppConfigAttribute::OS_ROOT_USER, (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root'));
-		self::initField(AppConfigAttribute::OS_APACHE_USER, 'apache');
-		self::initField(AppConfigAttribute::OS_KALTURA_USER, 'kaltura');
-		self::initField(AppConfigAttribute::OS_ROOT_GROUP, self::get(AppConfigAttribute::OS_ROOT_USER));
-		self::initField(AppConfigAttribute::OS_APACHE_GROUP, self::get(AppConfigAttribute::OS_APACHE_USER));
-		self::initField(AppConfigAttribute::OS_KALTURA_GROUP, self::get(AppConfigAttribute::OS_KALTURA_USER));
-
-
-		self::initField(AppConfigAttribute::REPORT_ADMIN_EMAIL, '');
-		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
-		self::initField(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'false');
-
-		if($enableMultipleServers && !$silentRun)
-			self::configureMultipleServers();
+		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 	}
 
 	protected static function configureMultipleServers()
 	{
 		if (!AppConfig::getTrueFalse(null, "Would you like to configure multiple servers?", 'n'))
-			return;
+			return false;
 
 		$numbers = array(
 			'first',
@@ -495,6 +510,62 @@ class AppConfig
 			{
 				if(isset($componentsNumbers[$selectedComponentsNumber]))
 				{
+					if($component == 'db')
+					{
+						$dbAvailableServers = array();
+						if(!isset(self::$config[AppConfigAttribute::DB1_HOST]))
+							$dbAvailableServers[1] = 'Master (read and write)';
+
+						if(!isset(self::$config[AppConfigAttribute::DB2_HOST]))
+							$dbAvailableServers[2] = 'Primary Slave (read only)';
+
+						if(!isset(self::$config[AppConfigAttribute::DB3_HOST]))
+							$dbAvailableServers[3] = 'Secondary Slave (read only)';
+
+						if(!count($dbAvailableServers))
+						{
+							logMessage(L_USER, "All database servers are already defined, database won't be installed on $hostname.");
+							continue;
+						}
+
+						if(count($dbAvailableServers) == 1)
+						logMessage(L_USER, "Available database connections:");
+						foreach($dbAvailableServers as $index => $title)
+							logMessage(L_USER, " - $index. $title");
+
+						$message = "Please select the database connections that will be installed on $hostname database server, please enter the connections numbers seperated with commas";
+						$message .= "(for example, to define $hostname as master and primary slave, type '1,2', '1' for master connection and '2' for primary slave, avoid spaces, leave empty for all connections).";
+
+						$dbSelectedServers = self::getInput(null, $message, InputValidator::createEnumValidator(array(1, 2, 3), true, true), '1,2,3');
+						if($dbSelectedServers)
+							$dbSelectedServers = explode(',', $dbSelectedServers);
+						else
+							$dbSelectedServers = array(1, 2, 3);
+
+						foreach($dbSelectedServers as $dbSelectedServer)
+						{
+							self::set("DB{$dbSelectedServer}_HOST", $hostname);
+
+							self::getInput("DB{$dbSelectedServer}_PORT", $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+						}
+					}
+
+					if($component == 'sphinx')
+					{
+						if(isset(self::$config[AppConfigAttribute::SPHINX_DB_HOST]))
+						{
+							logMessage(L_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
+							continue;
+						}
+
+						self::set(AppConfigAttribute::SPHINX_DB_HOST, $hostname);
+					}
+
+					if($component == 'ssl' && !isset(self::$config[AppConfigAttribute::ENVIRONMENT_PROTOCOL]))
+					{
+						self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+					}
+
 					$component = $componentsNumbers[$selectedComponentsNumber];
 					$selectedComponents[] = $component;
 					$definedComponents[$component] = true;
@@ -520,7 +591,7 @@ class AppConfig
 		}
 		while(AppConfig::getTrueFalse(null, $message, 'n'));
 
-		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
+		return true;
 	}
 
 	public static function getCurrentMachineComponents()
