@@ -78,7 +78,7 @@ class InputValidator {
 		return $validator;
 	}
 
-	public static function createEnumValidator(array $values, $enableMultipleChoice = false) {
+	public static function createEnumValidator(array $values, $enableMultipleChoice = false, $emptyIsValid = false) {
 		$validator = new InputValidator();
 		$values = array_map('trim', $values);
 		$values = array_map('strtolower', $values);
@@ -90,6 +90,7 @@ class InputValidator {
 		else
 			$validator->validateRegex = "/^$options$/";
 
+		$validator->emptyIsValid = $emptyIsValid;
 		return $validator;
 	}
 
