@@ -10,20 +10,31 @@ include_once('installer/Validator.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/phpmailer/class.phpmailer.php');
 
-if ($argc < 2)
+$options = getopt('hsc');
+if($argc < 2 || isset($options['h']))
 {
-	echo 'Usage is php '.__FILE__.' <outputdir>'.PHP_EOL;
+	echo 'Usage is php ' . __FILE__ . ' [arguments] <outputdir>'.PHP_EOL;
 	echo "<outputdir> = directory in which to create the package".PHP_EOL;
-
 	if(OsUtils::getOsName() == OsUtils::LINUX_OS)
 		echo "(if it does not start with a '/' the running directory will be used as base directory)".PHP_EOL;
 	elseif(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
 		echo "(if it does not start with driver letter (e.g. C:\\) the running directory will be used as base directory)".PHP_EOL;
 
+	echo "-h - Show this help." . PHP_EOL;
+	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo "-c - Run configurator." . PHP_EOL;
+	echo PHP_EOL;
+	echo "Examples:" . PHP_EOL;
+	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
+	echo "php ' . __FILE__ . ' -c" . PHP_EOL;
+
+	if(isset($options['h']))
+		exit(0);
+
 	exit(-1);
 }
 
-$baseDir = trim($argv[1]);
+$baseDir = trim($argv[$argc - 1]);
 if(OsUtils::getOsName() == OsUtils::LINUX_OS && $baseDir[0] != '/')
 {
 	$baseDir = __DIR__ . "/$baseDir";
@@ -46,19 +57,6 @@ startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
 
 AppConfig::init(__DIR__);
 OsUtils::setLogPath(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.details.log');
-
-$options = getopt('hsc');
-if(isset($options['h']))
-{
-	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
-	echo "-h - Show this help." . PHP_EOL;
-	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
-	echo "-c - Run configurator." . PHP_EOL;
-	echo PHP_EOL;
-	echo "Examples:" . PHP_EOL;
-	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
-	echo "php ' . __FILE__ . ' -c" . PHP_EOL;
-}
 
 $silentRun = isset($options['s']);
 $configure = false;
