@@ -100,7 +100,7 @@ class Validator
 
 		if(! DatabaseUtils::connect($link))
 		{
-			$this->prerequisites[] = "Failed to connect to database " . AppConfig::get(AppConfigAttribute::DB1_HOST) . ":" . AppConfig::get(AppConfigAttribute::DB1_PORT) . " user:" . AppConfig::get(AppConfigAttribute::DB1_USER) . ". Please check the database settings you provided and verify that MySQL is up and running.";
+			$this->prerequisites[] = "Failed to connect to database " . AppConfig::get(AppConfigAttribute::DB1_HOST) . ":" . AppConfig::get(AppConfigAttribute::DB1_PORT) . " user:" . AppConfig::get(AppConfigAttribute::DB_ROOT_USER) . ". Please check the database settings you provided and verify that MySQL is up and running.";
 			return;
 		}
 
