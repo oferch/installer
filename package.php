@@ -25,8 +25,8 @@ if($argc < 2 || isset($options['h']))
 	echo "-c - Run configurator." . PHP_EOL;
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
-	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
-	echo "php ' . __FILE__ . ' -c" . PHP_EOL;
+	echo 'php ' . __FILE__ . ' -s' . PHP_EOL;
+	echo 'php ' . __FILE__ . ' -c' . PHP_EOL;
 
 	if(isset($options['h']))
 		exit(0);

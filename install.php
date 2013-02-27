@@ -30,8 +30,8 @@ if(isset($options['h']))
 	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
-	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
-	echo "php ' . __FILE__ . ' -C api,db,sphinx" . PHP_EOL;
+	echo 'php ' . __FILE__ . ' -s' . PHP_EOL;
+	echo 'php ' . __FILE__ . ' -C api,db,sphinx' . PHP_EOL;
 
 	exit(0);
 }
