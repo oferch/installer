@@ -17,10 +17,6 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-// start the log
-startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
-logMessage(L_INFO, "Installation started");
-
 $options = getopt('hsC:');
 if(isset($options['h']))
 {
@@ -35,6 +31,10 @@ if(isset($options['h']))
 
 	exit(0);
 }
+
+// start the log
+startLog(__DIR__ . '/install.' . date("d.m.Y_H.i.s") . '.log');
+logMessage(L_INFO, "Installation started");
 
 $silentRun = isset($options['s']);
 
