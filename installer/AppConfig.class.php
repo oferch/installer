@@ -456,9 +456,20 @@ class AppConfig
 			'ssl' => 'Secured web Server (ssl)',
 		);
 
+		$definedComponents = array();
+
 		$serversCount = 0;
 		do
 		{
+			$currentAvailableComponents = $availableComponents;
+			if($serversCount)
+			{
+				foreach($currentAvailableComponents as $component => &$title)
+				{
+					if(!isset($definedComponents[$component]))
+						$title .= ' - none defined yet.';
+				}
+			}
 			logMessage(L_USER, '');
 			$number = $numbers[$serversCount];
 			$serversCount++;
@@ -468,7 +479,7 @@ class AppConfig
 			logMessage(L_USER, "Available components:");
 			$componentsNumbers = array();
 			$index = 1;
-			foreach($availableComponents as $component => $title)
+			foreach($currentAvailableComponents as $component => $title)
 			{
 				logMessage(L_USER, " - $index. $title");
 				$componentsNumbers[$index] = $component;
@@ -483,14 +494,31 @@ class AppConfig
 			foreach($selectedComponentsNumbers as $selectedComponentsNumber)
 			{
 				if(isset($componentsNumbers[$selectedComponentsNumber]))
-					$selectedComponents[] = $componentsNumbers[$selectedComponentsNumber];
+				{
+					$component = $componentsNumbers[$selectedComponentsNumber];
+					$selectedComponents[] = $component;
+					$definedComponents[$component] = true;
+				}
 			}
 
 			self::$config[$hostname] = array(
 				'components' => implode(',', $selectedComponents),
 			);
+
+			$notDefined = array();
+			foreach($availableComponents as $component => $title)
+			{
+				if(!isset($definedComponents[$component]))
+					$notDefined[] = strtolower(preg_replace('/ \(.+\)/', '', $title));
+			}
+
+			$message = 'Would you like to configure another server';
+			if(count($notDefined))
+				$message .= ' (the followed components are not defined yet: ' . implode(', ', $notDefined) . ')';
+
+			$message .= '?';
 		}
-		while(AppConfig::getTrueFalse(null, "Would you like to configure another server?", 'n'));
+		while(AppConfig::getTrueFalse(null, $message, 'n'));
 
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 	}
