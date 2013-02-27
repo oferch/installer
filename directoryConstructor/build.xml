@@ -76,9 +76,19 @@
 		<if>
 			<istrue value="${actions.package}" />
 			<then>
+				
 				<property name="version.ini.type" value="${package.type}" />
 				<property name="version.ini.number" value="${package.version}" />
 				<exportspecificproperties allowedPropertyPrefixes="version.ini." removePrefix="true" targetFile="${BASE_DIR}/package/version.ini" />
+				
+				<if>
+					<available file="${phing.dir}/../user_input.ini" type="file" />
+					<then>
+						<resolvepath propertyName="user.input.ini" file="${phing.dir}/../user_input.ini" />
+						<copy file="${user.input.ini}" tofile="${BASE_DIR}/installer/user_input.ini" overwrite="true"/>
+					</then>
+				</if>
+				
 				<tar destfile="${package.dir}/${package.type}-${package.version}.tgz" basedir="${BASE_DIR}" />
 			</then>
 		</if>
