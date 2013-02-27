@@ -82,18 +82,26 @@ class OsUtils {
 	{
 		logMessage(L_INFO, "Writing config to file $filename");
 		$data = '';
+		$sections = array();
 		foreach ($config as $key => $value)
 		{
 			if(is_array($value))
 			{
-				$data .= "[$key]" . PHP_EOL;
-				foreach ($value as $subKey => $subValue)
-					$data .= "$subKey=$subValue" . PHP_EOL;
+				$sections[$key] = $value;
 			}
 			else
 			{
 				$data .= "$key=$value" . PHP_EOL;
 			}
+		}
+
+		foreach ($sections as $section => $sectionsConfig)
+		{
+			$data .= PHP_EOL;
+			$data .= "[$section]" . PHP_EOL;
+
+			foreach ($sectionsConfig as $key => $value)
+				$data .= "$key=$value" . PHP_EOL;
 		}
 		return file_put_contents($filename, $data);
 	}
