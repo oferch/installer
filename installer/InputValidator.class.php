@@ -78,19 +78,25 @@ class InputValidator {
 		return $validator;
 	}
 
-	public static function createEnumValidator(array $values) {
+	public static function createEnumValidator(array $values, $enableMultipleChoice = false) {
 		$validator = new InputValidator();
 		$values = array_map('trim', $values);
 		$values = array_map('strtolower', $values);
 		$values = array_unique($values);
-		$validator->validateRegex = '/^(' . implode('|', $values) . ')$/i';
+
+		$options = '(' . implode('|', $values) . ')';
+		if($enableMultipleChoice)
+			$validator->validateRegex = "/^$options$/";
+		else
+			$validator->validateRegex = "/^$options(,$options)*$/";
+
 		return $validator;
 	}
 
 	public static function createCharactersValidator(array $chars, $maxChars = null) {
 		$validator = new InputValidator();
-		$values = array_unique($values);
-		$validator->validateRegex = '/^[' . implode('', $values) . ']{1,$maxChars}$/';
+		$chars = array_unique($chars);
+		$validator->validateRegex = '/^[' . implode('', $chars) . ']{1,$maxChars}$/';
 		return $validator;
 	}
 
