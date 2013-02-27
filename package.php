@@ -47,8 +47,27 @@ startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
 AppConfig::init(__DIR__);
 OsUtils::setLogPath(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.details.log');
 
-if (AppConfig::getTrueFalse(null, "Would you like to configure the package?", 'y'))
-	AppConfig::configure();
+$options = getopt('hsc');
+if(isset($options['h']))
+{
+	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
+	echo "-h - Show this help." . PHP_EOL;
+	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo "-c - Run configurator." . PHP_EOL;
+	echo PHP_EOL;
+	echo "Examples:" . PHP_EOL;
+	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
+	echo "php ' . __FILE__ . ' -c" . PHP_EOL;
+}
+
+$silentRun = isset($options['s']);
+$configure = false;
+if(isset($options['c']))
+	$configure = true;
+if(!$silentRun && !$configure && AppConfig::getTrueFalse(null, "Would you like to configure the package?", 'y'))
+	$configure = true;
+if ($configure)
+	AppConfig::configure($silentRun, true);
 
 $directoryConstructorDir = __DIR__ . '/directoryConstructor';
 $xmlUri = "$directoryConstructorDir/directories." . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . '.xml';
@@ -62,13 +81,12 @@ $attributes = array(
 	'xml.uri' => $xmlUri,
 );
 
-logMessage(L_USER, "Packaging started");
+logMessage(L_USER, "Packaging...", false);
 if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 {
-	logMessage(L_USER, "Packageing failed.");
+	logMessage(L_USER, " failed.", true, 3);
 	exit(-1);
 }
 
-logMessage(L_USER, "Finished successfully");
-
-die(0);
+logMessage(L_USER, " successfully finished", true, 3);
+exit(0);
