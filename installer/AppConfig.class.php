@@ -211,6 +211,7 @@ class AppConfig
 
 		$hostname = self::getHostname();
 
+		self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		if($silentRun)
 		{
 			self::initField(AppConfigAttribute::TIME_ZONE, date_default_timezone_get());
@@ -224,7 +225,6 @@ class AppConfig
 			self::initField(AppConfigAttribute::DB_ROOT_PASS, 'root');
 			self::initField(AppConfigAttribute::DB1_CREATE_NEW_DB, 'y');
 			self::initField(AppConfigAttribute::SPHINX_DB_HOST, ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
-			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 		else
 		{
@@ -246,11 +246,11 @@ class AppConfig
 
 			if(!$enableMultipleServers || !self::configureMultipleServers())
 			{
-				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
+				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), 'localhost');
 
 				self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 
-				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use localhost).", null, InputValidator::createHostValidator(), '127.0.0.1');
+				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use 127.0.0.1).", null, InputValidator::createHostValidator(), '127.0.0.1');
 
 				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
 			}
@@ -447,15 +447,15 @@ class AppConfig
 
 		$availableComponents = array(
 			'api' => 'API Server',
-			'db' => 'Database Server (mySql)',
-			'sphinx' => 'Indexing Server (sphinx)',
-			'batch' => 'Batch Server',
-			'dwh' => 'Data Warehouse',
+			'ssl' => 'Secured web Server (ssl)',
+			'apps' => 'Applications (html5 player, clipup, hosted pages)',
 			'admin' => 'Administration Console',
 			'var' => 'Multi-Account Console',
-			'apps' => 'Applications (html5 player, clipup, hosted pages)',
+			'db' => 'Database Server (mySql)',
+			'sphinx' => 'Indexing Server (sphinx)',
+			'dwh' => 'Data Warehouse',
+			'batch' => 'Batch Server',
 			'red5' => 'Media Server (red5)',
-			'ssl' => 'Secured web Server (ssl)',
 		);
 
 		$definedComponents = array();
@@ -466,10 +466,10 @@ class AppConfig
 			$currentAvailableComponents = $availableComponents;
 			if($serversCount)
 			{
-				foreach($currentAvailableComponents as $component => &$title)
+				foreach($currentAvailableComponents as $component => $title)
 				{
 					if(!isset($definedComponents[$component]))
-						$title .= ' - none defined yet.';
+						$currentAvailableComponents[$component] = $title . ' - none defined yet.';
 				}
 			}
 			logMessage(L_USER, '');
@@ -488,75 +488,86 @@ class AppConfig
 				$index++;
 			}
 			$message = "Please select the components that should be installed on the machine ($hostname), please enter the components numbers seperated with commas";
-			$message .= "(for example, to install API and Database server on $hostname, type '1,2', '1' for API server and '2' for Database server, avoid spaces).";
+			$message .= " (for example, to install API and Database server on $hostname, type '1,2', '1' for API server and '2' for Database server, avoid spaces).";
 
 			$selectedComponentsNumbers = self::getInput(null, $message, "Invalid components selected, please enter again", InputValidator::createEnumValidator(array_keys($componentsNumbers), true));
 			$selectedComponentsNumbers = explode(',', $selectedComponentsNumbers);
 			$selectedComponents = array();
 			foreach($selectedComponentsNumbers as $selectedComponentsNumber)
 			{
-				if(isset($componentsNumbers[$selectedComponentsNumber]))
+				if(!isset($componentsNumbers[$selectedComponentsNumber]))
+					continue;
+
+				$component = $componentsNumbers[$selectedComponentsNumber];
+
+				if($component == 'db')
 				{
-					if($component == 'db')
+					$dbAvailableServers = array();
+					if(!isset(self::$config[AppConfigAttribute::DB1_HOST]))
+						$dbAvailableServers[1] = 'Master (read and write)';
+
+					if(!isset(self::$config[AppConfigAttribute::DB2_HOST]))
+						$dbAvailableServers[2] = 'Primary Slave (read only)';
+
+					if(!isset(self::$config[AppConfigAttribute::DB3_HOST]))
+						$dbAvailableServers[3] = 'Secondary Slave (read only)';
+
+					if(!count($dbAvailableServers))
 					{
-						$dbAvailableServers = array();
-						if(!isset(self::$config[AppConfigAttribute::DB1_HOST]))
-							$dbAvailableServers[1] = 'Master (read and write)';
+						logMessage(L_USER, "All database servers are already defined, database won't be installed on $hostname.");
+						continue;
+					}
 
-						if(!isset(self::$config[AppConfigAttribute::DB2_HOST]))
-							$dbAvailableServers[2] = 'Primary Slave (read only)';
-
-						if(!isset(self::$config[AppConfigAttribute::DB3_HOST]))
-							$dbAvailableServers[3] = 'Secondary Slave (read only)';
-
-						if(!count($dbAvailableServers))
-						{
-							logMessage(L_USER, "All database servers are already defined, database won't be installed on $hostname.");
-							continue;
-						}
-
-						if(count($dbAvailableServers) == 1)
+					$dbSelectedServers = array_keys($dbAvailableServers);
+					if(count($dbAvailableServers) > 1)
+					{
 						logMessage(L_USER, "Available database connections:");
 						foreach($dbAvailableServers as $index => $title)
 							logMessage(L_USER, " - $index. $title");
 
 						$message = "Please select the database connections that will be installed on $hostname database server, please enter the connections numbers seperated with commas";
-						$message .= "(for example, to define $hostname as master and primary slave, type '1,2', '1' for master connection and '2' for primary slave, avoid spaces, leave empty for all connections).";
+						$message .= " (for example, to define $hostname as master and primary slave, type '1,2', '1' for master connection and '2' for primary slave, avoid spaces, leave empty for all connections).";
 
-						$dbSelectedServers = self::getInput(null, $message, InputValidator::createEnumValidator(array(1, 2, 3), true, true), '1,2,3');
-						if($dbSelectedServers)
-							$dbSelectedServers = explode(',', $dbSelectedServers);
-						else
-							$dbSelectedServers = array(1, 2, 3);
-
-						foreach($dbSelectedServers as $dbSelectedServer)
-						{
-							self::set("DB{$dbSelectedServer}_HOST", $hostname);
-
-							self::getInput("DB{$dbSelectedServer}_PORT", $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
-						}
+						$dbSelectedServersInput = self::getInput(null, $message, 'Invalid database connections selected, please enter again', InputValidator::createEnumValidator(array(1, 2, 3), true, true), implode(',', $dbSelectedServers));
+						if($dbSelectedServersInput)
+							$dbSelectedServers = explode(',', $dbSelectedServersInput);
 					}
 
-					if($component == 'sphinx')
+					foreach($dbSelectedServers as $dbSelectedServer)
 					{
-						if(isset(self::$config[AppConfigAttribute::SPHINX_DB_HOST]))
-						{
-							logMessage(L_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
-							continue;
-						}
+						self::set("DB{$dbSelectedServer}_HOST", $hostname);
 
-						self::set(AppConfigAttribute::SPHINX_DB_HOST, $hostname);
+						self::getInput("DB{$dbSelectedServer}_PORT", $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 					}
-
-					if($component == 'ssl' && !isset(self::$config[AppConfigAttribute::ENVIRONMENT_PROTOCOL]))
-					{
-						self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
-					}
-
-					$component = $componentsNumbers[$selectedComponentsNumber];
-					$selectedComponents[] = $component;
-					$definedComponents[$component] = true;
 				}
+
+				if($component == 'sphinx')
+				{
+					if(isset(self::$config[AppConfigAttribute::SPHINX_DB_HOST]))
+					{
+						logMessage(L_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
+						continue;
+					}
+
+					self::set(AppConfigAttribute::SPHINX_DB_HOST, $hostname);
+				}
+
+				if($component == 'dwh')
+				{
+					if(isset($definedComponents[$component]))
+					{
+						logMessage(L_USER, "Data warehouse server is already defined and won't be installed on $hostname.");
+						continue;
+					}
+				}
+
+				if($component == 'ssl' && !isset(self::$config[AppConfigAttribute::ENVIRONMENT_PROTOCOL]))
+				{
+					self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+				}
+
+				$selectedComponents[] = $component;
+				$definedComponents[$component] = true;
 			}
 
 			self::$config[$hostname] = array(
@@ -570,13 +581,17 @@ class AppConfig
 					$notDefined[] = strtolower(preg_replace('/ \(.+\)/', '', $title));
 			}
 
+			$default = 'n';
 			$message = 'Would you like to configure another server';
 			if(count($notDefined))
+			{
+				$default = 'y';
 				$message .= ' (the followed components are not defined yet: ' . implode(', ', $notDefined) . ')';
+			}
 
 			$message .= '?';
 		}
-		while(AppConfig::getTrueFalse(null, $message, 'n'));
+		while(AppConfig::getTrueFalse(null, $message, $default));
 
 		return true;
 	}
@@ -854,17 +869,17 @@ class AppConfig
 			}
 			else
 			{
-				$inputOk = true;
-				echo PHP_EOL;
 
-				if(empty($input) && ! empty($default))
+				if(!$input && !is_null($default))
 				{
 					$input = $default;
 					if($hideValue)
-						logMessage(L_INFO, "Using default value");
+						logMessage(L_USER, "Using default value");
 					else
-						logMessage(L_INFO, "Using default value: $default");
+						logMessage(L_USER, "Using default value: $default");
 				}
+				echo PHP_EOL;
+				$inputOk = true;
 			}
 		}
 
