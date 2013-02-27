@@ -202,7 +202,7 @@ class AppConfig
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
-	public static function configure($silentRun = false)
+	public static function configure($silentRun = false, $enableMultipleServers = false)
 	{
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 
@@ -420,6 +420,87 @@ class AppConfig
 		self::initField(AppConfigAttribute::REPORT_ADMIN_EMAIL, '');
 		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
 		self::initField(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'false');
+
+		if($enableMultipleServers)
+			self::configureMultipleServers();
+	}
+
+	protected static function configureMultipleServers()
+	{
+		if (!AppConfig::getTrueFalse(null, "Would you like to configure multiple servers?", 'n'))
+			return;
+
+		$numbers = array(
+			'first',
+			'second',
+			'third',
+			'fourth',
+			'fifth',
+			'sixth',
+			'seventh',
+			'eighth',
+			'ninth',
+			'tenth',
+		);
+
+		$availableComponents = array(
+			'api' => 'API Server',
+			'db' => 'Database Server (mySql)',
+			'sphinx' => 'Indexing Server (sphinx)',
+			'batch' => 'Batch Server',
+			'dwh' => 'Data Warehouse',
+			'admin' => 'Administration Console',
+			'var' => 'Multi-Account Console',
+			'apps' => 'Applications (html5 player, clipup, hosted pages)',
+			'red5' => 'Media Server (red5)',
+			'ssl' => 'Secured web Server (ssl)',
+		);
+
+		$serversCount = 0;
+		do
+		{
+			logMessage(L_USER, '');
+			$number = $numbers[$serversCount];
+			$serversCount++;
+			$message = "Please enter the host name of your $number server";
+			$hostname = self::getInput(null, $message, "Host name is invalid, please enter again", InputValidator::createHostValidator());
+
+			logMessage(L_USER, "Available components:");
+			$componentsNumbers = array();
+			$index = 1;
+			foreach($availableComponents as $component => $title)
+			{
+				logMessage(L_USER, " - $index. $title");
+				$componentsNumbers[$index] = $component;
+				$index++;
+			}
+			$message = "Please select the components that should be installed on the machine ($hostname), please enter the components numbers";
+			$message .= "(for example, to install API and Database server on $hostname, type '12', '1' for API server and '2' for Database server).";
+			$selectedComponentsNumbers = self::getInput(null, $message, "Invalid components selected, please enter again", InputValidator::createCharactersValidator(array_keys($componentsNumbers), count($componentsNumbers)));
+			$selectedComponents = array();
+			for($index = 0; $index < strlen($selectedComponentsNumbers); $index++)
+			{
+				$selectedComponentsNumber = intval($selectedComponentsNumbers[$index]);
+				if(isset($componentsNumbers[$selectedComponentsNumber]))
+					$selectedComponents[] = $componentsNumbers[$selectedComponentsNumber];
+			}
+
+			self::$config[$hostname] = array(
+				'components' => implode(',', $selectedComponents),
+			);
+		}
+		while(AppConfig::getTrueFalse(null, "Would you like to configure another server?", 'n'));
+
+		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
+	}
+
+	public static function getCurrentMachineComponents()
+	{
+		$hostname = self::getHostname();
+		if(isset(self::$config[$hostname]) && isset(self::$config[$hostname]['components']))
+			return explode(',', self::$config[$hostname]['components']);
+
+		return '*';
 	}
 
 	private static function getServerConfig($field, $section = null)
