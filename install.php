@@ -32,6 +32,8 @@ if(isset($options['h']))
 	echo "Examples:" . PHP_EOL;
 	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
 	echo "php ' . __FILE__ . ' -C api,db,sphinx" . PHP_EOL;
+
+	exit(0);
 }
 
 $silentRun = isset($options['s']);
