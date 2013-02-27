@@ -21,26 +21,30 @@ date_default_timezone_set(@date_default_timezone_get());
 startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
 logMessage(L_INFO, "Installation started");
 
-$silentRun = false;
-if($argc > 1 && $argv[1] == '-s')
-	$silentRun = true;
-
-$components = '*';
-if($argc > 2)
+$options = getopt('hsC:');
+if(isset($options['h']))
 {
-	foreach($argv as $arg)
-	{
-		if(is_array($components))
-			$components[] = $arg;
-
-		if($arg == '-C')
-			$components = array();
-	}
+	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
+	echo "-h - Show this help." . PHP_EOL;
+	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
+	echo PHP_EOL;
+	echo "Examples:" . PHP_EOL;
+	echo "php ' . __FILE__ . ' -s" . PHP_EOL;
+	echo "php ' . __FILE__ . ' -C api,db,sphinx" . PHP_EOL;
 }
+
+$silentRun = isset($options['s']);
 
 $packageDir = realpath(__DIR__ . '/../package');
 AppConfig::init($packageDir);
 AppConfig::configure($silentRun);
+
+$components = null;
+if(isset($options['C']))
+	$components = explode(',', $options['C']);
+else
+	$components = AppConfig::getCurrentMachineComponents();
 
 OsUtils::setLogPath(AppConfig::get(AppConfigAttribute::LOG_DIR) . DIRECTORY_SEPARATOR . 'kaltura_deploy.log');
 
