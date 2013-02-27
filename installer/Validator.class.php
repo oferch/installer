@@ -225,6 +225,7 @@ class Validator
 		$this->validateMysql();
 		$this->validateApache();
 		$this->validateDWH();
+		$this->validateBinaries();
 
 		// Check that SELinux is not enabled (enforcing)
 		exec("which getenforce 2>/dev/null", $out, $rc);
