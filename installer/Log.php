@@ -12,28 +12,34 @@ $logPrintLevel=0; // screen print log level, 0=user, 1=error, 2=warning, 3=info
 // start a new log with the given $filename
 function startLog($filename) {
 	global $logFile;
-	$logFile = $filename;
-	file_put_contents($logFile, "");
+	$logFile = fopen($filename, 'a');
 }
 
 // log a $message in the given $level, will print to the screen according to the log level
 // if $new_line = false, no new line will be printed (default is to print a new line)
-function logMessage($level, $message, $new_line = true) {
+function logMessage($level, $message, $new_line = true, $returnChars = 0) {
 	global $logFile, $logPrintLevel;
 
-	if (!isset($logFile))
+	if (!$logFile)
 		return;
+
+	if($returnChars)
+		fwrite($logFile, str_repeat(chr(8), $returnChars));
 
 	$message = str_replace("\\n", PHP_EOL, $message);
 	$message = str_replace("\\t", "\t", $message);
 	$logLine = date(L_DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
-	file_put_contents($logFile, $logLine, FILE_APPEND);
+	fwrite($logFile, $logLine);
 
 	// print to screen according to log level
 	if ((($level === L_USER) && ($logPrintLevel >= 0)) ||
 		(($level === L_ERROR) && ($logPrintLevel >= 1)) ||
 		(($level === L_WARNING) && ($logPrintLevel >= 2)) ||
 		(($level === L_INFO) && ($logPrintLevel >= 3))) {
+
+		if($returnChars)
+			echo str_repeat(chr(8), $returnChars);
+
 		echo $message;
 
 		if ($new_line)
