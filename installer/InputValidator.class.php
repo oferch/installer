@@ -86,9 +86,9 @@ class InputValidator {
 
 		$options = '(' . implode('|', $values) . ')';
 		if($enableMultipleChoice)
-			$validator->validateRegex = "/^$options$/";
-		else
 			$validator->validateRegex = "/^$options(,$options)*$/";
+		else
+			$validator->validateRegex = "/^$options$/";
 
 		return $validator;
 	}
