@@ -244,7 +244,7 @@ class AppConfig
 
 			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password on all database servers (leave empty for no password)");
 
-			if(!$enableMultipleServers)
+			if(!$enableMultipleServers || !self::configureMultipleServers())
 			{
 				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
 
@@ -255,6 +255,7 @@ class AppConfig
 				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
 			}
 		}
+
 		self::initField(AppConfigAttribute::DB1_NAME, 'kaltura');
 
 		self::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
@@ -372,20 +373,6 @@ class AppConfig
 		self::initField(AppConfigAttribute::REPORT_ADMIN_EMAIL, '');
 		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
 		self::initField(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'false');
-
-		if($enableMultipleServers && !$silentRun)
-		{
-			if(!self::configureMultipleServers())
-			{
-				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), $hostname);
-
-				self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
-
-				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use localhost).", null, InputValidator::createHostValidator(), '127.0.0.1');
-
-				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
-			}
-		}
 
 
 		// databases (copy information collected during prerequisites
