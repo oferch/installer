@@ -89,6 +89,11 @@ if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 
 logMessage(L_USER, " successfully finished", true, 3);
 if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y'))
+{
+	logMessage(L_USER, "Deleting temporary directory ($tempDir)...", false);
 	OsUtils::recursiveDelete($tempDir);
+	logMessage(L_USER, " - done", true, 3);
+}
 
+logMessage(L_USER, "Package available at $baseDir/" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . "-" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION) . ".tgz");
 exit(0);
