@@ -70,12 +70,13 @@ if ($configure)
 $directoryConstructorDir = __DIR__ . '/directoryConstructor';
 $xmlUri = "$directoryConstructorDir/directories." . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . '.xml';
 $xmlUri = str_replace('\\', '/', $xmlUri);
+$tempDir = $baseDir . '/tmp';
 
 $attributes = array(
 	'package.dir' => $baseDir,
 	'package.type' => AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE),
 	'package.version' => AppConfig::get(AppConfigAttribute::KALTURA_VERSION),
-	'BASE_DIR' => $baseDir . '/tmp',
+	'BASE_DIR' => $tempDir,
 	'xml.uri' => $xmlUri,
 );
 
@@ -87,4 +88,7 @@ if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 }
 
 logMessage(L_USER, " successfully finished", true, 3);
+if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y'))
+	OsUtils::recursiveDelete($tempDir);
+
 exit(0);
