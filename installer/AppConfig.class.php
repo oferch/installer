@@ -228,7 +228,7 @@ class AppConfig
 		}
 		else
 		{
-			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . " )", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
+			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . ")", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
 
 			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
 
@@ -242,13 +242,13 @@ class AppConfig
 
 			self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 
-			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
+			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges, leave empty for root)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
 
-			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password (leave empty for no password)", null, null, 'root');
+			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password (leave empty for no password)");
 
-			self::getTrueFalse(AppConfigAttribute::DB1_CREATE_NEW_DB, "Would you like to create a new kaltura database or use an exisiting one?", 'y');
+			self::getTrueFalse(AppConfigAttribute::DB1_CREATE_NEW_DB, "Would you like to create a new kaltura database or use an exisiting one (choose yes (y) for new database)?", 'y');
 
-			self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty if Sphinx is running on this machine).", null, InputValidator::createHostValidator(), ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
+			self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use localhost).", null, InputValidator::createHostValidator(), '127.0.0.1');
 
 			self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
 		}
@@ -474,13 +474,14 @@ class AppConfig
 				$componentsNumbers[$index] = $component;
 				$index++;
 			}
-			$message = "Please select the components that should be installed on the machine ($hostname), please enter the components numbers";
-			$message .= "(for example, to install API and Database server on $hostname, type '12', '1' for API server and '2' for Database server).";
-			$selectedComponentsNumbers = self::getInput(null, $message, "Invalid components selected, please enter again", InputValidator::createCharactersValidator(array_keys($componentsNumbers), count($componentsNumbers)));
+			$message = "Please select the components that should be installed on the machine ($hostname), please enter the components numbers seperated with commas";
+			$message .= "(for example, to install API and Database server on $hostname, type '1,2', '1' for API server and '2' for Database server, avoid spaces).";
+
+			$selectedComponentsNumbers = self::getInput(null, $message, "Invalid components selected, please enter again", InputValidator::createEnumValidator(array_keys($componentsNumbers), true));
+			$selectedComponentsNumbers = explode(',', $selectedComponentsNumbers);
 			$selectedComponents = array();
-			for($index = 0; $index < strlen($selectedComponentsNumbers); $index++)
+			foreach($selectedComponentsNumbers as $selectedComponentsNumber)
 			{
-				$selectedComponentsNumber = intval($selectedComponentsNumbers[$index]);
 				if(isset($componentsNumbers[$selectedComponentsNumber]))
 					$selectedComponents[] = $componentsNumbers[$selectedComponentsNumber];
 			}
@@ -736,7 +737,7 @@ class AppConfig
 	 * @param bool $hideValue do not show the value on the screen, in case it's password for example
 	 * @return string
 	 */
-	public static function getInput($key, $request_text, $not_valid_text, InputValidator $validator = null, $default = '', $hideValue = false)
+	public static function getInput($key, $request_text, $not_valid_text = null, InputValidator $validator = null, $default = '', $hideValue = false)
 	{
 		if($key && isset(self::$config[$key]))
 			return self::$config[$key];
@@ -761,7 +762,7 @@ class AppConfig
 				logMessage(L_INFO, "User input is $input");
 			}
 
-			if(isset($validator) && ! $validator->validateInput($input))
+			if($validator && ! $validator->validateInput($input))
 			{
 				logMessage(L_USER, $not_valid_text);
 			}
