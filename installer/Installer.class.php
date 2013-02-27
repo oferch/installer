@@ -49,8 +49,6 @@ class Installer
 				if($component != 'all' && $config['install_by_default'])
 					$this->components[] = $component;
 		}
-
-		$this->saveUninstallerConfig();
 	}
 
 	public function __destruct()
@@ -158,7 +156,9 @@ class Installer
 	 * Installs the application according to the given parameters\
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
 	 */
-	public function install($packageDir = null) {
+	public function install($packageDir = null)
+	{
+		$this->saveUninstallerConfig();
 
 		logMessage(L_USER, sprintf("Current working dir is %s", getcwd()));
 		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
