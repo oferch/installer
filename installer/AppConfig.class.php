@@ -421,7 +421,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
 		self::initField(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'false');
 
-		if($enableMultipleServers)
+		if($enableMultipleServers && !$silentRun)
 			self::configureMultipleServers();
 	}
 
