@@ -176,8 +176,19 @@ class Validator
 
 			foreach($this->install_config[$component]["binaries"] as $bin)
 			{
-				system("which $bin", $exitCode);
-				if($exitCode !== 0)
+				$bins = explode('|', $bin);
+				$found = false;
+				foreach($bins as $optionalBin)
+				{
+					system("which $bin", $exitCode);
+					if($exitCode === 0)
+					{
+						$found = true;
+						break;
+					}
+				}
+
+				if(!$found)
 					$this->prerequisites[] = "Missing $bin binary file";
 			}
 		}
