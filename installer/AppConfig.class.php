@@ -546,14 +546,15 @@ class AppConfig
 
 					foreach($dbSelectedServers as $dbSelectedServer)
 					{
-						self::set("DB{$dbSelectedServer}_HOST", $hostname);
 
 						if($dbSelectedServer == 4)
 						{
-							self::getInput(AppConfigAttribute::SPHINX_DB_HOST, $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+							self::set(AppConfigAttribute::SPHINX_DB_HOST, $hostname);
+							self::getInput(AppConfigAttribute::SPHINX_DB_PORT, $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 						}
 						else
 						{
+							self::set("DB{$dbSelectedServer}_HOST", $hostname);
 							self::getInput("DB{$dbSelectedServer}_PORT", $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 						}
 					}
