@@ -1,48 +1,62 @@
 <?php
 
-define("L_USER","USER"); // user level logging constant
-define("L_ERROR","ERROR"); // error level logging constant
-define("L_WARNING","WARNING"); // warning level logging constant
-define("L_INFO","INFO"); // info level logging constant
-define("L_DATE_FORMAT","d.m.Y H:i:s"); // log file date format
+class Logger
+{
+	const LEVEL_USER = 0; // user level logging constant
+	const LEVEL_ERROR = 1; // error level logging constant
+	const LEVEL_WARNING = 2; // warning level logging constant
+	const LEVEL_INFO = 3; // info level logging constant
+	const DATE_FORMAT = 'd.m.Y H:i:s'; // log file date format
 
-$logFile = null;
-$logPrintLevel=0; // screen print log level, 0=user, 1=error, 2=warning, 3=info
+	/**
+	 * @var resiurce
+	 */
+	protected $logFile = null;
 
-// start a new log with the given $filename
-function startLog($filename) {
-	global $logFile;
-	$logFile = fopen($filename, 'a');
-}
+	/**
+	 * @var int
+	 */
+	protected $logPrintLevel = self::LEVEL_USER;
 
-// log a $message in the given $level, will print to the screen according to the log level
-// if $new_line = false, no new line will be printed (default is to print a new line)
-function logMessage($level, $message, $new_line = true, $returnChars = 0) {
-	global $logFile, $logPrintLevel;
+	/**
+	 * Start a new log with the given $filename
+	 * @param string $filename
+	 */
+	public static function init($filename)
+	{
+		self::$logFile = fopen($filename, 'a');
+	}
 
-	if (!$logFile)
-		return;
+	/**
+	 * Log a message in the given level, will print to the screen according to the log level
+	 * @param int $level
+	 * @param string $message
+	 * @param boolean $newLine
+	 * @param boolean $returnChars number of backspace before logging the current message
+	 */
+	public static function logMessage($level, $message, $newLine = true, $returnChars = 0) {
 
-	if($returnChars)
-		fwrite($logFile, str_repeat(chr(8), $returnChars));
-
-	$message = str_replace("\\n", PHP_EOL, $message);
-	$message = str_replace("\\t", "\t", $message);
-	$logLine = date(L_DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
-	fwrite($logFile, $logLine);
-
-	// print to screen according to log level
-	if ((($level === L_USER) && ($logPrintLevel >= 0)) ||
-		(($level === L_ERROR) && ($logPrintLevel >= 1)) ||
-		(($level === L_WARNING) && ($logPrintLevel >= 2)) ||
-		(($level === L_INFO) && ($logPrintLevel >= 3))) {
+		if (!self::$logFile)
+			return;
 
 		if($returnChars)
-			echo str_repeat(chr(8), $returnChars);
+			fwrite(self::$logFile, str_repeat(chr(8), $returnChars));
 
-		echo $message;
+		$message = str_replace("\\n", PHP_EOL, $message);
+		$message = str_replace("\\t", "\t", $message);
+		$logLine = date(self::DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
+		fwrite(self::$logFile, $logLine);
 
-		if ($new_line)
-			echo PHP_EOL;
+		// print to screen according to log level
+		if (self::$logPrintLevel >= $level)
+		{
+			if($returnChars)
+				echo str_repeat(chr(8), $returnChars);
+
+			echo $message;
+
+			if ($newLine)
+				echo PHP_EOL;
+		}
 	}
 }

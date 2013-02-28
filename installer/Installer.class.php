@@ -98,7 +98,7 @@ class Installer
 						}
 						else
 						{
-							logMessage(L_USER, "Removing symbolic link $link");
+							Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic link $link");
 							OsUtils::recursiveDelete($link);
 						}
 					}
@@ -133,7 +133,7 @@ class Installer
 						foreach ($config['chkconfig'] as $service)
 							OsUtils::stopService($service);
 
-					logMessage(L_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
+					Logger::logMessage(Logger::LEVEL_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
 					OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));
 				}
 			}
@@ -160,24 +160,24 @@ class Installer
 	{
 		$this->saveUninstallerConfig();
 
-		logMessage(L_USER, sprintf("Current working dir is %s", getcwd()));
-		logMessage(L_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
+		Logger::logMessage(Logger::LEVEL_USER, sprintf("Current working dir is %s", getcwd()));
+		Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		if ($packageDir && !OsUtils::rsync("$packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
 			return "Failed to copy application files to target directory";
 
 		if ($packageDir && AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
-			logMessage(L_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
+			Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
 			if (!OsUtils::rsync("$packageDir/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
 				return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
 		}
 
-		logMessage(L_USER, "Creating the uninstaller");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating the uninstaller");
 		if (!mkdir(AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/", 0750, true) || !OsUtils::fullCopy('installer/uninstall.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
 			return "Failed to create the uninstaller";
 		}
 
-		logMessage(L_USER, "Replacing configuration tokens in files");
+		Logger::logMessage(Logger::LEVEL_USER, "Replacing configuration tokens in files");
 		if(isset($this->installConfig['all']['token_files']) && is_array($this->installConfig['all']['token_files']))
 		{
 			foreach ($this->installConfig['all']['token_files'] as $tokenFile)
@@ -193,11 +193,11 @@ class Installer
 
 		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists(AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
 		{
-			logMessage(L_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)));
+			Logger::logMessage(Logger::LEVEL_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)));
 		}
 		else
 		{
-			logMessage(L_USER, "Creating data warehouse");
+			Logger::logMessage(Logger::LEVEL_USER, "Creating data warehouse");
 			if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", AppConfig::get(AppConfigAttribute::DWH_DIR), AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB1_PORT), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB_ROOT_PASS), AppConfig::get(AppConfigAttribute::DWH_DIR)))) {
 				return "Failed running data warehouse initialization script";
 			}
@@ -213,9 +213,9 @@ class Installer
 		foreach($this->components as $component)
 			$this->installComponent($component);
 
-		logMessage(L_USER, "Creating Dynamic Enums");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating Dynamic Enums");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				logMessage(L_INFO, "Dynamic Enums created");
+				Logger::logMessage(Logger::LEVEL_INFO, "Dynamic Enums created");
 		} else {
 			return "Failed to create dynamic enums";
 		}
@@ -223,46 +223,46 @@ class Installer
 		if(!$this->createInitialContent())
 			return "Failed to create initial content";
 
-		logMessage(L_USER, "Create query cache triggers");
+		Logger::logMessage(Logger::LEVEL_USER, "Create query cache triggers");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "sphinx Query Cache Triggers created");
+			Logger::logMessage(Logger::LEVEL_INFO, "sphinx Query Cache Triggers created");
 		} else {
 			return "Failed to create QueryCacheTriggers";
 		}
 
-		logMessage(L_USER, "Populate sphinx tables");
+		Logger::logMessage(Logger::LEVEL_USER, "Populate sphinx tables");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntries.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				logMessage(L_INFO, "sphinx entries log created");
+				Logger::logMessage(Logger::LEVEL_INFO, "sphinx entries log created");
 		} else {
 			return "Failed to populate sphinx log from entries";
 		}
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntryDistributions.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				logMessage(L_INFO, "sphinx content distribution log created");
+				Logger::logMessage(Logger::LEVEL_INFO, "sphinx content distribution log created");
 		} else {
 			return "Failed to populate sphinx log from content distribution";
 		}
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCuePoints.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				logMessage(L_INFO, "sphinx cue points log created");
+				Logger::logMessage(Logger::LEVEL_INFO, "sphinx cue points log created");
 		} else {
 			return "Failed to populate sphinx log from cue points";
 		}
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxKusers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "sphinx Kusers log created");
+			Logger::logMessage(Logger::LEVEL_INFO, "sphinx Kusers log created");
 		} else {
 			return "Failed to populate sphinx log from Kusers";
 		}
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxTags.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "sphinx tags log created");
+			Logger::logMessage(Logger::LEVEL_INFO, "sphinx tags log created");
 		} else {
 			return "Failed to populate sphinx log from tags";
 		}
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCategories.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "sphinx Categoriess log created");
+			Logger::logMessage(Logger::LEVEL_INFO, "sphinx Categoriess log created");
 		} else {
 			return "Failed to populate sphinx log from categories";
 		}
 
-		logMessage(L_USER, "Deploying uiconfs in order to configure the application");
+		Logger::logMessage(Logger::LEVEL_USER, "Deploying uiconfs in order to configure the application");
 		if(isset($this->installConfig['all']['uiconfs_2']) && is_array($this->installConfig['all']['uiconfs_2']))
 		{
 			foreach($this->installConfig['all']['uiconfs_2'] as $uiconfapp)
@@ -270,7 +270,7 @@ class Installer
 				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
 				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
 				{
-					logMessage(L_INFO, "Deployed uiconf $to_deploy");
+					Logger::logMessage(Logger::LEVEL_INFO, "Deployed uiconf $to_deploy");
 				}
 				else
 				{
@@ -281,7 +281,7 @@ class Installer
 
 		if(in_array('generateClients', $this->runOnce))
 		{
-			logMessage(L_USER, "Generating client libraries");
+			Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
 			if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 				return "Failed generating client libraries";
 			}
@@ -292,7 +292,7 @@ class Installer
 
 		if(in_array('restartApache', $this->runOnce))
 		{
-			logMessage(L_USER, "Restarting apache http server");
+			Logger::logMessage(Logger::LEVEL_USER, "Restarting apache http server");
 			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::APACHE_RESTART_COMMAND))) {
 				return "Failed restarting apache http server";
 			}
@@ -307,7 +307,7 @@ class Installer
 		if($packageDir)
 			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 
-		logMessage(L_USER, "Verifying installation");
+		Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
 		if(!$this->verifyInstallation())
 			return "Failed to verify installation";
 
@@ -316,7 +316,7 @@ class Installer
 
 	private function createSymlinks(array $symlinks)
 	{
-		logMessage(L_USER, "Creating system symbolic links");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating system symbolic links");
 
 		foreach ($symlinks as $slink)
 		{
@@ -330,11 +330,11 @@ class Installer
 
 			if (symlink($target, $link))
 			{
-				logMessage(L_INFO, "Created symbolic link $link -> $target");
+				Logger::logMessage(Logger::LEVEL_INFO, "Created symbolic link $link -> $target");
 			}
 			else
 			{
-				logMessage(L_INFO, "Failed to create symbolic link from $link to $target, retyring..");
+				Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, retyring..");
 				unlink($link);
 				symlink($target, $link);
 			}
@@ -347,7 +347,7 @@ class Installer
 
 	private function startServices(array $services)
 	{
-		logMessage(L_USER, "Running kaltura services");
+		Logger::logMessage(Logger::LEVEL_USER, "Running kaltura services");
 		foreach ($services as $service)
 		{
 			if (!OsUtils::startService($service))
@@ -368,7 +368,7 @@ class Installer
 			return true;
 
 		$componentConfig = $this->installConfig[$component];
-		logMessage(L_USER, "Installing component [$component]");
+		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component]");
 
 		$createSymlinks = $this->createSymlinks($componentConfig['symlinks']);
 		if($createSymlinks !== true)
@@ -383,7 +383,7 @@ class Installer
 			return "Component [$component] not found";
 
 		$componentConfig = $this->installConfig[$component];
-		logMessage(L_USER, "Installing component [$component]");
+		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component]");
 
 		$includeFile = __DIR__ . "/components/$component.php";
 		if(file_exists($includeFile))
@@ -405,7 +405,7 @@ class Installer
 			return true;
 
 		$componentConfig = $this->installConfig[$component];
-		logMessage(L_USER, "Installing component [$component] services");
+		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component] services");
 
 		$startServices = $this->startServices($componentConfig['chkconfig']);
 		if($startServices !== true)
@@ -419,7 +419,7 @@ class Installer
 		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
 		if(!file_exists($dirName) || !is_dir($dirName))
 		{
-			logMessage(L_ERROR, "Defaults sanity test files directory [$dirName] is not a valid directory");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Defaults sanity test files directory [$dirName] is not a valid directory");
 			return false;
 		}
 		$dirName = realpath($dirName);
@@ -427,7 +427,7 @@ class Installer
 		$configPath = "$dirName/lib/config.ini";
 		if(!file_exists($configPath) || !is_file($configPath) || !parse_ini_file($configPath, true))
 		{
-			logMessage(L_ERROR, "Sanity test configuration file [$configPath] is not a valid ini file");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Sanity test configuration file [$configPath] is not a valid ini file");
 			return false;
 		}
 
@@ -450,7 +450,7 @@ class Installer
 			$filePath = realpath("$dirName/$fileName");
 
 			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $filePath $configPath")) {
-				logMessage(L_ERROR, "Verification failed [$filePath]");
+				Logger::logMessage(Logger::LEVEL_ERROR, "Verification failed [$filePath]");
 				return false;
 			}
 		}
@@ -474,7 +474,7 @@ class Installer
 				if (!$should_drop) {
 					$verify .= "   '$db' database already exists ".PHP_EOL;
 				} else {
-					logMessage(L_USER, "Dropping '$db' database");
+					Logger::logMessage(Logger::LEVEL_USER, "Dropping '$db' database");
 					DatabaseUtils::dropDb($db);
 				}
 			}
@@ -484,14 +484,14 @@ class Installer
 
 	private function changeDirsAndFilesPermissions()
 	{
-		logMessage(L_USER, "Changing permissions of directories and files");
+		Logger::logMessage(Logger::LEVEL_USER, "Changing permissions of directories and files");
 		$dir = __DIR__ . '/../directoryConstructor';
 		return OsUtils::phing($dir, 'Update-Permissions');
 	}
 
 	private function installDB()
 	{
-		logMessage(L_USER, "Creating databases and database users");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating databases and database users");
 
 		$dir = __DIR__ . '/../dbSchema';
 		if(!OsUtils::phing($dir))
@@ -502,19 +502,19 @@ class Installer
 
 	private function createInitialContent ()
 	{
-		logMessage(L_USER, "Creating databases initial content");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating databases initial content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php %s/deployment/base/scripts/init_data", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "Default content inserted");
+			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
 		} else {
-			logMessage(L_ERROR, "Failed to insert default content");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Failed to insert default content");
 			return false;
 		}
 
-		logMessage(L_USER, "Creating databases initial permissions");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating databases initial permissions");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertPermissions.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "Default permissions inserted");
+			Logger::logMessage(Logger::LEVEL_INFO, "Default permissions inserted");
 		} else {
-			logMessage(L_ERROR, "Failed to insert permissions");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Failed to insert permissions");
 			return false;
 		}
 
@@ -523,11 +523,11 @@ class Installer
 
 	private function createTemplateContent ()
 	{
-		logMessage(L_USER, "Creating partner template content");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating partner template content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertContent.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			logMessage(L_INFO, "Default content inserted");
+			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
 		} else {
-			logMessage(L_ERROR, "Failed to insert content");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Failed to insert content");
 			return false;
 		}
 

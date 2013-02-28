@@ -474,18 +474,18 @@ class AppConfig
 						$currentAvailableComponents[$component] = $title . ' - none defined yet.';
 				}
 			}
-			logMessage(L_USER, '');
+			Logger::logMessage(Logger::LEVEL_USER, '');
 			$number = $numbers[$serversCount];
 			$serversCount++;
 			$message = "Please enter the host name of your $number server";
 			$hostname = self::getInput(null, $message, "Host name is invalid, please enter again", InputValidator::createHostValidator());
 
-			logMessage(L_USER, "Available components:");
+			Logger::logMessage(Logger::LEVEL_USER, "Available components:");
 			$componentsNumbers = array();
 			$index = 1;
 			foreach($currentAvailableComponents as $component => $title)
 			{
-				logMessage(L_USER, " - $index. $title");
+				Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
 				$componentsNumbers[$index] = $component;
 				$index++;
 			}
@@ -516,16 +516,16 @@ class AppConfig
 
 					if(!count($dbAvailableServers))
 					{
-						logMessage(L_USER, "All database servers are already defined, database won't be installed on $hostname.");
+						Logger::logMessage(Logger::LEVEL_USER, "All database servers are already defined, database won't be installed on $hostname.");
 						continue;
 					}
 
 					$dbSelectedServers = array_keys($dbAvailableServers);
 					if(count($dbAvailableServers) > 1)
 					{
-						logMessage(L_USER, "Available database connections:");
+						Logger::logMessage(Logger::LEVEL_USER, "Available database connections:");
 						foreach($dbAvailableServers as $index => $title)
-							logMessage(L_USER, " - $index. $title");
+							Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
 
 						$message = "Please select the database connections that will be installed on $hostname database server, please enter the connections numbers seperated with commas";
 						$message .= " (for example, to define $hostname as master and primary slave, type '1,2', '1' for master connection and '2' for primary slave, avoid spaces, leave empty for all connections).";
@@ -547,7 +547,7 @@ class AppConfig
 				{
 					if(isset(self::$config[AppConfigAttribute::SPHINX_DB_HOST]))
 					{
-						logMessage(L_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
+						Logger::logMessage(Logger::LEVEL_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
 						continue;
 					}
 
@@ -558,7 +558,7 @@ class AppConfig
 				{
 					if(isset($definedComponents[$component]))
 					{
-						logMessage(L_USER, "Data warehouse server is already defined and won't be installed on $hostname.");
+						Logger::logMessage(Logger::LEVEL_USER, "Data warehouse server is already defined and won't be installed on $hostname.");
 						continue;
 					}
 				}
@@ -710,12 +710,12 @@ class AppConfig
 	// if it is a template file it will save it to a non template file and then override it
 	public static function replaceTokensInFile($file)
 	{
-		logMessage(L_USER, "Replacing configuration tokens in file [$file]");
+		Logger::logMessage(Logger::LEVEL_USER, "Replacing configuration tokens in file [$file]");
 		$newfile = self::copyTemplateFileIfNeeded($file);
 		$data = @file_get_contents($newfile);
 		if(! $data)
 		{
-			logMessage(L_ERROR, "Cannot replace token in file $newfile");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Cannot replace token in file $newfile");
 			return false;
 		}
 		else
@@ -723,12 +723,12 @@ class AppConfig
 			$data = self::replaceTokensInString($data);
 			if(! file_put_contents($newfile, $data))
 			{
-				logMessage(L_ERROR, "Cannot replace token in file, cannot write to file $newfile");
+				Logger::logMessage(Logger::LEVEL_ERROR, "Cannot replace token in file, cannot write to file $newfile");
 				return false;
 			}
 			else
 			{
-				logMessage(L_INFO, "Replaced tokens in file $newfile");
+				Logger::logMessage(Logger::LEVEL_INFO, "Replaced tokens in file $newfile");
 			}
 		}
 		return true;
@@ -751,7 +751,7 @@ class AppConfig
 	 */
 	private static function generateSecret()
 	{
-		logMessage(L_INFO, "Generating secret");
+		Logger::logMessage(Logger::LEVEL_INFO, "Generating secret");
 		$secret = md5(self::makeRandomString(5, 10, true, false, true));
 		return $secret;
 	}
@@ -761,7 +761,7 @@ class AppConfig
 	{
 		$admin_email = self::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
 		$kConfLocalFile = self::get(AppConfigAttribute::APP_DIR) . KCONF_LOCAL_LOCATION;
-		logMessage(L_INFO, "Setting application key");
+		Logger::logMessage(Logger::LEVEL_INFO, "Setting application key");
 		$token = md5(uniqid(rand(), true));
 		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
 		$key = base64_encode($str);
@@ -781,7 +781,7 @@ class AppConfig
 		if(strpos($file, TEMPLATE_FILE) !== false)
 		{
 			$return_file = str_replace(TEMPLATE_FILE, "", $file);
-			logMessage(L_INFO, "$file token file contains " . TEMPLATE_FILE);
+			Logger::logMessage(Logger::LEVEL_INFO, "$file token file contains " . TEMPLATE_FILE);
 			OsUtils::fullCopy($file, $return_file);
 		}
 		return $return_file;
@@ -848,7 +848,7 @@ class AppConfig
 		if(isset($validator) && ! empty($default))
 			$validator->emptyIsValid = true;
 
-		logMessage(L_USER, $request_text);
+		Logger::logMessage(Logger::LEVEL_USER, $request_text);
 
 		$inputOk = false;
 		while(! $inputOk)
@@ -865,17 +865,17 @@ class AppConfig
 				if(OsUtils::getOsName() == OsUtils::LINUX_OS)
 					system('stty echo');
 
-				logMessage(L_INFO, "User input accepted");
+				Logger::logMessage(Logger::LEVEL_INFO, "User input accepted");
 			}
 			else
 			{
 				$input = trim(fgets(STDIN));
-				logMessage(L_INFO, "User input is $input");
+				Logger::logMessage(Logger::LEVEL_INFO, "User input is $input");
 			}
 
 			if($validator && ! $validator->validateInput($input))
 			{
-				logMessage(L_USER, $not_valid_text);
+				Logger::logMessage(Logger::LEVEL_USER, $not_valid_text);
 			}
 			else
 			{
@@ -884,9 +884,9 @@ class AppConfig
 				{
 					$input = $default;
 					if($hideValue)
-						logMessage(L_USER, "Using default value");
+						Logger::logMessage(Logger::LEVEL_USER, "Using default value");
 					else
-						logMessage(L_USER, "Using default value: $default");
+						Logger::logMessage(Logger::LEVEL_USER, "Using default value: $default");
 				}
 				echo PHP_EOL;
 				$inputOk = true;

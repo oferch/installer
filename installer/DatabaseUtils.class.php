@@ -22,7 +22,7 @@ class DatabaseUtils
 		/* @var $link mysqli */
 		$result = @mysqli_real_connect($link, AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $password, $db_name, AppConfig::get(AppConfigAttribute::DB1_PORT));
 		if (!$result) {
-			logMessage(L_ERROR, sprintf("Cannot connect to db: %s, %s, %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $link->error));
+			Logger::logMessage(Logger::LEVEL_ERROR, sprintf("Cannot connect to db: %s, %s, %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $link->error));
 			return false;
 		}
 		return true;
@@ -44,13 +44,13 @@ class DatabaseUtils
 
 		// use desired database
 		else if ($db_name && !mysqli_select_db($link, $db_name)) {
-			logMessage(L_ERROR, "Cannot execute query: could not find the db: $db_name");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Cannot execute query: could not find the db: $db_name");
 			return false;
 		}
 
 		// execute all queries
 		if (!mysqli_multi_query($link, $query) || $link->error != '') {
-			logMessage(L_ERROR, "Cannot execute query: error with query: $query, error: ".$link->error);
+			Logger::logMessage(Logger::LEVEL_ERROR, "Cannot execute query: error with query: $query, error: ".$link->error);
 			return false;
 		}
 
@@ -70,7 +70,7 @@ class DatabaseUtils
 	 */
 	public static function createDb($db_name)
 	{
-		logMessage(L_INFO, "Creating database $db_name");
+		Logger::logMessage(Logger::LEVEL_INFO, "Creating database $db_name");
 		$create_db_query = "CREATE DATABASE $db_name;";
 		return self::executeQuery($create_db_query);
 	}
@@ -82,7 +82,7 @@ class DatabaseUtils
 	 */
 	public static function dropDb($db_name)
 	{
-		logMessage(L_INFO, "Dropping database $db_name");
+		Logger::logMessage(Logger::LEVEL_INFO, "Dropping database $db_name");
 		$drop_db_query = "DROP DATABASE $db_name;";
 		return self::executeQuery($drop_db_query);
 	}
@@ -96,7 +96,7 @@ class DatabaseUtils
 	{
 		$link = null;
 		if (!self::connect($link)) {
-			logMessage(L_ERROR, "Could not database $db_name: could not connect to host");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Could not database $db_name: could not connect to host");
 			return -1;
 		}
 		return mysqli_select_db($link, $db_name);
@@ -110,7 +110,7 @@ class DatabaseUtils
 	 */
 	public static function runScript($file, $db_name) {
 		if (!is_file($file)) {
-			logMessage(L_ERROR, "Could not run script: script not found $file");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Could not run script: script not found $file");
 			return false;
 		}
 
@@ -119,12 +119,12 @@ class DatabaseUtils
 		} else {
 			$cmd = sprintf("mysql -h%s -u%s -p%s -P%s %s < %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB_ROOT_PASS), AppConfig::get(AppConfigAttribute::DB1_PORT), $db_name, $file);
 		}
-		logMessage(L_INFO, "Executing $cmd");
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing $cmd");
 		@exec($cmd . ' 2>&1', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
-			logMessage(L_ERROR, "Executing command failed: ".implode("\n",$output));
+			Logger::logMessage(Logger::LEVEL_ERROR, "Executing command failed: ".implode("\n",$output));
 			return false;
 		}
 	}

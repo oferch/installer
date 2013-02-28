@@ -53,7 +53,7 @@ ini_set('max_input_time ', 0);
 date_default_timezone_set(@date_default_timezone_get());
 
 // start the log
-startLog(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
+Logger::init(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
 
 AppConfig::init(__DIR__);
 OsUtils::setLogPath(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.details.log');
@@ -80,20 +80,20 @@ $attributes = array(
 	'xml.uri' => $xmlUri,
 );
 
-logMessage(L_USER, "Packaging...", false);
+Logger::logMessage(Logger::LEVEL_USER, "Packaging...", false);
 if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 {
-	logMessage(L_USER, " failed.", true, 3);
+	Logger::logMessage(Logger::LEVEL_USER, " failed.", true, 3);
 	exit(-1);
 }
 
-logMessage(L_USER, " successfully finished", true, 3);
+Logger::logMessage(Logger::LEVEL_USER, " successfully finished", true, 3);
 if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y'))
 {
-	logMessage(L_USER, "Deleting temporary directory ($tempDir)...", false);
+	Logger::logMessage(Logger::LEVEL_USER, "Deleting temporary directory ($tempDir)...", false);
 	OsUtils::recursiveDelete($tempDir);
-	logMessage(L_USER, " - done", true, 3);
+	Logger::logMessage(Logger::LEVEL_USER, " - done", true, 3);
 }
 
-logMessage(L_USER, "Package available at $baseDir/" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . "-" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION) . ".tgz");
+Logger::logMessage(Logger::LEVEL_USER, "Package available at $baseDir/" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . "-" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION) . ".tgz");
 exit(0);

@@ -17,29 +17,29 @@ class OsUtils {
 	// returns true if the user is root, false otherwise
 	public static function verifyRootUser() {
 		exec('id -u', $output, $result);
-		logMessage(L_INFO, "User: $output");
+		Logger::logMessage(Logger::LEVEL_INFO, "User: $output");
 		return (isset($output[0]) && $output[0] == '0' && $result == 0);
 	}
 
 	// returns true if the OS is linux, false otherwise
 	public static function verifyOS() {
-		logMessage(L_INFO, "OS: ".OsUtils::getOsName());
+		Logger::logMessage(Logger::LEVEL_INFO, "OS: ".OsUtils::getOsName());
 		return (OsUtils::getOsName() === OsUtils::LINUX_OS);
 	}
 
 	// returns the computer hostname if found, 'unknown' if not found
 	public static function getComputerName() {
 		if(isset($_ENV['COMPUTERNAME'])) {
-			logMessage(L_INFO, "Host name: ".$_ENV['COMPUTERNAME']);
+			Logger::logMessage(Logger::LEVEL_INFO, "Host name: ".$_ENV['COMPUTERNAME']);
 	    	return $_ENV['COMPUTERNAME'];
 		} else if (isset($_ENV['HOSTNAME'])) {
-			logMessage(L_INFO, "Host name: ".$_ENV['HOSTNAME']);
+			Logger::logMessage(Logger::LEVEL_INFO, "Host name: ".$_ENV['HOSTNAME']);
 			return $_ENV['HOSTNAME'];
 		} else if (function_exists('gethostname')) {
-			logMessage(L_INFO, "Host name: ".gethostname());
+			Logger::logMessage(Logger::LEVEL_INFO, "Host name: ".gethostname());
 			return gethostname();
 		} else {
-			logMessage(L_WARNING, "Host name unkown");
+			Logger::logMessage(Logger::LEVEL_WARNING, "Host name unkown");
 			return 'unknown';
 		}
 	}
@@ -51,7 +51,7 @@ class OsUtils {
 		} else if (strtoupper(substr(PHP_OS, 0, 5)) === 'LINUX') {
 			return self::LINUX_OS;
 		} else {
-			logMessage(L_WARNING, "OS not recognized: ".PHP_OS);
+			Logger::logMessage(Logger::LEVEL_WARNING, "OS not recognized: ".PHP_OS);
 			return "";
 		}
 	}
@@ -60,14 +60,14 @@ class OsUtils {
 	public static function getOsLsb() {
 		$dist = OsUtils::executeReturnOutput("lsb_release -d");
 		$dist = implode('\n', $dist);
-		logMessage(L_INFO, "Distribution: ".$dist);
+		Logger::logMessage(Logger::LEVEL_INFO, "Distribution: ".$dist);
 		return $dist;
 	}
 
 	// returns '32bit'/'64bit' according to current system architecture - if not found, default is 32bit
 	public static function getSystemArchitecture() {
 		$arch = php_uname('m');
-		logMessage(L_INFO, "OS architecture: ".$arch);
+		Logger::logMessage(Logger::LEVEL_INFO, "OS architecture: ".$arch);
 		if ($arch && (stristr($arch, 'x86_64') || stristr($arch, 'amd64'))) {
 			return '64bit';
 		} else {
@@ -80,7 +80,7 @@ class OsUtils {
 	// Write $config to ini $filename key = value
 	public static function writeConfigToFile($config, $filename)
 	{
-		logMessage(L_INFO, "Writing config to file $filename");
+		Logger::logMessage(Logger::LEVEL_INFO, "Writing config to file $filename");
 		$data = '';
 		$sections = array();
 		foreach ($config as $key => $value)
@@ -126,7 +126,7 @@ class OsUtils {
 		$originalDir = getcwd();
 		chdir($dir);
 		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target >> " . self::$log . " 2>&1";
-		logMessage(L_INFO, "Executing $command");
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
 		$returnedValue = null;
 		passthru($command, $returnedValue);
 		chdir($originalDir);
@@ -155,40 +155,40 @@ class OsUtils {
 
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($command) {
-		logMessage(L_INFO, "Executing $command");
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
 		exec($command . ' >> ' . self::$log .' 2>&1 ', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
-			logMessage(L_ERROR, "Executing command failed: $command");
-			logMessage(L_ERROR, "Output from command is: ");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Executing command failed: $command");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Output from command is: ");
 			while( list(,$row) = each($output) ){
-				logMessage(L_ERROR, "$row");
+				Logger::logMessage(Logger::LEVEL_ERROR, "$row");
 			}
-			logMessage(L_ERROR, "End of Output");
+			Logger::logMessage(Logger::LEVEL_ERROR, "End of Output");
 			return false;
 		}
 	}
 
 	public static function executeWithOutput($command) {
-		logMessage(L_INFO, "Executing $command");
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
 		exec($command . ' 2>&1', $output, $return_var);
 		$scriptOutput = $output;
 		if ($return_var === 0) {
 			return $output;
 		} else {
-			logMessage(L_ERROR, "Executing command failed: $command");
-			logMessage(L_ERROR, "Output from command is: ");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Executing command failed: $command");
+			Logger::logMessage(Logger::LEVEL_ERROR, "Output from command is: ");
 			while( list(,$row) = each($output) ){
-				logMessage(L_ERROR, "$row");
+				Logger::logMessage(Logger::LEVEL_ERROR, "$row");
 			}
-			logMessage(L_ERROR, "End of Output");
+			Logger::logMessage(Logger::LEVEL_ERROR, "End of Output");
 			return false;
 		}
 	}
 
 	public static function executeInBackground($command) {
-		logMessage(L_INFO, "Executing in background $command");
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing in background $command");
 		print("Executing in background $command \n");
 		exec($command. ' >> ' . self::$log . ' 2>&1 &', $output, $return_var);
 	}

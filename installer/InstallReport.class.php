@@ -66,9 +66,9 @@ class InstallReport {
 			// grab URL and pass it to the browser
 			$result = curl_exec($ch);
 			if (!$result) {
-				logMessage(L_ERROR, 'Failed sending install report '.curl_error($ch));
+				Logger::logMessage(Logger::LEVEL_ERROR, 'Failed sending install report '.curl_error($ch));
 			} else {
-				logMessage(L_INFO, 'Sending install report');
+				Logger::logMessage(Logger::LEVEL_INFO, 'Sending install report');
 			}
 			
 			// close cURL resource, and free up system resources

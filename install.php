@@ -33,8 +33,8 @@ if(isset($options['h']))
 }
 
 // start the log
-startLog(__DIR__ . '/install.' . date("d.m.Y_H.i.s") . '.log');
-logMessage(L_INFO, "Installation started");
+Logger::init(__DIR__ . '/install.' . date("d.m.Y_H.i.s") . '.log');
+Logger::logMessage(Logger::LEVEL_INFO, "Installation started");
 
 $silentRun = isset($options['s']);
 
@@ -50,11 +50,11 @@ else
 
 OsUtils::setLogPath(AppConfig::get(AppConfigAttribute::LOG_DIR) . DIRECTORY_SEPARATOR . 'kaltura_deploy.log');
 
-logMessage(L_INFO, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
+Logger::logMessage(Logger::LEVEL_INFO, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
 if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
-	logMessage(L_USER, "Thank you for installing Kaltura Video Platform - Community Edition");
+	Logger::logMessage(Logger::LEVEL_USER, "Thank you for installing Kaltura Video Platform - Community Edition");
 } else {
-	logMessage(L_USER, "Thank you for installing Kaltura Video Platform");
+	Logger::logMessage(Logger::LEVEL_USER, "Thank you for installing Kaltura Video Platform");
 }
 echo PHP_EOL;
 
@@ -82,7 +82,7 @@ if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_
 
 // verify prerequisites
 echo PHP_EOL;
-logMessage(L_USER, "Verifing prerequisites");
+Logger::logMessage(Logger::LEVEL_USER, "Verifing prerequisites");
 
 $validator = new Validator($components);
 $prerequisites = $validator->validate();
@@ -94,19 +94,19 @@ if (count($prerequisites))
 	if ($report)
 		$report->reportInstallationFailed($description);
 
-	logMessage(L_USER, $description);
-	logMessage(L_USER, "Please resolve the issues and run the installation again.");
+	Logger::logMessage(Logger::LEVEL_USER, $description);
+	Logger::logMessage(Logger::LEVEL_USER, "Please resolve the issues and run the installation again.");
 	exit(-1);
 }
 
 // verify that there are no leftovers from previous installations
 echo PHP_EOL;
-logMessage(L_USER, "Checking for leftovers from a previous installation");
+Logger::logMessage(Logger::LEVEL_USER, "Checking for leftovers from a previous installation");
 
 $installer = new Installer($components);
 $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
-	logMessage(L_USER, $leftovers);
+	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
 	if (AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
 		$installer->detectLeftovers(false);
 	} else {
@@ -115,7 +115,7 @@ if (isset($leftovers)) {
 		if ($report)
 			$report->reportInstallationFailed($description);
 
-		logMessage(L_USER, "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
+		Logger::logMessage(Logger::LEVEL_USER, "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
 		exit(-2);
 	}
 }
@@ -134,9 +134,9 @@ if ($install_output !== null)
 	}
 
 	if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
-		logMessage(L_USER, "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org");
+		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org");
 	else
-		logMessage(L_USER, "For assistance, please contant the support team at support@kaltura.com with the installation log attached");
+		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please contant the support team at support@kaltura.com with the installation log attached");
 
 	exit(1);
 }
@@ -154,14 +154,14 @@ $mailer->Subject = 'Kaltura Installation Settings';
 $mailer->Body = $msg;
 
 if ($mailer->Send()) {
-	logMessage(L_USER, "Post installation email cannot be sent");
+	Logger::logMessage(Logger::LEVEL_USER, "Post installation email cannot be sent");
 } else {
-	logMessage(L_USER, "Sent post installation settings email to ".AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
+	Logger::logMessage(Logger::LEVEL_USER, "Sent post installation settings email to ".AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
 }
 
 // print after installation instructions
 echo PHP_EOL;
-logMessage(L_USER, sprintf(
+Logger::logMessage(Logger::LEVEL_USER, sprintf(
 	"Installation Completed Successfully.\n" .
 	"Your Kaltura Admin Console credentials:\n" .
 	"System Admin user: %s\n" .
@@ -175,7 +175,7 @@ logMessage(L_USER, sprintf(
 $virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
 $appDir = realpath(AppConfig::get(AppConfigAttribute::APP_DIR));
 
-logMessage(L_USER,
+Logger::logMessage(Logger::LEVEL_USER,
 	"To start using Kaltura, please complete the following steps:\n" .
 	"1. Add the following line to your /etc/hosts file:\n" .
 		"\t127.0.0.1 $virtualHostName\n" .
