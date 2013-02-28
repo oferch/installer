@@ -331,9 +331,18 @@ class AppConfig
 		self::initField(AppConfigAttribute::BATCH_PARTNER_PARTNER_ALIAS, md5('-1kaltura partner'));
 
 		// other configurations
-		self::initField(AppConfigAttribute::HTTPD_BIN, OsUtils::findBinary(array('apachectl', 'apache2ctl')));
-		self::initField(AppConfigAttribute::PHP_BIN, OsUtils::findBinary('php'));
-		self::initField(AppConfigAttribute::LOG_ROTATE_BIN, OsUtils::findBinary('logrotate'));
+		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+		{
+			self::initField(AppConfigAttribute::HTTPD_BIN, OsUtils::findBinary('httpd.exe'));
+			self::initField(AppConfigAttribute::PHP_BIN, OsUtils::findBinary('php.exe'));
+			self::initField(AppConfigAttribute::LOG_ROTATE_BIN, OsUtils::findBinary('logrotate'));
+		}
+		else
+		{
+			self::initField(AppConfigAttribute::HTTPD_BIN, OsUtils::findBinary(array('apachectl', 'apache2ctl')));
+			self::initField(AppConfigAttribute::PHP_BIN, OsUtils::findBinary('php'));
+			self::initField(AppConfigAttribute::LOG_ROTATE_BIN, OsUtils::findBinary('logrotate'));
+		}
 
 		// other configurations
 		self::initField(AppConfigAttribute::APACHE_RESTART_COMMAND, self::get(AppConfigAttribute::HTTPD_BIN) . ' -k restart');
@@ -610,7 +619,7 @@ class AppConfig
 		return '*';
 	}
 
-	private static function getServerConfig($field, $section = null)
+	public static function getServerConfig($field, $section = null)
 	{
 		if(!self::$packageDir)
 			return null;
