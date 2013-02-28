@@ -17,12 +17,13 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsC:');
+$options = getopt('hsC:p:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
 	echo "-h - Show this help." . PHP_EOL;
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo "-p - Package XML path or URL." . PHP_EOL;
 	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
@@ -39,16 +40,42 @@ Logger::logMessage(Logger::LEVEL_INFO, "Installation started");
 $silentRun = isset($options['s']);
 
 $packageDir = realpath(__DIR__ . '/../package');
-AppConfig::init($packageDir);
+if($packageDir)
+	AppConfig::init($packageDir);
+
 AppConfig::configure($silentRun);
+
+OsUtils::setLogPath(__DIR__ . '/install.' . date("d.m.Y_H.i.s") . '.details.log');
+
+if(isset($options['p']))
+{
+	$xmlUri = $options['p'];
+	if(parse_url($xmlUri, PHP_URL_SCHEME))
+	{
+		$tmp = tempnam(sys_get_temp_dir(), 'dirs.');
+		file_put_contents($tmp, file_get_contents($xmlUri));
+		$xmlUri = $tmp;
+	}
+
+	$attributes = array(
+		'xml.uri' => $xmlUri,
+	);
+
+	Logger::logMessage(Logger::LEVEL_USER, "Downloading Kaltura server...", false);
+	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $attributes))
+	{
+		Logger::logMessage(Logger::LEVEL_USER, " failed.", true, 3);
+		exit(-1);
+	}
+	Logger::logMessage(Logger::LEVEL_USER, " - done.", true, 3);
+	echo PHP_EOL;
+}
 
 $components = null;
 if(isset($options['C']))
 	$components = explode(',', $options['C']);
 else
 	$components = AppConfig::getCurrentMachineComponents();
-
-OsUtils::setLogPath(AppConfig::get(AppConfigAttribute::LOG_DIR) . DIRECTORY_SEPARATOR . 'kaltura_deploy.log');
 
 Logger::logMessage(Logger::LEVEL_INFO, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
 if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
