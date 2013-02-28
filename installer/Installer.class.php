@@ -267,6 +267,17 @@ class Installer
 			return "Failed to populate sphinx log from categories";
 		}
 
+		if(in_array('generateClients', $this->runOnce))
+		{
+			Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
+			if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
+				return "Failed generating client libraries";
+			}
+		}
+
+		if(!$this->changeDirsAndFilesPermissions())
+			return "Failed to set files permissions";
+
 		Logger::logMessage(Logger::LEVEL_USER, "Deploying uiconfs in order to configure the application");
 		if(isset($this->installConfig['all']['uiconfs_2']) && is_array($this->installConfig['all']['uiconfs_2']))
 		{
@@ -283,17 +294,6 @@ class Installer
 				}
 			}
 		}
-
-		if(in_array('generateClients', $this->runOnce))
-		{
-			Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
-			if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				return "Failed generating client libraries";
-			}
-		}
-
-		if(!$this->changeDirsAndFilesPermissions())
-			return "Failed to set files permissions";
 
 		if(in_array('restartApache', $this->runOnce))
 		{
