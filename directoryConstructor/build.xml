@@ -28,9 +28,6 @@
 	<target name="Construct" depends="Init">
 		<property name="actions.makeDir" value="true" override="true" />
 		<property name="actions.fetchCode" value="true" override="true" />
-		<property name="actions.createUser" value="true" override="true" />
-		<property name="actions.setOwner" value="true" override="true" />
-		<property name="actions.setPermissions" value="true" override="true" />
 		
 		<phingcall target="Construct tree" />
 	</target>
