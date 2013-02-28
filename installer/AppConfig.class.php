@@ -382,15 +382,9 @@ class AppConfig
 		self::initField(AppConfigAttribute::OS_APACHE_GROUP, self::get(AppConfigAttribute::OS_APACHE_USER));
 		self::initField(AppConfigAttribute::OS_KALTURA_GROUP, self::get(AppConfigAttribute::OS_KALTURA_USER));
 
-
 		self::initField(AppConfigAttribute::REPORT_ADMIN_EMAIL, '');
 		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
 		self::initField(AppConfigAttribute::USAGE_TRACKING_OPTIN, 'false');
-
-
-		// databases (copy information collected during prerequisites
-		if(self::get(AppConfigAttribute::DB1_HOST) == 'localhost')
-			self::set(AppConfigAttribute::DB1_HOST, '127.0.0.1');
 
 		self::initField(AppConfigAttribute::DB1_USER, 'kaltura');
 		self::initField(AppConfigAttribute::DB1_PASS, 'kaltura');
@@ -410,9 +404,9 @@ class AppConfig
 		self::initField(AppConfigAttribute::DB3_PASS, self::get(AppConfigAttribute::DB1_PASS));
 
 		//sphinx
-		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::DB1_HOST));
+		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::DB1_HOST) == 'localhost' ? '127.0.01' : self::get(AppConfigAttribute::DB1_HOST));
 		self::initField(AppConfigAttribute::SPHINX_DB_NAME, 'kaltura_sphinx_log');
-		self::initField(AppConfigAttribute::SPHINX_DB_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::SPHINX_DB_HOST, self::get(AppConfigAttribute::DB1_HOST));
 		self::initField(AppConfigAttribute::SPHINX_DB_PORT, self::get(AppConfigAttribute::DB1_PORT));
 
 		if(self::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
@@ -678,7 +672,8 @@ class AppConfig
 		if(! defined("AppConfigAttribute::$key"))
 			throw new Exception("Configuration key [$key] not defined");
 
-		self::$config[$key] = $value;
+		if(!isset(self::$config[$key]))
+			self::$config[$key] = $value;
 	}
 
 	/**
