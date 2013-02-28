@@ -11,12 +11,12 @@ class Logger
 	/**
 	 * @var resiurce
 	 */
-	protected $logFile = null;
+	protected static $logFile = null;
 
 	/**
 	 * @var int
 	 */
-	protected $logPrintLevel = self::LEVEL_USER;
+	protected static $logPrintLevel = self::LEVEL_USER;
 
 	/**
 	 * Start a new log with the given $filename
