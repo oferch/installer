@@ -539,7 +539,7 @@ class AppConfig
 						$message = "Please select the database connections that will be installed on $hostname database server, please enter the connections numbers seperated with commas";
 						$message .= " (for example, to define $hostname as master and primary slave, type '1,2', '1' for master connection and '2' for primary slave, avoid spaces, leave empty for all connections).";
 
-						$dbSelectedServersInput = self::getInput(null, $message, 'Invalid database connections selected, please enter again', InputValidator::createEnumValidator(array(1, 2, 3), true, true), implode(',', $dbSelectedServers));
+						$dbSelectedServersInput = self::getInput(null, $message, 'Invalid database connections selected, please enter again', InputValidator::createEnumValidator(array_keys($dbAvailableServers), true, true), implode(',', $dbSelectedServers));
 						if($dbSelectedServersInput)
 							$dbSelectedServers = explode(',', $dbSelectedServersInput);
 					}
