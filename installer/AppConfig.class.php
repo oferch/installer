@@ -562,13 +562,13 @@ class AppConfig
 
 				if($component == 'sphinx')
 				{
-					if(isset(self::$config[AppConfigAttribute::SPHINX_DB_HOST]))
+					if(isset(self::$config[AppConfigAttribute::SPHINX_SERVER]))
 					{
 						Logger::logMessage(Logger::LEVEL_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
 						continue;
 					}
 
-					self::set(AppConfigAttribute::SPHINX_DB_HOST, $hostname);
+					self::set(AppConfigAttribute::SPHINX_SERVER, $hostname);
 				}
 
 				if($component == 'dwh')
