@@ -520,6 +520,9 @@ class AppConfig
 					if(!isset(self::$config[AppConfigAttribute::DB3_HOST]))
 						$dbAvailableServers[3] = 'Secondary Slave (read only)';
 
+					if(!isset(self::$config[AppConfigAttribute::SPHINX_DB_HOST]))
+						$dbAvailableServers[4] = 'Sphinx log (read and write)';
+
 					if(!count($dbAvailableServers))
 					{
 						Logger::logMessage(Logger::LEVEL_USER, "All database servers are already defined, database won't be installed on $hostname.");
@@ -545,7 +548,14 @@ class AppConfig
 					{
 						self::set("DB{$dbSelectedServer}_HOST", $hostname);
 
-						self::getInput("DB{$dbSelectedServer}_PORT", $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+						if($dbSelectedServer == 4)
+						{
+							self::getInput(AppConfigAttribute::SPHINX_DB_HOST, $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+						}
+						else
+						{
+							self::getInput("DB{$dbSelectedServer}_PORT", $dbAvailableServers[$dbSelectedServer] . " database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+						}
 					}
 				}
 
