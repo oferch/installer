@@ -190,13 +190,13 @@ class AppConfig
 		self::$packageDir = $packageDir;
 
 		self::initField(AppConfigAttribute::KALTURA_VERSION_TYPE, self::K_CE_TYPE);
-		self::initField(AppConfigAttribute::KALTURA_VERSION, 'Kaltura ' . self::K_CE_TYPE);
+		self::initField(AppConfigAttribute::KALTURA_VERSION, 'Kaltura-' . self::K_CE_TYPE);
 
 		$versionPath = self::$packageDir . "/version.ini";
 		if(file_exists($versionPath))
 		{
 			$version = parse_ini_file($versionPath);
-			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura ' . $version['type'] . ' ' . $version['number']);
+			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura-' . $version['type'] . '-' . $version['number']);
 			self::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
 		}
 	}
@@ -872,7 +872,10 @@ class AppConfig
 				$input = trim(fgets(STDIN));
 
 				if(OsUtils::getOsName() == OsUtils::LINUX_OS)
+				{
 					system('stty echo');
+					echo PHP_EOL;
+				}
 
 				Logger::logMessage(Logger::LEVEL_INFO, "User input accepted");
 			}
