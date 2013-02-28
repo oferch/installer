@@ -53,7 +53,8 @@ class Installer
 
 	public function __destruct()
 	{
-		fclose($this->uninstallConfig);
+		if($this->uninstallConfig)
+			fclose($this->uninstallConfig);
 	}
 
 	/**
