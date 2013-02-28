@@ -158,6 +158,10 @@ class Installer
 	 */
 	public function install($packageDir = null)
 	{
+		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
+		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
+		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
+
 		$this->saveUninstallerConfig();
 
 		Logger::logMessage(Logger::LEVEL_USER, sprintf("Current working dir is %s", getcwd()));

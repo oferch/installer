@@ -188,8 +188,9 @@ class AppConfig
 	public static function init($packageDir)
 	{
 		self::$packageDir = $packageDir;
-		if(OsUtils::getOsName() == OsUtils::LINUX_OS)
-			system('clear');
+
+		self::initField(AppConfigAttribute::KALTURA_VERSION_TYPE, self::K_CE_TYPE);
+		self::initField(AppConfigAttribute::KALTURA_VERSION, 'Kaltura ' . self::K_CE_TYPE);
 
 		$versionPath = self::$packageDir . "/version.ini";
 		if(file_exists($versionPath))
@@ -205,6 +206,9 @@ class AppConfig
 	 */
 	public static function configure($silentRun = false, $enableMultipleServers = false)
 	{
+		if(OsUtils::getOsName() == OsUtils::LINUX_OS)
+			system('clear');
+
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 
 		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
@@ -257,6 +261,9 @@ class AppConfig
 			}
 		}
 
+		if(!self::$packageDir)
+			self::init(self::get(AppConfigAttribute::BASE_DIR));
+
 		self::initField(AppConfigAttribute::DB1_NAME, 'kaltura');
 
 		self::set(AppConfigAttribute::INSTALLATION_UID, uniqid("IID")); // unique id per installation
@@ -273,10 +280,6 @@ class AppConfig
 			self::set(AppConfigAttribute::INSTALLATION_SEQUENCE_UID, $install_seq);
 			file_put_contents($installSeqFilePath, $install_seq);
 		}
-
-		self::set(AppConfigAttribute::KMC_VERSION, self::getServerConfig('kmc_version'));
-		self::set(AppConfigAttribute::CLIPAPP_VERSION, self::getServerConfig('clipapp_version'));
-		self::set(AppConfigAttribute::HTML5_VERSION, self::getServerConfig('html5_version'));
 
 		// allow ui conf tab only for CE installation
 		if (self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
@@ -609,6 +612,9 @@ class AppConfig
 
 	private static function getServerConfig($field, $section = null)
 	{
+		if(!self::$packageDir)
+			return null;
+
 		if(!self::$kConf)
 		{
 			if(!file_exists(self::$packageDir . '/app/configurations/base.ini'))
@@ -676,6 +682,9 @@ class AppConfig
 	{
 		if(! defined("AppConfigAttribute::$key"))
 			throw new Exception("Configuration key [$key] not defined");
+
+		if(!isset(self::$config[$key]))
+			return null;
 
 		return self::$config[$key];
 	}
