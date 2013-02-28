@@ -64,6 +64,7 @@ class AppConfigAttribute
 	const DWH_DATABASE_NAME = 'DWH_DATABASE_NAME';
 
 	const DB1_CREATE_NEW_DB = 'DB1_CREATE_NEW_DB';
+	const MULTIPLE_SERVER_ENVIRONMENT = 'MULTIPLE_SERVER_ENVIRONMENT';
 
 	const EVENTS_LOGS_DIR = 'EVENTS_LOGS_DIR';
 	const EVENTS_WILDCARD = 'EVENTS_WILDCARD';
@@ -429,7 +430,8 @@ class AppConfig
 
 	protected static function configureMultipleServers()
 	{
-		if (!AppConfig::getTrueFalse(null, "Would you like to configure multiple servers?", 'n'))
+		// if already defined or if no need to define
+		if (AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT) || !AppConfig::getTrueFalse(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT, "Would you like to configure multiple servers?", 'n'))
 			return false;
 
 		$numbers = array(
