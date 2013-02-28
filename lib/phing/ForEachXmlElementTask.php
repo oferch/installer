@@ -186,6 +186,14 @@ class ForEachXmlElementTask extends Task
 		if(isset($xml['sourcePath']))
 		{
 			$sourcePath = strval($xml['sourcePath']);
+
+			if(parse_url($sourcePath, PHP_URL_SCHEME))
+			{
+				$tmp = tempnam(sys_get_temp_dir(), 'sourcePath.');
+				file_put_contents($tmp, file_get_contents($sourcePath));
+				$sourcePath = $tmp;
+			}
+
 			if (!file_exists($sourcePath))
 				throw new BuildException("Supplied file path [$sourcePath] doesn't exist.");
 
