@@ -67,10 +67,11 @@ if(!$silentRun && !$configure && AppConfig::getTrueFalse(null, "Would you like t
 if ($configure)
 	AppConfig::configure($silentRun, true);
 
+$packageName = AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . "-" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION);
 $directoryConstructorDir = __DIR__ . '/directoryConstructor';
 $xmlUri = "$directoryConstructorDir/directories." . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . '.xml';
 $xmlUri = str_replace('\\', '/', $xmlUri);
-$tempDir = $baseDir . '/tmp';
+$tempDir = $baseDir . "/$packageName";
 
 $attributes = array(
 	'package.dir' => $baseDir,
@@ -95,5 +96,5 @@ if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the pac
 	Logger::logMessage(Logger::LEVEL_USER, " - done", true, 3);
 }
 
-Logger::logMessage(Logger::LEVEL_USER, "Package available at $baseDir/" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . "-" . AppConfig::get(AppConfigAttribute::KALTURA_VERSION) . ".tgz");
+Logger::logMessage(Logger::LEVEL_USER, "Package available at $tempDir.tgz");
 exit(0);

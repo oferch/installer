@@ -86,7 +86,8 @@
 					</then>
 				</if>
 				
-				<tar destfile="${package.dir}/${package.type}-${package.version}.tgz" basedir="${BASE_DIR}" />
+				<resolvepath propertyName="tar.dir" file="${BASE_DIR}/../"/>
+				<tar destfile="${package.dir}/${package.type}-${package.version}.tgz" basedir="${tar.dir}" />
 			</then>
 		</if>
 	</target>
