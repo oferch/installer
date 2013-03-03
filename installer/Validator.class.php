@@ -244,7 +244,7 @@ class Validator
 		{
 			exec("getenforce", $out, $rc);
 			if($out[1] === 'Enforcing')
-				$this->prerequisites[] = "SELinux is Enabled, please disable.";
+				$this->prerequisites[] = "SELinux is Enabled, please edit file '/etc/sysconfig/selinux' and set SELINUX to permissive, to apply the change in current session execute 'setenforce permissive'.";
 		}
 
 		return $this->prerequisites;
