@@ -714,6 +714,9 @@ class AppConfig
 	{
 		foreach(self::$config as $key => $var)
 		{
+			if(is_array($var))
+				continue;
+
 			$key = TOKEN_CHAR . $key . TOKEN_CHAR;
 			$string = str_replace($key, $var, $string);
 		}
