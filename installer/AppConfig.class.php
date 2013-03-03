@@ -328,13 +328,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::BATCH_PARTNER_PARTNER_ALIAS, md5('-1kaltura partner'));
 
 		// other configurations
-		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
-		{
-			self::initField(AppConfigAttribute::HTTPD_BIN, OsUtils::findBinary('httpd.exe'));
-			self::initField(AppConfigAttribute::PHP_BIN, OsUtils::findBinary('php.exe'));
-			self::initField(AppConfigAttribute::LOG_ROTATE_BIN, OsUtils::findBinary('logrotate'));
-		}
-		else
+		if(OsUtils::getOsName() != OsUtils::WINDOWS_OS)
 		{
 			self::initField(AppConfigAttribute::HTTPD_BIN, OsUtils::findBinary(array('apachectl', 'apache2ctl')));
 			self::initField(AppConfigAttribute::PHP_BIN, OsUtils::findBinary('php'));
