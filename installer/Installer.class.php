@@ -196,18 +196,6 @@ class Installer
 			}
 		}
 
-		if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists(AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
-		{
-			Logger::logMessage(Logger::LEVEL_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)));
-		}
-		else
-		{
-			Logger::logMessage(Logger::LEVEL_USER, "Creating data warehouse");
-			if (!OsUtils::execute(sprintf("%s/setup/dwh_setup.sh -h %s -P %s -u %s -p %s -d %s ", AppConfig::get(AppConfigAttribute::DWH_DIR), AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB1_PORT), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB_ROOT_PASS), AppConfig::get(AppConfigAttribute::DWH_DIR)))) {
-				return "Failed running data warehouse initialization script";
-			}
-		}
-
 		foreach($this->components as $component)
 			$this->installComponentSymlinks($component);
 
@@ -235,38 +223,6 @@ class Installer
 			return "Failed to create QueryCacheTriggers";
 		}
 
-		Logger::logMessage(Logger::LEVEL_USER, "Populate sphinx tables");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntries.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				Logger::logMessage(Logger::LEVEL_INFO, "sphinx entries log created");
-		} else {
-			return "Failed to populate sphinx log from entries";
-		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxEntryDistributions.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				Logger::logMessage(Logger::LEVEL_INFO, "sphinx content distribution log created");
-		} else {
-			return "Failed to populate sphinx log from content distribution";
-		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCuePoints.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				Logger::logMessage(Logger::LEVEL_INFO, "sphinx cue points log created");
-		} else {
-			return "Failed to populate sphinx log from cue points";
-		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxKusers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			Logger::logMessage(Logger::LEVEL_INFO, "sphinx Kusers log created");
-		} else {
-			return "Failed to populate sphinx log from Kusers";
-		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxTags.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			Logger::logMessage(Logger::LEVEL_INFO, "sphinx tags log created");
-		} else {
-			return "Failed to populate sphinx log from tags";
-		}
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/populateSphinxCategories.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			Logger::logMessage(Logger::LEVEL_INFO, "sphinx Categoriess log created");
-		} else {
-			return "Failed to populate sphinx log from categories";
-		}
-
 		if(in_array('generateClients', $this->runOnce))
 		{
 			Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
@@ -277,23 +233,6 @@ class Installer
 
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";
-
-		Logger::logMessage(Logger::LEVEL_USER, "Deploying uiconfs in order to configure the application");
-		if(isset($this->installConfig['all']['uiconfs_2']) && is_array($this->installConfig['all']['uiconfs_2']))
-		{
-			foreach($this->installConfig['all']['uiconfs_2'] as $uiconfapp)
-			{
-				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
-				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
-				{
-					Logger::logMessage(Logger::LEVEL_INFO, "Deployed uiconf $to_deploy");
-				}
-				else
-				{
-					return "Failed to deploy uiconf $to_deploy";
-				}
-			}
-		}
 
 		if(in_array('restartApache', $this->runOnce))
 		{
@@ -542,7 +481,7 @@ class Installer
 	private function extractKCWUiconfIds ()
 	{
 		$uiconfIds = array();
-		$log = file_get_contents(AppConfig::get(AppConfigAttribute::LOG_DIR) . "/instlBkgrndRun.log");
+		$log = file_get_contents(OsUtils::getLogPath());
 		preg_match_all('/creating uiconf \[\d+\] for widget \w+ with default values \( \/flash\/kcw/', $log, $matches);
 		foreach ($matches[0] as $match)
 		{
