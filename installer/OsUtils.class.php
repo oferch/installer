@@ -98,6 +98,9 @@ class OsUtils {
 			}
 			else
 			{
+				if(preg_match('/[=&;]/', $value))
+					$value = "\"$value\"";
+
 				$data .= "$key=$value" . PHP_EOL;
 			}
 		}
@@ -108,7 +111,12 @@ class OsUtils {
 			$data .= "[$section]" . PHP_EOL;
 
 			foreach ($sectionsConfig as $key => $value)
+			{
+				if(preg_match('/[=&;]/', $value))
+					$value = "\"$value\"";
+
 				$data .= "$key=$value" . PHP_EOL;
+			}
 		}
 		return file_put_contents($filename, $data);
 	}
