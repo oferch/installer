@@ -151,7 +151,9 @@ if (isset($leftovers)) {
 $install_output = $installer->install($packageDir);
 if ($install_output !== null)
 {
-	$description = "Installation failed.\n" . $install_output;
+	$description = "Installation failed.";
+	Logger::logMessage(Logger::LEVEL_USER, $install_output);
+
 	if ($report)
 		$report->reportInstallationFailed($description);
 
