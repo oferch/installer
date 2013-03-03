@@ -111,7 +111,7 @@ class OsUtils {
 			else
 			{
 				if(preg_match('/[=&;]/', $value))
-					$value = "\"$value\"";
+					$value = '"' . trim($value, '"') . '"';
 
 				$data .= "$key=$value" . PHP_EOL;
 			}
@@ -125,7 +125,7 @@ class OsUtils {
 			foreach ($sectionsConfig as $key => $value)
 			{
 				if(preg_match('/[=&;]/', $value))
-					$value = "\"$value\"";
+					$value = '"' . trim($value, '"') . '"';
 
 				$data .= "$key=$value" . PHP_EOL;
 			}
