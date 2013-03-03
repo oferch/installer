@@ -206,9 +206,6 @@ class AppConfig
 	 */
 	public static function configure($silentRun = false, $enableMultipleServers = false)
 	{
-		if(OsUtils::getOsName() == OsUtils::LINUX_OS)
-			system('clear');
-
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 
 		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))

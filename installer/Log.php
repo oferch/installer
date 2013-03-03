@@ -41,6 +41,7 @@ class Logger
 	 */
 	public static function init($filename)
 	{
+		OsUtils::clearScreen();
 		self::$logFile = fopen($filename, 'a');
 	}
 

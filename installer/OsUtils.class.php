@@ -44,6 +44,18 @@ class OsUtils {
 		}
 	}
 
+	public static function clearScreen()
+	{
+		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+		{
+			echo str_repeat("\n", 1000);
+		}
+		else
+		{
+			system('clear');
+		}
+	}
+
 	// returns the OS name or empty string if not recognized
 	public static function getOsName() {
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
