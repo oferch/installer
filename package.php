@@ -81,14 +81,14 @@ $attributes = array(
 	'xml.uri' => $xmlUri,
 );
 
-Logger::logMessage(Logger::LEVEL_USER, "Packaging...", false);
+Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Packaging...", false);
 if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 {
-	Logger::logMessage(Logger::LEVEL_USER, " failed.", true, 3);
+	Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, " failed.", true, 3);
 	exit(-1);
 }
 
-Logger::logMessage(Logger::LEVEL_USER, " successfully finished", true, 3);
+Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " successfully finished", true, 3);
 if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y'))
 {
 	Logger::logMessage(Logger::LEVEL_USER, "Deleting temporary directory ($tempDir)...", false);
@@ -96,5 +96,5 @@ if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the pac
 	Logger::logMessage(Logger::LEVEL_USER, " - done", true, 3);
 }
 
-Logger::logMessage(Logger::LEVEL_USER, "Package available at $tempDir.tgz");
+Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Package available at $tempDir.tgz");
 exit(0);
