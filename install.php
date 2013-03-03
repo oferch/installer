@@ -35,7 +35,8 @@ if(isset($options['h']))
 
 // start the log
 Logger::init(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log');
-Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_INFO, "Installation started");
+Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installation started");
+OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
 
@@ -44,8 +45,6 @@ if($packageDir)
 	AppConfig::init($packageDir);
 
 AppConfig::configure($silentRun);
-
-OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 if(isset($options['p']))
 {
@@ -64,7 +63,7 @@ if(isset($options['p']))
 	Logger::logMessage(Logger::LEVEL_USER, "Downloading Kaltura server...", false);
 	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $attributes))
 	{
-		Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, " failed.", true, 3);
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
 		exit(-1);
 	}
 	Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " - done.", true, 3);
@@ -77,7 +76,7 @@ if(isset($options['C']))
 else
 	$components = AppConfig::getCurrentMachineComponents();
 
-Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_INFO, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
+Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
 if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
 	Logger::logMessage(Logger::LEVEL_USER, "Thank you for installing Kaltura Video Platform - Community Edition");
 } else {
@@ -119,7 +118,7 @@ if (count($prerequisites))
 	if ($report)
 		$report->reportInstallationFailed("One or more prerequisites required to install Kaltura failed:\n" . implode("\n", $prerequisites));
 
-	Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "One or more prerequisites required to install Kaltura failed:");
+	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "One or more prerequisites required to install Kaltura failed:");
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, implode("\n", $prerequisites));
 
 	if(AppConfig::getInput(null, "Please resolve the issues and run the installation again. If you want to install Kaltura server anyway and resolve all issues later, enter 'install'.") != 'install')
@@ -135,6 +134,7 @@ $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
 	if (AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
+		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
 		$installer->detectLeftovers(false);
 	} else {
 
@@ -148,11 +148,12 @@ if (isset($leftovers)) {
 }
 
 // run the installation
+Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Kaltura Server");
 $install_output = $installer->install($packageDir);
 if ($install_output !== null)
 {
 	$description = "Installation failed.";
-	Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, $install_output);
+	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, $install_output);
 
 	if ($report)
 		$report->reportInstallationFailed($description);

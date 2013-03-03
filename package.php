@@ -85,7 +85,7 @@ $attributes = array(
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Packaging...", false);
 if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 {
-	Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, " failed.", true, 3);
+	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
 	exit(-1);
 }
 
