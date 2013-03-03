@@ -53,10 +53,10 @@ ini_set('max_input_time ', 0);
 date_default_timezone_set(@date_default_timezone_get());
 
 // start the log
-Logger::init(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.log');
+Logger::init(__DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log');
 
 AppConfig::init(__DIR__);
-OsUtils::setLogPath(__DIR__ . '/package.' . date("d.m.Y_H.i.s") . '.details.log');
+OsUtils::setLogPath(__DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
 $configure = false;
@@ -72,6 +72,7 @@ $directoryConstructorDir = __DIR__ . '/directoryConstructor';
 $xmlUri = "$directoryConstructorDir/directories." . AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) . '.xml';
 $xmlUri = str_replace('\\', '/', $xmlUri);
 $tempDir = $baseDir . "/$packageName";
+$tempDir = str_replace('//', '/', $tempDir);
 
 $attributes = array(
 	'package.dir' => $baseDir,

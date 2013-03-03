@@ -34,7 +34,7 @@ if(isset($options['h']))
 }
 
 // start the log
-Logger::init(__DIR__ . '/install.' . date("d.m.Y_H.i.s") . '.log');
+Logger::init(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log');
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_INFO, "Installation started");
 
 $silentRun = isset($options['s']);
@@ -45,7 +45,7 @@ if($packageDir)
 
 AppConfig::configure($silentRun);
 
-OsUtils::setLogPath(__DIR__ . '/install.' . date("d.m.Y_H.i.s") . '.details.log');
+OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 if(isset($options['p']))
 {
@@ -116,14 +116,14 @@ $prerequisites = $validator->validate();
 
 if (count($prerequisites))
 {
-	$description = "One or more prerequisites required to install Kaltura failed:\n" . implode("\n", $prerequisites);
-
 	if ($report)
-		$report->reportInstallationFailed($description);
+		$report->reportInstallationFailed("One or more prerequisites required to install Kaltura failed:\n" . implode("\n", $prerequisites));
 
-	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, $description);
-	Logger::logMessage(Logger::LEVEL_USER, "Please resolve the issues and run the installation again.");
-	exit(-1);
+	Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "One or more prerequisites required to install Kaltura failed:");
+	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, implode("\n", $prerequisites));
+
+	if(AppConfig::getInput(null, "Please resolve the issues and run the installation again. If you want to install Kaltura server anyway and resolve all issues later, enter 'install'.") != 'install')
+		exit(-1);
 }
 
 // verify that there are no leftovers from previous installations
