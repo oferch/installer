@@ -14,6 +14,11 @@ class OsUtils {
 		self::$log = $path;
 	}
 
+	public static function getLogPath()
+	{
+		return self::$log;
+	}
+
 	// returns true if the user is root, false otherwise
 	public static function verifyRootUser() {
 		exec('id -u', $output, $result);
