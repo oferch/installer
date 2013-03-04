@@ -476,6 +476,7 @@ class AppConfig
 			$serversCount++;
 			$message = "Please enter the host name of your $number server";
 			$hostname = self::getInput(null, $message, "Host name is invalid, please enter again", InputValidator::createHostValidator());
+			$hostConfig = array();
 
 			Logger::logMessage(Logger::LEVEL_USER, "Available components:");
 			$componentsNumbers = array();
@@ -501,6 +502,9 @@ class AppConfig
 
 				if($component == 'db')
 				{
+					if(!isset($definedComponents[$component]))
+						$hostConfig[AppConfigAttribute::DB1_CREATE_NEW_DB] = true;
+
 					$dbAvailableServers = array();
 					if(!isset(self::$config[AppConfigAttribute::DB1_HOST]))
 						$dbAvailableServers[1] = 'Master (read and write)';
@@ -580,9 +584,8 @@ class AppConfig
 				$definedComponents[$component] = true;
 			}
 
-			self::$config[$hostname] = array(
-				'components' => implode(',', $selectedComponents),
-			);
+			$hostConfig['components'] = implode(',', $selectedComponents);
+			self::$config[$hostname] = $hostConfig;
 
 			$notDefined = array();
 			foreach($availableComponents as $component => $title)
@@ -608,11 +611,20 @@ class AppConfig
 
 	public static function getCurrentMachineComponents()
 	{
-		$hostname = self::getHostname();
-		if(isset(self::$config[$hostname]) && isset(self::$config[$hostname]['components']))
-			return explode(',', self::$config[$hostname]['components']);
+		$config = self::getCurrentMachineConfig();
+		if($config && isset($config['components']))
+			return explode(',', $config['components']);
 
 		return '*';
+	}
+
+	public static function getCurrentMachineConfig()
+	{
+		$hostname = self::getHostname();
+		if(isset(self::$config[$hostname]))
+			return self::$config[$hostname];
+
+		return null;
 	}
 
 	public static function getServerConfig($field, $section = null)
@@ -772,22 +784,6 @@ class AppConfig
 		Logger::logMessage(Logger::LEVEL_INFO, "Generating secret");
 		$secret = md5(self::makeRandomString(5, 10, true, false, true));
 		return $secret;
-	}
-
-	// puts a Kaltura CE activation key
-	public static function simMafteach()
-	{
-		$admin_email = self::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
-		$kConfLocalFile = self::get(AppConfigAttribute::APP_DIR) . KCONF_LOCAL_LOCATION;
-		Logger::logMessage(Logger::LEVEL_INFO, "Setting application key");
-		$token = md5(uniqid(rand(), true));
-		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
-		$key = base64_encode($str);
-		$data = @file_get_contents($kConfLocalFile);
-		$key_line = '/kaltura_activation_key(\s)*=(\s)*(.+)/';
-		$replacement = 'kaltura_activation_key = "' . $key . '"';
-		$data = preg_replace($key_line, $replacement, $data);
-		@file_put_contents($kConfLocalFile, $data);
 	}
 
 	// checks if the given file is a template file and if so copies it to a non template file

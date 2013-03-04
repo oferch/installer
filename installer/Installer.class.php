@@ -143,14 +143,56 @@ class Installer
 		return $leftovers;
 	}
 
-	private function restartApache()
+	private function restartApache($now = false)
 	{
+		if($now)
+		{
+			if(in_array('generateClients', $this->runOnce))
+			{
+				Logger::logMessage(Logger::LEVEL_USER, "Restarting apache http server");
+				return OsUtils::execute(AppConfig::get(AppConfigAttribute::APACHE_RESTART_COMMAND));
+			}
+			return true;
+		}
+
 		$this->runOnce[] = 'restartApache';
+		return true;
 	}
 
-	private function generateClients()
+	private function generateClients($now = false)
 	{
+		if($now)
+		{
+			if(in_array('generateClients', $this->runOnce))
+			{
+				Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
+				return OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)));
+			}
+			return true;
+		}
+
 		$this->runOnce[] = 'generateClients';
+		return true;
+	}
+
+
+	// puts a Kaltura CE activation key
+	public static function simMafteach()
+	{
+		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) != AppConfig::K_CE_TYPE)
+			return;
+
+		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
+		$kConfLocalFile = AppConfig::get(AppConfigAttribute::APP_DIR) . KCONF_LOCAL_LOCATION;
+		Logger::logMessage(Logger::LEVEL_INFO, "Setting application key");
+		$token = md5(uniqid(rand(), true));
+		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
+		$key = base64_encode($str);
+		$data = @file_get_contents($kConfLocalFile);
+		$key_line = '/kaltura_activation_key(\s)*=(\s)*(.+)/';
+		$replacement = 'kaltura_activation_key = "' . $key . '"';
+		$data = preg_replace($key_line, $replacement, $data);
+		@file_put_contents($kConfLocalFile, $data);
 	}
 
 	/**
@@ -167,14 +209,32 @@ class Installer
 
 		Logger::logMessage(Logger::LEVEL_USER, sprintf("Current working dir is %s", getcwd()));
 		Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
-		if ($packageDir && !OsUtils::rsync("$packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
-			return "Failed to copy application files to target directory";
-
-		if ($packageDir && AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+		if ($packageDir)
 		{
-			Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
-			if (!OsUtils::rsync("$packageDir/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
-				return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
+			if (!OsUtils::rsync("$packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
+				return "Failed to copy application files to target directory";
+
+			$copyWebContnet = false;
+			if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+			{
+				if(in_array('db', $this->components))
+				{
+					$config = AppConfig::getCurrentMachineConfig();
+					if($config && $config[AppConfigAttribute::DB1_CREATE_NEW_DB])
+						$copyWebContnet = true;
+				}
+			}
+			elseif(AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+			{
+				$copyWebContnet = true;
+			}
+
+			if ($copyWebContnet)
+			{
+				Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying web content files to %s", AppConfig::get(AppConfigAttribute::WEB_DIR)));
+				if (!OsUtils::rsync("$packageDir/web/content", AppConfig::get(AppConfigAttribute::WEB_DIR)))
+					return "Failed to copy default content into ". AppConfig::get(AppConfigAttribute::WEB_DIR);
+			}
 		}
 
 		Logger::logMessage(Logger::LEVEL_USER, "Creating the uninstaller");
@@ -199,9 +259,7 @@ class Installer
 		foreach($this->components as $component)
 			$this->installComponentSymlinks($component);
 
-		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
-			AppConfig::simMafteach();
-		}
+		self::simMafteach();
 
 		foreach($this->components as $component)
 			$this->installComponent($component);
@@ -216,31 +274,17 @@ class Installer
 		if(!$this->createInitialContent())
 			return "Failed to create initial content";
 
-		Logger::logMessage(Logger::LEVEL_USER, "Create query cache triggers");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-			Logger::logMessage(Logger::LEVEL_INFO, "sphinx Query Cache Triggers created");
-		} else {
+		if(!$this->createDynamicEnums())
 			return "Failed to create QueryCacheTriggers";
-		}
 
-		if(in_array('generateClients', $this->runOnce))
-		{
-			Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
-			if (!OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				return "Failed generating client libraries";
-			}
-		}
+		if(!$this->generateClients(true))
+			return "Failed generating client libraries";
 
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";
 
-		if(in_array('restartApache', $this->runOnce))
-		{
-			Logger::logMessage(Logger::LEVEL_USER, "Restarting apache http server");
-			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::APACHE_RESTART_COMMAND))) {
-				return "Failed restarting apache http server";
-			}
-		}
+		if(!$this->restartApache(true))
+			return "Failed restarting apache http server";
 
 		foreach($this->components as $component)
 			$this->installComponentServices($component);
@@ -465,8 +509,17 @@ class Installer
 		return true;
 	}
 
+	private function createDynamicEnums ()
+	{
+		Logger::logMessage(Logger::LEVEL_USER, "Create query cache triggers");
+		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
+	}
+
 	private function createInitialContent ()
 	{
+		if(!in_array('api', $this->components))
+			return true;
+
 		Logger::logMessage(Logger::LEVEL_USER, "Creating databases initial content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php %s/deployment/base/scripts/init_data", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
@@ -488,6 +541,9 @@ class Installer
 
 	private function createTemplateContent ()
 	{
+		if(!in_array('api', $this->components))
+			return true;
+
 		Logger::logMessage(Logger::LEVEL_USER, "Creating partner template content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertContent.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
