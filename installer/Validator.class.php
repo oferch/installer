@@ -155,7 +155,19 @@ class Validator
 
 	private function validateApache()
 	{
-		// check apache modules
+		$requiredModules = array();
+		foreach($this->components as $component)
+		{
+			if(! isset($this->install_config[$component]["apache_modules"]) || ! is_array($this->install_config[$component]["apache_modules"]))
+				continue;
+
+			foreach($this->install_config[$component]["apache_modules"] as $module)
+				$requiredModules[$module] = true;
+		}
+
+		if(!count($requiredModules))
+			return;
+
 		$httpdBin = AppConfig::get(AppConfigAttribute::HTTPD_BIN);
 		exec("$httpdBin -M 2>/dev/null", $currentModules, $exitCode);
 		if($exitCode !== 0)
@@ -165,26 +177,20 @@ class Validator
 		}
 		array_walk($currentModules, create_function('&$str', '$str = trim($str);'));
 
-		foreach($this->components as $component)
+		foreach($requiredModules as $module => $true)
 		{
-			if(! isset($this->install_config[$component]["apache_modules"]) || ! is_array($this->install_config[$component]["apache_modules"]))
-				continue;
-
-			foreach($this->install_config[$component]["apache_modules"] as $module)
+			$found = false;
+			foreach($currentModules as $currentModule)
 			{
-				$found = false;
-				foreach($currentModules as $currentModule)
+				if(strpos($currentModule, $module) === 0)
 				{
-					if(strpos($currentModule, $module) === 0)
-					{
-						$found = true;
-						break;
-					}
+					$found = true;
+					break;
 				}
-
-				if(! $found)
-					$this->prerequisites[] = "Missing $module Apache module";
 			}
+
+			if(! $found)
+				$this->prerequisites[] = "Missing $module Apache module";
 		}
 	}
 
