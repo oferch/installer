@@ -83,60 +83,67 @@ class Installer
 	public function detectLeftovers($report_only) {
 		$leftovers = null;
 
-		// symbloic links leftovers
 		foreach($this->installConfig as $component => $config)
 		{
-			if(isset($config['symlinks']) && is_array($config['symlinks']))
+			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
+				continue;
+
+			foreach ($config['symlinks'] as $slink)
 			{
-				foreach ($config['symlinks'] as $slink)
+				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
+				if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false))
 				{
-					list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
-					if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false))
+					if ($report_only)
 					{
-						if ($report_only)
-						{
-							$leftovers .= "   ".$link." symbolic link exists".PHP_EOL;
-						}
-						else
-						{
-							Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic link $link");
-							OsUtils::recursiveDelete($link);
-						}
+						$leftovers .= "   ".$link." symbolic link exists".PHP_EOL;
+					}
+					else
+					{
+						Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic link $link");
+						OsUtils::recursiveDelete($link);
 					}
 				}
 			}
+		}
 
-			if(isset($config['databases']) && is_array($config['databases']))
+		foreach($this->installConfig as $component => $config)
+		{
+			if(!isset($config['databases']) || !is_array($config['databases']))
+				continue;
+
+			$verify = $this->detectDatabases($config['databases']);
+			if (!isset($verify))
+				continue;
+
+			if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+				continue;
+
+			if ($report_only)
 			{
-				// database leftovers
-				$verify = $this->detectDatabases($config['databases']);
-				if (isset($verify)) {
-					if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
-					{
-						//do nothing
-					}
-					else if ($report_only) {
-						$leftovers .= $verify;
-					}
-					else {
-						$this->detectDatabases($config['databases'], true);
-					}
-				}
+				$leftovers .= $verify;
 			}
+			else {
+				$this->detectDatabases($config['databases'], true);
+			}
+		}
 
-			// application leftovers
-			if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2)) {
-				if ($report_only) {
-					$leftovers .= "   Target directory ".AppConfig::get(AppConfigAttribute::BASE_DIR)." already exists".PHP_EOL;
-				} else {
-
+		if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
+		{
+			if ($report_only)
+			{
+				$leftovers .= "   Target directory ".AppConfig::get(AppConfigAttribute::BASE_DIR)." already exists".PHP_EOL;
+			}
+			else
+			{
+				foreach($this->installConfig as $component => $config)
+				{
 					if(isset($config['chkconfig']) && is_array($config['chkconfig']))
 						foreach ($config['chkconfig'] as $service)
 							OsUtils::stopService($service);
-
-					Logger::logMessage(Logger::LEVEL_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
-					OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));
 				}
+
+				Logger::logMessage(Logger::LEVEL_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
+				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));
 			}
 		}
 
