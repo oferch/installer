@@ -406,20 +406,41 @@ class Installer
 	// can be used both for verification and for dropping the databases
 	// $should_drop - whether to drop the databases that are found or not (default - false)
 	// returns null if no leftovers are found or a text containing all the leftovers found
-	private function detectDatabases(array $databases, $should_drop=false) {
+	private function detectDatabases(array $databases, $should_drop=false)
+	{
+		$hosts = array(
+			AppConfigAttribute::DB1_HOST => AppConfigAttribute::DB1_PORT,
+			AppConfigAttribute::DB2_HOST => AppConfigAttribute::DB2_PORT,
+			AppConfigAttribute::DB3_HOST => AppConfigAttribute::DB3_PORT,
+			AppConfigAttribute::DWH_HOST => AppConfigAttribute::DWH_PORT,
+			AppConfigAttribute::SPHINX_DB_HOST => AppConfigAttribute::SPHINX_DB_PORT,
+		);
 
 		$verify = null;
-		foreach ($databases as $db) {
-			$result = DatabaseUtils::dbExists($db);
+		foreach ($hosts as $hostAttribute => $portAttribute)
+		{
+			$host = AppConfig::get($hostAttribute);
+			$port = AppConfig::get($portAttribute);
 
-			if ($result === -1) {
-				$verify .= "   Cannot verify if '$db' database exists".PHP_EOL;
-			} else if ($result === true) {
-				if (!$should_drop) {
-					$verify .= "   '$db' database already exists ".PHP_EOL;
-				} else {
-					Logger::logMessage(Logger::LEVEL_USER, "Dropping '$db' database");
-					DatabaseUtils::dropDb($db);
+			foreach ($databases as $db)
+			{
+				$result = DatabaseUtils::dbExists($host, $port, $db);
+
+				if ($result === -1)
+				{
+					$verify .= "   Cannot verify if '$db' database exists on host '$host' with port $port".PHP_EOL;
+				}
+				else if ($result === true)
+				{
+					if (!$should_drop)
+					{
+						$verify .= "   '$db' database already exists on host '$host' with port $port".PHP_EOL;
+					}
+					else
+					{
+						Logger::logMessage(Logger::LEVEL_USER, "Dropping '$db' database on host '$host' with port $port");
+						DatabaseUtils::dropDb($host, $port, $db);
+					}
 				}
 			}
 		}

@@ -98,37 +98,58 @@ class Validator
 			return;
 		}
 
-		if(! DatabaseUtils::connect($link))
-		{
-			$this->prerequisites[] = "Failed to connect to database " . AppConfig::get(AppConfigAttribute::DB1_HOST) . ":" . AppConfig::get(AppConfigAttribute::DB1_PORT) . " user:" . AppConfig::get(AppConfigAttribute::DB_ROOT_USER) . ". Please check the database settings you provided and verify that MySQL is up and running.";
-			return;
-		}
+		$hosts = array(
+			AppConfigAttribute::DB1_HOST => AppConfigAttribute::DB1_PORT,
+			AppConfigAttribute::DB2_HOST => AppConfigAttribute::DB2_PORT,
+			AppConfigAttribute::DB3_HOST => AppConfigAttribute::DB3_PORT,
+			AppConfigAttribute::DWH_HOST => AppConfigAttribute::DWH_PORT,
+			AppConfigAttribute::SPHINX_DB_HOST => AppConfigAttribute::SPHINX_DB_PORT,
+		);
 
-		// check mysql version and settings
-		$mysql_version = $this->getMysqlSetting($link, 'version'); // will always return the value
-		if(! $this->checkVersion($mysql_version, $this->install_config['db']["mysql_min_version"]))
+		$checkedConnections = array();
+		foreach ($hosts as $hostAttribute => $portAttribute)
 		{
-			$this->prerequisites[] = "MySQL version should be >= " . $this->install_config['db']["mysql_min_version"] . " (current version is $mysql_version)";
-		}
+			$host = AppConfig::get($hostAttribute);
+			$port = AppConfig::get($portAttribute);
 
-		$lower_case_table_names = $this->getMysqlSetting($link, 'lower_case_table_names');
-		if(! isset($lower_case_table_names))
-		{
-			$this->prerequisites[] = "Please set\n'lower_case_table_names = " . $this->install_config['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL";
-		}
-		else if(intval($lower_case_table_names) != intval($this->install_config['db']["lower_case_table_names"]))
-		{
-			$this->prerequisites[] = "Please set\n'lower_case_table_names = " . $this->install_config['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL (current value is $lower_case_table_names)";
-		}
+			if(isset($checkedConnections["$host:$port"]))
+				continue;
 
-		$thread_stack = $this->getMysqlSetting($link, 'thread_stack');
-		if(! isset($thread_stack))
-		{
-			$this->prerequisites[] = "Please set 'thread_stack >= " . $this->install_config['db']["thread_stack"] . "' in my.cnf and restart MySQL";
-		}
-		else if(intval($thread_stack) < intval($this->install_config['db']["thread_stack"]))
-		{
-			$this->prerequisites[] = "Please set 'thread_stack >= " . $this->install_config['db']["thread_stack"] . "' in my.cnf and restart MySQL (current value is $thread_stack)";
+			$checkedConnections["$host:$port"] = true;
+
+			$link = DatabaseUtils::connect($host, $port);
+			if(!$link)
+			{
+				$this->prerequisites[] = "Failed to connect to database host $host:$port user:" . AppConfig::get(AppConfigAttribute::DB_ROOT_USER) . ". Please check the database settings you provided and verify that MySQL is up and running.";
+				continue;
+			}
+
+			// check mysql version and settings
+			$mysql_version = $this->getMysqlSetting($link, 'version'); // will always return the value
+			if(! $this->checkVersion($mysql_version, $this->install_config['db']["mysql_min_version"]))
+			{
+				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->install_config['db']["mysql_min_version"] . " (current version is $mysql_version)";
+			}
+
+			$lower_case_table_names = $this->getMysqlSetting($link, 'lower_case_table_names');
+			if(! isset($lower_case_table_names))
+			{
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->install_config['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL";
+			}
+			else if(intval($lower_case_table_names) != intval($this->install_config['db']["lower_case_table_names"]))
+			{
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->install_config['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL (current value is $lower_case_table_names)";
+			}
+
+			$thread_stack = $this->getMysqlSetting($link, 'thread_stack');
+			if(! isset($thread_stack))
+			{
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->install_config['db']["thread_stack"] . "' in my.cnf and restart MySQL";
+			}
+			else if(intval($thread_stack) < intval($this->install_config['db']["thread_stack"]))
+			{
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->install_config['db']["thread_stack"] . "' in my.cnf and restart MySQL (current value is $thread_stack)";
+			}
 		}
 	}
 

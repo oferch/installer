@@ -7,11 +7,10 @@ class DatabaseUtils
 {
 	/**
 	 * Connect to mySQL database
-	 * @param mysqli $link mysqli link
 	 * @param string $db_name database name
 	 * @return true on success, false otherwise
 	 */
-	public static function connect(&$link, $db_name = null)
+	public static function connect($host, $port, $db_name = null)
 	{
 		// set mysqli to connect via tcp
 		$password = trim(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS));
@@ -20,12 +19,12 @@ class DatabaseUtils
 		}
 		$link = @mysqli_init();
 		/* @var $link mysqli */
-		$result = @mysqli_real_connect($link, AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $password, $db_name, AppConfig::get(AppConfigAttribute::DB1_PORT));
+		$result = @mysqli_real_connect($link, $host, AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $password, $db_name, $port);
 		if (!$result) {
-			Logger::logMessage(Logger::LEVEL_ERROR, sprintf("Cannot connect to db: %s, %s, %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $link->error));
+			Logger::logMessage(Logger::LEVEL_ERROR, sprintf("Cannot connect to db: $host, %s, %s", AppConfig::get(AppConfigAttribute::DB_ROOT_USER), $link->error));
 			return false;
 		}
-		return true;
+		return $link;
 	}
 
 	/**
@@ -35,12 +34,13 @@ class DatabaseUtils
 	 * @param mysqli $link mysqli link
 	 * @return true on success, false otherwise
 	 */
-	public static function executeQuery($query, $db_name = null, $link = null)
+	public static function executeQuery($query, $host, $port, $db_name = null, $link = null)
 	{
 		// connect if not yet connected
-		if (!$link && !self::connect($link, $db_name)) {
+		if (!$link)
+			$link = self::connect($host, $port, $db_name);
+		if (!$link)
 			return false;
-		}
 
 		// use desired database
 		else if ($db_name && !mysqli_select_db($link, $db_name)) {
@@ -68,11 +68,11 @@ class DatabaseUtils
 	 * @param string $db_name database name
 	 * @return true on success, false otherwise
 	 */
-	public static function createDb($db_name)
+	public static function createDb($host, $port, $db_name)
 	{
 		Logger::logMessage(Logger::LEVEL_INFO, "Creating database $db_name");
 		$create_db_query = "CREATE DATABASE $db_name;";
-		return self::executeQuery($create_db_query);
+		return self::executeQuery($host, $port, $create_db_query);
 	}
 
 	/**
@@ -80,11 +80,11 @@ class DatabaseUtils
 	 * @param string $db_name database name
 	 * @return true on success, false otherwise
 	 */
-	public static function dropDb($db_name)
+	public static function dropDb($host, $port, $db_name)
 	{
 		Logger::logMessage(Logger::LEVEL_INFO, "Dropping database $db_name");
 		$drop_db_query = "DROP DATABASE $db_name;";
-		return self::executeQuery($drop_db_query);
+		return self::executeQuery($host, $port, $drop_db_query);
 	}
 
 	/**
@@ -92,10 +92,11 @@ class DatabaseUtils
 	 * @param string $db_name database name
 	 * @return true/false according to existence
 	 */
-	public static function dbExists($db_name)
+	public static function dbExists($host, $port, $db_name)
 	{
-		$link = null;
-		if (!self::connect($link)) {
+		$link = self::connect($host, $port);
+		if (!$link)
+		{
 			Logger::logMessage(Logger::LEVEL_ERROR, "Could not database $db_name: could not connect to host");
 			return -1;
 		}
