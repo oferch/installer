@@ -234,9 +234,9 @@ class OsUtils {
 		foreach ($file_name as $file) {
 
 			if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
-				$which_path = OsUtils::executeReturnOutput("dir /s /b $file 2>&1");
+				$which_path = OsUtils::executeReturnOutput("dir /s /b $file");
 			else
-				$which_path = OsUtils::executeReturnOutput("which $file 2>&1");
+				$which_path = OsUtils::executeReturnOutput("which $file");
 
 			if (isset($which_path[0]) && (trim($which_path[0]) != '') && (substr($which_path[0],0,1) == "/")) {
 				return $which_path[0];
@@ -249,7 +249,7 @@ class OsUtils {
 	// execute the given $cmd, returning the output
 	public static function executeReturnOutput($cmd) {
 		// 2>&1 is needed so the output will not display on the screen
-		exec($cmd . ' 2>&1', $output, $ret);
+		exec($cmd . ' 2>/dev/null', $output, $ret);
 		if($ret !== 0)
 			return null;
 

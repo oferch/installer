@@ -2,7 +2,7 @@
 
 define('YESNO_REGEX', '/^(y|yes|n|no)$/i');
 
-$dbs_to_drop = array ( 
+$dbs_to_drop = array (
 	'kaltura',
 	'kalturadw',
 	'kalturadw_ds',
@@ -10,14 +10,14 @@ $dbs_to_drop = array (
 	'kalturalog',
 	'kaltura_sphinx_log'
 );
-	
+
 // returns true or false according to the user input, if empty return $default
 function getTrueFalse($default) {
 	$inputOk = false;
 	while (!$inputOk) {
 		echo '> ';
 		$input = trim(fgets(STDIN));
-		
+
 		if (empty($input)) {
 			return $default;
 		} else if (preg_match(YESNO_REGEX, $input) === 1) {
@@ -26,15 +26,15 @@ function getTrueFalse($default) {
 			echo "Input invalid, must be y/n/yes/no".PHP_EOL;
 		}
 	}
-	return ((strcasecmp('y',$input) === 0) || (strcasecmp('yes',$input) === 0));	
+	return ((strcasecmp('y',$input) === 0) || (strcasecmp('yes',$input) === 0));
 }
 
 // execute a shell command and returns, returns true if succeeds, false otherwise
 function execute($command) {
-	@exec($command . ' 2>&1', $output, $return_var);
+	@exec($command . ' 2>/dev/null', $output, $return_var);
 	return ($return_var === 0);
 }
-	
+
 // connect to a db, returns true if succeeds, false otherwise
 function connect(&$link, $host, $user, $pass, $db, $port) {
 	// set mysqli to connect via tcp
@@ -42,9 +42,9 @@ function connect(&$link, $host, $user, $pass, $db, $port) {
 		$host = '127.0.0.1';
 	}
 	if (trim($pass) == '') $pass = null;
-	
+
 	$link = @mysqli_init();
-	$result = @mysqli_real_connect($link, $host, $user, $pass, $db, $port);	
+	$result = @mysqli_real_connect($link, $host, $user, $pass, $db, $port);
 	if (!$result) {
 		return false;
 	}
@@ -56,8 +56,8 @@ function executeQuery($query, $host, $user, $pass, $db, $port, $link = null) {
 	if (!$link && !connect($link, $host, $user, $pass, $db, $port)) return false;
 	else if (isset($db) && !mysqli_select_db($link, $db)) return false;
 
-	if (!mysqli_multi_query($link, $query) || $link->error != '') return false;		
-	
+	if (!mysqli_multi_query($link, $query) || $link->error != '') return false;
+
 	while (mysqli_more_results($link) && mysqli_next_result($link)) {
 		$discard = mysqli_store_result($link);
 	}
@@ -89,7 +89,7 @@ function deleteTextFromFile($filePath, $text){
 	}
 	file_put_contents($filePath,$data);
 }
-	
+
 $silentRun = false;
 if($argc > 1 && $argv[1] == '-s') $silentRun = true;
 $config = parse_ini_file(dirname(__FILE__)."/uninstall.ini");
@@ -128,7 +128,7 @@ if(is_array($config['chkconfig']))
 		{
 			echo 'OK'.PHP_EOL;
 		}
-		else 
+		else
 		{
 			echo 'Failed'.PHP_EOL;
 			$success = false;
@@ -183,7 +183,7 @@ if (!execute("rm -f /etc/init.d/red5"))
 if (!execute("rm -f /etc/httpd/conf.d/kaltura.conf"))
 	echo "Failed to delete kaltura.conf symlink from /etc/httpd/conf.d";
 
-	
+
 if ($success) echo 'Uninstall finished successfully'.PHP_EOL;
 else echo 'Some of the uninstall steps failed, please complete the process manually'.PHP_EOL;
 echo 'Please maually remove Kaltura-related symbolic links in /etc/httpd/conf.d'.PHP_EOL;

@@ -136,7 +136,7 @@ class Validator
 	{
 		// check apache modules
 		$httpdBin = AppConfig::get(AppConfigAttribute::HTTPD_BIN);
-		exec("$httpdBin -M 2>&1", $currentModules, $exitCode);
+		exec("$httpdBin -M 2>/dev/null", $currentModules, $exitCode);
 		if($exitCode !== 0)
 		{
 			$this->prerequisites[] = "Cannot check apache modules, please make sure that '$httpdBin -t' command runs properly";

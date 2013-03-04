@@ -120,7 +120,7 @@ class DatabaseUtils
 			$cmd = sprintf("mysql -h%s -u%s -p%s -P%s %s < %s", AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DB_ROOT_PASS), AppConfig::get(AppConfigAttribute::DB1_PORT), $db_name, $file);
 		}
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing $cmd");
-		@exec($cmd . ' 2>&1', $output, $return_var);
+		@exec($cmd . ' 2>/dev/null', $output, $return_var);
 		if ($return_var === 0) {
 			return true;
 		} else {
