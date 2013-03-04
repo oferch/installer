@@ -468,6 +468,7 @@ class Installer
 		);
 
 		$verify = null;
+		$checkedDatabases = array();
 		foreach ($hosts as $hostAttribute => $portAttribute)
 		{
 			$host = AppConfig::get($hostAttribute);
@@ -475,6 +476,11 @@ class Installer
 
 			foreach ($databases as $db)
 			{
+				if(isset($checkedDatabases["$host:$port:$db"]))
+					continue;
+
+				$checkedDatabases["$host:$port:$db"] = true;
+
 				$result = DatabaseUtils::dbExists($host, $port, $db);
 
 				if ($result === -1)
