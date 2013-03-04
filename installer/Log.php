@@ -58,7 +58,7 @@ class Logger
 		if(OsUtils::getOsName() != OsUtils::WINDOWS_OS)
 		{
 			if (self::$logPrintLevel >= $level && $returnChars)
-				echo str_repeat(chr(8), $returnChars + 4);
+				echo str_repeat(chr(8), $returnChars);
 
 			$returnChars = 0;
 			echo "\033[{$color}m";
