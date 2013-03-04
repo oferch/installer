@@ -365,7 +365,7 @@ class Installer
 			return true;
 
 		$componentConfig = $this->installConfig[$component];
-		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component]");
+		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component] symbolic links");
 
 		$createSymlinks = $this->createSymlinks($componentConfig['symlinks']);
 		if($createSymlinks !== true)
