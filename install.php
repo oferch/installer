@@ -35,6 +35,8 @@ if(isset($options['h']))
 
 // start the log
 Logger::init(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log');
+
+echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installation started");
 OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
@@ -76,6 +78,7 @@ if(isset($options['C']))
 else
 	$components = AppConfig::getCurrentMachineComponents();
 
+echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
 if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE) {
 	Logger::logMessage(Logger::LEVEL_USER, "Thank you for installing Kaltura Video Platform - Community Edition");
@@ -134,6 +137,7 @@ $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
 	if (AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
+		echo PHP_EOL;
 		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
 		$installer->detectLeftovers(false);
 	} else {
@@ -148,6 +152,7 @@ if (isset($leftovers)) {
 }
 
 // run the installation
+echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Kaltura Server");
 $install_output = $installer->install($packageDir);
 if ($install_output !== null)
