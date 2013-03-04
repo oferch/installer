@@ -88,7 +88,18 @@ class Validator
 	private function validateMysql()
 	{
 		if(! in_array('db', $this->components))
+		{
+			$dbRequired = false;
+			foreach($this->components as $component)
+			{
+				if(isset($this->install_config[$component]['depends_on']) && in_array('db', $this->install_config[$component]['depends_on']))
+				{
+					$dbRequired = true;
+					break;
+				}
+			}
 			return;
+		}
 
 		// check mysql
 		$link = null;
