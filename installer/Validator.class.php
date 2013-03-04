@@ -180,7 +180,7 @@ class Validator
 				$found = false;
 				foreach($bins as $optionalBin)
 				{
-					system("which $bin 2>&1", $exitCode);
+					system("which $optionalBin 2>/dev/null", $exitCode);
 					if($exitCode === 0)
 					{
 						$found = true;
