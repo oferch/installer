@@ -7,6 +7,8 @@ define("SYMLINK_SEPARATOR", "^"); // this is the separator between the two parts
 */
 class Installer
 {
+	const BASE_COMPONENT = 'base';
+
 	/**
 	 * @var resource
 	 */
@@ -27,7 +29,7 @@ class Installer
 	 * Array of the components that should be installed
 	 * @var array
 	 */
-	private $components = array('all');
+	private $components = array(Installer::BASE_COMPONENT);
 
 	/**
 	 * Crteate a new installer, loads installation configurations from installation configuration file
@@ -46,7 +48,7 @@ class Installer
 		elseif($components == '*')
 		{
 			foreach($this->installConfig as $component => $config)
-				if($component != 'all' && $config['install_by_default'])
+				if($component != Installer::BASE_COMPONENT && $config['install_by_default'])
 					$this->components[] = $component;
 		}
 	}
@@ -250,9 +252,9 @@ class Installer
 		}
 
 		Logger::logMessage(Logger::LEVEL_USER, "Replacing configuration tokens in files");
-		if(isset($this->installConfig['all']['token_files']) && is_array($this->installConfig['all']['token_files']))
+		if(isset($this->installConfig[Installer::BASE_COMPONENT]['token_files']) && is_array($this->installConfig[Installer::BASE_COMPONENT]['token_files']))
 		{
-			foreach ($this->installConfig['all']['token_files'] as $tokenFile)
+			foreach ($this->installConfig[Installer::BASE_COMPONENT]['token_files'] as $tokenFile)
 			{
 				$files = glob(AppConfig::replaceTokensInString($tokenFile));
 				foreach($files as $file)

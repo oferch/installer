@@ -14,7 +14,7 @@ class Validator
 	 * Array of the components that should be installed
 	 * @var array
 	 */
-	private $components = array('all');
+	private $components = array(Installer::BASE_COMPONENT);
 
 	/**
 	 * Enter description here ...
@@ -35,7 +35,7 @@ class Validator
 		elseif($components == '*')
 		{
 			foreach($this->install_config as $component => $config)
-				if($component != 'all' && $config['install_by_default'])
+				if($component != Installer::BASE_COMPONENT && $config['install_by_default'])
 					$this->components[] = $component;
 		}
 	}
@@ -43,8 +43,8 @@ class Validator
 	private function validatePHP()
 	{
 		// check php version
-		if(! $this->checkVersion(phpversion(), $this->install_config['all']["php_min_version"]))
-			$this->prerequisites[] = "PHP version should be >= " . $this->install_config['all']["php_min_version"] . " (current version is " . phpversion() . ")";
+		if(! $this->checkVersion(phpversion(), $this->install_config[Installer::BASE_COMPONENT]["php_min_version"]))
+			$this->prerequisites[] = "PHP version should be >= " . $this->install_config[Installer::BASE_COMPONENT]["php_min_version"] . " (current version is " . phpversion() . ")";
 
 		// check php extensions
 		foreach($this->components as $component)
