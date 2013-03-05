@@ -497,8 +497,11 @@ class Installer
 					}
 					else
 					{
-						Logger::logMessage(Logger::LEVEL_USER, "Dropping '$db' database on host '$host' with port $port");
-						DatabaseUtils::dropDb($host, $port, $db);
+						Logger::logMessage(Logger::LEVEL_USER, "Dropping '$db' database on host '$host' with port $port...", false);
+						if(DatabaseUtils::dropDb($host, $port, $db))
+							Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " - done.", true, 3);
+						else
+							Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, " - failed.", true, 3);
 					}
 				}
 			}
