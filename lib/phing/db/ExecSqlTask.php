@@ -8,57 +8,57 @@ class ExecSqlTask extends Task
 	 * @var string
 	 */
 	private $host = 'localhost';
-	
+
 	/**
 	 * Server port
 	 * @var int
 	 */
 	private $port = '3306';
-	
+
 	/**
 	 * The privileged user username to login with
 	 * @var string
 	 */
 	private $loginUsername;
-	
+
 	/**
 	 * The privileged user password to login with
 	 * @var string
 	 */
 	private $loginPassword;
-	
+
 	/**
 	 * The database name to be created
 	 * @var string
 	 */
 	private $name;
-	
+
 	/**
 	 * Just log without real execution
 	 * @var boolean
 	 */
 	private $dryRun = false;
-	
+
 	/**
 	 * @var string
 	 */
 	private $sql;
-	
+
 	/**
 	 * @var string
 	 */
 	private $mysql = 'mysql';
-	
+
 	/**
 	 * @var PhingFile
 	 */
 	private $file;
-	
+
 	/**
 	 * @var array<FileSet>
 	 */
 	private $filesets = array();
-	
+
 	/**
 	 * The main entry point method.
 	 */
@@ -66,24 +66,24 @@ class ExecSqlTask extends Task
 	{
 		if($this->sql === null && $this->file === null && empty($this->filesets))
 			throw new BuildException("Specify at least one source - an sql, a file or a fileset.");
-			
+
 		if($this->sql)
 		{
 			$this->execSql($this->sql);
 		}
-	
+
 		if($this->file)
 		{
 			$this->execFile($this->file);
 		}
-	
+
 		// filesets
 		foreach($this->filesets as $fileSet)
 		{
 			/* @var $fileSet FileSet */
 			$ds = $fileSet->getDirectoryScanner($this->project);
 			$fromDir = $fileSet->getDir($this->project);
-			
+
 			$srcFiles = $ds->getIncludedFiles();
 			$filecount = count($srcFiles);
 			$total_files = $total_files + $filecount;
@@ -97,22 +97,26 @@ class ExecSqlTask extends Task
 	protected function execFile(PhingFile $file)
 	{
 		$path = $file->getPath();
-		$cmd = "\"{$this->mysql}\" -h{$this->host} -P{$this->port} -u{$this->loginUsername} -p{$this->loginPassword} {$this->name} < \"$path\"";
+		if(trim($this->loginPassword))
+			$cmd = "\"{$this->mysql}\" -h{$this->host} -P{$this->port} -u{$this->loginUsername} -p{$this->loginPassword} {$this->name} < \"$path\"";
+		else
+			$cmd = "\"{$this->mysql}\" -h{$this->host} -P{$this->port} -u{$this->loginUsername} {$this->name} < \"$path\"";
+
 		$this->log("Executing: $cmd");
-		
+
 		$returnValue = null;
 		passthru($cmd, $returnValue);
 		if($returnValue != 0)
 			throw new Exception("SQL execution failed.");
 	}
-	
+
 	protected function execSql($sql)
 	{
 		$this->log("Executing: $sql");
-		
+
 		$dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->name};";
 		$pdo = new PDO($dsn, $this->loginUsername, $this->loginPassword);
-		
+
 		if(!$this->dryRun && $pdo->exec($sql) === false)
 		{
 			/**
@@ -125,7 +129,7 @@ class ExecSqlTask extends Task
 			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
 	}
-	
+
 	/**
 	 * @param string $host
 	 */
@@ -173,7 +177,7 @@ class ExecSqlTask extends Task
 	{
 		$this->dryRun = $dryRun;
 	}
-	
+
 	/**
 	 * Sets a sql code
 	 */
@@ -181,7 +185,7 @@ class ExecSqlTask extends Task
 	{
 		$this->sql = $sql;
 	}
-	
+
 	/**
 	 * Sets the mysql binary
 	 */
@@ -189,7 +193,7 @@ class ExecSqlTask extends Task
 	{
 		$this->mysql = $mysql;
 	}
-	
+
 	/**
 	 * Sets a single source file.
 	 */
@@ -197,7 +201,7 @@ class ExecSqlTask extends Task
 	{
 		$this->file = $file;
 	}
-	
+
 	/**
 	 * Nested creator, adds a set of files (nested fileset attribute).
 	 */
