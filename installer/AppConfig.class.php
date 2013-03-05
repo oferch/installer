@@ -138,6 +138,8 @@ class AppConfigAttribute
 	const KMC_VERSION = 'KMC_VERSION';
 	const CLIPAPP_VERSION = 'CLIPAPP_VERSION';
 	const HTML5_VERSION = 'HTML5_VERSION';
+
+	const VERIFY_INSTALLATION = 'VERIFY_INSTALLATION';
 }
 
 /**
@@ -422,6 +424,8 @@ class AppConfig
 			self::initField(AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET, $output[0]);
 		}
 
+		self::initField(AppConfigAttribute::VERIFY_INSTALLATION, true);
+
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 	}
 
@@ -499,6 +503,12 @@ class AppConfig
 					continue;
 
 				$component = $componentsNumbers[$selectedComponentsNumber];
+
+				if($component == 'api')
+				{
+					if(!isset($definedComponents[$component]))
+						$hostConfig[AppConfigAttribute::VERIFY_INSTALLATION] = true;
+				}
 
 				if($component == 'db')
 				{

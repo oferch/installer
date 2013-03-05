@@ -229,7 +229,7 @@ class Installer
 				if(in_array('db', $this->components))
 				{
 					$config = AppConfig::getCurrentMachineConfig();
-					if($config && $config[AppConfigAttribute::DB1_CREATE_NEW_DB])
+					if($config && isset($config[AppConfigAttribute::DB1_CREATE_NEW_DB]) && $config[AppConfigAttribute::DB1_CREATE_NEW_DB])
 						$copyWebContnet = true;
 				}
 			}
@@ -413,6 +413,19 @@ class Installer
 
 	private function verifyInstallation()
 	{
+		if(!in_array('api', $this->components))
+			return true;
+
+		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		{
+			$config = AppConfig::getCurrentMachineConfig();
+			if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+				return true;
+		}
+		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
+			return true;
+
+
 		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
 		if(!file_exists($dirName) || !is_dir($dirName))
 		{
