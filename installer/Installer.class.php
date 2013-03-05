@@ -335,6 +335,7 @@ class Installer
 				unlink($link);
 				symlink($target, $link);
 			}
+			chgrp($link, AppConfig::get(AppConfigAttribute::OS_KALTURA_GROUP));
 
 			fwrite($this->uninstallConfig, "symlinks[]=$link" . PHP_EOL);
 		}
