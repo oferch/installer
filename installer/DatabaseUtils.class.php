@@ -72,7 +72,7 @@ class DatabaseUtils
 	{
 		Logger::logMessage(Logger::LEVEL_INFO, "Creating database $db_name");
 		$create_db_query = "CREATE DATABASE $db_name;";
-		return self::executeQuery($host, $port, $create_db_query);
+		return self::executeQuery($create_db_query, $host, $port);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class DatabaseUtils
 	{
 		Logger::logMessage(Logger::LEVEL_INFO, "Dropping database $db_name");
 		$drop_db_query = "DROP DATABASE $db_name;";
-		return self::executeQuery($host, $port, $drop_db_query);
+		return self::executeQuery($drop_db_query, $host, $port);
 	}
 
 	/**
