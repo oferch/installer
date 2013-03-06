@@ -75,7 +75,7 @@ class OsUtils {
 
 	// returns the linux distribution
 	public static function getOsLsb() {
-		$dist = OsUtils::executeReturnOutput("lsb_release -d");
+		$dist = OsUtils::executeWithOutput("lsb_release -d");
 		if($dist)
 		{
 			$dist = implode('\n', $dist);
@@ -200,8 +200,10 @@ class OsUtils {
 		return false;
 	}
 
-	public static function executeWithOutput($command) {
-		$cmd .= ' >> ' . self::$log .' 2>&1';
+	public static function executeWithOutput($cmd, $ignoreStandardError = true) {
+		if($ignoreStandardError)
+			$cmd .= ' 2>&1';
+
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing  [$cmd]");
 		exec($cmd, $output, $return_var);
 		if ($return_var === 0)
@@ -234,9 +236,9 @@ class OsUtils {
 		foreach ($file_name as $file) {
 
 			if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
-				$which_path = OsUtils::executeReturnOutput("dir /s /b $file");
+				$which_path = OsUtils::executeWithOutput("dir /s /b $file");
 			else
-				$which_path = OsUtils::executeReturnOutput("which $file");
+				$which_path = OsUtils::executeWithOutput("which $file");
 
 			if (isset($which_path[0]) && (trim($which_path[0]) != '') && (substr($which_path[0],0,1) == "/")) {
 				return $which_path[0];
@@ -244,20 +246,6 @@ class OsUtils {
 		}
 
 		return null;
-	}
-
-	// execute the given $cmd, returning the output
-	public static function executeReturnOutput($cmd, $ignoreStandardError = true) {
-		// 2>&1 is needed so the output will not display on the screen
-		if($ignoreStandardError)
-			$cmd .= ' 2>/dev/null';
-
-		Logger::logMessage(Logger::LEVEL_INFO, "Executing [$cmd]");
-		exec($cmd, $output, $ret);
-		if($ret !== 0)
-			return null;
-
-		return $output;
 	}
 
 	// full copy $source to $target and return true/false according to success
