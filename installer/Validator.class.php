@@ -26,18 +26,24 @@ class Validator
 	{
 		$this->install_config = parse_ini_file(__DIR__ . '/installation.ini', true);
 
-		if($components && is_array($components))
+		if(!is_array($components))
+			$components = explode(',', $components);
+		$components = array_map('trim', $components);
+
+		foreach($components as $component)
 		{
-			foreach($components as $component)
-				if(isset($this->install_config[$component]))
-					$this->components[] = $component;
+			if(isset($this->installConfig[$component]))
+			{
+				$this->components[] = $component;
+			}
+			elseif ($component == '*')
+			{
+				foreach($this->installConfig as $component => $config)
+					if($config['install_by_default'])
+						$this->components[] = $component;
+			}
 		}
-		elseif($components == '*')
-		{
-			foreach($this->install_config as $component => $config)
-				if($component != Installer::BASE_COMPONENT && $config['install_by_default'])
-					$this->components[] = $component;
-		}
+		$components = array_unique($components);
 	}
 
 	private function validatePHP()

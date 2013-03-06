@@ -39,18 +39,24 @@ class Installer
 	{
 		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
-		if($components && is_array($components))
+		if(!is_array($components))
+			$components = explode(',', $components);
+		$components = array_map('trim', $components);
+
+		foreach($components as $component)
 		{
-			foreach($components as $component)
-				if(isset($this->installConfig[$component]))
-					$this->components[] = $component;
+			if(isset($this->installConfig[$component]))
+			{
+				$this->components[] = $component;
+			}
+			elseif ($component == '*')
+			{
+				foreach($this->installConfig as $component => $config)
+					if($config['install_by_default'])
+						$this->components[] = $component;
+			}
 		}
-		elseif($components == '*')
-		{
-			foreach($this->installConfig as $component => $config)
-				if($component != Installer::BASE_COMPONENT && $config['install_by_default'])
-					$this->components[] = $component;
-		}
+		$components = array_unique($components);
 	}
 
 	public function __destruct()
@@ -308,6 +314,8 @@ class Installer
 		if(!$this->verifyInstallation())
 			return "Failed to verify installation";
 
+		$this->done();
+
 		return null;
 	}
 
@@ -410,6 +418,75 @@ class Installer
 			return $startServices;
 
 		return true;
+	}
+
+	private function done()
+	{
+		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		{
+			$config = AppConfig::getCurrentMachineConfig();
+			if(!$config || !isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) || !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+				return true;
+		}
+		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
+			return true;
+
+		// send settings mail if possible
+		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+		$versionType = AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE);
+		$adminMail = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
+		$adminPassword = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD);
+
+		$msg = "Thank you for installing the Kaltura Video Platform\n\n";
+		$msg .= "To get started, please browse to your kaltura start page at:\n";
+		$msg .= "http://$virtualHostName/start\n\n";
+		$msg .= "Your $versionType administration console can be accessed at:\n";
+		$msg .= "http://$virtualHostName/admin_console\n\n";
+		$msg .= "Your Admin Console credentials are:\n";
+		$msg .= "System admin user: $adminMail\n";
+		$msg .= "System admin password: $adminPassword\n\n";
+		$msg .= "Please keep this information for future use.\n\n";
+		$msg .= "Thank you for choosing Kaltura!";
+
+		$mailer = new PHPMailer();
+		$mailer->CharSet = 'utf-8';
+		$mailer->IsHTML(false);
+		$mailer->AddAddress($adminMail);
+		$mailer->Sender = "installation_confirmation@$virtualHostName";
+		$mailer->From = "installation_confirmation@$virtualHostName";
+		$mailer->FromName = AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME);
+		$mailer->Subject = 'Kaltura Installation Settings';
+		$mailer->Body = $msg;
+
+		if ($mailer->Send()) {
+			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Post installation email cannot be sent");
+		} else {
+			Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Sent post installation settings email to ".AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
+		}
+
+		// print after installation instructions
+		echo PHP_EOL;
+		Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Installation Completed Successfully.");
+
+		if(in_array('admin', $this->components))
+		{
+			Logger::logMessage(Logger::LEVEL_USER,
+				"Your Kaltura Admin Console credentials:\n" .
+				"System Admin user: $adminMail\n" .
+				"Please keep this information for future use."
+			);
+			echo PHP_EOL;
+		}
+
+		if(in_array('api', $this->components))
+		{
+			Logger::logMessage(Logger::LEVEL_USER,
+				"To start using Kaltura, please complete the following steps:\n" .
+				"1. Add the following line to your /etc/hosts file:\n" .
+					"\t127.0.0.1 $virtualHostName\n" .
+				"2. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
+			);
+		}
 	}
 
 	private function verifyInstallation()
