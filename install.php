@@ -41,13 +41,17 @@ Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installation 
 OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
+$downloadCode = false;
 
 $packageDir = realpath(__DIR__ . '/../package');
 if($packageDir)
 	AppConfig::init($packageDir);
+else
+	$downloadCode = true;
 
 AppConfig::configure($silentRun);
 
+$downloadAttributes = array();
 if(isset($options['p']))
 {
 	$xmlUri = $options['p'];
@@ -58,12 +62,16 @@ if(isset($options['p']))
 		$xmlUri = $tmp;
 	}
 
-	$attributes = array(
+	$downloadAttributes = array(
 		'xml.uri' => $xmlUri,
 	);
+	$downloadCode = true;
+}
 
+if($downloadCode)
+{
 	Logger::logMessage(Logger::LEVEL_USER, "Downloading Kaltura server...", false);
-	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $attributes))
+	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $downloadAttributes))
 	{
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
 		exit(-1);
@@ -136,7 +144,7 @@ $installer = new Installer($components);
 $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
-	if (AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
+	if (!$silentRun && AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
 		echo PHP_EOL;
 		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
 		$installer->detectLeftovers(false);
@@ -175,46 +183,6 @@ if ($install_output !== null)
 
 	exit(1);
 }
-
-// send settings mail if possible
-$msg = sprintf("Thank you for installing the Kaltura Video Platform\n\nTo get started, please browse to your kaltura start page at:\nhttp://%s/start\n\nYour ".AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE)." administration console can be accessed at:\nhttp://%s/admin_console\n\nYour Admin Console credentials are:\nSystem admin user: %s\nSystem admin password: %s\n\nPlease keep this information for future use.\n\nThank you for choosing Kaltura!", AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME), AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME), AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL), AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD)).PHP_EOL;
-$mailer = new PHPMailer();
-$mailer->CharSet = 'utf-8';
-$mailer->IsHTML(false);
-$mailer->AddAddress(AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
-$mailer->Sender = "installation_confirmation@".AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
-$mailer->From = "installation_confirmation@".AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
-$mailer->FromName = AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME);
-$mailer->Subject = 'Kaltura Installation Settings';
-$mailer->Body = $msg;
-
-if ($mailer->Send()) {
-	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Post installation email cannot be sent");
-} else {
-	Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Sent post installation settings email to ".AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
-}
-
-// print after installation instructions
-echo PHP_EOL;
-Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Installation Completed Successfully.");
-
-Logger::logMessage(Logger::LEVEL_USER, sprintf(
-	"Your Kaltura Admin Console credentials:\n" .
-	"System Admin user: %s\n" .
-	"Please keep this information for future use.\n",
-
-	AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL)
-));
-
-$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
-$appDir = realpath(AppConfig::get(AppConfigAttribute::APP_DIR));
-
-Logger::logMessage(Logger::LEVEL_USER,
-	"To start using Kaltura, please complete the following steps:\n" .
-	"1. Add the following line to your /etc/hosts file:\n" .
-		"\t127.0.0.1 $virtualHostName\n" .
-	"2. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
-);
 
 if ($report)
 	$report->reportInstallationSuccess();
