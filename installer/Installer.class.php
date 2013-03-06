@@ -65,6 +65,13 @@ class Installer
 			fclose($this->uninstallConfig);
 	}
 
+	private function createOpertingSystemUsers()
+	{
+		Logger::logMessage(Logger::LEVEL_USER, "Creating Operting System Users");
+		$dir = __DIR__ . '/../directoryConstructor';
+		return OsUtils::phing($dir, 'Create-Users');
+	}
+
 	/**
 	 * Saves the uninstaller config file, the values saved are the minimal values subset needed for the uninstaller to run
 	 */
@@ -219,6 +226,8 @@ class Installer
 		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
 		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
 		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
+
+		$this->createOpertingSystemUsers();
 
 		$this->saveUninstallerConfig();
 

@@ -32,6 +32,12 @@
 		<phingcall target="Construct tree" />
 	</target>
 	
+	<target name="Create-Users" depends="Init">
+		<property name="actions.createUser" value="true" override="true" />
+		
+		<phingcall target="Construct tree" />
+	</target>
+	
 	<target name="Update-Permissions" depends="Init">
 		<property name="actions.createUser" value="true" override="true" />
 		<property name="actions.setOwner" value="true" override="true" />
