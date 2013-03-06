@@ -247,9 +247,11 @@ class OsUtils {
 	}
 
 	// execute the given $cmd, returning the output
-	public static function executeReturnOutput($cmd) {
+	public static function executeReturnOutput($cmd, $ignoreStandardError = true) {
 		// 2>&1 is needed so the output will not display on the screen
-		$cmd .= ' 2>/dev/null';
+		if($ignoreStandardError)
+			$cmd .= ' 2>/dev/null';
+
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing [$cmd]");
 		exec($cmd, $output, $ret);
 		if($ret !== 0)

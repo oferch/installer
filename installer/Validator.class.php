@@ -39,7 +39,7 @@ class Validator
 			elseif ($component == '*')
 			{
 				foreach($this->installConfig as $component => $config)
-					if($config['install_by_default'])
+					if(isset($config['install_by_default']) && $config['install_by_default'])
 						$this->components[] = $component;
 			}
 		}
@@ -186,8 +186,8 @@ class Validator
 			return;
 
 		$httpdBin = AppConfig::get(AppConfigAttribute::HTTPD_BIN);
-		$currentModules = OsUtils::executeReturnOutput("$httpdBin -M");
-		if(!$currentModules)
+		$currentModules = OsUtils::executeReturnOutput("$httpdBin -M", false);
+		if(is_null($currentModules))
 		{
 			$this->prerequisites[] = "Cannot check apache modules, please make sure that '$httpdBin -t' command runs properly";
 			return;
