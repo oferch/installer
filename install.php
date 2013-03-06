@@ -70,18 +70,6 @@ if(isset($options['p']))
 	$downloadCode = true;
 }
 
-if($downloadCode)
-{
-	Logger::logMessage(Logger::LEVEL_USER, "Downloading Kaltura server...", false);
-	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $downloadAttributes))
-	{
-		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
-		exit(-1);
-	}
-	Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " - done.", true, 3);
-	echo PHP_EOL;
-}
-
 $components = null;
 if(isset($options['C']))
 	$components = explode(',', $options['C']);
@@ -143,14 +131,14 @@ echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Checking for leftovers from a previous installation");
 
 $installer = new Installer($components);
-$leftovers = $installer->detectLeftovers(true, $downloadCode);
+$leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
 	if ($uninstall || (!$silentRun && AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')))
 	{
 		echo PHP_EOL;
 		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
-		$installer->detectLeftovers(false, $downloadCode);
+		$installer->detectLeftovers(false);
 	}
 	else
 	{
@@ -161,6 +149,18 @@ if (isset($leftovers)) {
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
 		exit(-2);
 	}
+}
+
+if($downloadCode)
+{
+	Logger::logMessage(Logger::LEVEL_USER, "Downloading Kaltura server...", false);
+	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $downloadAttributes))
+	{
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
+		exit(-1);
+	}
+	Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " - done.", true, 3);
+	echo PHP_EOL;
 }
 
 // run the installation

@@ -95,7 +95,7 @@ class Installer
 	// can be used both before installation to verify and when the installation failed for cleaning up
 	// $report_only - if set to true only returns the leftovers found and does not removes them
 	// returns null if no leftovers are found or it is not report only or a text containing all the leftovers found
-	public function detectLeftovers($report_only, $ignoreBaseDir = false) {
+	public function detectLeftovers($report_only) {
 		$leftovers = null;
 
 		foreach($this->installConfig as $component => $config)
@@ -142,7 +142,7 @@ class Installer
 			}
 		}
 
-		if (!$ignoreBaseDir && is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
+		if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
 		{
 			if ($report_only)
 			{
