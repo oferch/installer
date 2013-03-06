@@ -223,9 +223,10 @@ class Installer
 		$this->saveUninstallerConfig();
 
 		Logger::logMessage(Logger::LEVEL_USER, sprintf("Current working dir is %s", getcwd()));
-		Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
 		if ($packageDir)
 		{
+			Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
+
 			if (!OsUtils::rsync("$packageDir/", AppConfig::get(AppConfigAttribute::BASE_DIR), "--exclude web/content"))
 				return "Failed to copy application files to target directory";
 
