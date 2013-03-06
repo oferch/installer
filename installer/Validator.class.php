@@ -8,7 +8,7 @@ class Validator
 	 * Configuration
 	 * @var array
 	 */
-	private $install_config;
+	private $installConfig;
 
 	/**
 	 * Array of the components that should be installed
@@ -24,7 +24,7 @@ class Validator
 
 	public function __construct($components = '*')
 	{
-		$this->install_config = parse_ini_file(__DIR__ . '/installation.ini', true);
+		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
 		if(!is_array($components))
 			$components = explode(',', $components);
@@ -49,16 +49,16 @@ class Validator
 	private function validatePHP()
 	{
 		// check php version
-		if(! $this->checkVersion(phpversion(), $this->install_config[Installer::BASE_COMPONENT]["php_min_version"]))
-			$this->prerequisites[] = "PHP version should be >= " . $this->install_config[Installer::BASE_COMPONENT]["php_min_version"] . " (current version is " . phpversion() . ")";
+		if(! $this->checkVersion(phpversion(), $this->installConfig[Installer::BASE_COMPONENT]["php_min_version"]))
+			$this->prerequisites[] = "PHP version should be >= " . $this->installConfig[Installer::BASE_COMPONENT]["php_min_version"] . " (current version is " . phpversion() . ")";
 
 		// check php extensions
 		foreach($this->components as $component)
 		{
-			if(! isset($this->install_config[$component]["php_extensions"]) || ! is_array($this->install_config[$component]["php_extensions"]))
+			if(! isset($this->installConfig[$component]["php_extensions"]) || ! is_array($this->installConfig[$component]["php_extensions"]))
 				continue;
 
-			foreach($this->install_config[$component]["php_extensions"] as $ext)
+			foreach($this->installConfig[$component]["php_extensions"] as $ext)
 			{
 				if(! extension_loaded($ext))
 					$this->prerequisites[] = "Missing $ext PHP extension";
@@ -86,7 +86,7 @@ class Validator
 			return;
 
 		// check pentaho exists
-		$pentaho = $this->install_config['dwh']["pentaho_path"];
+		$pentaho = $this->installConfig['dwh']["pentaho_path"];
 		if(! is_file($pentaho))
 			$this->prerequisites[] = "Missing pentaho at $pentaho";
 	}
@@ -98,7 +98,7 @@ class Validator
 			$dbRequired = false;
 			foreach($this->components as $component)
 			{
-				if(isset($this->install_config[$component]['depends_on']) && in_array('db', $this->install_config[$component]['depends_on']))
+				if(isset($this->installConfig[$component]['depends_on']) && in_array('db', $this->installConfig[$component]['depends_on']))
 				{
 					$dbRequired = true;
 					break;
@@ -143,29 +143,29 @@ class Validator
 
 			// check mysql version and settings
 			$mysql_version = $this->getMysqlSetting($link, 'version'); // will always return the value
-			if(! $this->checkVersion($mysql_version, $this->install_config['db']["mysql_min_version"]))
+			if(! $this->checkVersion($mysql_version, $this->installConfig['db']["mysql_min_version"]))
 			{
-				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->install_config['db']["mysql_min_version"] . " (current version is $mysql_version)";
+				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->installConfig['db']["mysql_min_version"] . " (current version is $mysql_version)";
 			}
 
 			$lower_case_table_names = $this->getMysqlSetting($link, 'lower_case_table_names');
 			if(! isset($lower_case_table_names))
 			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->install_config['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL";
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->installConfig['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL";
 			}
-			else if(intval($lower_case_table_names) != intval($this->install_config['db']["lower_case_table_names"]))
+			else if(intval($lower_case_table_names) != intval($this->installConfig['db']["lower_case_table_names"]))
 			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->install_config['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL (current value is $lower_case_table_names)";
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->installConfig['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL (current value is $lower_case_table_names)";
 			}
 
 			$thread_stack = $this->getMysqlSetting($link, 'thread_stack');
 			if(! isset($thread_stack))
 			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->install_config['db']["thread_stack"] . "' in my.cnf and restart MySQL";
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->installConfig['db']["thread_stack"] . "' in my.cnf and restart MySQL";
 			}
-			else if(intval($thread_stack) < intval($this->install_config['db']["thread_stack"]))
+			else if(intval($thread_stack) < intval($this->installConfig['db']["thread_stack"]))
 			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->install_config['db']["thread_stack"] . "' in my.cnf and restart MySQL (current value is $thread_stack)";
+				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->installConfig['db']["thread_stack"] . "' in my.cnf and restart MySQL (current value is $thread_stack)";
 			}
 		}
 	}
@@ -175,10 +175,10 @@ class Validator
 		$requiredModules = array();
 		foreach($this->components as $component)
 		{
-			if(! isset($this->install_config[$component]["apache_modules"]) || ! is_array($this->install_config[$component]["apache_modules"]))
+			if(! isset($this->installConfig[$component]["apache_modules"]) || ! is_array($this->installConfig[$component]["apache_modules"]))
 				continue;
 
-			foreach($this->install_config[$component]["apache_modules"] as $module)
+			foreach($this->installConfig[$component]["apache_modules"] as $module)
 				$requiredModules[$module] = true;
 		}
 
@@ -215,10 +215,10 @@ class Validator
 	{
 		foreach($this->components as $component)
 		{
-			if(! isset($this->install_config[$component]["binaries"]) || ! is_array($this->install_config[$component]["binaries"]))
+			if(! isset($this->installConfig[$component]["binaries"]) || ! is_array($this->installConfig[$component]["binaries"]))
 				continue;
 
-			foreach($this->install_config[$component]["binaries"] as $bin)
+			foreach($this->installConfig[$component]["binaries"] as $bin)
 			{
 				$bins = explode('|', $bin);
 				$found = false;
