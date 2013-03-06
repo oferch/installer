@@ -186,7 +186,7 @@ class Validator
 			return;
 
 		$httpdBin = AppConfig::get(AppConfigAttribute::HTTPD_BIN);
-		$currentModules = OsUtils::executeWithOutput("$httpdBin -M", false);
+		$currentModules = OsUtils::executeWithOutput("$httpdBin -M", true);
 		if(is_null($currentModules))
 		{
 			$this->prerequisites[] = "Cannot check apache modules, please make sure that '$httpdBin -t' command runs properly";

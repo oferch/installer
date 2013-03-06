@@ -200,12 +200,25 @@ class OsUtils {
 		return false;
 	}
 
-	public static function executeWithOutput($cmd, $ignoreStandardError = true) {
-		if($ignoreStandardError)
+	public static function executeWithOutput($cmd, $getStandardError = false) {
+
+		$stdErrPath = null;
+		if($getStandardError)
+		{
+			$stdErrPath = tempnam(sys_get_temp_dir(), 'stdErr');
+			$cmd .= " 2> $stdErrPath";
+		}
+		else
+		{
 			$cmd .= ' 2>&1';
+		}
 
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing  [$cmd]");
 		exec($cmd, $output, $return_var);
+
+		if($getStandardError)
+			$output = file($stdErrPath);
+
 		if ($return_var === 0)
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Output from command is: ");
