@@ -17,12 +17,13 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsC:p:');
+$options = getopt('hsuC:p:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
 	echo "-h - Show this help." . PHP_EOL;
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo "-u - Uninstall previous installation." . PHP_EOL;
 	echo "-p - Package XML path or URL." . PHP_EOL;
 	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
 	echo PHP_EOL;
@@ -41,6 +42,7 @@ Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installation 
 OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
+$uninstall = isset($options['u']);
 $downloadCode = false;
 
 $packageDir = realpath(__DIR__ . '/../package');
@@ -144,12 +146,14 @@ $installer = new Installer($components);
 $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
-	if (!$silentRun && AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')) {
+	if ($uninstall || (!$silentRun && AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')))
+	{
 		echo PHP_EOL;
 		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
 		$installer->detectLeftovers(false);
-	} else {
-
+	}
+	else
+	{
 		$description = "Installation cannot continue because a previous installation of Kaltura was detected.\n" . $leftovers;
 		if ($report)
 			$report->reportInstallationFailed($description);
