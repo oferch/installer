@@ -186,13 +186,13 @@ class Validator
 			return;
 
 		$httpdBin = AppConfig::get(AppConfigAttribute::HTTPD_BIN);
-		exec("$httpdBin -M 2>/dev/null", $currentModules, $exitCode);
-		if($exitCode !== 0)
+		$currentModules = OsUtils::executeReturnOutput("$httpdBin -M");
+		if(!$currentModules)
 		{
 			$this->prerequisites[] = "Cannot check apache modules, please make sure that '$httpdBin -t' command runs properly";
 			return;
 		}
-		array_walk($currentModules, create_function('&$str', '$str = trim($str);'));
+		$currentModules = array_map('trim', $currentModules);
 
 		foreach($requiredModules as $module => $true)
 		{

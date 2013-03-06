@@ -186,43 +186,43 @@ class OsUtils {
 	}
 
 	// executes the shell $commands and returns true/false according to the execution return value
-	public static function execute($command) {
-		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
-		exec($command . ' >> ' . self::$log .' 2>&1 ', $output, $return_var);
-		if ($return_var === 0) {
+	public static function execute($cmd) {
+		$cmd .= ' >> ' . self::$log .' 2>&1';
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing  [$cmd]");
+		exec($cmd, $output, $return_var);
+		if ($return_var === 0)
 			return true;
-		} else {
-			Logger::logMessage(Logger::LEVEL_ERROR, "Executing command failed: $command");
-			Logger::logMessage(Logger::LEVEL_ERROR, "Output from command is: ");
-			while( list(,$row) = each($output) ){
-				Logger::logMessage(Logger::LEVEL_ERROR, "$row");
-			}
-			Logger::logMessage(Logger::LEVEL_ERROR, "End of Output");
-			return false;
-		}
+
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Executing command failed: $cmd");
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Output from command is: ");
+		Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "End of Output");
+		return false;
 	}
 
 	public static function executeWithOutput($command) {
-		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
-		exec($command . ' 2>&1', $output, $return_var);
-		$scriptOutput = $output;
-		if ($return_var === 0) {
+		$cmd .= ' >> ' . self::$log .' 2>&1';
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing  [$cmd]");
+		exec($cmd, $output, $return_var);
+		if ($return_var === 0)
+		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Output from command is: ");
+			Logger::logMessage(Logger::LEVEL_INFO, "\t" . implode("\n\t", $output));
+			Logger::logMessage(Logger::LEVEL_INFO, "End of Output");
 			return $output;
-		} else {
-			Logger::logMessage(Logger::LEVEL_ERROR, "Executing command failed: $command");
-			Logger::logMessage(Logger::LEVEL_ERROR, "Output from command is: ");
-			while( list(,$row) = each($output) ){
-				Logger::logMessage(Logger::LEVEL_ERROR, "$row");
-			}
-			Logger::logMessage(Logger::LEVEL_ERROR, "End of Output");
-			return false;
 		}
+
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Executing command failed: $cmd");
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Output from command is: ");
+		Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
+		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "End of Output");
+		return false;
 	}
 
-	public static function executeInBackground($command) {
-		Logger::logMessage(Logger::LEVEL_INFO, "Executing in background $command");
-		print("Executing in background $command \n");
-		exec($command. ' >> ' . self::$log . ' 2>&1 &', $output, $return_var);
+	public static function executeInBackground($cmd) {
+		$cmd .= ' >> ' . self::$log . ' 2>&1 &';
+		Logger::logMessage(Logger::LEVEL_USER, "Executing in background [$cmd]");
+		exec($cmd, $output, $return_var);
 	}
 
 	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
@@ -249,7 +249,9 @@ class OsUtils {
 	// execute the given $cmd, returning the output
 	public static function executeReturnOutput($cmd) {
 		// 2>&1 is needed so the output will not display on the screen
-		exec($cmd . ' 2>/dev/null', $output, $ret);
+		$cmd .= ' 2>/dev/null';
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing [$cmd]");
+		exec($cmd, $output, $ret);
 		if($ret !== 0)
 			return null;
 
