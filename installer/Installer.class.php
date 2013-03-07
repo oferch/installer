@@ -52,7 +52,7 @@ class Installer
 			elseif ($component == '*')
 			{
 				foreach($this->installConfig as $component => $config)
-					if($config['install_by_default'])
+					if(isset($config['install_by_default']) && $config['install_by_default'])
 						$this->components[] = $component;
 			}
 		}
