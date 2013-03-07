@@ -274,7 +274,7 @@
 						<os family="unix" />
 					</and>
 					<then>
-						<createuser username="${user}" group="${group}" ifNotExists="true" />
+						<createuser username="${user}" group="${user}" groups="${group}" ifNotExists="true" />
 					</then>
 				</if>
 				
