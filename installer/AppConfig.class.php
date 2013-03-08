@@ -111,7 +111,7 @@ class AppConfigAttribute
 	const ENVIRONMENT_NAME = 'ENVIRONMENT_NAME';
 	const BATCH_HOST_NAME = 'BATCH_HOST_NAME';
 	const BATCH_PARTNER_PARTNER_ALIAS = 'BATCH_PARTNER_PARTNER_ALIAS';
-	const APACHE_RESTART_COMMAND = 'APACHE_RESTART_COMMAND';
+	const APACHE_SERVICE = 'APACHE_SERVICE';
 	const BASE_HOST_NO_PORT = 'BASE_HOST_NO_PORT';
 	const ENVIRONMENT_PROTOCOL = 'ENVIRONMENT_PROTOCOL';
 
@@ -338,7 +338,7 @@ class AppConfig
 		}
 
 		// other configurations
-		self::initField(AppConfigAttribute::APACHE_RESTART_COMMAND, self::get(AppConfigAttribute::HTTPD_BIN) . ' -k restart');
+		self::initField(AppConfigAttribute::APACHE_SERVICE, OsUtils::findService(array('httpd', 'apache2')));
 		date_default_timezone_set(self::get(AppConfigAttribute::TIME_ZONE));
 		self::initField(AppConfigAttribute::GOOGLE_ANALYTICS_ACCOUNT, 'UA-7714780-1');
 		self::initField(AppConfigAttribute::INSTALLATION_TYPE, '');
