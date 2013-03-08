@@ -240,22 +240,47 @@ class OsUtils {
 		exec($cmd, $output, $return_var);
 	}
 
-	// Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
-	public static function findBinary($file_name) {
-		if (!is_array($file_name)) {
+	/**
+	 * Execute 'which' on each of the given $file_name (array or string) and returns the first one found (null if not found)
+	 * @param string $file_name
+	 * @return string
+	 */
+	public static function findBinary($file_name)
+	{
+		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+			return null; // TODO
+
+		if (!is_array($file_name))
 			$file_name = array ($file_name);
+
+		foreach ($file_name as $file)
+		{
+			$which_path = OsUtils::executeWithOutput("which $file");
+
+			if (isset($which_path[0]) && (trim($which_path[0]) != '') && (substr($which_path[0],0,1) == "/"))
+				return $which_path[0];
 		}
 
-		foreach ($file_name as $file) {
+		return null;
+	}
 
-			if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
-				$which_path = OsUtils::executeWithOutput("dir /s /b $file");
-			else
-				$which_path = OsUtils::executeWithOutput("which $file");
+	/**
+	 * Execute 'service status' on each of the given $serviceName (array or string) and returns the first one found (null if not found)
+	 * @param string $file_name
+	 * @return string
+	 */
+	public static function findService($serviceName)
+	{
+		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+			return null; // TODO
 
-			if (isset($which_path[0]) && (trim($which_path[0]) != '') && (substr($which_path[0],0,1) == "/")) {
-				return $which_path[0];
-			}
+		if (!is_array($serviceName))
+			$serviceName = array ($serviceName);
+
+		foreach ($serviceName as $service)
+		{
+			if(OsUtils::execute("service $service status"))
+				return $service;
 		}
 
 		return null;
