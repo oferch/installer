@@ -297,18 +297,17 @@ class Installer
 		foreach($this->components as $component)
 			$this->installComponent($component);
 
-		Logger::logMessage(Logger::LEVEL_USER, "Creating Dynamic Enums");
-		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
-				Logger::logMessage(Logger::LEVEL_INFO, "Dynamic Enums created");
-		} else {
+		if(!$this->createDynamicEnums())
 			return "Failed to create dynamic enums";
-		}
 
 		if(!$this->createInitialContent())
 			return "Failed to create initial content";
 
-		if(!$this->createDynamicEnums())
-			return "Failed to create QueryCacheTriggers";
+		if(!$this->createQueryCacheTriggers())
+			return "Failed to create query cache triggers";
+
+		if(!$this->createDeployKMC())
+			return "Failed to deploy KMC";
 
 		if(!$this->generateClients(true))
 			return "Failed generating client libraries";
@@ -639,10 +638,40 @@ class Installer
 		return true;
 	}
 
-	private function createDynamicEnums ()
+	private function createDynamicEnums()
+	{
+		Logger::logMessage(Logger::LEVEL_USER, "Creating Dynamic Enums");
+		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
+	}
+
+	private function createQueryCacheTriggers()
 	{
 		Logger::logMessage(Logger::LEVEL_USER, "Create query cache triggers");
 		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
+	}
+
+	private function createDeployKMC()
+	{
+		if(!in_array('api', $this->components))
+			return true;
+
+		Logger::logMessage(Logger::LEVEL_USER, "Deploying uiconfs in order to configure the application");
+		if(isset($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2']) && is_array($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2']))
+		{
+			foreach($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2'] as $uiconfapp)
+			{
+				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
+				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
+				{
+					Logger::logMessage(Logger::LEVEL_INFO, "Deployed uiconf $to_deploy");
+				}
+				else
+				{
+					return "Failed to deploy uiconf $to_deploy";
+				}
+			}
+		}
+		return true;
 	}
 
 	private function createInitialContent ()
