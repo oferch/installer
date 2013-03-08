@@ -280,9 +280,12 @@ class OsUtils {
 		foreach ($serviceName as $service)
 		{
 			$output = OsUtils::executeWithOutput("service --status-all | grep -c httpd");
-			$count = reset($output);
+			$count = trim(reset($output));
 			if(is_numeric($count) && intval($count) > 0)
+			{
+				Logger::logMessage(Logger::LEVEL_INFO, "Service $service found");
 				return $service;
+			}
 		}
 
 		return null;
