@@ -165,6 +165,12 @@ class Installer
 		return $leftovers;
 	}
 
+	private function stopApache()
+	{
+		Logger::logMessage(Logger::LEVEL_USER, "Stopping apache http server");
+		return OsUtils::execute("service " . AppConfig::get(AppConfigAttribute::APACHE_SERVICE) . " stop");
+	}
+
 	private function restartApache($now = false)
 	{
 		if($now)
@@ -172,7 +178,7 @@ class Installer
 			if(in_array('generateClients', $this->runOnce))
 			{
 				Logger::logMessage(Logger::LEVEL_USER, "Restarting apache http server");
-				return OsUtils::execute(AppConfig::get(AppConfigAttribute::APACHE_RESTART_COMMAND));
+				return OsUtils::execute("service " . AppConfig::get(AppConfigAttribute::APACHE_SERVICE) . " restart");
 			}
 			return true;
 		}
@@ -226,6 +232,8 @@ class Installer
 		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
 		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
 		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
+
+		$this->stopApache();
 
 		$this->createOpertingSystemUsers();
 
