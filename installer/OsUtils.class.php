@@ -265,7 +265,7 @@ class OsUtils {
 	}
 
 	/**
-	 * Execute 'service status' on each of the given $serviceName (array or string) and returns the first one found (null if not found)
+	 * Execute 'service --status-all', grepping on each of the given $serviceName (array or string) and returns the first one found (null if not found)
 	 * @param string $file_name
 	 * @return string
 	 */
@@ -279,7 +279,9 @@ class OsUtils {
 
 		foreach ($serviceName as $service)
 		{
-			if(OsUtils::execute("service $service status"))
+			$output = OsUtils::executeWithOutput("service --status-all | grep -c httpd");
+			$count = reset($output);
+			if(is_numeric($count) && intval($count) > 0)
 				return $service;
 		}
 
