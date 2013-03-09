@@ -112,7 +112,6 @@ class AppConfigAttribute
 	const BATCH_HOST_NAME = 'BATCH_HOST_NAME';
 	const BATCH_PARTNER_PARTNER_ALIAS = 'BATCH_PARTNER_PARTNER_ALIAS';
 	const APACHE_SERVICE = 'APACHE_SERVICE';
-	const BASE_HOST_NO_PORT = 'BASE_HOST_NO_PORT';
 	const ENVIRONMENT_PROTOCOL = 'ENVIRONMENT_PROTOCOL';
 
 	const CONTACT_URL = 'CONTACT_URL';
@@ -299,20 +298,19 @@ class AppConfig
 
 		// site settings
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 80);
-		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":") !== false)
-			self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_PORT));
+		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
+			self::set(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_PORT));
 
-		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME, preg_replace('/^https?:\/\//', '', self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME)));
-		self::initField(AppConfigAttribute::CORP_REDIRECT, '');
-		self::initField(AppConfigAttribute::CDN_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
-		self::initField(AppConfigAttribute::IIS_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
-		self::initField(AppConfigAttribute::RTMP_URL, 'rtmp://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/oflaDemo');
-		self::initField(AppConfigAttribute::BASE_HOST_NO_PORT, self::extractHostName(self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME)));
-		self::initField(AppConfigAttribute::MEMCACHE_HOST, self::extractHostName(self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME)));
-		self::initField(AppConfigAttribute::GLOBAL_MEMCACHE_HOST, self::extractHostName(self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME)));
-		self::initField(AppConfigAttribute::WWW_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
-		self::initField(AppConfigAttribute::SERVICE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_HOST));
 		self::initField(AppConfigAttribute::ENVIRONMENT_NAME, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::CORP_REDIRECT, '');
+		self::initField(AppConfigAttribute::CDN_HOST, self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::IIS_HOST, self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::RTMP_URL, 'rtmp://' . self::get(AppConfigAttribute::ENVIRONMENT_NAME) . '/oflaDemo');
+		self::initField(AppConfigAttribute::MEMCACHE_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::GLOBAL_MEMCACHE_HOST, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::WWW_HOST, self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME));
+		self::initField(AppConfigAttribute::SERVICE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME));
 
 		// admin console defaults
 		self::initField(AppConfigAttribute::UICONF_TAB_ACCESS, 'SYSTEM_ADMIN_BATCH_CONTROL');
@@ -351,7 +349,6 @@ class AppConfig
 		self::initField(AppConfigAttribute::DELIVERY_HTTP_BASE_URL, self::get(AppConfigAttribute::SERVICE_URL));
 		self::initField(AppConfigAttribute::DELIVERY_RTMP_BASE_URL, self::get(AppConfigAttribute::RTMP_URL));
 		self::initField(AppConfigAttribute::DELIVERY_ISS_BASE_URL, self::get(AppConfigAttribute::SERVICE_URL));
-		self::initField(AppConfigAttribute::ENVIRONMENT_NAME, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
 
 		// set the usage tracking for Kaltura TM
 		if(self::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
@@ -365,8 +362,8 @@ class AppConfig
 		self::initField(AppConfigAttribute::CONTACT_URL, 'http://corp.kaltura.com/contact');
 		self::initField(AppConfigAttribute::CONTACT_PHONE_NUMBER, '+1 800 871-5224');
 		self::initField(AppConfigAttribute::BEGINNERS_TUTORIAL_URL, 'http://corp.kaltura.com/about/dosignup');
-		self::initField(AppConfigAttribute::QUICK_START_GUIDE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/content/docs/KMC_Quick_Start_Guide.pdf');
-		self::initField(AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME) . '/index.php/extwidget/blockMail?e=');
+		self::initField(AppConfigAttribute::QUICK_START_GUIDE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . '/content/docs/KMC_Quick_Start_Guide.pdf');
+		self::initField(AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . '/index.php/extwidget/blockMail?e=');
 
 		self::initField(AppConfigAttribute::OS_ROOT_USER, (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root'));
 		self::initField(AppConfigAttribute::OS_APACHE_USER, 'apache');

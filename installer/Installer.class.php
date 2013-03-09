@@ -142,6 +142,16 @@ class Installer
 			}
 		}
 
+		if(!$report_only)
+		{
+			foreach($this->installConfig as $component => $config)
+			{
+				if(isset($config['chkconfig']) && is_array($config['chkconfig']))
+					foreach ($config['chkconfig'] as $service)
+						OsUtils::stopService($service);
+			}
+		}
+
 		if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
 		{
 			if ($report_only)
@@ -150,13 +160,6 @@ class Installer
 			}
 			else
 			{
-				foreach($this->installConfig as $component => $config)
-				{
-					if(isset($config['chkconfig']) && is_array($config['chkconfig']))
-						foreach ($config['chkconfig'] as $service)
-							OsUtils::stopService($service);
-				}
-
 				Logger::logMessage(Logger::LEVEL_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
 				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));
 			}
@@ -452,7 +455,7 @@ class Installer
 			return true;
 
 		// send settings mail if possible
-		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME);
+		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
 		$versionType = AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE);
 		$adminMail = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
 		$adminPassword = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD);
