@@ -36,9 +36,8 @@ if(isset($options['h']))
 
 // start the log
 Logger::init(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log');
-
 echo PHP_EOL;
-Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installation started");
+Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation");
 OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);

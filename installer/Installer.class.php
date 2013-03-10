@@ -67,7 +67,7 @@ class Installer
 
 	private function createOpertingSystemUsers()
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Creating Operting System Users");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating operting system users");
 		$dir = __DIR__ . '/../directoryConstructor';
 		return OsUtils::phing($dir, 'Create-Users');
 	}

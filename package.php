@@ -56,6 +56,8 @@ date_default_timezone_set(@date_default_timezone_get());
 Logger::init(__DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log');
 
 AppConfig::init(__DIR__);
+echo PHP_EOL;
+Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation Packager");
 OsUtils::setLogPath(__DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
