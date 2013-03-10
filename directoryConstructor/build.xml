@@ -69,6 +69,7 @@
 				<dos2unix>
 					<fileset dir="${BASE_DIR}" defaultexcludes="false">
 						<type type="file" />
+						<include name="**/*.sh" />
 						<include name="**/*.php" />
 						<include name="**/*template*" />
 					</fileset>
