@@ -302,7 +302,7 @@ class AppConfig
 		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
 			self::set(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_PORT));
 
-		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME, self::extractHostName(parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_HOST)));
+		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME, self::extractHostName(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME)));
 		self::initField(AppConfigAttribute::ENVIRONMENT_NAME, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
 		self::initField(AppConfigAttribute::CORP_REDIRECT, '');
 		self::initField(AppConfigAttribute::CDN_HOST, self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME));
