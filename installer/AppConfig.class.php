@@ -214,7 +214,6 @@ class AppConfig
 
 		$hostname = self::getHostname();
 
-		self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		if($silentRun)
 		{
 			self::initField(AppConfigAttribute::TIME_ZONE, date_default_timezone_get());
@@ -228,6 +227,7 @@ class AppConfig
 			self::initField(AppConfigAttribute::DB_ROOT_PASS, 'root');
 			self::initField(AppConfigAttribute::DB1_CREATE_NEW_DB, 'y');
 			self::initField(AppConfigAttribute::SPHINX_DB_HOST, ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
+			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 		else
 		{
@@ -257,6 +257,7 @@ class AppConfig
 
 				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
 			}
+			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 
 		if(!self::$packageDir)
