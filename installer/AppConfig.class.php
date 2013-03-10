@@ -297,7 +297,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::CURL_BIN_DIR, "/usr/bin");
 
 		// site settings
-		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 80);
+		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
 		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
 			self::set(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_PORT));
 
@@ -584,7 +584,8 @@ class AppConfig
 
 				if($component == 'ssl' && !isset(self::$config[AppConfigAttribute::ENVIRONMENT_PROTOCOL]))
 				{
-					self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+					self::set(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
+					self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 443);
 				}
 
 				$selectedComponents[] = $component;
@@ -618,11 +619,16 @@ class AppConfig
 
 	public static function getCurrentMachineComponents()
 	{
+		$components = array('*');
+
 		$config = self::getCurrentMachineConfig();
 		if($config && isset($config['components']))
-			return explode(',', $config['components']);
+			$components = explode(',', $config['components']);
 
-		return '*';
+		if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', $components))
+			$components[] = 'ssl';
+
+		return $components;
 	}
 
 	public static function getCurrentMachineConfig()
