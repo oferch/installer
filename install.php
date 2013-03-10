@@ -184,7 +184,7 @@ if ($install_output !== null)
 	}
 
 	if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
-		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please upload the installation log file to the Kaltura CE forum at kaltura.org");
+		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please upload the installation log files to the Kaltura CE forum at kaltura.org");
 	else
 		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please contant the support team at support@kaltura.com with the installation log attached");
 
