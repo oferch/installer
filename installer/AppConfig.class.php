@@ -260,6 +260,12 @@ class AppConfig
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 
+		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
+		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
+			self::set(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_PORT));
+		elseif(self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT) != 80 && self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT) != 443)
+			self::set(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . ':' . self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT));
+
 		if(!self::$packageDir)
 			self::init(self::get(AppConfigAttribute::BASE_DIR));
 
@@ -298,10 +304,6 @@ class AppConfig
 		self::initField(AppConfigAttribute::CURL_BIN_DIR, "/usr/bin");
 
 		// site settings
-		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
-		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
-			self::set(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, parse_url(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), PHP_URL_PORT));
-
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME, self::extractHostName(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME)));
 		self::initField(AppConfigAttribute::ENVIRONMENT_NAME, self::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
 		self::initField(AppConfigAttribute::CORP_REDIRECT, '');
