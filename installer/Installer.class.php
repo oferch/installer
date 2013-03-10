@@ -301,7 +301,7 @@ class Installer
 			$this->installComponent($component);
 
 		if(!$this->createDynamicEnums())
-			return "Failed to create dynamic enums";
+			return "Failed to create plugins dynamic enumerations";
 
 		if(!$this->createInitialContent())
 			return "Failed to create initial content";
@@ -643,7 +643,7 @@ class Installer
 
 	private function createDynamicEnums()
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Creating Dynamic Enums");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating plugins dynamic enumerations");
 		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
 	}
 
