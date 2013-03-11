@@ -418,7 +418,7 @@ class Installer
 			return "Component [$component] not found";
 
 		$componentConfig = $this->installConfig[$component];
-		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component] " . $componentConfig['title']);
+		Logger::logMessage(Logger::LEVEL_USER, "Installing " . $componentConfig['title'] . " component");
 
 		$includeFile = __DIR__ . "/components/$component.php";
 		if(file_exists($includeFile))
