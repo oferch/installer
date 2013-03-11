@@ -302,9 +302,48 @@ class OsUtils {
 	}
 
 	// recursive delete the $path and return true/false according to success
-	public static function recursiveDelete($path) {
-		return self::execute("rm -rf $path");
-    }
+	public static function recursiveDelete($path, $exclude = null)
+	{
+		if(! $exclude)
+			return self::execute("rm -rf $path");
+
+		if(is_array($exclude))
+		{
+			$excludes = $exclude;
+		}
+		else
+		{
+			if($exclude[0] != '/')
+				$exclude = realpath("$path/$exclude");
+
+			$excludes = array();
+			while(realpath($path) != realpath($exclude))
+			{
+				$excludes[] = $exclude;
+				$exclude = dirname($exclude);
+			}
+		}
+
+		$dir = dir($path);
+		while(false !== ($subPath = $dir->read()))
+		{
+			if($subPath[0] == '.')
+				continue;
+
+			$subPath = realpath("$path/$subPath");
+			$currentDir = array_search($subPath, $excludes);
+			if($currentDir === false)
+			{
+				self::recursiveDelete($subPath);
+				continue;
+			}
+
+			unset($excludes[$currentDir]);
+			if(count($excludes))
+				self::recursiveDelete($subPath, $excludes);
+		}
+		$dir->close();
+	}
 
 	/**
 	 * Function receives an .ini file path and an array of values and writes the array into the file.

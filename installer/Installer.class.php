@@ -158,10 +158,15 @@ class Installer
 			{
 				$leftovers .= "   Target directory ".AppConfig::get(AppConfigAttribute::BASE_DIR)." already exists".PHP_EOL;
 			}
-			else
+			elseif(AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 			{
 				Logger::logMessage(Logger::LEVEL_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR));
 				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR));
+			}
+			else
+			{
+				Logger::logMessage(Logger::LEVEL_USER, "Deleting ".AppConfig::get(AppConfigAttribute::BASE_DIR) . " excluding web content");
+				OsUtils::recursiveDelete(AppConfig::get(AppConfigAttribute::BASE_DIR), 'web/content');
 			}
 		}
 
