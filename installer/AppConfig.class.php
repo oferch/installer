@@ -255,7 +255,7 @@ class AppConfig
 
 				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use 127.0.0.1).", null, InputValidator::createHostValidator(), '127.0.0.1');
 
-				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", null, null, 'http');
+				self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", 'Invalid environment protocol - please enter http or https', InputValidator::createEnumValidator(array('http', 'https'), false, true), 'http');
 			}
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
