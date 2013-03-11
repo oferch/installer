@@ -235,7 +235,7 @@ class Installer
 	 * Installs the application according to the given parameters\
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
 	 */
-	public function install($packageDir = null)
+	public function install($packageDir = null, $dontValidate = false)
 	{
 		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
 		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
@@ -337,9 +337,12 @@ class Installer
 		if($packageDir)
 			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 
-		Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
-		if(!$this->verifyInstallation())
-			return "Failed to verify installation";
+		if(!$dontValidate)
+		{
+			Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
+			if(!$this->verifyInstallation())
+				return "Failed to verify installation";
+		}
 
 		$this->done();
 

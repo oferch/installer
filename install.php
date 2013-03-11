@@ -17,7 +17,7 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsuC:p:');
+$options = getopt('hsudC:p:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
@@ -25,6 +25,7 @@ if(isset($options['h']))
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
 	echo "-u - Uninstall previous installation." . PHP_EOL;
 	echo "-p - Package XML path or URL." . PHP_EOL;
+	echo "-d - Don't validate installation." . PHP_EOL;
 	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
@@ -45,6 +46,7 @@ Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura V
 
 $silentRun = isset($options['s']);
 $uninstall = isset($options['u']);
+$dontValidate = isset($options['d']);
 $downloadCode = false;
 
 $packageDir = realpath(__DIR__ . '/../package');
@@ -171,7 +173,7 @@ if($downloadCode)
 // run the installation
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Kaltura Server");
-$install_output = $installer->install($packageDir);
+$install_output = $installer->install($packageDir, $dontValidate);
 if ($install_output !== null)
 {
 	$description = "Installation failed.";
