@@ -418,7 +418,7 @@ class Installer
 			return "Component [$component] not found";
 
 		$componentConfig = $this->installConfig[$component];
-		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component]");
+		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component] " . $componentConfig['title']);
 
 		$includeFile = __DIR__ . "/components/$component.php";
 		if(file_exists($includeFile))
@@ -638,7 +638,7 @@ class Installer
 
 	private function installDB()
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Creating databases and database users");
+		Logger::logMessage(Logger::LEVEL_INFO, "Creating databases and database users");
 
 		$dir = __DIR__ . '/../dbSchema';
 		if(!OsUtils::phing($dir))
@@ -655,7 +655,7 @@ class Installer
 
 	private function createQueryCacheTriggers()
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Create query cache triggers");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating query cache triggers");
 		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/createQueryCacheTriggers.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
 	}
 
