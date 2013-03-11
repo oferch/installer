@@ -10,14 +10,11 @@
 		</configurations>
 	</app>
 	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
+		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages/trunk" skipFilesOwner="true" skipFilesMode="true" />
 		<clipapp skipFilesOwner="true" skipFilesMode="true">
 			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" skipFilesOwner="true" skipFilesMode="true" />
 			<v1.0.7 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7" skipFilesOwner="true" skipFilesMode="true" />
 		</clipapp>
-		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages/trunk" skipFilesOwner="true" skipFilesMode="true" />
-		<html5 skipFilesOwner="true" skipFilesMode="true">
-			<html5lib gitPath="/kaltura/mwEmbed.git" gitTag="v1.6.12.27g" skipFilesOwner="true" skipFilesMode="true" />
-		</html5>
 	</apps>
 	<log user="${OS_KALTURA_USER}" mode="0770" filesMode="0660" skipFilesOwner="true">
 		<batch user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
@@ -258,6 +255,9 @@
 			<thumb mode="0770" skipFilesOwner="true" />
 			<xml mode="0770" skipFilesOwner="true" />
 		</tmp>
+		<html5 skipFilesOwner="true" skipFilesMode="true">
+			<html5lib gitPath="/kaltura/mwEmbed.git" gitTag="v1.6.12.27g" skipFilesOwner="true" skipFilesMode="true" />
+		</html5>
 	</web>
 	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk">
 		<ddl skipFilesOwner="true" skipFilesMode="true">
