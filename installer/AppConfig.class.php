@@ -756,7 +756,7 @@ class AppConfig
 	// if it is a template file it will save it to a non template file and then override it
 	public static function replaceTokensInFile($file)
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Replacing configuration tokens in file [$file]");
+		Logger::logMessage(Logger::LEVEL_INFO, "Replacing configuration tokens in file [$file]");
 		$newfile = self::copyTemplateFileIfNeeded($file);
 		$data = @file_get_contents($newfile);
 		if(! $data)
