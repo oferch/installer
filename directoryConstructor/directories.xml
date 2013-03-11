@@ -256,7 +256,9 @@
 			<xml mode="0770" skipFilesOwner="true" />
 		</tmp>
 		<html5 skipFilesOwner="true" skipFilesMode="true">
-			<html5lib gitPath="/kaltura/mwEmbed.git" gitTag="v1.6.12.27g" skipFilesOwner="true" skipFilesMode="true" />
+			<html5lib>
+				<v1.7.2 gitPath="/kaltura/mwEmbed.git" gitTag="v1.7.2" skipFilesOwner="true" skipFilesMode="true" />
+			</html5lib>
 		</html5>
 	</web>
 	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk">
