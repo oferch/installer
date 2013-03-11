@@ -348,8 +348,6 @@ class Installer
 
 	private function createSymlinks(array $symlinks)
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Creating system symbolic links");
-
 		foreach ($symlinks as $slink)
 		{
 			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
