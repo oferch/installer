@@ -297,6 +297,7 @@ class Installer
 			}
 		}
 
+		Logger::logMessage(Logger::LEVEL_USER, "Creating symbolic links");
 		foreach($this->components as $component)
 			$this->installComponentSymlinks($component);
 
@@ -326,6 +327,7 @@ class Installer
 		if(!$this->restartApache(true))
 			return "Failed restarting apache http server";
 
+		Logger::logMessage(Logger::LEVEL_USER, "Starting services");
 		foreach($this->components as $component)
 			$this->installComponentServices($component);
 
@@ -381,7 +383,6 @@ class Installer
 
 	private function startServices(array $services)
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Running kaltura services");
 		foreach ($services as $service)
 		{
 			if (!OsUtils::startService($service))
@@ -393,7 +394,7 @@ class Installer
 		return true;
 	}
 
-	public function installComponentSymlinks($component)
+	private function installComponentSymlinks($component)
 	{
 		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
@@ -402,7 +403,7 @@ class Installer
 			return true;
 
 		$componentConfig = $this->installConfig[$component];
-		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component] symbolic links");
+		Logger::logMessage(Logger::LEVEL_INFO, "Installing component [$component] symbolic links");
 
 		$createSymlinks = $this->createSymlinks($componentConfig['symlinks']);
 		if($createSymlinks !== true)
@@ -411,7 +412,7 @@ class Installer
 		return true;
 	}
 
-	public function installComponent($component)
+	private function installComponent($component)
 	{
 		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
@@ -430,7 +431,7 @@ class Installer
 		return true;
 	}
 
-	public function installComponentServices($component)
+	private function installComponentServices($component)
 	{
 		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
@@ -439,7 +440,7 @@ class Installer
 			return true;
 
 		$componentConfig = $this->installConfig[$component];
-		Logger::logMessage(Logger::LEVEL_USER, "Installing component [$component] services");
+		Logger::logMessage(Logger::LEVEL_INFO, "Installing component [$component] services");
 
 		$startServices = $this->startServices($componentConfig['chkconfig']);
 		if($startServices !== true)
