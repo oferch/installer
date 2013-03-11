@@ -343,6 +343,8 @@ class OsUtils {
 				self::recursiveDelete($subPath, $excludes);
 		}
 		$dir->close();
+
+		return true;
 	}
 
 	/**

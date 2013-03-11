@@ -35,6 +35,51 @@ function execute($command) {
 	return ($return_var === 0);
 }
 
+function recursiveDelete($path, $exclude = null)
+{
+	if(! $exclude)
+		return execute("rm -rf $path");
+
+	if(is_array($exclude))
+	{
+		$excludes = $exclude;
+	}
+	else
+	{
+		if($exclude[0] != '/')
+			$exclude = realpath("$path/$exclude");
+
+		$excludes = array();
+		while(realpath($path) != realpath($exclude))
+		{
+			$excludes[] = $exclude;
+			$exclude = dirname($exclude);
+		}
+	}
+
+	$dir = dir($path);
+	while(false !== ($subPath = $dir->read()))
+	{
+		if($subPath[0] == '.')
+			continue;
+
+		$subPath = realpath("$path/$subPath");
+		$currentDir = array_search($subPath, $excludes);
+		if($currentDir === false)
+		{
+			recursiveDelete($subPath);
+			continue;
+		}
+
+		unset($excludes[$currentDir]);
+		if(count($excludes))
+			recursiveDelete($subPath, $excludes);
+	}
+	$dir->close();
+
+	return true;
+}
+
 // connect to a db, returns true if succeeds, false otherwise
 function connect(&$link, $host, $user, $pass, $db, $port) {
 	// set mysqli to connect via tcp
@@ -167,14 +212,24 @@ if (getTrueFalse(true))
 			}
 		}
 	}
-}
 
-echo "Removing ".$config['BASE_DIR']."... ";
-if (execute("rm -rf ".$config['BASE_DIR'])) {
-	echo 'OK'.PHP_EOL;
-} else {
-	echo 'Failed'.PHP_EOL;
-	$success = false;
+	echo "Removing ".$config['BASE_DIR']."... ";
+	if(recursiveDelete($config['BASE_DIR'])) {
+		echo 'OK'.PHP_EOL;
+	} else {
+		echo 'Failed'.PHP_EOL;
+		$success = false;
+	}
+}
+else
+{
+	echo "Removing ".$config['BASE_DIR']." excluding web content... ";
+	if(recursiveDelete($config['BASE_DIR'], 'web/content')) {
+		echo 'OK'.PHP_EOL;
+	} else {
+		echo 'Failed'.PHP_EOL;
+		$success = false;
+	}
 }
 
 echo "Removing apache and red5 symlinks...";
