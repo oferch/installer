@@ -35,10 +35,13 @@ if(isset($options['h']))
 }
 
 // start the log
-Logger::init(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log');
+$logPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log';
+$detailsLogPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log';
+Logger::init($logPath);
+OsUtils::setLogPath($detailsLogPath);
+
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation");
-OsUtils::setLogPath(__DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
 $uninstall = isset($options['u']);
@@ -183,9 +186,17 @@ if ($install_output !== null)
 	}
 
 	if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
+	{
 		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please upload the installation log files to the Kaltura CE forum at kaltura.org");
+	}
 	else
-		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please contant the support team at support@kaltura.com with the installation log attached");
+	{
+		Logger::logMessage(Logger::LEVEL_USER, "For assistance, please contant the support team at support@kaltura.com with the installation log files attached");
+	}
+
+	Logger::logMessage(Logger::LEVEL_USER, "Installation log files:");
+	Logger::logMessage(Logger::LEVEL_USER, "\t - $logPath");
+	Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
 
 	exit(1);
 }

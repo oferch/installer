@@ -53,12 +53,13 @@ ini_set('max_input_time ', 0);
 date_default_timezone_set(@date_default_timezone_get());
 
 // start the log
-Logger::init(__DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log');
+$logPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log';
+$detailsLogPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log';
+Logger::init($logPath);
+OsUtils::setLogPath($detailsLogPath);
 
-AppConfig::init(__DIR__);
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation Packager");
-OsUtils::setLogPath(__DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log');
 
 $silentRun = isset($options['s']);
 $configure = false;
@@ -88,6 +89,9 @@ Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Packaging..."
 if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
 {
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
+	Logger::logMessage(Logger::LEVEL_USER, "Packaging log files:");
+	Logger::logMessage(Logger::LEVEL_USER, "\t - $logPath");
+	Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
 	exit(-1);
 }
 
