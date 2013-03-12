@@ -100,9 +100,10 @@ class Installer
 
 		foreach($this->installConfig as $component => $config)
 		{
-			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
+			if(!isset($config['symlinks']) || !is_array($config['symlinks']) || !count($config['symlinks']))
 				continue;
 
+			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
 			foreach ($config['symlinks'] as $slink)
 			{
 				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
@@ -114,7 +115,7 @@ class Installer
 					}
 					else
 					{
-						Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic link $link");
+						Logger::logMessage(Logger::LEVEL_INFO, "Removing symbolic link $link");
 						OsUtils::recursiveDelete($link);
 					}
 				}

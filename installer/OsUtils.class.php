@@ -236,7 +236,7 @@ class OsUtils {
 
 	public static function executeInBackground($cmd) {
 		$cmd .= ' >> ' . self::$log . ' 2>&1 &';
-		Logger::logMessage(Logger::LEVEL_USER, "Executing in background [$cmd]");
+		Logger::logMessage(Logger::LEVEL_INFO, "Executing in background [$cmd]");
 		exec($cmd, $output, $return_var);
 	}
 
