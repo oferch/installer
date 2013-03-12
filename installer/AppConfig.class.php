@@ -74,6 +74,7 @@ class AppConfigAttribute
 	const REPORT_ADMIN_EMAIL = 'REPORT_ADMIN_EMAIL';
 
 	const BATCH_SCHEDULER_ID = 'BATCH_SCHEDULER_ID';
+	const BATCH_SCHEDULER_TEMPLATE = 'BATCH_SCHEDULER_TEMPLATE';
 
 	const BATCH_PARTNER_ADMIN_SECRET = 'BATCH_PARTNER_ADMIN_SECRET';
 	const PARTNER_ZERO_ADMIN_SECRET = 'PARTNER_ZERO_ADMIN_SECRET';
@@ -425,10 +426,15 @@ class AppConfig
 
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 
+		$scheulderTemplate = self::getCurrentMachineConfig(AppConfigAttribute::BATCH_SCHEDULER_TEMPLATE);
+		if(!$scheulderTemplate)
+			$scheulderTemplate = 'mainTemplate';
+
 		$scheulderId = self::getCurrentMachineConfig(AppConfigAttribute::BATCH_SCHEDULER_ID);
 		if(!$scheulderId)
 			$scheulderId = 1;
 
+		self::set(AppConfigAttribute::BATCH_SCHEDULER_TEMPLATE, $scheulderTemplate);
 		self::set(AppConfigAttribute::BATCH_SCHEDULER_ID, $scheulderId);
 		self::set(AppConfigAttribute::INSTALLED_HOSNAME, self::getHostname());
 	}
@@ -597,7 +603,8 @@ class AppConfig
 
 				if($component == 'batch')
 				{
-					$hostConfig[AppConfigAttribute::BATCH_SCHEDULER_ID] = isset($definedComponents[$component]) ? $definedComponents[$component] : 0;
+					$hostConfig[AppConfigAttribute::BATCH_SCHEDULER_ID] = isset($definedComponents[$component]) ? ($definedComponents[$component] + 1) : 1;
+					$hostConfig[AppConfigAttribute::BATCH_SCHEDULER_TEMPLATE] = isset($definedComponents[$component]) ? 'template' : 'mainTemplate';
 					self::set(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
 					self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 443);
 				}
