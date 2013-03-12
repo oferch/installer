@@ -640,6 +640,9 @@ class Installer
 
 	private function installDB()
 	{
+		if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+			return true;
+
 		Logger::logMessage(Logger::LEVEL_INFO, "Creating databases and database users");
 
 		$dir = __DIR__ . '/../dbSchema';
