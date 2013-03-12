@@ -141,13 +141,8 @@ $installer = new Installer($components);
 $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
-	if ($uninstall || (!$silentRun && AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n')))
-	{
-		echo PHP_EOL;
-		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
-		$installer->detectLeftovers(false);
-	}
-	else
+
+	if($silentRun && !$uninstall)
 	{
 		$description = "Installation cannot continue because a previous installation of Kaltura was detected.\n" . $leftovers;
 		if ($report)
@@ -155,6 +150,13 @@ if (isset($leftovers)) {
 
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
 		exit(-2);
+	}
+
+	if ($uninstall || AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n'))
+	{
+		echo PHP_EOL;
+		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
+		$installer->detectLeftovers(false);
 	}
 }
 
