@@ -98,12 +98,12 @@ class Installer
 	public function detectLeftovers($report_only) {
 		$leftovers = null;
 
+		Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
 		foreach($this->installConfig as $component => $config)
 		{
-			if(!isset($config['symlinks']) || !is_array($config['symlinks']) || !count($config['symlinks']))
+			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
 				continue;
 
-			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
 			foreach ($config['symlinks'] as $slink)
 			{
 				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
@@ -464,15 +464,16 @@ class Installer
 
 		// send settings mail if possible
 		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
+		$url = AppConfig::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
 		$versionType = AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE);
 		$adminMail = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
 		$adminPassword = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD);
 
 		$msg = "Thank you for installing the Kaltura Video Platform\n\n";
 		$msg .= "To get started, please browse to your kaltura start page at:\n";
-		$msg .= "http://$virtualHostName/start\n\n";
+		$msg .= "$url/start\n\n";
 		$msg .= "Your $versionType administration console can be accessed at:\n";
-		$msg .= "http://$virtualHostName/admin_console\n\n";
+		$msg .= "$url/admin_console\n\n";
 		$msg .= "Your Admin Console credentials are:\n";
 		$msg .= "System admin user: $adminMail\n";
 		$msg .= "System admin password: $adminPassword\n\n";
@@ -490,9 +491,9 @@ class Installer
 		$mailer->Body = $msg;
 
 		if ($mailer->Send()) {
-			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Post installation email cannot be sent");
-		} else {
 			Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Sent post installation settings email to ".AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL));
+		} else {
+			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Post installation email cannot be sent");
 		}
 
 		// print after installation instructions
@@ -515,7 +516,7 @@ class Installer
 				"To start using Kaltura, please complete the following steps:\n" .
 				"1. Add the following line to your /etc/hosts file:\n" .
 					"\t127.0.0.1 $virtualHostName\n" .
-				"2. Browse to your Kaltura start page at: http://$virtualHostName/start\n"
+				"2. Browse to your Kaltura start page at: $url/start\n"
 			);
 		}
 	}
