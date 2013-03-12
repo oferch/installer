@@ -73,6 +73,8 @@ class AppConfigAttribute
 	const ADMIN_CONSOLE_PASSWORD = 'ADMIN_CONSOLE_PASSWORD';
 	const REPORT_ADMIN_EMAIL = 'REPORT_ADMIN_EMAIL';
 
+	const BATCH_SCHEDULER_ID = 'BATCH_SCHEDULER_ID';
+
 	const BATCH_PARTNER_ADMIN_SECRET = 'BATCH_PARTNER_ADMIN_SECRET';
 	const PARTNER_ZERO_ADMIN_SECRET = 'PARTNER_ZERO_ADMIN_SECRET';
 	const ADMIN_CONSOLE_PARTNER_ADMIN_SECRET = 'ADMIN_CONSOLE_PARTNER_ADMIN_SECRET';
@@ -109,10 +111,9 @@ class AppConfigAttribute
 	const POST_INST_VIRTUAL_HOST_NAME = 'POST_INST_VIRTUAL_HOST_NAME';
 	const POST_INST_ADMIN_CONSOLE_ADMIN_MAIL = 'POST_INST_ADMIN_CONSOLE_ADMIN_MAIL';
 	const ENVIRONMENT_NAME = 'ENVIRONMENT_NAME';
-	const BATCH_HOST_NAME = 'BATCH_HOST_NAME';
-	const BATCH_PARTNER_PARTNER_ALIAS = 'BATCH_PARTNER_PARTNER_ALIAS';
 	const APACHE_SERVICE = 'APACHE_SERVICE';
 	const ENVIRONMENT_PROTOCOL = 'ENVIRONMENT_PROTOCOL';
+	const INSTALLED_HOSNAME = 'INSTALLED_HOSNAME';
 
 	const CONTACT_URL = 'CONTACT_URL';
 	const SIGNUP_URL = 'SIGNUP_URL';
@@ -326,10 +327,6 @@ class AppConfig
 		self::initField(AppConfigAttribute::EVENTS_WILDCARD, '.*kaltura.*_apache_access.log-.*');
 		self::initField(AppConfigAttribute::EVENTS_FETCH_METHOD, 'local');
 
-		// batch
-		self::initField(AppConfigAttribute::BATCH_HOST_NAME, OsUtils::getComputerName());
-		self::initField(AppConfigAttribute::BATCH_PARTNER_PARTNER_ALIAS, md5('-1kaltura partner'));
-
 		// other configurations
 		if(OsUtils::getOsName() != OsUtils::WINDOWS_OS)
 		{
@@ -427,6 +424,13 @@ class AppConfig
 		self::initField(AppConfigAttribute::VERIFY_INSTALLATION, true);
 
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
+
+		$scheulderId = self::getCurrentMachineConfig(AppConfigAttribute::BATCH_SCHEDULER_ID);
+		if(!$scheulderId)
+			$scheulderId = 1;
+
+		self::set(AppConfigAttribute::BATCH_SCHEDULER_ID, $scheulderId);
+		self::set(AppConfigAttribute::INSTALLED_HOSNAME, self::getHostname());
 	}
 
 	protected static function configureMultipleServers()
@@ -585,14 +589,24 @@ class AppConfig
 					}
 				}
 
-				if($component == 'ssl' && !isset(self::$config[AppConfigAttribute::ENVIRONMENT_PROTOCOL]))
+				if($component == 'ssl')
 				{
+					self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
+					self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 443);
+				}
+
+				if($component == 'batch')
+				{
+					$hostConfig[AppConfigAttribute::BATCH_SCHEDULER_ID] = isset($definedComponents[$component]) ? $definedComponents[$component] : 0;
 					self::set(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
 					self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 443);
 				}
 
 				$selectedComponents[] = $component;
-				$definedComponents[$component] = true;
+				if(isset($definedComponents[$component]))
+					$definedComponents[$component]++;
+				else
+					$definedComponents[$component] = 1;
 			}
 
 			$hostConfig['components'] = implode(',', $selectedComponents);
@@ -634,11 +648,17 @@ class AppConfig
 		return $components;
 	}
 
-	public static function getCurrentMachineConfig()
+	public static function getCurrentMachineConfig($field = null)
 	{
 		$hostname = self::getHostname();
 		if(isset(self::$config[$hostname]))
-			return self::$config[$hostname];
+		{
+			if(!$field)
+				return self::$config[$hostname];
+
+			if(isset(self::$config[$hostname][$field]))
+				return self::$config[$hostname][$field];
+		}
 
 		return null;
 	}
