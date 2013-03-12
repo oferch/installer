@@ -61,6 +61,8 @@ OsUtils::setLogPath($detailsLogPath);
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation Packager");
 
+AppConfig::init(__DIR__);
+
 $silentRun = isset($options['s']);
 $configure = false;
 if(isset($options['c']))
