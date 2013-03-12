@@ -216,7 +216,7 @@ class Installer
 	// puts a Kaltura CE activation key
 	public static function simMafteach()
 	{
-		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) != AppConfig::K_CE_TYPE)
+		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
 			return;
 
 		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
