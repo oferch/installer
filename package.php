@@ -10,7 +10,7 @@ include_once('installer/Validator.class.php');
 include_once('installer/InputValidator.class.php');
 include_once('installer/phpmailer/class.phpmailer.php');
 
-$options = getopt('hsc');
+$options = getopt('hsct:');
 if($argc < 2 || isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments] <outputdir>'.PHP_EOL;
@@ -23,6 +23,7 @@ if($argc < 2 || isset($options['h']))
 	echo "-h - Show this help." . PHP_EOL;
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
 	echo "-c - Run configurator." . PHP_EOL;
+	echo "-t - Type TM/CE." . PHP_EOL;
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
 	echo 'php ' . __FILE__ . ' -s' . PHP_EOL;
@@ -61,7 +62,10 @@ OsUtils::setLogPath($detailsLogPath);
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation Packager");
 
-AppConfig::init(__DIR__);
+$type = AppConfig::K_TM_TYPE;
+if(isset($options['t']))
+	$type = $options['t'];
+AppConfig::init(__DIR__, $type);
 
 $silentRun = isset($options['s']);
 $configure = false;

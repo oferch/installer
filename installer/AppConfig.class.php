@@ -124,7 +124,6 @@ class AppConfigAttribute
 	const FORUMS_URLS = 'FORUMS_URLS';
 	const UNSUBSCRIBE_EMAIL_URL = 'UNSUBSCRIBE_EMAIL_URL';
 	const GOOGLE_ANALYTICS_ACCOUNT = 'GOOGLE_ANALYTICS_ACCOUNT';
-	const INSTALLATION_TYPE = 'INSTALLATION_TYPE';
 	const INSTALLATION_UID = 'INSTALLATION_UID';
 	const INSTALLATION_SEQUENCE_UID = 'INSTALLATION_SEQUENCE_UID';
 
@@ -188,19 +187,27 @@ class AppConfig
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
-	public static function init($packageDir)
+	public static function init($packageDir, $type = null)
 	{
 		self::$packageDir = $packageDir;
-
-		self::initField(AppConfigAttribute::KALTURA_VERSION_TYPE, self::K_CE_TYPE);
-		self::initField(AppConfigAttribute::KALTURA_VERSION, 'Kaltura-' . self::K_CE_TYPE);
-
 		$versionPath = self::$packageDir . "/version.ini";
 		if(file_exists($versionPath))
 		{
 			$version = parse_ini_file($versionPath);
-			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura-' . $version['type'] . '-' . $version['number']);
-			self::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $version['type']);
+
+			if(is_null($type))
+				$type = $version['type'];
+
+			self::set(AppConfigAttribute::KALTURA_VERSION, 'Kaltura-' . $type . '-' . $version['number']);
+			self::set(AppConfigAttribute::KALTURA_VERSION_TYPE, $type);
+		}
+		else
+		{
+			if(is_null($type))
+				$type = self::K_CE_TYPE;
+
+			self::initField(AppConfigAttribute::KALTURA_VERSION_TYPE, $type);
+			self::initField(AppConfigAttribute::KALTURA_VERSION, "Kaltura-$type");
 		}
 	}
 
@@ -340,7 +347,6 @@ class AppConfig
 		self::initField(AppConfigAttribute::APACHE_SERVICE, OsUtils::findService(array('httpd', 'apache2')));
 		date_default_timezone_set(self::get(AppConfigAttribute::TIME_ZONE));
 		self::initField(AppConfigAttribute::GOOGLE_ANALYTICS_ACCOUNT, 'UA-7714780-1');
-		self::initField(AppConfigAttribute::INSTALLATION_TYPE, '');
 		self::initField(AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_FROM, '');
 		self::initField(AppConfigAttribute::PARTNERS_USAGE_REPORT_SEND_TO, '');
 		self::initField(AppConfigAttribute::DC0_SECRET, '');
