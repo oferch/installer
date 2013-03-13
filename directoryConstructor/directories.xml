@@ -3,7 +3,7 @@
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
 	-->
-	<app user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/trunk/core" override="true">
+	<app user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/trunk/core">
 		<cache mode="0770" filesMode="0660" skipFilesOwner="true" />
 		<configurations skipFilesMode="true" skipFilesOwner="true">
 			<monit mode="0750" filesMode="0600" skipFilesOwner="true" />
@@ -69,9 +69,6 @@
 				<v3.6.5 svnPath="/usr/local/kalprod/flash/kdp3/v3.6.5" skipFilesOwner="true" skipFilesMode="true" />
 				<v3.5.9 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.9" skipFilesOwner="true" skipFilesMode="true" />
 			</kdp3>
-			<krecord skipFilesOwner="true" skipFilesMode="true">
-				<v1.5.12 svnPath="/usr/local/kalprod/flash/krecord/v1.5.12" skipFilesOwner="true" skipFilesMode="true" />
-			</krecord>
 			<kupload skipFilesOwner="true" skipFilesMode="true">
 				<v1.2.8 svnPath="/usr/local/kalprod/flash/kupload/v1.2.8" skipFilesOwner="true" skipFilesMode="true" />
 			</kupload>
@@ -219,9 +216,6 @@
 				<v1.1.23 svnPath="/usr/local/kalprod/flash/kupload/v1.1.23" skipFilesOwner="true" skipFilesMode="true" />
 				<v1.0.23 svnPath="/usr/local/kalprod/flash/kupload/v1.0.23" skipFilesOwner="true" skipFilesMode="true" />
 			</kupload>
-			<ksr skipFilesOwner="true" skipFilesMode="true">
-				<v1.0.33s svnPath="/usr/local/kalprod/flash/ksr/v1.0.33s" skipFilesOwner="true" skipFilesMode="true" />
-			</ksr>
 		</flash>
 		<content mode="0750" skipFilesMode="true" skipFilesOwner="true">
 			<uploads mode="0700" skipFilesMode="true" skipFilesOwner="true" />
