@@ -220,7 +220,7 @@ class AppConfig
 		$token = md5(uniqid(rand(), true));
 		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
 		$key = base64_encode($str);
-		AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, $key);
+		AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, "\"$key\"");
 	}
 
 	/**
