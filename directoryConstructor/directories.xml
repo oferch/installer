@@ -13,7 +13,9 @@
 		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages/trunk" skipFilesOwner="true" skipFilesMode="true" />
 		<clipapp skipFilesOwner="true" skipFilesMode="true">
 			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" skipFilesOwner="true" skipFilesMode="true" />
+			<v1.0.5_saas svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5_saas" skipFilesOwner="true" skipFilesMode="true" />
 			<v1.0.7 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7" skipFilesOwner="true" skipFilesMode="true" />
+			<v1.0.7_saas svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7_saas" skipFilesOwner="true" skipFilesMode="true" />
 		</clipapp>
 	</apps>
 	<log user="${OS_KALTURA_USER}" mode="0770" filesMode="0660" skipFilesOwner="true">
