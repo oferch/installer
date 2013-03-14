@@ -228,7 +228,7 @@ class Installer
 
 		$this->saveUninstallerConfig();
 
-		Logger::logMessage(Logger::LEVEL_USER, sprintf("Current working dir is %s", getcwd()));
+		Logger::logMessage(Logger::LEVEL_INFO, sprintf("Current working dir is %s", getcwd()));
 		if ($packageDir)
 		{
 			Logger::logMessage(Logger::LEVEL_USER, sprintf("Copying application files to %s", AppConfig::get(AppConfigAttribute::BASE_DIR)));
@@ -718,20 +718,5 @@ class Installer
 		}
 
 		return true;
-	}
-
-	private function extractKCWUiconfIds ()
-	{
-		$uiconfIds = array();
-		$log = file_get_contents(OsUtils::getLogPath());
-		preg_match_all('/creating uiconf \[\d+\] for widget \w+ with default values \( \/flash\/kcw/', $log, $matches);
-		foreach ($matches[0] as $match)
-		{
-			preg_match('/\[\d+\]/', $match, $bracketedId);
-			$id = str_replace(array ('[' , ']'), array ('', ''), $bracketedId[0]);
-			$uiconfIds[] = $id;
-		}
-
-		return $uiconfIds;
 	}
 }

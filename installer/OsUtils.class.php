@@ -7,16 +7,11 @@ class OsUtils {
 	const WINDOWS_OS = 'Windows';
 	const LINUX_OS   = 'linux';
 
-	private static $log;
+	private static $log = null;
 
 	public static function setLogPath($path)
 	{
 		self::$log = $path;
-	}
-
-	public static function getLogPath()
-	{
-		return self::$log;
 	}
 
 	// returns true if the user is root, false otherwise
@@ -157,7 +152,10 @@ class OsUtils {
 
 		$originalDir = getcwd();
 		chdir($dir);
-		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target >> " . self::$log . " 2>&1";
+		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target";
+		if(self::$log)
+			$command .= " >> " . self::$log . " 2>&1";
+
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
 		$returnedValue = null;
 		passthru($command, $returnedValue);
@@ -187,16 +185,27 @@ class OsUtils {
 
 	// executes the shell $commands and returns true/false according to the execution return value
 	public static function execute($cmd) {
-		$cmd .= ' >> ' . self::$log .' 2>&1';
+		if(self::$log)
+			$cmd .= ' >> ' . self::$log .' 2>&1';
+
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing  [$cmd]");
-		exec($cmd, $output, $return_var);
+		if(self::$log)
+			exec($cmd, $output, $return_var);
+		else
+			passthru($cmd, $return_var);
+
 		if ($return_var === 0)
 			return true;
 
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Executing command failed: $cmd");
-		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Output from command is: ");
-		Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
-		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "End of Output");
+
+		if(self::$log)
+		{
+			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Output from command is: ");
+			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
+			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "End of Output");
+		}
+
 		return false;
 	}
 
@@ -235,9 +244,10 @@ class OsUtils {
 	}
 
 	public static function executeInBackground($cmd) {
-		$cmd .= ' >> ' . self::$log . ' 2>&1 &';
+		if(self::$log)
+			$cmd .= ' >> ' . self::$log . ' 2>&1 &';
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing in background [$cmd]");
-		exec($cmd, $output, $return_var);
+		passthru($cmd, $return_var);
 	}
 
 	/**

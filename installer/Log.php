@@ -36,13 +36,19 @@ class Logger
 	protected static $logPrintLevel = self::LEVEL_USER;
 
 	/**
+	 * @var int
+	 */
+	protected static $verbose;
+
+	/**
 	 * Start a new log with the given $filename
 	 * @param string $filename
 	 */
-	public static function init($filename)
+	public static function init($filename, $verbose = false)
 	{
 		OsUtils::clearScreen();
 		self::$logFile = fopen($filename, 'a');
+		self::$verbose = $verbose;
 	}
 
 	/**
@@ -79,19 +85,11 @@ class Logger
 	 */
 	public static function logMessage($level, $message, $newLine = true, $returnChars = 0)
 	{
-		if (!self::$logFile)
-			return;
-
-		if($returnChars)
-			fwrite(self::$logFile, str_repeat(chr(8), $returnChars));
-
 		$message = str_replace("\\n", PHP_EOL, $message);
 		$message = str_replace("\\t", "\t", $message);
-		$logLine = date(self::DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
-		fwrite(self::$logFile, $logLine);
 
 		// print to screen according to log level
-		if (self::$logPrintLevel >= $level)
+		if (self::$logPrintLevel >= $level || self::$verbose)
 		{
 			if($returnChars)
 				echo str_repeat(chr(8), $returnChars);
@@ -101,5 +99,14 @@ class Logger
 			if ($newLine)
 				echo PHP_EOL;
 		}
+
+		if (!self::$logFile)
+			return;
+
+		if($returnChars)
+			fwrite(self::$logFile, str_repeat(chr(8), $returnChars));
+
+		$logLine = date(self::DATE_FORMAT).' '.$level.' '.$message.PHP_EOL;
+		fwrite(self::$logFile, $logLine);
 	}
 }
