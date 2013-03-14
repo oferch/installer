@@ -1,6 +1,6 @@
 <?php
 
-if((!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB)) && (DatabaseUtils::dbExists(AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
+if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB) && (DatabaseUtils::dbExists(AppConfig::get(AppConfigAttribute::DWH_HOST), AppConfig::get(AppConfigAttribute::DWH_PORT), AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)) === true))
 {
 	Logger::logMessage(Logger::LEVEL_USER, sprintf("Skipping '%s' database creation", AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME)));
 }
