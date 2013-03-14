@@ -661,7 +661,7 @@ class Installer
 		if(!in_array('api', $this->components))
 			return true;
 
-		Logger::logMessage(Logger::LEVEL_USER, "Deploying uiconfs in order to configure the application");
+		Logger::logMessage(Logger::LEVEL_USER, "Deploying user interface configuration files (KMC ui-confs)");
 		if(isset($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2']) && is_array($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2']))
 		{
 			foreach($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2'] as $uiconfapp)
@@ -669,11 +669,11 @@ class Installer
 				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
 				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
 				{
-					Logger::logMessage(Logger::LEVEL_INFO, "Deployed uiconf $to_deploy");
+					Logger::logMessage(Logger::LEVEL_INFO, "Deployed user interface configuration files $to_deploy");
 				}
 				else
 				{
-					return "Failed to deploy uiconf $to_deploy";
+					return false;
 				}
 			}
 		}
