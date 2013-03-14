@@ -226,14 +226,15 @@ class AppConfig
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
-	public static function configure($silentRun = false, $enableMultipleServers = false)
+	public static function configure($silentRun = false, $configOnly = false)
 	{
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 
 		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
 		{
 			self::$config = parse_ini_file(self::$inputFilePath, true);
-			unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
+			if(!$configOnly && !$silentRun)
+				unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
 		}
 
 		$hostname = self::getHostname();
@@ -271,7 +272,7 @@ class AppConfig
 
 			self::getInput(AppConfigAttribute::DB_ROOT_PASS, "Database password on all database servers (leave empty for no password)", null, null, null, true);
 
-			if(!$enableMultipleServers || !self::configureMultipleServers())
+			if(!$configOnly || !self::configureMultipleServers())
 			{
 				self::getInput(AppConfigAttribute::DB1_HOST, "Database host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), 'localhost');
 
