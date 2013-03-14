@@ -219,7 +219,10 @@ class AppConfig
 		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
 
 		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
+		{
 			self::$config = parse_ini_file(self::$inputFilePath, true);
+			unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
+		}
 
 		$hostname = self::getHostname();
 
