@@ -181,8 +181,20 @@
 								</or>
 							</and>
 							<then>
-								<echo message="Update svn repository [${directory.fullPath}]" />
+								<echo message="Revert svn repository [${directory.fullPath}]" />
 								<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; revert --recursive &quot;${directory.fullPath}&quot;" />
+								<echo message="Executing: ${svn.cmd}" />
+								<exec passthru="true" checkreturn="false" returnProperty="svn.ret" command="${svn.cmd}" />
+								<echo message="Revert exit code [${svn.ret}]" />
+								<if>
+									<not><equals arg1="svn.ret" arg2="0" /></not>
+									<then>
+										<echo message="Update svn repository [${directory.fullPath}]" />
+										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update --force --accept theirs-full &quot;${directory.fullPath}&quot;" />
+										<echo message="Executing: ${svn.cmd}" />
+										<exec passthru="true" checkreturn="false" returnProperty="svn.ret" command="${svn.cmd}" />
+									</then>
+								</if>
 							</then>
 							<else>
 								<if>
@@ -196,11 +208,10 @@
 										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; checkout ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
 									</else>
 								</if>
+								<echo message="Executing: ${svn.cmd}" />
+								<exec passthru="true" checkreturn="true" command="${svn.cmd}" />
 							</else>
 						</if>
-						
-						<echo message="Executing: ${svn.cmd}" />
-						<exec passthru="true" checkreturn="true" command="${svn.cmd}" />
 					</then>
 				</if>
 			</then>
