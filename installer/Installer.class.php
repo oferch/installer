@@ -316,7 +316,14 @@ class Installer
 		if($packageDir)
 			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 
-		if(!$dontValidate)
+		if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+			$dontValidate = true;
+
+		if($dontValidate)
+		{
+			Logger::logMessage(Logger::LEVEL_USER, "Skipping installation verification");
+		}
+		else
 		{
 			Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
 			if(!$this->verifyInstallation())
