@@ -17,7 +17,7 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsudC:p:');
+$options = getopt('hsudvC:p:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
@@ -26,6 +26,7 @@ if(isset($options['h']))
 	echo "-u - Uninstall previous installation." . PHP_EOL;
 	echo "-p - Package XML path or URL." . PHP_EOL;
 	echo "-d - Don't validate installation." . PHP_EOL;
+	echo "-v - Verbose output." . PHP_EOL;
 	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
@@ -35,20 +36,25 @@ if(isset($options['h']))
 	exit(0);
 }
 
+$silentRun = isset($options['s']);
+$uninstall = isset($options['u']);
+$dontValidate = isset($options['d']);
+$verbose = isset($options['v']);
+
 // start the log
 $logPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log';
-$detailsLogPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log';
-Logger::init($logPath);
-OsUtils::setLogPath($detailsLogPath);
+$detailsLogPath = null;
+Logger::init($logPath, $verbose);
+if(!$verbose)
+{
+	$detailsLogPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log';
+	OsUtils::setLogPath($detailsLogPath);
+}
 
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_LIGHT_BLUE, Logger::LEVEL_USER, "Kaltura Video Platform - Server Installation");
 
-$silentRun = isset($options['s']);
-$uninstall = isset($options['u']);
-$dontValidate = isset($options['d']);
 $downloadCode = false;
-
 $packageDir = realpath(__DIR__ . '/../package');
 if($packageDir)
 	AppConfig::init($packageDir);
@@ -200,7 +206,9 @@ if ($install_output !== null)
 
 	Logger::logMessage(Logger::LEVEL_USER, "Installation log files:");
 	Logger::logMessage(Logger::LEVEL_USER, "\t - $logPath");
-	Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
+
+	if($detailsLogPath)
+		Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
 
 	exit(1);
 }
