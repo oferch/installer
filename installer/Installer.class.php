@@ -260,7 +260,7 @@ class Installer
 		}
 
 		Logger::logMessage(Logger::LEVEL_USER, "Creating the uninstaller");
-		if (!OsUtils::fullCopy('installer/uninstall.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
+		if (!OsUtils::fullCopy( __DIR__ . '/uninstall.php', AppConfig::get(AppConfigAttribute::BASE_DIR)."/uninstaller/")) {
 			return "Failed to create the uninstaller";
 		}
 
