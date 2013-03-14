@@ -212,26 +212,6 @@ class Installer
 		return true;
 	}
 
-
-	// puts a Kaltura CE activation key
-	public static function simMafteach()
-	{
-		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
-			return;
-
-		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
-		$kConfLocalFile = AppConfig::get(AppConfigAttribute::APP_DIR) . KCONF_LOCAL_LOCATION;
-		Logger::logMessage(Logger::LEVEL_INFO, "Setting application key");
-		$token = md5(uniqid(rand(), true));
-		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
-		$key = base64_encode($str);
-		$data = @file_get_contents($kConfLocalFile);
-		$key_line = '/kaltura_activation_key(\s)*=(\s)*(.+)/';
-		$replacement = 'kaltura_activation_key = "' . $key . '"';
-		$data = preg_replace($key_line, $replacement, $data);
-		@file_put_contents($kConfLocalFile, $data);
-	}
-
 	/**
 	 * Installs the application according to the given parameters\
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
@@ -301,8 +281,6 @@ class Installer
 		Logger::logMessage(Logger::LEVEL_USER, "Creating symbolic links");
 		foreach($this->components as $component)
 			$this->installComponentSymlinks($component);
-
-		self::simMafteach();
 
 		foreach($this->components as $component)
 			$this->installComponent($component);

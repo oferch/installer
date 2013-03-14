@@ -2,7 +2,6 @@
 
 define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
 define('TEMPLATE_FILE', '.template'); // how to recognize a template file, template files are copyed to non-template and then the tokens are replaced
-define('KCONF_LOCAL_LOCATION', '/configurations/local.ini'); // the location of kConf
 
 
 class AppConfigAttribute
@@ -127,6 +126,7 @@ class AppConfigAttribute
 	const INSTALLATION_UID = 'INSTALLATION_UID';
 	const INSTALLATION_SEQUENCE_UID = 'INSTALLATION_SEQUENCE_UID';
 
+	const ACTIVATION_KEY = 'KALTURA_VERSION_TYPE';
 	const KALTURA_VERSION_TYPE = 'KALTURA_VERSION_TYPE';
 	const KALTURA_VERSION = 'KALTURA_VERSION';
 
@@ -211,6 +211,18 @@ class AppConfig
 		}
 	}
 
+	protected static function calculateActivationKey()
+	{
+		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
+			AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, 'false');
+
+		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
+		$token = md5(uniqid(rand(), true));
+		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
+		$key = base64_encode($str);
+		AppConfig::initField(AppConfigAttribute::ACTIVATION_KEY, '$key');
+	}
+
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
@@ -271,6 +283,8 @@ class AppConfig
 			}
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
+
+		self::calculateActivationKey();
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
 		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
