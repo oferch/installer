@@ -332,7 +332,13 @@ class Installer
 	{
 		foreach ($symlinks as $slink)
 		{
-			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
+			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink), 2);
+
+			if(!file_exists($target))
+			{
+				Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Failed to create symbolic link [$link], target [$target] does not exist.");
+				continue;
+			}
 
 			if(!file_exists(dirname($link)))
 				mkdir(dirname($link), 0755, true);
