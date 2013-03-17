@@ -140,6 +140,7 @@ class AppConfigAttribute
 	const HTML5_VERSION = 'HTML5_VERSION';
 
 	const VERIFY_INSTALLATION = 'VERIFY_INSTALLATION';
+	const VERBOSE = 'VERBOSE';
 }
 
 /**

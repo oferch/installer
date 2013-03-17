@@ -61,6 +61,7 @@ if($packageDir)
 else
 	$downloadCode = true;
 
+AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
 AppConfig::configure($silentRun);
 
 $downloadAttributes = array();
