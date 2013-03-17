@@ -86,9 +86,9 @@ class InputValidator {
 
 		$options = '(' . implode('|', $values) . ')';
 		if($enableMultipleChoice)
-			$validator->validateRegex = "/^$options(,$options)*$/";
+			$validator->validateRegex = "/^$options(,$options)*$/i";
 		else
-			$validator->validateRegex = "/^$options$/";
+			$validator->validateRegex = "/^$options$/i";
 
 		$validator->emptyIsValid = $emptyIsValid;
 		return $validator;
@@ -97,7 +97,7 @@ class InputValidator {
 	public static function createCharactersValidator(array $chars, $maxChars = null) {
 		$validator = new InputValidator();
 		$chars = array_unique($chars);
-		$validator->validateRegex = '/^[' . implode('', $chars) . ']{1,$maxChars}$/';
+		$validator->validateRegex = '/^[' . implode('', $chars) . ']{1,$maxChars}$/i';
 		return $validator;
 	}
 
