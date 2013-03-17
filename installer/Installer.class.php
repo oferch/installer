@@ -454,11 +454,16 @@ class Installer
 
 	private function done()
 	{
+		echo PHP_EOL;
+		Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Installation Completed Successfully.");
+		
 		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
 		{
 			$config = AppConfig::getCurrentMachineConfig();
 			if(!$config || !isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) || !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+			{
 				return true;
+			}
 		}
 		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
 			return true;
@@ -496,10 +501,6 @@ class Installer
 		} else {
 			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Post installation email cannot be sent");
 		}
-
-		// print after installation instructions
-		echo PHP_EOL;
-		Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Installation Completed Successfully.");
 
 		if(in_array('admin', $this->components))
 		{
