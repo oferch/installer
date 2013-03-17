@@ -338,8 +338,7 @@ class Installer
 		else
 		{
 			Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
-			if(!$this->verifyInstallation())
-				return "Failed to verify installation";
+			$this->verifyInstallation();
 		}
 
 		$this->done();
@@ -542,7 +541,7 @@ class Installer
 		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
 		if(!file_exists($dirName) || !is_dir($dirName))
 		{
-			Logger::logMessage(Logger::LEVEL_ERROR, "Defaults sanity test files directory [$dirName] is not a valid directory");
+			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Defaults sanity test files directory [$dirName] is not a valid directory");
 			return false;
 		}
 		$dirName = realpath($dirName);
@@ -550,7 +549,7 @@ class Installer
 		$configPath = "$dirName/lib/config.ini";
 		if(!file_exists($configPath) || !is_file($configPath) || !parse_ini_file($configPath, true))
 		{
-			Logger::logMessage(Logger::LEVEL_ERROR, "Sanity test configuration file [$configPath] is not a valid ini file");
+			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Sanity test configuration file [$configPath] is not a valid ini file");
 			return false;
 		}
 
@@ -573,7 +572,7 @@ class Installer
 			$filePath = realpath("$dirName/$fileName");
 
 			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $filePath $configPath")) {
-				Logger::logMessage(Logger::LEVEL_ERROR, "Verification failed [$filePath]");
+				Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Verification failed [$filePath]");
 				return false;
 			}
 		}
