@@ -70,6 +70,12 @@ class ProgressBarProcess extends ProgressBarBase
 		self::send(null, __FUNCTION__, func_get_args());
 	}
 
+	public static function terminateAll()
+	{
+		parent::terminateAll();
+		self::send(null, __FUNCTION__);
+	}
+
 	protected function tell($method, array $arguments = null)
 	{
 		self::send($this->name, $method, $arguments);
@@ -135,7 +141,10 @@ class ProgressBarProcess extends ProgressBarBase
 			if(!@socket_recv($socket, $data, 1024, 0))
 			{
 				if(!count($processes))
+				{
+					socket_close($socket);
 					return $success;
+				}
 
 				usleep(100000);
 				continue;
@@ -154,10 +163,20 @@ class ProgressBarProcess extends ProgressBarBase
 					break;
 
 				default:
+					
 					if(isset($method->name))
+					{
 						call_user_func_array(array(self::$instances[$method->name], $method->method), $method->arguments);
+					}
+					elseif($method->method == 'terminateAll')
+					{
+						socket_close($socket);
+						return $success;
+					}
 					else
+					{
 						call_user_func_array(array('ProgressBar', $method->method), $method->arguments);
+					}
 
 					break;
 			}
