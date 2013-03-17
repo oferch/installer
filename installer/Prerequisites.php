@@ -4,7 +4,7 @@ include_once(__DIR__ . '/AppConfig.class.php');
 include_once(__DIR__ . '/Validator.class.php');
 
 
-AppConfig::init();
+AppConfig::init(__DIR__);
 
 if(isset($argv[1]))
 	AppConfig::set(AppConfigAttribute::HTTPD_BIN, $argv[1]);
