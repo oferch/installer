@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Directory Constructor" default="Pack" phingVersion="2.4.13">
-	<taskdef name="foreachxmlelement" classpath="../lib" classname="phing.ForEachXmlElementTask" />
-	<taskdef name="exportspecificproperties" classpath="../lib" classname="phing.ExportSpecificPropertiesTask" />
-	<taskdef name="dos2unix" classpath="../lib" classname="phing.Dos2UnixTask" />
-	<taskdef name="createuser" classpath="../lib" classname="phing.user.CreateUserTask" />
+	<taskdef name="ForEachXmlElement" classpath="../lib" classname="phing.ForEachXmlElementTask" />
+	<taskdef name="ExportSpecificProperties" classpath="../lib" classname="phing.ExportSpecificPropertiesTask" />
+	<taskdef name="Dos2Unix" classpath="../lib" classname="phing.Dos2UnixTask" />
+	<taskdef name="CreateUser" classpath="../lib" classname="phing.user.CreateUserTask" />
+	<taskdef name="ProgressBarStart" classpath="../lib" classname="phing.progress.ProgressBarStartTask" />
+	<taskdef name="ProgressBarEnd" classpath="../lib" classname="phing.progress.ProgressBarEndTask" />
+	<taskdef name="ProgressBarIncrement" classpath="../lib" classname="phing.progress.ProgressBarIncrementTask" />
+	<taskdef name="ProgressBarTitle" classpath="../lib" classname="phing.progress.ProgressBarTitleTask" />
+	<taskdef name="ProgressBarTar" classpath="../lib" classname="phing.progress.ProgressBarTarTask" />
 	
 	<target name="Init">
 		<property name="actions.makeDir" value="false" />
@@ -22,6 +27,7 @@
 		<property name="actions.dos2Unix" value="true" override="true" />
 		<property name="actions.package" value="true" override="true" />
 		
+		<phingcall target="Init Progress Bar" />
 		<phingcall target="Construct tree" />
 	</target>
 	
@@ -59,21 +65,41 @@
 		<property file="build.properties" override="false" />
 	</target>
 	
+	<target name="Init Progress Bar" depends="Load configuration">
+		<ProgressBarStart name="main" titleWidth="5" title="Total" />
+		<ForEachXmlElement file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" xPathLengthParamName="directories.strlen" nodeCountParamName="directories.count" />
+		<echo message="Directories count [${directories.count}]" />
+		<ProgressBarStart name="directories" max="${directories.count}" titleWidth="50" parentName="main" percentOfParent="60" title="Download code" />
+	</target>
+	
 	<target name="Construct tree" depends="Load configuration">
 		<echo message="Construct Kaltura directories tree [${BASE_DIR}]" />
-		<foreachxmlelement file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" elementPrefix="directory" xPathParam="directory.path" target="Construct directory" />
+		
+		<ForEachXmlElement file="${xml.uri}" skipRoot="false" xPathSkipRoot="false" elementPrefix="directory" xPathParam="directory.path" target="Construct directory" />
+		<ProgressBarEnd name="directories" />
 		
 		<if>
 			<istrue value="${actions.dos2Unix}" />
 			<then>
-				<dos2unix>
+				<if>
+					<istrue value="${actions.package}" />
+					<then>
+						<ProgressBarStart name="dos2Unix" titleWidth="50" parentName="main" percentOfParent="20" title="Dos to Unix" />
+					</then>
+					<else>
+						<ProgressBarStart name="dos2Unix" titleWidth="50" parentName="main" percentOfParent="40" title="Dos to Unix" />
+					</else>
+				</if>
+				
+				<Dos2Unix progressBarName="dos2Unix">
 					<fileset dir="${BASE_DIR}" defaultexcludes="false">
 						<type type="file" />
 						<include name="**/*.sh" />
 						<include name="**/*.php" />
 						<include name="**/*template*" />
 					</fileset>
-				</dos2unix>
+				</Dos2Unix>
+				<ProgressBarEnd name="dos2Unix" />
 			</then>
 		</if>
 		
@@ -83,7 +109,7 @@
 				
 				<property name="version.ini.type" value="${package.type}" />
 				<property name="version.ini.number" value="${package.version}" />
-				<exportspecificproperties allowedPropertyPrefixes="version.ini." removePrefix="true" targetFile="${BASE_DIR}/package/version.ini" />
+				<ExportSpecificProperties allowedPropertyPrefixes="version.ini." removePrefix="true" targetFile="${BASE_DIR}/package/version.ini" />
 				
 				<if>
 					<available file="${phing.dir}/../user_input.ini" type="file" />
@@ -101,15 +127,24 @@
 						<delete file="${tar.file}"/>
 					</then>
 				</if>
-				<tar destfile="${tar.file}" basedir="${tar.dir}" />
+				<ProgressBarStart name="package" titleWidth="50" parentName="main" percentOfParent="20" title="Package" />
+				<ProgressBarTar name="package" destfile="${tar.file}" basedir="${tar.dir}" />
+				<ProgressBarEnd name="package" />
 			</then>
 		</if>
 	</target>
     
+	<target name="Estimate Process">
+		<php returnProperty="directories.temp" expression="${directories.count} + 1" />
+		<property name="directories.count" value="${directories.temp}" environment="main" override="true" />
+		<echo message="Directories temp [${directories.count}]" />
+	</target>
+	
 	<target name="Construct directory">
 		
 		<property name="directory.fullPath" value="${BASE_DIR}${directory.path}" />
 		<echo message="Construct directory [${directory.fullPath}]" />
+		<ProgressBarTitle name="directories" title="Make dir     - ${directory.path}" />
 		
 		<!-- Create directory -->
 		<if>
@@ -135,6 +170,7 @@
 				<if>
 					<isset property="directory.attributes.${directory.id}.gitPath" />
 					<then>
+						<ProgressBarTitle name="directories" title="Checkout git - ${directory.path}" />
 						<if>
 							<available file="${directory.fullPath}/.git" type="dir" />
 							<then>
@@ -171,26 +207,42 @@
 				<if>
 					<isset property="directory.attributes.${directory.id}.svnPath" />
 					<then>
+						<ProgressBarTitle name="directories" title="Checkout svn - ${directory.path}" />
 						<chmod file="${svn.key}" mode="600" />
+						
+						<property name="svn.ssh.cmd" value="${svn.ssh.bin} -i ${svn.key}" />
+						<if>
+							<and>
+								<not><isset property="${VERBOSE}" /></not>
+								<equals arg1="${VERBOSE}" arg2="true" />
+							</and>
+							<then>
+								<property name="svn.ssh.cmd" value="${svn.ssh.bin} -v -i ${svn.key}" override="true" />
+							</then>
+							<else>
+								<property name="svn.bin" value="${svn.bin} -q" override="true" />
+							</else>
+						</if>
+							
 						<if>
 							<and>
 								<available file="${directory.fullPath}/.svn" type="dir" />
 								<or>
 									<not><isset property="directory.attributes.${directory.id}.override" /></not>
-									<equals arg1="directory.attributes.${directory.id}.override" arg2="false" />
+									<equals arg1="${directory.attributes.${directory.id}.override}" arg2="false" />
 								</or>
 							</and>
 							<then>
 								<echo message="Revert svn repository [${directory.fullPath}]" />
-								<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; revert --recursive &quot;${directory.fullPath}&quot;" />
+								<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.cmd}&quot; revert --recursive &quot;${directory.fullPath}&quot;" />
 								<echo message="Executing: ${svn.cmd}" />
 								<exec passthru="true" checkreturn="false" returnProperty="svn.ret" command="${svn.cmd}" />
 								<echo message="Revert exit code [${svn.ret}]" />
 								<if>
-									<not><equals arg1="svn.ret" arg2="0" /></not>
+									<not><equals arg1="${svn.ret}" arg2="0" /></not>
 									<then>
 										<echo message="Update svn repository [${directory.fullPath}]" />
-										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; update --force --accept theirs-full &quot;${directory.fullPath}&quot;" />
+										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.cmd}&quot; update --force --accept theirs-full &quot;${directory.fullPath}&quot;" />
 										<echo message="Executing: ${svn.cmd}" />
 										<exec passthru="true" checkreturn="false" returnProperty="svn.ret" command="${svn.cmd}" />
 									</then>
@@ -201,11 +253,11 @@
 									<isset property="directory.attributes.${directory.id}.override" />
 									<then>
 										<echo message="Export from svn [${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath}] to [${directory.fullPath}]" />
-										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; --force export ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
+										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.cmd}&quot; --force export ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
 									</then>
 									<else>
 										<echo message="Checkout from svn [${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath}] to [${directory.fullPath}]" />
-										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.bin} -v -i ${svn.key}&quot; checkout ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
+										<property name="svn.cmd" value="${svn.bin} --config-option config:tunnels:ssh=&quot;${svn.ssh.cmd}&quot; checkout ${svn.protocol}://${svn.username}@${svn.domain}${directory.attributes.${directory.id}.svnPath} &quot;${directory.fullPath}&quot;" />
 									</else>
 								</if>
 								<echo message="Executing: ${svn.cmd}" />
@@ -229,6 +281,7 @@
 			</then>
 		</if>
 		
+		<ProgressBarIncrement name="directories" />
 	</target>
 	
 	<target name="Set permissions folder">
@@ -272,8 +325,19 @@
 			<then>
 				
 				<if>
+					<and>
+						<istrue value="${actions.createUser}" />
+						<os family="unix" />
+					</and>
+					<then>
+						<CreateUser username="${user}" group="${user}" groups="${group}" ifNotExists="true" />
+					</then>
+				</if>
+				
+				<if>
 					<istrue value="${actions.setOwner}" />
 					<then>
+						<ProgressBarTitle name="directories" title="Set owner    - ${directory.path}" />
 						<echo message="Change directory [${directory.fullPath}] group [${group}] and user [${user}]" />
 						<chown file="${directory.fullPath}" user="${user}.${group}" failonerror="${permissions.required}" />
 						<if>
@@ -284,16 +348,6 @@
 								</chown>
 							</then>
 						</if>
-					</then>
-				</if>
-				
-				<if>
-					<and>
-						<istrue value="${actions.createUser}" />
-						<os family="unix" />
-					</and>
-					<then>
-						<createuser username="${user}" group="${user}" groups="${group}" ifNotExists="true" />
 					</then>
 				</if>
 				
@@ -348,6 +402,7 @@
 		<if>
 			<istrue value="${actions.setPermissions}" />
 			<then>
+				<ProgressBarTitle name="directories" title="Permissions  - ${directory.path}" />
 				<echo message="Set directory [${directory.fullPath}] permissions [${mode}]" />
 				<chmod file="${directory.fullPath}" mode="${mode}" failonerror="${permissions.required}" />
 				<if>

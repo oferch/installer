@@ -20,12 +20,24 @@ class Dos2UnixTask extends Task
 	private $verbose = true;
 	
 	/**
-	 * Set verbosity, which if set to false surpresses all but an overview
-	 * of what happened.
+	 * @var string
+	 */
+	private $progressBarName = true;
+	
+	/**
+	 * Set verbosity, which if set to false surpresses all but an overview of what happened.
 	 */
 	function setVerbose($bool)
 	{
 		$this->verbose = (bool)$bool;
+	}
+	
+	/**
+	 * Define progress bar name to be incremented
+	 */
+	function setProgressBarName($progressBarName)
+	{
+		$this->progressBarName = $progressBarName;
 	}
 	
 	/**
@@ -74,14 +86,23 @@ class Dos2UnixTask extends Task
 	private function dos2Unix()
 	{
 		// counters for non-verbose output
-		$total_files = 0;
+		$totalFiles = 0;
 		
 		// one file
 		if($this->file !== null)
 		{
-			$total_files = 1;
+			$totalFiles = 1;
 			$this->dos2UnixFile($this->file);
 		}
+		
+		foreach($this->filesets as $fileSet)
+		{
+			/* @var $fileSet FileSet */
+			$ds = $fileSet->getDirectoryScanner($this->project);
+			$totalFiles = $totalFiles + count($ds->getIncludedFiles());
+		}
+		if($this->progressBarName)
+			ProgressBarProcess::setMaxByName($this->progressBarName, $totalFiles);
 		
 		// filesets
 		foreach($this->filesets as $fileSet)
@@ -91,17 +112,22 @@ class Dos2UnixTask extends Task
 			$fromDir = $fileSet->getDir($this->project);
 			
 			$srcFiles = $ds->getIncludedFiles();
-			$filecount = count($srcFiles);
-			$total_files = $total_files + $filecount;
-			for($j = 0; $j < $filecount; $j++)
+			foreach($srcFiles as $srcFile)
 			{
-				$this->dos2UnixFile(new PhingFile($fromDir, $srcFiles[$j]));
+				if($this->progressBarName)
+					ProgressBarProcess::setTitleByName($this->progressBarName, $srcFile);
+					
+				$this->dos2UnixFile(new PhingFile($fromDir, $srcFile));
+				
+				if($this->progressBarName)
+					ProgressBarProcess::incrementByName($this->progressBarName);
 			}
 		}
 		
 		if(!$this->verbose)
-			$this->log('Total files changed: ' . $total_files);
+			$this->log('Total files changed: ' . $totalFiles);
 	
+		ProgressBarProcess::setPercentByName($this->progressBarName, 100);
 	}
 	
 	/**

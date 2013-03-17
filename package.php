@@ -1,16 +1,15 @@
 <?php
 
-include_once('installer/DatabaseUtils.class.php');
-include_once('installer/OsUtils.class.php');
-include_once('installer/Log.php');
-include_once('installer/InstallReport.class.php');
-include_once('installer/AppConfig.class.php');
-include_once('installer/Installer.class.php');
-include_once('installer/Validator.class.php');
-include_once('installer/InputValidator.class.php');
-include_once('installer/phpmailer/class.phpmailer.php');
+require_once(__DIR__ . '/installer/DatabaseUtils.class.php');
+require_once(__DIR__ . '/installer/OsUtils.class.php');
+require_once(__DIR__ . '/installer/InstallReport.class.php');
+require_once(__DIR__ . '/installer/AppConfig.class.php');
+require_once(__DIR__ . '/installer/Installer.class.php');
+require_once(__DIR__ . '/installer/Validator.class.php');
+require_once(__DIR__ . '/installer/InputValidator.class.php');
+require_once(__DIR__ . '/installer/phpmailer/class.phpmailer.php');
 
-$options = getopt('hsct:');
+$options = getopt('hscvt:');
 if($argc < 2 || isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments] <outputdir>'.PHP_EOL;
@@ -22,6 +21,7 @@ if($argc < 2 || isset($options['h']))
 
 	echo "-h - Show this help." . PHP_EOL;
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo "-v - Verbose output." . PHP_EOL;
 	echo "-c - Run configurator." . PHP_EOL;
 	echo "-t - Type TM/CE." . PHP_EOL;
 	echo PHP_EOL;
@@ -53,10 +53,19 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
+$silentRun = isset($options['s']);
+$verbose = isset($options['v']);
+
 // start the log
 $logPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log';
-$detailsLogPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log';
-Logger::init($logPath);
+$detailsLogPath = null;
+Logger::init($logPath, $verbose);
+if(!$verbose)
+{
+	$detailsLogPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log';
+	OsUtils::setLogPath($detailsLogPath);
+}
+
 OsUtils::setLogPath($detailsLogPath);
 
 echo PHP_EOL;
@@ -66,8 +75,8 @@ $type = AppConfig::K_TM_TYPE;
 if(isset($options['t']))
 	$type = $options['t'];
 AppConfig::init(__DIR__, $type);
+AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
 
-$silentRun = isset($options['s']);
 $configure = false;
 if(isset($options['c']))
 	$configure = true;
@@ -91,17 +100,34 @@ $attributes = array(
 	'xml.uri' => $xmlUri,
 );
 
-Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Packaging...", false);
-if(!OsUtils::phing($directoryConstructorDir, 'Pack', $attributes))
+ProgressBar::addHeader(Logger::colorMessage(Logger::COLOR_LIGHT_BLUE, 'Kaltura Video Platform - Server Installation Packager'));
+ProgressBar::addHeader(" - Build code directories tree", 'directories');
+ProgressBar::addHeader(" - Convert code from Dos format to Unix", 'dos2Unix');
+ProgressBar::addHeader(" - Compressing and archiving", 'package');
+ProgressBar::addHeader('');
+
+$phingProcess = new ProgressProcess(OsUtils::getPhingCommand('Pack', $attributes), 'Pack', $directoryConstructorDir);
+if($detailsLogPath)
 {
-	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
+	$phingProcess->setStandardOutput($detailsLogPath);
+	$phingProcess->setStandardError($detailsLogPath);
+}
+
+Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Packaging...", false);
+OsUtils::runProgressBar(array($phingProcess));
+
+$tarPath = "$tempDir.tgz";
+if(!file_exists($tarPath))
+{
+	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Packaging failed", true);
 	Logger::logMessage(Logger::LEVEL_USER, "Packaging log files:");
 	Logger::logMessage(Logger::LEVEL_USER, "\t - $logPath");
-	Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
+	if($detailsLogPath)
+		Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
 	exit(-1);
 }
 
-Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " successfully finished", true, 3);
+Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, "Packaging successfully finished", true);
 if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y'))
 {
 	Logger::logMessage(Logger::LEVEL_USER, "Deleting temporary directory ($tempDir)...", false);
@@ -109,5 +135,5 @@ if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the pac
 	Logger::logMessage(Logger::LEVEL_USER, " - done", true, 3);
 }
 
-Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Package available at $tempDir.tgz");
+Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Package available at $tarPath");
 exit(0);

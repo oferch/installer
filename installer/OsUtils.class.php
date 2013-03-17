@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/Log.php';
+require_once __DIR__ . '/progress/ProgressBarProcess.php';
 
 /*
 * This is a static OS utilities class
@@ -133,11 +135,20 @@ class OsUtils {
 		return file_put_contents($filename, $data);
 	}
 
-	// executes the phing and returns true/false according to the execution return value
-	public static function phing($dir, $target = '', array $attributes = array())
+	/**
+	 * Build phing command line
+	 * @param string $target
+	 * @param array $attributes
+	 * @return string
+	 */
+	public static function getPhingCommand($target = '', array $attributes = array())
 	{
 		$propertyFile = AppConfig::getFilePath();
 		$options = array();
+		
+		if(AppConfig::get(AppConfigAttribute::VERBOSE))
+			$options[] = '-verbose';
+			
 		foreach($attributes as $attribute => $value)
 		{
 			if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
@@ -148,16 +159,27 @@ class OsUtils {
 			$options[] = "-D{$attribute}={$value}";
 		}
 		$options = implode(' ', $options);
+		
+		return "phing -propertyfile $propertyFile $options $target";
+	}
 
-
-		$originalDir = getcwd();
-		chdir($dir);
-		$command = "phing -verbose -logger phing.listener.AnsiColorLogger -propertyfile $propertyFile $options $target";
+	/**
+	 * Executes the phing and returns true/false according to the execution return value
+	 * @param string $dir
+	 * @param string $target
+	 * @param array $attributes
+	 * @return boolean
+	 */
+	public static function phing($dir, $target = '', array $attributes = array())
+	{
+		$command = self::getPhingCommand($target, $attributes);
 		if(self::$log)
 			$command .= " >> " . self::$log . " 2>&1";
 
 		Logger::logMessage(Logger::LEVEL_INFO, "Executing $command");
 		$returnedValue = null;
+		$originalDir = getcwd();
+		chdir($dir);
 		passthru($command, $returnedValue);
 		chdir($originalDir);
 
@@ -165,6 +187,22 @@ class OsUtils {
 			return false;
 
 		return true;
+	}
+
+	/**
+	 * Executes commands in different process and reports their progress
+	 * @param array $processes array of ProgressProcess objects
+	 * @return boolean
+	 */
+	public static function runProgressBar(array $processes)
+	{
+		foreach($processes as $process)
+		{
+			/* @var $process ProgressProcess */
+			$process->exec();
+		}
+
+		return ProgressBarProcess::listen($processes);
 	}
 
 	public static function startService($service, $alwaysStartAutomtically = true)
