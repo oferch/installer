@@ -1,6 +1,7 @@
 <?php
 
-include_once (realpath(dirname(__FILE__)) . '/DatabaseUtils.class.php');
+include_once (__DIR__ . '/OsUtils.class.php');
+include_once (__DIR__ . '/DatabaseUtils.class.php');
 
 class Validator
 {

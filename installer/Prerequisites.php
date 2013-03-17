@@ -1,14 +1,7 @@
 <?php
 
+include_once(__DIR__ . '/AppConfig.class.php');
 include_once(__DIR__ . '/Validator.class.php');
-
-$usage_string = 'Usage is php '.__FILE__.' <apachectl> <db host> <db port> <db user> <db pass>'.PHP_EOL;
-$usage_string .= 'Prints all the missing prerequisites and exits with code 0 if all verifications passes and 1 otherwise'.PHP_EOL;
-
-if (count($argv) < 5) {
-	echo $usage_string;
-	exit(1);
-}
 
 
 AppConfig::init();
