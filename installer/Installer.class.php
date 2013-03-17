@@ -337,7 +337,6 @@ class Installer
 		}
 		else
 		{
-			Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
 			$this->verifyInstallation();
 		}
 
@@ -537,7 +536,8 @@ class Installer
 		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
 			return true;
 
-
+		Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
+			
 		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
 		if(!file_exists($dirName) || !is_dir($dirName))
 		{
