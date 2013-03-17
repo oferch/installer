@@ -184,6 +184,15 @@ abstract class ProgressBarBase
 		unset(self::$instances[$name]);
 	}
 
+	public static function terminateAll()
+	{
+		foreach(self::$instances as $name => $instance)
+		{
+			unset($instance);
+			unset(self::$instances[$name]);
+		}
+	}
+
 	public static function get($name)
 	{
 		if(isset(self::$instances[$name]))

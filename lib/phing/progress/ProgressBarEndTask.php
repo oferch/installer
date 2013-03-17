@@ -15,8 +15,16 @@ class ProgressBarEndTask extends Task
 	 */
 	function main()
 	{
-		$this->log("End progress bar [$this->name]", Project::MSG_INFO);
-		ProgressBarProcess::terminateByName($this->name);
+		if($this->name)
+		{
+			$this->log("End progress bar [$this->name]", Project::MSG_INFO);
+			ProgressBarProcess::terminateByName($this->name);
+		}
+		else
+		{
+			$this->log("End all progress bars", Project::MSG_INFO);
+			ProgressBarProcess::terminateAll();
+		}
 	}
 
 	/**

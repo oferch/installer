@@ -29,6 +29,8 @@
 		
 		<phingcall target="Init Progress Bar" />
 		<phingcall target="Construct tree" />
+		
+		<ProgressBarEnd />
 	</target>
 	
 	<target name="Construct" depends="Init">
