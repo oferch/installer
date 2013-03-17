@@ -191,7 +191,6 @@ abstract class ProgressBarBase
 			unset($instance);
 			unset(self::$instances[$name]);
 		}
-		self::finish();
 	}
 
 	public static function get($name)
@@ -200,22 +199,6 @@ abstract class ProgressBarBase
 			return self::$instances[$name];
 			
 		return null;
-	}
-
-	public static function finish()
-	{
-		self::$buffer .= ob_get_contents();
-		if(ob_get_length())
-			ob_end_clean();
-		else
-			ob_end_flush();
-
-		echo "\n";
-		if(self::$buffer)
-			echo self::$buffer;
-
-		self::$buffer = '';
-		self::$instances = array();
 	}
 }
 

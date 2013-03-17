@@ -168,11 +168,6 @@ class ProgressBarProcess extends ProgressBarBase
 					{
 						call_user_func_array(array(self::$instances[$method->name], $method->method), $method->arguments);
 					}
-					elseif($method->method == 'terminateAll')
-					{
-						socket_close($socket);
-						return $success;
-					}
 					else
 					{
 						call_user_func_array(array('ProgressBar', $method->method), $method->arguments);
