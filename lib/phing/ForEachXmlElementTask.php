@@ -16,6 +16,30 @@ class ForEachXmlElementTask extends Task
 	private $xPathParam;
 
 	/**
+	 * The length of the longest xPath
+	 * @var int
+	 */
+	private $xPathLength;
+
+	/**
+	 * The count of nodes
+	 * @var int
+	 */
+	private $nodeCount;
+
+	/**
+	 * Name of parameter to return the length of the longest xPath
+	 * @var string
+	 */
+	private $xPathLengthParamName;
+
+	/**
+	 * Name of parameter to return the count of nodes
+	 * @var string
+	 */
+	private $nodeCountParamName;
+
+	/**
 	 * Indicates that root node name should be included in the xPath
 	 * @var bool
 	 */
@@ -49,13 +73,13 @@ class ForEachXmlElementTask extends Task
 	 * PhingCallTask that will be invoked w/ calleeTarget.
 	 * @var PhingCallTask
 	 */
-	private $callee;
+	private $callee = null;
 
 	/**
 	 * Target to execute.
 	 * @var string
 	 */
-	private $calleeTarget;
+	private $calleeTarget = null;
 
 	/**
 	 * The init method: Do init steps.
@@ -80,14 +104,13 @@ class ForEachXmlElementTask extends Task
 		if (!file_exists($this->file)) {
 			throw new BuildException("Supplied file path doesn't exist.");
 		}
-		if (is_null($this->calleeTarget)) {
-			throw new BuildException("You must supply a target to perform");
-		}
 
-		$callee = $this->callee;
-		$callee->setTarget($this->calleeTarget);
-		$callee->setInheritAll(true);
-		$callee->setInheritRefs(true);
+		if ($this->calleeTarget){
+			$callee = $this->callee;
+			$callee->setTarget($this->calleeTarget);
+			$callee->setInheritAll(true);
+			$callee->setInheritRefs(true);
+		}
 
 		$xml = new SimpleXMLElement(file_get_contents($this->file));
 
@@ -115,6 +138,11 @@ class ForEachXmlElementTask extends Task
 			$this->log("Loading all elements", Project::MSG_INFO);
 			$this->eachElement($xml);
 		}
+
+		if($this->nodeCountParamName)
+			$this->project->setProperty($this->nodeCountParamName, $this->nodeCount);
+		if($this->xPathLengthParamName)
+			$this->project->setProperty($this->xPathLengthParamName, $this->xPathLength);
 	}
 
 	public function foreachElement(SimpleXMLElement $xml, $xPath = '')
@@ -125,6 +153,9 @@ class ForEachXmlElementTask extends Task
 
 	public function eachElement(SimpleXMLElement $xml, $xPath = '')
 	{
+		$this->nodeCount++;
+		$this->xPathLength = max($this->xPathLength, strlen($xml));
+
 		$nodeId = uniqid();
 		if(isset($xml['id']))
 			$nodeId = $xml['id'];
@@ -133,52 +164,55 @@ class ForEachXmlElementTask extends Task
 		$nodeName = $xml->getName();
 		$elementChildrenCount = $xml->count();
 
-		$prop = $this->callee->createProperty();
-		$prop->setOverride(true);
-		$prop->setName("$this->elementPrefix.id");
-		$prop->setValue($nodeId);
-		$this->log("Setting param '$this->elementPrefix.id' to value '$nodeId'", Project::MSG_VERBOSE);
-
-		$prop = $this->callee->createProperty();
-		$prop->setOverride(true);
-		$prop->setName("$this->elementPrefix.name");
-		$prop->setValue($nodeName);
-		$this->log("Setting param '$this->elementPrefix.name' to value '$nodeName'", Project::MSG_VERBOSE);
-
-		$prop = $this->callee->createProperty();
-		$prop->setOverride(true);
-		$prop->setName("$this->elementPrefix.count");
-		$prop->setValue($elementChildrenCount);
-		$this->log("Setting param '$this->elementPrefix.count' to value '$elementChildrenCount'", Project::MSG_VERBOSE);
-
-		$elementContent = "$xml";
-		$prop = $this->callee->createProperty();
-		$prop->setOverride(true);
-		$prop->setName("$this->elementPrefix.content");
-		$prop->setValue($elementContent);
-		$this->log("Setting param '$this->elementPrefix.content' to value '$elementContent'", Project::MSG_VERBOSE);
-
-		foreach($xml->attributes() as $attributeName => $attributeValue)
-		{
-			$attributeValue = $this->project->replaceProperties($attributeValue);
-			$elementAttributesParam = "$this->elementPrefix.attributes.$nodeId.$attributeName";
-			$prop = $this->callee->createProperty();
-			$prop->setOverride(false);
-			$prop->setName($elementAttributesParam);
-			$prop->setValue("$attributeValue");
-			$this->log("Setting param '$elementAttributesParam' to value '$attributeValue'", Project::MSG_VERBOSE);
-		}
-
-		if (!is_null($this->xPathParam))
+		if($this->calleeTarget)
 		{
 			$prop = $this->callee->createProperty();
 			$prop->setOverride(true);
-			$prop->setName($this->xPathParam);
-			$prop->setValue($xPath);
-			$this->log("Setting param '$this->xPathParam' to value '$xPath'", Project::MSG_VERBOSE);
-		}
+			$prop->setName("$this->elementPrefix.id");
+			$prop->setValue($nodeId);
+			$this->log("Setting param '$this->elementPrefix.id' to value '$nodeId'", Project::MSG_VERBOSE);
 
-		$this->callee->main();
+			$prop = $this->callee->createProperty();
+			$prop->setOverride(true);
+			$prop->setName("$this->elementPrefix.name");
+			$prop->setValue($nodeName);
+			$this->log("Setting param '$this->elementPrefix.name' to value '$nodeName'", Project::MSG_VERBOSE);
+
+			$prop = $this->callee->createProperty();
+			$prop->setOverride(true);
+			$prop->setName("$this->elementPrefix.count");
+			$prop->setValue($elementChildrenCount);
+			$this->log("Setting param '$this->elementPrefix.count' to value '$elementChildrenCount'", Project::MSG_VERBOSE);
+
+			$elementContent = "$xml";
+			$prop = $this->callee->createProperty();
+			$prop->setOverride(true);
+			$prop->setName("$this->elementPrefix.content");
+			$prop->setValue($elementContent);
+			$this->log("Setting param '$this->elementPrefix.content' to value '$elementContent'", Project::MSG_VERBOSE);
+
+			foreach($xml->attributes() as $attributeName => $attributeValue)
+			{
+				$attributeValue = $this->project->replaceProperties($attributeValue);
+				$elementAttributesParam = "$this->elementPrefix.attributes.$nodeId.$attributeName";
+				$prop = $this->callee->createProperty();
+				$prop->setOverride(false);
+				$prop->setName($elementAttributesParam);
+				$prop->setValue("$attributeValue");
+				$this->log("Setting param '$elementAttributesParam' to value '$attributeValue'", Project::MSG_VERBOSE);
+			}
+
+			if (!is_null($this->xPathParam))
+			{
+				$prop = $this->callee->createProperty();
+				$prop->setOverride(true);
+				$prop->setName($this->xPathParam);
+				$prop->setValue($xPath);
+				$this->log("Setting param '$this->xPathParam' to value '$xPath'", Project::MSG_VERBOSE);
+			}
+
+			$this->callee->main();
+		}
 
 		if(!$this->recursive)
 			return;
@@ -269,5 +303,21 @@ class ForEachXmlElementTask extends Task
 	public function setTarget($calleeTarget)
 	{
 		$this->calleeTarget = $calleeTarget;
+	}
+
+	/**
+	 * @param string $xPathLengthParamName
+	 */
+	public function setXPathLengthParamName($xPathLengthParamName)
+	{
+		$this->xPathLengthParamName = $xPathLengthParamName;
+	}
+
+	/**
+	 * @param string $nodeCountParamName
+	 */
+	public function setNodeCountParamName($nodeCountParamName)
+	{
+		$this->nodeCountParamName = $nodeCountParamName;
 	}
 }
