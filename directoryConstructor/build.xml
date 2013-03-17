@@ -273,11 +273,14 @@
 		
 		
 		<if>
-			<or>
-				<istrue value="${actions.setOwner}" />
-				<istrue value="${actions.setPermissions}" />
-				<istrue value="${actions.createUser}" />
-			</or>
+			<and>
+				<available file="${directory.fullPath}" type="dir" />
+				<or>
+					<istrue value="${actions.setOwner}" />
+					<istrue value="${actions.setPermissions}" />
+					<istrue value="${actions.createUser}" />
+				</or>
+			</and>
 			<then>
 				<phingcall target="Set permissions folder" />
 			</then>
