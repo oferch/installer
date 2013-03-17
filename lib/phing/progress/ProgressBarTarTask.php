@@ -1,5 +1,6 @@
 <?php
 require_once 'phing/Task.php';
+include_once 'Archive/Tar.php';
 require_once __DIR__ . '/../../../installer/progress/ProgressBarProcess.php';
 
 class ProgressBarTar extends Archive_Tar
@@ -68,18 +69,6 @@ class ProgressBarTarTask extends Task
 	 * @var string
 	 */
 	private $prefix = null;
-	
-	/**
-	 * Ensures that PEAR lib exists.
-	 */
-	public function init()
-	{
-		include_once 'Archive/Tar.php';
-		if(! class_exists('Archive_Tar'))
-		{
-			throw new BuildException("You must have installed the PEAR Archive_Tar class in order to use TarTask.");
-		}
-	}
 	
 	/**
 	 * Add a new fileset
