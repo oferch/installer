@@ -52,6 +52,20 @@ class Logger
 	}
 
 	/**
+	 * Wrap text with color
+	 * @param int $color
+	 * @param string $message
+	 * @return string
+	 */
+	public static function colorMessage($color, $message)
+	{
+		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+			return $message;
+			
+		return "\033[{$color}m{$message}\033[0m";
+	}
+
+	/**
 	 * Log a message in the given level, will print to the screen according to the log level and according to the supplied color
 	 * @param int $color
 	 * @param int $level
