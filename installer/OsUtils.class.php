@@ -327,7 +327,7 @@ class OsUtils {
 
 		foreach ($serviceName as $service)
 		{
-			$output = OsUtils::executeWithOutput("service --status-all | grep -c httpd");
+			$output = OsUtils::executeWithOutput("service --status-all 2>&1 | grep -c httpd");
 			$count = trim(reset($output));
 			if(is_numeric($count) && intval($count) > 0)
 			{
