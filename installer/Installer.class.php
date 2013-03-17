@@ -122,24 +122,27 @@ class Installer
 			}
 		}
 
-		foreach($this->installConfig as $component => $config)
+		if(in_array('db', $this->components))
 		{
-			if(!isset($config['databases']) || !is_array($config['databases']))
-				continue;
-
-			$verify = $this->detectDatabases($config['databases']);
-			if (!isset($verify))
-				continue;
-
-			if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
-				continue;
-
-			if ($report_only)
+			foreach($this->installConfig as $component => $config)
 			{
-				$leftovers .= $verify;
-			}
-			else {
-				$this->detectDatabases($config['databases'], true);
+				if(!isset($config['databases']) || !is_array($config['databases']))
+					continue;
+	
+				$verify = $this->detectDatabases($config['databases']);
+				if (!isset($verify))
+					continue;
+	
+				if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+					continue;
+	
+				if ($report_only)
+				{
+					$leftovers .= $verify;
+				}
+				else {
+					$this->detectDatabases($config['databases'], true);
+				}
 			}
 		}
 
@@ -646,6 +649,18 @@ class Installer
 
 	private function createDynamicEnums()
 	{
+		if(!in_array('api', $this->components))
+			return true;
+
+		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		{
+			$config = AppConfig::getCurrentMachineConfig();
+			if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+				return true;
+		}
+		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
+			return true;
+			
 		Logger::logMessage(Logger::LEVEL_USER, "Creating plugins dynamic enumerations");
 		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
 	}
@@ -685,6 +700,15 @@ class Installer
 		if(!in_array('api', $this->components))
 			return true;
 
+		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		{
+			$config = AppConfig::getCurrentMachineConfig();
+			if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+				return true;
+		}
+		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
+			return true;
+			
 		Logger::logMessage(Logger::LEVEL_USER, "Creating databases initial content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertDefaults.php %s/deployment/base/scripts/init_data", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
@@ -709,6 +733,15 @@ class Installer
 		if(!in_array('api', $this->components))
 			return true;
 
+		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		{
+			$config = AppConfig::getCurrentMachineConfig();
+			if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+				return true;
+		}
+		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
+			return true;
+			
 		Logger::logMessage(Logger::LEVEL_USER, "Creating partner template content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertContent.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
