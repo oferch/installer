@@ -179,12 +179,18 @@ class Installer
 
 	private function stopApache()
 	{
+		if(!in_array('api', $this->components) && !in_array('apps', $this->components) && !in_array('admin', $this->components) && !in_array('var', $this->components))
+			return true;
+		
 		Logger::logMessage(Logger::LEVEL_USER, "Stopping apache http server");
 		return OsUtils::execute("service " . AppConfig::get(AppConfigAttribute::APACHE_SERVICE) . " stop");
 	}
 
 	private function restartApache($now = false)
 	{
+		if(!in_array('api', $this->components) && !in_array('apps', $this->components) && !in_array('admin', $this->components) && !in_array('var', $this->components))
+			return true;
+	
 		if($now)
 		{
 			if(in_array('generateClients', $this->runOnce))
