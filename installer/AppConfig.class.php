@@ -622,7 +622,7 @@ class AppConfig
 
 				if($component == 'ssl')
 				{
-					self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
+					self::set(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
 					self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 443);
 				}
 
@@ -630,8 +630,6 @@ class AppConfig
 				{
 					$hostConfig[AppConfigAttribute::BATCH_SCHEDULER_ID] = isset($definedComponents[$component]) ? ($definedComponents[$component] + 1) : 1;
 					$hostConfig[AppConfigAttribute::BATCH_SCHEDULER_TEMPLATE] = isset($definedComponents[$component]) ? 'template' : 'mainTemplate';
-					self::set(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
-					self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, 443);
 				}
 
 				$selectedComponents[] = $component;
