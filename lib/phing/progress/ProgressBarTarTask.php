@@ -2,6 +2,32 @@
 require_once 'phing/Task.php';
 require_once __DIR__ . '/../../../installer/progress/ProgressBarProcess.php';
 
+class ProgressBarTar extends Archive_Tar
+{
+	protected $callbacks = array();
+	
+	public function setCallback($methodName, $callback)
+	{
+		if(!is_callable($callback))
+			throw new BuildException("Invalid callback supplied");
+			
+		if(!method_exists($this, $methodName))
+			throw new BuildException("Invalid method name supplied");
+			
+		$this->callbacks[$methodName] = $callback;
+	}
+	
+	public function _addFile($p_filename, &$p_header, $p_add_dir, $p_remove_dir)
+	{
+		$ret = parent::_addFile($p_filename, &$p_header, $p_add_dir, $p_remove_dir);
+		
+		if(isset($this->callbacks[__FUNCTION__]))
+			call_user_func_array($this->callbacks[__FUNCTION__], func_get_args());
+			
+		return $ret;
+	}
+}
+
 class ProgressBarTarTask extends Task
 {
 	const TAR_NAMELEN = 100;
@@ -244,7 +270,8 @@ class ProgressBarTarTask extends Task
 			
 			$this->log("Building tar: " . $this->tarFile->__toString(), Project::MSG_INFO);
 			
-			$tar = new Archive_Tar($this->tarFile->getAbsolutePath(), $this->compression);
+			$tar = new ProgressBarTar($this->tarFile->getAbsolutePath(), $this->compression);
+			$tar->setCallback('_addFile', $callback);
 			
 			if($tar->error_object instanceof Exception)
 			{
@@ -276,10 +303,8 @@ class ProgressBarTarTask extends Task
 				for($i = 0, $fcount = count($files); $i < $fcount; $i ++)
 				{
 					$f = new PhingFile($fsBasedir, $files[$i]);
-					$progressBar->setTitle($f->getPath());
 					$filesToTar[] = $f->getAbsolutePath();
 					$this->log("Adding file " . $f->getPath() . " to archive.", Project::MSG_VERBOSE);
-					$progressBar->increment();
 				}
 				$tar->addModify($filesToTar, $this->prefix, $fsBasedir->getAbsolutePath());
 				
@@ -300,6 +325,12 @@ class ProgressBarTarTask extends Task
 		$this->filesets = $savedFileSets;
 		
 		ProgressBarProcess::terminateByName($this->name);
+	}
+	
+	public function fileAdded($filename, $header, $add_dir, $remove_dir)
+	{
+		ProgressBarProcess::setTitleByName($this->name, $filename);
+		ProgressBarProcess::incrementByName($this->name);
 	}
 	
 	/**
