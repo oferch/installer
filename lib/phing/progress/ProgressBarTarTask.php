@@ -260,7 +260,7 @@ class ProgressBarTarTask extends Task
 			$this->log("Building tar: " . $this->tarFile->__toString(), Project::MSG_INFO);
 			
 			$tar = new ProgressBarTar($this->tarFile->getAbsolutePath(), $this->compression);
-			$tar->setCallback('_addFile', $callback);
+			$tar->setCallback('_addFile', array($this, 'fileAdded'));
 			
 			if($tar->error_object instanceof Exception)
 			{
