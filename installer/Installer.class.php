@@ -201,6 +201,9 @@ class Installer
 
 	private function generateClients($now = false)
 	{
+		if(!in_array('api', $this->components) && !in_array('batch', $this->components) && !in_array('admin', $this->components) && !in_array('var', $this->components))
+			return true;
+		
 		if($now)
 		{
 			if(in_array('generateClients', $this->runOnce))
