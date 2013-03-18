@@ -114,13 +114,18 @@
 	</target>
     
 	<target name="Create Database">
-		<echo message="Creating database [${database.attributes.${database.id}.dbname}]" />
-		<createdb host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" name="${database.attributes.${database.id}.dbname}" dryRun="${dryRun}" />
-
 		<if>
-			<istrue value="${actions.execScripts}" />
+			<not><isset property="database.attributes.${database.id}.master" /></not>
 			<then>
-				<foreachxmlelement file="${xml.uri}" xPathStart="/db/databases/host[@id = '${host.id}']/database[@id = '${database.id}']/script" elementPrefix="script" recursive="false" target="Exec Script" />
+				<echo message="Creating database [${database.attributes.${database.id}.dbname}]" />
+				<createdb host="${host.hostname}" port="${host.attributes.${host.id}.port}" loginUsername="${username}" loginPassword="${password}" name="${database.attributes.${database.id}.dbname}" dryRun="${dryRun}" />
+		
+				<if>
+					<istrue value="${actions.execScripts}" />
+					<then>
+						<foreachxmlelement file="${xml.uri}" xPathStart="/db/databases/host[@id = '${host.id}']/database[@id = '${database.id}']/script" elementPrefix="script" recursive="false" target="Exec Script" />
+					</then>
+				</if>
 			</then>
 		</if>
 	</target>
