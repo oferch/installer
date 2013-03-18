@@ -60,12 +60,10 @@ class ProgressBar extends ProgressBarBase
 	public static function finish()
 	{
 		self::$buffer .= ob_get_contents();
-		if(ob_get_length())
-			ob_end_clean();
-		else
-			ob_end_flush();
-
+		
 		echo "\n";
+		ob_end_clean();
+
 		if(self::$buffer)
 			echo self::$buffer;
 
