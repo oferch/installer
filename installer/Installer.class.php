@@ -655,18 +655,9 @@ class Installer
 
 	private function createDynamicEnums()
 	{
-		if(!in_array('api', $this->components))
+		if(!in_array('api', $this->components) && !in_array('batch', $this->components) && !in_array('apps', $this->components) && !in_array('var', $this->components) && !in_array('admin', $this->components))
 			return true;
 
-		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
-		{
-			$config = AppConfig::getCurrentMachineConfig();
-			if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
-				return true;
-		}
-		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
-			return true;
-			
 		Logger::logMessage(Logger::LEVEL_USER, "Creating plugins dynamic enumerations");
 		return OsUtils::execute(sprintf("%s %s/deployment/base/scripts/installPlugins.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
 	}
