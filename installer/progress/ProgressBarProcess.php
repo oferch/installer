@@ -166,7 +166,8 @@ class ProgressBarProcess extends ProgressBarBase
 					
 					if(isset($method->name))
 					{
-						call_user_func_array(array(self::$instances[$method->name], $method->method), $method->arguments);
+						if(isset(self::$instances[$method->name]))
+							call_user_func_array(array(self::$instances[$method->name], $method->method), $method->arguments);
 					}
 					else
 					{
