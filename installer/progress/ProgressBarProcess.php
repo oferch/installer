@@ -76,25 +76,25 @@ class ProgressBarProcess extends ProgressBarBase
 		self::send(null, __FUNCTION__);
 	}
 
-	protected function tell($method, array $arguments = null)
+	protected function tell($method, array $arguments = array())
 	{
 		self::send($this->name, $method, $arguments);
 	}
 
-	protected static function send($name, $method, array $arguments = null, $port = 6006)
+	protected static function send($name, $method, array $arguments = array(), $port = 6006)
 	{
 		if(!self::$clientSocket)
 			self::$clientSocket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
 		if(!self::$clientSocket)
 			return;
 
-		$data = array('method' => $method);
+		$data = array(
+			'method' => $method,
+			'arguments' => $arguments,
+		);
 
 		if($name)
 			$data['name'] = $name;
-
-		if($arguments)
-			$data['arguments'] = $arguments;
 
 		$msg = json_encode($data) . "\n";
 		socket_sendto(self::$clientSocket, $msg, strlen($msg), 0, '127.0.0.1', $port);
