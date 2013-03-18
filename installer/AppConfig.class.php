@@ -186,6 +186,11 @@ class AppConfig
 	private static $packageDir = null;
 
 	/**
+	 * @var array
+	 */
+	private static $components = null;
+
+	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
 	public static function init($packageDir, $type = null)
@@ -234,7 +239,7 @@ class AppConfig
 		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
 		{
 			self::$config = parse_ini_file(self::$inputFilePath, true);
-			if(!$configOnly && !$silentRun)
+			if(!$configOnly && !$silentRun && self::componentDefined('db'))
 				unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
 		}
 
@@ -664,21 +669,35 @@ class AppConfig
 		return true;
 	}
 
+	public static function setCurrentMachineComponents(array $components)
+	{
+		self::$components = $components;
+	}
+
+	public static function componentDefined($component)
+	{
+		$components = self::getCurrentMachineComponents();
+		return in_array($component, $components);
+	}
+	
 	public static function getCurrentMachineComponents()
 	{
-		$components = array('*');
+		if(self::$components)
+			return self::$components;
+			
+		self::$components = array('*');
 
 		$config = self::getCurrentMachineConfig();
 		if($config && isset($config['components']))
-			$components = explode(',', $config['components']);
+			self::$components = explode(',', $config['components']);
 
-		if(in_array('api', $components) || in_array('apps', $components) || in_array('var', $components) || in_array('admin', $components))
+		if(in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
 		{
-			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', $components))
-				$components[] = 'ssl';
+			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
+				self::$components[] = 'ssl';
 		}
 
-		return $components;
+		return self::$components;
 	}
 
 	public static function getCurrentMachineConfig($field = null)

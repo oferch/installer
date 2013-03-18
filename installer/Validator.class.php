@@ -23,14 +23,11 @@ class Validator
 	 */
 	private $prerequisites = array();
 
-	public function __construct($components = '*')
+	public function __construct()
 	{
 		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
-		if(!is_array($components))
-			$components = explode(',', $components);
-		$components = array_map('trim', $components);
-
+		$components = AppConfig::getCurrentMachineComponents();
 		foreach($components as $component)
 		{
 			if(isset($this->installConfig[$component]))
@@ -44,7 +41,7 @@ class Validator
 						$this->components[] = $component;
 			}
 		}
-		$components = array_unique($components);
+		$this->components = array_unique($this->components);
 	}
 
 	private function validatePHP()

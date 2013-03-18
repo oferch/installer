@@ -61,6 +61,9 @@ if($packageDir)
 else
 	$downloadCode = true;
 
+if(isset($options['C']))
+	AppConfig::setCurrentMachineComponents(explode(',', $options['C']));
+	
 AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
 AppConfig::configure($silentRun);
 
@@ -80,12 +83,6 @@ if(isset($options['p']))
 	);
 	$downloadCode = true;
 }
-
-$components = null;
-if(isset($options['C']))
-	$components = explode(',', $options['C']);
-else
-	$components = AppConfig::getCurrentMachineComponents();
 
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Kaltura " . AppConfig::get(AppConfigAttribute::KALTURA_VERSION));
@@ -125,7 +122,7 @@ if (	AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Verifing prerequisites");
 
-$validator = new Validator($components);
+$validator = new Validator();
 $prerequisites = $validator->validate();
 
 if (count($prerequisites))
@@ -144,7 +141,7 @@ if (count($prerequisites))
 echo PHP_EOL;
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Checking for leftovers from a previous installation");
 
-$installer = new Installer($components);
+$installer = new Installer();
 $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
