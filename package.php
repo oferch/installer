@@ -9,7 +9,7 @@ require_once(__DIR__ . '/installer/Validator.class.php');
 require_once(__DIR__ . '/installer/InputValidator.class.php');
 require_once(__DIR__ . '/installer/phpmailer/class.phpmailer.php');
 
-$options = getopt('hscvt:');
+$options = getopt('hscvat:');
 if($argc < 2 || isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments] <outputdir>'.PHP_EOL;
@@ -24,6 +24,10 @@ if($argc < 2 || isset($options['h']))
 	echo "-v - Verbose output." . PHP_EOL;
 	echo "-c - Run configurator." . PHP_EOL;
 	echo "-t - Type TM/CE." . PHP_EOL;
+	
+	// don't tell anyone it's possibler
+	// echo "-a - Auto-generate activation key." . PHP_EOL;
+	
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
 	echo 'php ' . __FILE__ . ' -s' . PHP_EOL;
@@ -55,6 +59,7 @@ date_default_timezone_set(@date_default_timezone_get());
 
 $silentRun = isset($options['s']);
 $verbose = isset($options['v']);
+$autoGenerateKey = isset($options['a']);
 
 // start the log
 $logPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log';
@@ -76,6 +81,7 @@ if(isset($options['t']))
 	$type = $options['t'];
 AppConfig::init(__DIR__, $type);
 AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
+AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, $autoGenerateKey);
 
 $configure = false;
 if(isset($options['c']))
