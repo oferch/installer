@@ -152,6 +152,10 @@ class AppConfig
 {
 	const K_TM_TYPE = 'TM';
 	const K_CE_TYPE = 'CE';
+	
+	const KEY_NO_EXPIRE = 'never';
+	const KEY_TYPE_ACTIVATION = 1; // activation key type
+	const KEY_TYPE_EXTENSION  = 2; // extension key type
 
 	/**
 	 * @var string
@@ -217,14 +221,17 @@ class AppConfig
 		}
 	}
 
-	protected static function calculateActivationKey()
+	public static function calculateActivationKey()
 	{
 		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
 			AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, 'false');
 
+		if(!AppConfig::get(AppConfigAttribute::ACTIVATION_KEY))
+			return;
+			
 		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
 		$token = md5(uniqid(rand(), true));
-		$str = implode("|", array(md5($admin_email), '1', 'never', $token));
+		$str = implode("|", array(md5($admin_email), self::KEY_TYPE_ACTIVATION, self::KEY_NO_EXPIRE, $token));
 		$key = base64_encode($str);
 		AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, "\"$key\"");
 	}
@@ -244,6 +251,8 @@ class AppConfig
 		}
 
 		$hostname = self::getHostname();
+		
+		self::calculateActivationKey();
 
 		if($silentRun)
 		{
@@ -262,8 +271,12 @@ class AppConfig
 		}
 		else
 		{
+			self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key (leave empty to define later manually)", null, null, 'false');
+			if(self::get(AppConfigAttribute::ACTIVATION_KEY) == 'false' && AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
+				self::set(AppConfigAttribute::VERIFY_INSTALLATION, false);
+			
 			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . ")", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
-
+			
 			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
 
 			self::getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, "Please enter the domain name/virtual hostname that will be used for the Kaltura server (without http://, leave empty for $hostname)", 'Must be a valid hostname or ip, please enter again', InputValidator::createHostValidator(), $hostname);
@@ -290,8 +303,6 @@ class AppConfig
 			}
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
-
-		self::calculateActivationKey();
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
 		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))

@@ -17,7 +17,7 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsudvC:p:');
+$options = getopt('hsudvaC:p:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
@@ -28,6 +28,10 @@ if(isset($options['h']))
 	echo "-d - Don't validate installation." . PHP_EOL;
 	echo "-v - Verbose output." . PHP_EOL;
 	echo "-C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
+	
+	// don't tell anyone it's possibler
+	// echo "-a - Auto-generate activation key." . PHP_EOL;
+	
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
 	echo 'php ' . __FILE__ . ' -s' . PHP_EOL;
@@ -40,6 +44,7 @@ $silentRun = isset($options['s']);
 $uninstall = isset($options['u']);
 $dontValidate = isset($options['d']);
 $verbose = isset($options['v']);
+$autoGenerateKey = isset($options['a']);
 
 // start the log
 $logPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log';
@@ -65,6 +70,7 @@ if(isset($options['C']))
 	AppConfig::setCurrentMachineComponents(explode(',', $options['C']));
 	
 AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
+AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, $autoGenerateKey);
 AppConfig::configure($silentRun);
 
 $downloadAttributes = array();
