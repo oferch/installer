@@ -61,7 +61,7 @@ class ProgressBar extends ProgressBarBase
 	{
 		self::$buffer .= ob_get_clean();
 		
-		@ob_end_clean();
+		ob_clean();
 		echo "\n";
 		
 		if(self::$buffer)
@@ -125,8 +125,6 @@ class ProgressBar extends ProgressBarBase
 	{
 		self::setWidth();
 
-		self::$buffer .= ob_get_clean();
-
 		if(self::$os == self::OS_WINDOWS)
 		{
 			echo str_repeat("\n", self::$height - count(self::$instances) - count(self::$headers));
@@ -136,13 +134,15 @@ class ProgressBar extends ProgressBarBase
 			system('clear 2>&1');
 		}
 
+		self::$buffer .= ob_get_clean();
+		
 		foreach(self::$headers as $header)
 			echo "$header\n";
 
 		foreach(self::$instances as $instance)
 			echo $instance->getLine() . "\n";
 
-		ob_flush();
+		@ob_flush();
 	}
 
 	protected static function setOs()
