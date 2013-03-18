@@ -7,7 +7,12 @@ class CreateUserTask extends Task
 	 * @var string
 	 */
 	private $username = null;
-
+	
+	/**
+	 * @var int
+	 */
+	private $uid = null;
+	
 	/**
 	 * Create the new user only if it doesn't exist already
 	 * @var boolean
@@ -186,9 +191,12 @@ class CreateUserTask extends Task
 	{
 		$commandArguments = array("useradd");
 
+		if($this->uid)
+			$commandArguments[] = "--uid $this->uid";
+		
 		if($this->homeDir)
 			$commandArguments[] = "--home '{$this->homeDir}'";
-
+			
 		if($this->comment)
 			$commandArguments[] = "--comment '{$this->comment}'";
 
@@ -255,6 +263,14 @@ class CreateUserTask extends Task
 	public function setUsername($username)
 	{
 		$this->username = $username;
+	}
+
+	/**
+	 * @param int $uid
+	 */
+	public function setUid($uid)
+	{
+		$this->uid = $uid;
 	}
 
 	/**

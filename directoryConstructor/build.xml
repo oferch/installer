@@ -335,7 +335,7 @@
 						<os family="unix" />
 					</and>
 					<then>
-						<CreateUser username="${user}" group="${user}" groups="${group}" ifNotExists="true" />
+						<CreateUser username="${user}" group="${user}" groups="${group}" uid="${permissions.${user}.uid}" ifNotExists="true" />
 					</then>
 				</if>
 				
