@@ -146,18 +146,16 @@ class Validator
 				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->installConfig['db']["mysql_min_version"] . " (current version is $mysql_version)";
 			}
 
+			$mysqlPrerequisites = array();
 			foreach($this->installConfig['db']['mysql_settings'] as $field => $value)
 			{
 				$actualValue = $this->getMysqlSetting($link, $field);
-				if(is_null($actualValue))
-				{
-					$this->prerequisites[] = "Please set MySQL host $host:$port\n'$field = $value'\n in my.cnf and restart MySQL";
-				}
-				else if($actualValue != $value)
-				{
-					$this->prerequisites[] = "Please set MySQL host $host:$port\n'$field = $value'\n in my.cnf and restart MySQL (current value is $actualValue)";
-				}
+				if(is_null($actualValue) || $actualValue != $value)
+					$this->prerequisites[] = "$field = $value";
+					
 			}
+			if(count($mysqlPrerequisites))
+				$this->prerequisites[] = "Please set MySQL host $host:$port in my.cnf and restart MySQL:\n - " . implode("\n - ", $mysqlPrerequisites);
 		}
 	}
 
