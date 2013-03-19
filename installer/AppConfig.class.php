@@ -249,7 +249,7 @@ class AppConfig
 
 		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
 		{
-			self::$config = parse_ini_file(self::$inputFilePath, true);
+			self::$config = array_merge(self::$config, parse_ini_file(self::$inputFilePath, true));
 			if(!$configOnly && !$silentRun && self::componentDefined('db'))
 				unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
 		}
