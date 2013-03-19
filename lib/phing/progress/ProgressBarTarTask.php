@@ -20,7 +20,7 @@ class ProgressBarTar extends Archive_Tar
 	
 	public function _addFile($p_filename, &$p_header, $p_add_dir, $p_remove_dir)
 	{
-		$ret = parent::_addFile($p_filename, &$p_header, $p_add_dir, $p_remove_dir);
+		$ret = parent::_addFile($p_filename, $p_header, $p_add_dir, $p_remove_dir);
 		
 		if(isset($this->callbacks[__FUNCTION__]))
 			call_user_func_array($this->callbacks[__FUNCTION__], func_get_args());
