@@ -61,7 +61,7 @@ class ProgressBar extends ProgressBarBase
 	{
 		self::$buffer .= ob_get_clean();
 		
-		ob_clean();
+		@ob_end_clean();
 		echo "\n";
 		
 		if(self::$buffer)
