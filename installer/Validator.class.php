@@ -151,11 +151,11 @@ class Validator
 				$actualValue = $this->getMysqlSetting($link, $field);
 				if(is_null($actualValue))
 				{
-					$this->prerequisites[] = "Please set MySQL host $host:$port\$field = $value\n' in my.cnf and restart MySQL";
+					$this->prerequisites[] = "Please set MySQL host $host:$port\n'$field = $value'\n in my.cnf and restart MySQL";
 				}
 				else if($actualValue != $value)
 				{
-					$this->prerequisites[] = "Please set MySQL host $host:$port\$field = $value\n' in my.cnf and restart MySQL (current value is $actualValue)";
+					$this->prerequisites[] = "Please set MySQL host $host:$port\n'$field = $value'\n in my.cnf and restart MySQL (current value is $actualValue)";
 				}
 			}
 		}
