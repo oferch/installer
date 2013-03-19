@@ -146,24 +146,17 @@ class Validator
 				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->installConfig['db']["mysql_min_version"] . " (current version is $mysql_version)";
 			}
 
-			$lower_case_table_names = $this->getMysqlSetting($link, 'lower_case_table_names');
-			if(! isset($lower_case_table_names))
+			foreach($this->installConfig['db']['mysql_settings'] as $field => $value)
 			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->installConfig['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL";
-			}
-			else if(intval($lower_case_table_names) != intval($this->installConfig['db']["lower_case_table_names"]))
-			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'lower_case_table_names = " . $this->installConfig['db']["lower_case_table_names"] . "\n' in my.cnf and restart MySQL (current value is $lower_case_table_names)";
-			}
-
-			$thread_stack = $this->getMysqlSetting($link, 'thread_stack');
-			if(! isset($thread_stack))
-			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->installConfig['db']["thread_stack"] . "' in my.cnf and restart MySQL";
-			}
-			else if(intval($thread_stack) < intval($this->installConfig['db']["thread_stack"]))
-			{
-				$this->prerequisites[] = "Please set MySQL host $host:$port\n'thread_stack >= " . $this->installConfig['db']["thread_stack"] . "' in my.cnf and restart MySQL (current value is $thread_stack)";
+				$actualValue = $this->getMysqlSetting($link, $field);
+				if(is_null($actualValue))
+				{
+					$this->prerequisites[] = "Please set MySQL host $host:$port\$field = $value\n' in my.cnf and restart MySQL";
+				}
+				else if($actualValue != $value)
+				{
+					$this->prerequisites[] = "Please set MySQL host $host:$port\$field = $value\n' in my.cnf and restart MySQL (current value is $actualValue)";
+				}
 			}
 		}
 	}
