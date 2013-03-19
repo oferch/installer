@@ -155,7 +155,7 @@ class Validator
 					
 			}
 			if(count($mysqlPrerequisites))
-				$this->prerequisites[] = "Please set MySQL host $host:$port in my.cnf and restart MySQL:\n - " . implode("\n - ", $mysqlPrerequisites);
+				$this->prerequisites[] = "Please set MySQL host $host:$port in my.cnf and restart MySQL:\n\t" . implode("\n\t", $mysqlPrerequisites);
 		}
 	}
 
