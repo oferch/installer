@@ -14,6 +14,11 @@ class CreateUserTask extends Task
 	private $uid = null;
 	
 	/**
+	 * @var int
+	 */
+	private $gid = null;
+	
+	/**
 	 * Create the new user only if it doesn't exist already
 	 * @var boolean
 	 */
@@ -144,9 +149,17 @@ class CreateUserTask extends Task
 		if($returnedValue === 0 && intval($count) > 0)
 			return;
 
-		$cmd = "groupadd -f '$group'";
-		$this->log("Executing: $cmd", Project::MSG_VERBOSE);
-		system($cmd);
+		$commandArguments = array("groupadd", "--force");
+
+		if($this->gid)
+			$commandArguments[] = "--gid $this->gid";
+
+		$commandArguments[] = "'$group'";
+
+		$command = implode(' ', $commandArguments);
+		$returnedValue = null;
+		$this->log("Executing: $command", Project::MSG_VERBOSE);
+		passthru($command, $returnedValue);
 	}
 
 	/**
@@ -219,15 +232,15 @@ class CreateUserTask extends Task
 
 		if($this->group)
 			$commandArguments[] = "--gid '{$this->group}'";
-		else
-			$commandArguments[] = "--user-group";
+		elseif($this->gid)
+			$commandArguments[] = "--gid $this->gid";
 
 		if($this->groups)
 		{
 			$commandArguments[] = "--groups '{$this->groups}'";
 		}
 
-		$commandArguments[] = $this->username;
+		$commandArguments[] = "'{$this->username}'";
 
 		$command = implode(' ', $commandArguments);
 		$returnedValue = null;
@@ -279,6 +292,14 @@ class CreateUserTask extends Task
 	public function setUid($uid)
 	{
 		$this->uid = $uid;
+	}
+
+	/**
+	 * @param int $gid
+	 */
+	public function setGid($gid)
+	{
+		$this->gid = $gid;
 	}
 
 	/**
