@@ -62,9 +62,9 @@ class Installer
 			fclose($this->uninstallConfig);
 	}
 
-	private function createOpertingSystemUsers()
+	private function createOperatingSystemUsers()
 	{
-		Logger::logMessage(Logger::LEVEL_USER, "Creating operting system users");
+		Logger::logMessage(Logger::LEVEL_USER, "Creating operating system users");
 		$dir = __DIR__ . '/../directoryConstructor';
 		return OsUtils::phing($dir, 'Create-Users');
 	}
@@ -233,7 +233,7 @@ class Installer
 
 		$this->stopApache();
 
-		$this->createOpertingSystemUsers();
+		$this->createOperatingSystemUsers();
 
 		$this->saveUninstallerConfig();
 
