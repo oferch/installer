@@ -273,14 +273,11 @@
 		
 		
 		<if>
-			<and>
-				<available file="${directory.fullPath}" type="dir" />
-				<or>
-					<istrue value="${actions.setOwner}" />
-					<istrue value="${actions.setPermissions}" />
-					<istrue value="${actions.createUser}" />
-				</or>
-			</and>
+			<or>
+				<istrue value="${actions.setOwner}" />
+				<istrue value="${actions.setPermissions}" />
+				<istrue value="${actions.createUser}" />
+			</or>
 			<then>
 				<phingcall target="Set permissions folder" />
 			</then>
@@ -340,7 +337,10 @@
 				</if>
 				
 				<if>
-					<istrue value="${actions.setOwner}" />
+					<and>
+						<istrue value="${actions.setOwner}" />
+						<available file="${directory.fullPath}" type="dir" />
+					</and>
 					<then>
 						<ProgressBarTitle name="directories" title="Set owner    - ${directory.path}" />
 						<echo message="Change directory [${directory.fullPath}] group [${group}] and user [${user}]" />
@@ -405,7 +405,10 @@
 		</if>
 		
 		<if>
-			<istrue value="${actions.setPermissions}" />
+			<and>
+				<istrue value="${actions.setPermissions}" />
+				<available file="${directory.fullPath}" type="dir" />
+			</and>
 			<then>
 				<ProgressBarTitle name="directories" title="Permissions  - ${directory.path}" />
 				<echo message="Set directory [${directory.fullPath}] permissions [${mode}]" />
