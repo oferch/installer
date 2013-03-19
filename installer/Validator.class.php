@@ -162,7 +162,7 @@ class Validator
 	private function intConfigValue($value)
 	{
 		$matches = null;
-		if(preg_match('/^(\d+)([KMG])$/i', $value))
+		if(preg_match('/^(\d+)([KMG])$/i', $value, $matches))
 		{
 			switch (strtoupper($matches[2]))
 			{
