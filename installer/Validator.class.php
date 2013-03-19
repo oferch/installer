@@ -151,7 +151,7 @@ class Validator
 			{
 				$actualValue = $this->getMysqlSetting($link, $field);
 				if(is_null($actualValue) || $actualValue != $value)
-					$mysqlPrerequisites[] = "$field = $value";
+					$mysqlPrerequisites[] = "$field = $value" . ($actualValue ? " (current value is $actualValue)" : '');
 					
 			}
 			if(count($mysqlPrerequisites))
