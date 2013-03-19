@@ -99,7 +99,10 @@ class CreateUserTask extends Task
 			$output = null;
 			$returnedValue = null;
 			$this->log("Checking if user [{$this->username}] exists", Project::MSG_VERBOSE);
-			exec("id {$this->username}", $output, $returnedValue);
+			
+			$cmd = "id {$this->username}";
+			$this->log("Executing: $cmd", Project::MSG_VERBOSE);
+			exec($cmd, $output, $returnedValue);
 			if($returnedValue === 0)
 			{
 				$this->log("User [{$this->username}] already exists", Project::MSG_VERBOSE);
@@ -134,11 +137,16 @@ class CreateUserTask extends Task
 	protected function createMissingGroup($group)
 	{
 		$returnedValue = null;
-		$count = system("grep -c '^$group:' /etc/group", $returnedValue);
+		
+		$cmd = "grep -c '^$group:' /etc/group";
+		$this->log("Executing: $cmd", Project::MSG_VERBOSE);
+		$count = system($cmd, $returnedValue);
 		if($returnedValue === 0 && intval($count) > 0)
 			return;
 
-		system("groupadd -f '$group'");
+		$cmd = "groupadd -f '$group'";
+		$this->log("Executing: $cmd", Project::MSG_VERBOSE);
+		system($cmd);
 	}
 
 	/**
