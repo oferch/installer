@@ -150,13 +150,34 @@ class Validator
 			foreach($this->installConfig['db']['mysql_settings'] as $field => $value)
 			{
 				$actualValue = $this->getMysqlSetting($link, $field);
-				if(is_null($actualValue) || $actualValue != $value)
+				if(is_null($actualValue) || $actualValue != $this->intConfigValue($value))
 					$mysqlPrerequisites[] = "$field = $value" . ($actualValue ? " (current value is $actualValue)" : '');
 					
 			}
 			if(count($mysqlPrerequisites))
 				$this->prerequisites[] = "Please set MySQL host $host:$port in my.cnf and restart MySQL:\n - " . implode("\n - ", $mysqlPrerequisites);
 		}
+	}
+
+	private function intConfigValue($value)
+	{
+		$matches = null;
+		if(preg_match('/^(\d+)([KMG])$/i', $value))
+		{
+			switch (strtoupper($matches[2]))
+			{
+				case 'K':
+					return intval($matches[1]) * 1024;
+					
+				case 'M':
+					return intval($matches[1]) * 1024 * 1024;
+					
+				case 'G':
+					return intval($matches[1]) * 1024 * 1024 * 1024;
+			}
+		}
+		
+		return intval($value);
 	}
 
 	private function validateApache()
