@@ -81,7 +81,8 @@ if(isset($options['t']))
 	$type = $options['t'];
 AppConfig::init(__DIR__, $type);
 AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
-AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, $autoGenerateKey);
+if($autoGenerateKey)
+	AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, true);
 
 $configure = false;
 if(isset($options['c']))

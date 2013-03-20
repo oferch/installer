@@ -70,7 +70,8 @@ if(isset($options['C']))
 	AppConfig::setCurrentMachineComponents(explode(',', $options['C']));
 	
 AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
-AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, $autoGenerateKey);
+if($autoGenerateKey)
+	AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, true);
 AppConfig::configure($silentRun);
 
 $downloadAttributes = array();
