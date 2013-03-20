@@ -727,6 +727,7 @@ class AppConfig
 				self::$components[] = 'ssl';
 		}
 
+		Logger::logMessage(Logger::LEVEL_INFO, "Selected components: " . implode(', ', self::$components));
 		return self::$components;
 	}
 
