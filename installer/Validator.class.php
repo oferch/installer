@@ -231,6 +231,8 @@ class Validator
 
 	private function validateBinaries()
 	{
+		$validated = array();
+		
 		foreach($this->components as $component)
 		{
 			if(! isset($this->installConfig[$component]["binaries"]) || ! is_array($this->installConfig[$component]["binaries"]))
@@ -238,11 +240,15 @@ class Validator
 
 			foreach($this->installConfig[$component]["binaries"] as $bin)
 			{
+				if(isset($validated[$bin]))
+					continue;
+				$validated[$bin] = true;
+				
 				$bins = explode('|', $bin);
 				$found = false;
 				foreach($bins as $optionalBin)
 				{
-					system("which $optionalBin 2>/dev/null", $exitCode);
+					system("which $optionalBin 1>/dev/null 2>&1", $exitCode);
 					if($exitCode === 0)
 					{
 						$found = true;
