@@ -111,6 +111,7 @@
 			</kdp3>
 			<krecord skipFilesOwner="true" skipFilesMode="true">
 				<v1.5.2  svnPath="/usr/local/kalprod/flash/krecord/v1.5.2" skipFilesOwner="true" skipFilesMode="true" />
+				<v1.6.1  svnPath="/usr/local/kalprod/flash/krecord/v1.6.1" skipFilesOwner="true" skipFilesMode="true" />
 			</krecord>
 
 			<!-- Sharepoint -->
