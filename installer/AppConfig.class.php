@@ -600,7 +600,7 @@ class AppConfig
 
 					if(!count($dbAvailableServers))
 					{
-						Logger::logMessage(Logger::LEVEL_USER, "All database servers are already defined, database won't be installed on $hostname.");
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All database servers are already defined, database won't be installed on $hostname.");
 						continue;
 					}
 
@@ -639,7 +639,7 @@ class AppConfig
 				{
 					if(isset(self::$config[AppConfigAttribute::SPHINX_SERVER]))
 					{
-						Logger::logMessage(Logger::LEVEL_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
 						continue;
 					}
 
@@ -650,7 +650,7 @@ class AppConfig
 				{
 					if(isset($definedComponents[$component]))
 					{
-						Logger::logMessage(Logger::LEVEL_USER, "Data warehouse server is already defined and won't be installed on $hostname.");
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Data warehouse server is already defined and won't be installed on $hostname.");
 						continue;
 					}
 				}
