@@ -562,8 +562,16 @@ class Installer
 		$errors = array();
 		while (false !== ($fileName = $dir->read()))
 		{
-			if(preg_match('/^\d+\.\w+\.php$/', $fileName))
-				$fileNames[] = $fileName;
+			if(!preg_match('/^\d+\.\w+\.php$/', $fileName))
+				continue;
+				
+			if(!in_array('dwh', $this->components) && preg_match('/dwh/', $fileName))
+			{
+				Logger::logMessage(Logger::LEVEL_USER, "Data warehouse is not installed on current machine, test [$fileName] skipped");
+				continue;
+			}
+				
+			$fileNames[] = $fileName;
 		}
 		$dir->close();
 		sort($fileNames);
