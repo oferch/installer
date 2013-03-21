@@ -9,7 +9,7 @@ require_once(__DIR__ . '/installer/Validator.class.php');
 require_once(__DIR__ . '/installer/InputValidator.class.php');
 require_once(__DIR__ . '/installer/phpmailer/class.phpmailer.php');
 
-$options = getopt('hscvat:');
+$options = getopt('hscvakt:');
 if($argc < 2 || isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments] <outputdir>'.PHP_EOL;
@@ -23,6 +23,7 @@ if($argc < 2 || isset($options['h']))
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
 	echo "-v - Verbose output." . PHP_EOL;
 	echo "-c - Run configurator." . PHP_EOL;
+	echo "-k - Keep temporary directory." . PHP_EOL;
 	echo "-t - Type TM/CE." . PHP_EOL;
 	
 	// don't tell anyone it's possibler
@@ -60,6 +61,7 @@ date_default_timezone_set(@date_default_timezone_get());
 $silentRun = isset($options['s']);
 $verbose = isset($options['v']);
 $autoGenerateKey = isset($options['a']);
+$keepTemp = isset($options['k']);
 
 // start the log
 $logPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log';
@@ -135,7 +137,7 @@ if(!file_exists($tarPath))
 }
 
 Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, "Packaging successfully finished", true);
-if($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y'))
+if(!$keepTemp && ($silentRun || AppConfig::getTrueFalse(null, "Would you like to delete the package temporary directory ($tempDir)?", 'y')))
 {
 	Logger::logMessage(Logger::LEVEL_USER, "Deleting temporary directory ($tempDir)...", false);
 	OsUtils::recursiveDelete($tempDir);
