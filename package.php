@@ -19,12 +19,12 @@ if($argc < 2 || isset($options['h']))
 	elseif(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
 		echo "(if it does not start with driver letter (e.g. C:\\) the running directory will be used as base directory)".PHP_EOL;
 
-	echo "-h - Show this help." . PHP_EOL;
-	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
-	echo "-v - Verbose output." . PHP_EOL;
-	echo "-c - Run configurator." . PHP_EOL;
-	echo "-k - Keep temporary directory." . PHP_EOL;
-	echo "-t - Type TM/CE." . PHP_EOL;
+	echo " -h - Show this help." . PHP_EOL;
+	echo " -s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo " -v - Verbose output." . PHP_EOL;
+	echo " -c - Run configurator." . PHP_EOL;
+	echo " -k - Keep temporary directory." . PHP_EOL;
+	echo " -t - Type TM/CE." . PHP_EOL;
 	
 	// don't tell anyone it's possibler
 	// echo "-a - Auto-generate activation key." . PHP_EOL;
