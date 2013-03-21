@@ -17,7 +17,7 @@ if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
 	echo " -h - Show this help." . PHP_EOL;
-	echo " -s - Silent mode, no questions will be asked." . PHP_EOL;
+	echo " -r - Reconfigure." . PHP_EOL;
 	echo " -v - Verbose output." . PHP_EOL;
 	
 	echo PHP_EOL;
@@ -27,7 +27,7 @@ if(isset($options['h']))
 	exit(0);
 }
 
-$silentRun = isset($options['s']);
+$silentRun = !isset($options['r']);
 $verbose = isset($options['v']);
 
 // start the log
