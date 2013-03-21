@@ -95,7 +95,9 @@ class Installer
 	public function detectLeftovers($report_only) {
 		$leftovers = null;
 
-		Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
+		if(!$report_only)
+			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
+			
 		foreach($this->installConfig as $component => $config)
 		{
 			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
