@@ -17,13 +17,14 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsudvaC:p:');
+$options = getopt('hsudvafC:p:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
 	echo "-h - Show this help." . PHP_EOL;
 	echo "-s - Silent mode, no questions will be asked." . PHP_EOL;
 	echo "-u - Uninstall previous installation." . PHP_EOL;
+	echo "-f - Force installation." . PHP_EOL;
 	echo "-p - Package XML path or URL." . PHP_EOL;
 	echo "-d - Don't validate installation." . PHP_EOL;
 	echo "-v - Verbose output." . PHP_EOL;
@@ -44,6 +45,7 @@ $silentRun = isset($options['s']);
 $uninstall = isset($options['u']);
 $dontValidate = isset($options['d']);
 $verbose = isset($options['v']);
+$force = isset($options['f']);
 $autoGenerateKey = isset($options['a']);
 
 // start the log
@@ -140,7 +142,7 @@ if (count($prerequisites))
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "One or more prerequisites required to install Kaltura failed:");
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, implode("\n", $prerequisites));
 
-	if(AppConfig::getInput(null, "Please resolve the issues and run the installation again. If you want to install Kaltura server anyway and resolve all issues later, enter 'install'.") != 'install')
+	if($force || AppConfig::getInput(null, "Please resolve the issues and run the installation again. If you want to install Kaltura server anyway and resolve all issues later, enter 'install'.") != 'install')
 		exit(-1);
 }
 
@@ -153,17 +155,24 @@ $leftovers = $installer->detectLeftovers(true);
 if (isset($leftovers)) {
 	Logger::logMessage(Logger::LEVEL_USER, $leftovers);
 
-	if($silentRun && !$uninstall)
+	if($silentRun)
 	{
-		$description = "Installation cannot continue because a previous installation of Kaltura was detected.\n" . $leftovers;
-		if ($report)
-			$report->reportInstallationFailed($description);
-
-		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
-		exit(-2);
+		if(!$uninstall && !$force)
+		{
+			$description = "Installation cannot continue because a previous installation of Kaltura was detected.\n" . $leftovers;
+			if ($report)
+				$report->reportInstallationFailed($description);
+	
+			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Please manually uninstall Kaltura before running the installation or select yes to remove the leftovers.");
+			exit(-2);
+		}
 	}
-
-	if ($uninstall || AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n'))
+	elseif (!$uninstall && !$force && AppConfig::getTrueFalse(null, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n'))
+	{
+		$uninstall = true;
+	}
+	
+	if ($uninstall)
 	{
 		echo PHP_EOL;
 		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");
