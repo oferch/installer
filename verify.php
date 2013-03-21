@@ -31,12 +31,12 @@ $silentRun = isset($options['s']);
 $verbose = isset($options['v']);
 
 // start the log
-$logPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log';
+$logPath = __DIR__ . '/verify.' . date("Y.m.d_H.i.s") . '.log';
 $detailsLogPath = null;
 Logger::init($logPath, $verbose);
 if(!$verbose)
 {
-	$detailsLogPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log';
+	$detailsLogPath = __DIR__ . '/verify.' . date("Y.m.d_H.i.s") . '.details.log';
 	OsUtils::setLogPath($detailsLogPath);
 }
 
@@ -57,6 +57,16 @@ Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Verifying Kal
 if($installer->verifyInstallation())
 {
 	Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Server Installation Verified Successfully");
+}
+else
+{
+	Logger::logMessage(Logger::LEVEL_USER, "Verification log files:");
+	Logger::logMessage(Logger::LEVEL_USER, "\t - $logPath");
+
+	if($detailsLogPath)
+		Logger::logMessage(Logger::LEVEL_USER, "\t - $detailsLogPath");
+	
+	exit(1);
 }
 
 exit(0);
