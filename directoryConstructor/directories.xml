@@ -3,7 +3,7 @@
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
 	-->
-	<app user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/tags/gemini_2013_03_18">
+	<app mode="0750" user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/tags/gemini_2013_03_18">
 		<cache mode="0770" filesMode="0660" skipFilesOwner="true" />
 		<configurations skipFilesMode="true" skipFilesOwner="true">
 			<monit mode="0750" filesMode="0600" skipFilesOwner="true" />
@@ -24,7 +24,7 @@
 			<data user="${OS_KALTURA_USER}" skipFilesMode="true" />
 		</sphinx>
 	</log>
-	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0770" filesMode="0770" />
+	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0770" filesMode="0770" scriptsMode="0770" />
 	<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
 	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600">
 		<convert user="${OS_KALTURA_USER}" />
