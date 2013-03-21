@@ -223,20 +223,23 @@ class Installer
 		return true;
 	}
 
+	private function init()
+	{
+		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
+		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
+		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
+		
+	}
+
 	/**
 	 * Installs the application according to the given parameters\
 	 * @return string|NULL null if the installation succeeded or an error text if it failed
 	 */
 	public function install($packageDir = null, $dontValidate = false)
 	{
-		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
-		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
-		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
-
+		$this->init();
 		$this->stopApache();
-
 		$this->createOperatingSystemUsers();
-
 		$this->saveUninstallerConfig();
 
 		Logger::logMessage(Logger::LEVEL_INFO, sprintf("Current working dir is %s", getcwd()));
@@ -519,7 +522,7 @@ class Installer
 		}
 	}
 
-	private function verifyInstallation()
+	public function verifyInstallation()
 	{
 		if(!in_array('api', $this->components))
 			return true;
@@ -533,6 +536,8 @@ class Installer
 		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
 			return true;
 
+		$this->init();
+		
 		Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
 			
 		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
