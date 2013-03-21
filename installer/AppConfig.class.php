@@ -1,4 +1,5 @@
 <?php
+include_once( __DIR__ . '/InputValidator.class.php');
 
 define('TOKEN_CHAR', '@'); // this character is user to surround parameters that should be replaced with configurations in config files
 define('TEMPLATE_FILE', '.template'); // how to recognize a template file, template files are copyed to non-template and then the tokens are replaced

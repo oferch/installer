@@ -6,7 +6,6 @@ require_once(__DIR__ . '/installer/InstallReport.class.php');
 require_once(__DIR__ . '/installer/AppConfig.class.php');
 require_once(__DIR__ . '/installer/Installer.class.php');
 require_once(__DIR__ . '/installer/Validator.class.php');
-require_once(__DIR__ . '/installer/InputValidator.class.php');
 require_once(__DIR__ . '/installer/phpmailer/class.phpmailer.php');
 
 $options = getopt('hscvakt:');
@@ -31,8 +30,8 @@ if($argc < 2 || isset($options['h']))
 	
 	echo PHP_EOL;
 	echo "Examples:" . PHP_EOL;
-	echo 'php ' . __FILE__ . ' -s' . PHP_EOL;
-	echo 'php ' . __FILE__ . ' -c' . PHP_EOL;
+	echo 'php ' . __FILE__ . ' -s /root/kaltura/packages' . PHP_EOL;
+	echo 'php ' . __FILE__ . ' -c /root/kaltura/packages' . PHP_EOL;
 
 	if(isset($options['h']))
 		exit(0);

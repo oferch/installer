@@ -7,7 +7,6 @@ include_once('installer/InstallReport.class.php');
 include_once('installer/AppConfig.class.php');
 include_once('installer/Installer.class.php');
 include_once('installer/Validator.class.php');
-include_once('installer/InputValidator.class.php');
 include_once('installer/phpmailer/class.phpmailer.php');
 
 // installation might take a few minutes
