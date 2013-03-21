@@ -54,7 +54,7 @@ echo PHP_EOL;
 
 $installer = new Installer();
 Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Verifying Kaltura Server Installation");
-if($installer->verifyInstallation())
+if($installer->verifyInstallation(true))
 {
 	Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Server Installation Verified Successfully");
 }

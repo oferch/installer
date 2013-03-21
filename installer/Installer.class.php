@@ -522,20 +522,23 @@ class Installer
 		}
 	}
 
-	public function verifyInstallation()
+	public function verifyInstallation($force = false)
 	{
-		if(!in_array('api', $this->components))
-			return true;
-
-		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		if(!$force)
 		{
-			$config = AppConfig::getCurrentMachineConfig();
-			if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+			if(!in_array('api', $this->components))
+				return true;
+	
+			if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+			{
+				$config = AppConfig::getCurrentMachineConfig();
+				if($config && isset($config[AppConfigAttribute::VERIFY_INSTALLATION]) && !$config[AppConfigAttribute::VERIFY_INSTALLATION])
+					return true;
+			}
+			elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
 				return true;
 		}
-		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
-			return true;
-
+		
 		$this->init();
 		
 		Logger::logMessage(Logger::LEVEL_USER, "Verifying installation");
