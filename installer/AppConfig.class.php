@@ -283,9 +283,16 @@ class AppConfig
 		}
 		else
 		{
-			self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key (leave empty to define later manually)", null, null, 'false');
-			if(self::get(AppConfigAttribute::ACTIVATION_KEY) == 'false' && AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
-				self::set(AppConfigAttribute::VERIFY_INSTALLATION, false);
+			if(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
+			{
+				self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key (leave empty to define later manually)", null, null, 'false');
+				if(self::get(AppConfigAttribute::ACTIVATION_KEY) == 'false')
+					self::set(AppConfigAttribute::VERIFY_INSTALLATION, false);
+			}
+			else
+			{
+				self::set(AppConfigAttribute::ACTIVATION_KEY, 'false');
+			}
 			
 			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . ")", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
 			
