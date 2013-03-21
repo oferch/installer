@@ -295,6 +295,65 @@ class Validator
 		return true;
 	}
 
+	private function validateDependency()
+	{
+		foreach($this->components as $component)
+		{
+			if($component == '*' || $component == 'base')
+				continue;
+				
+			if(!isset($this->installConfig[$component]["depends_on"]) || ! is_array($this->installConfig[$component]["depends_on"]))
+				continue;
+
+			foreach($this->installConfig[$component]["depends_on"] as $dependency)
+			{
+				if(in_array($dependency, $this->components))
+					continue;
+			
+				switch($dependency)
+				{
+					case 'db':
+						$host = AppConfig::get(AppConfigAttribute::DB1_HOST);
+						$port = AppConfig::get(AppConfigAttribute::DB1_PORT);
+						$db = AppConfig::get(AppConfigAttribute::DB1_NAME);
+						
+						if(!DatabaseUtils::dbExists($host, $port, $db))
+						{
+							$this->prerequisites[] = "Database not installed: $db on host $host (port $port) user:" . AppConfig::get(AppConfigAttribute::DB_ROOT_USER) . ".";
+						}
+						break;
+						
+					case 'sphinx':
+						$host = AppConfig::get(AppConfigAttribute::SPHINX_SERVER);
+						$connectionString = "mysql:host=$host;port=9312;";
+						try
+						{
+							new PDO($connectionString);
+						}
+						catch(PDOException $e)
+						{
+							$this->prerequisites[] = "Sphinx not installed on host $host.";
+						}
+						break;
+						
+					case 'dwh':
+						$host = AppConfig::get(AppConfigAttribute::DWH_HOST);
+						$port = AppConfig::get(AppConfigAttribute::DWH_PORT);
+						$db = AppConfig::get(AppConfigAttribute::DWH_DATABASE_NAME);
+						
+						if(!DatabaseUtils::dbExists($host, $port, $db))
+						{
+							$this->prerequisites[] = "Data warehouse database not installed: $db on host $host (port $port) user:" . AppConfig::get(AppConfigAttribute::DB_ROOT_USER) . ".";
+						}
+						break;
+						
+					default:
+						$this->prerequisites[] = "Missing $dependency component, it's required for $component component installation.";
+				}
+			}
+		}
+	}
+
 	public function validate()
 	{
 		if (!OsUtils::verifyOS())
@@ -305,6 +364,7 @@ class Validator
 		$this->validateApache();
 		$this->validateDWH();
 		$this->validateBinaries();
+		$this->validateDependency();
 
 		// Check that SELinux is not enabled (enforcing)
 		exec("which getenforce 2>/dev/null", $out, $rc);
