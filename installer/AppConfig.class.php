@@ -843,6 +843,7 @@ class AppConfig
 		if(is_null(self::$hostname))
 			self::$hostname = 'localhost';
 
+		Logger::logMessage(Logger::LEVEL_INFO, "Installing host [" . self::$hostname . "]");
 		return self::$hostname;
 	}
 
