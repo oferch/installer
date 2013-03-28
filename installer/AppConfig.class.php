@@ -230,6 +230,34 @@ class AppConfig
 		}
 	}
 
+	public static function validateActivationKey($key)
+	{
+		if(!trim($key) || $key == 'false')
+			throw new InputValidatorException("To start your evaluation please supply a valid activation key");
+			
+		$data = explode('|', base64_decode($key));
+		if(count($data) != 4)
+			throw new InputValidatorException("Activation key is invalid");
+			
+		list($adminEmailMd5, $type, $expiryTime, $token) = $data;
+		if($type != self::KEY_TYPE_ACTIVATION && $type != self::KEY_TYPE_EXTENSION)
+			throw new InputValidatorException("Activation key type is invalid");
+			
+//		$adminEmail = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
+//		if($adminEmailMd5 != md5($adminEmail))
+//			throw new InputValidatorException("Activation key is not valid for admin e-mail: $adminEmail");
+			
+		if($expiryTime != self::KEY_NO_EXPIRE)
+		{
+			$daysLeft = $expiryTime - time();
+			$daysLeft = ceil($daysLeft / (60*60*24));
+			if ($daysLeft <= 0)
+				throw new InputValidatorException("Activation key expired");
+		}
+		
+		return true;
+	}
+
 	public static function calculateActivationKey()
 	{
 		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
@@ -284,17 +312,6 @@ class AppConfig
 		}
 		else
 		{
-			if(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
-			{
-				self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key (leave empty to define later manually)", null, null, 'false');
-				if(self::get(AppConfigAttribute::ACTIVATION_KEY) == 'false')
-					self::set(AppConfigAttribute::VERIFY_INSTALLATION, false);
-			}
-			else
-			{
-				self::set(AppConfigAttribute::ACTIVATION_KEY, 'false');
-			}
-			
 			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . ")", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
 			
 			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
@@ -304,7 +321,16 @@ class AppConfig
 			self::getInput(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, "Your primary system administrator email address", "Email must be in a valid email format, please enter again", InputValidator::createEmailValidator(false), null);
 
 			self::getInput(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, "The password you want to set for your primary administrator", "Password should not be empty and should not contain whitespaces, please enter again", InputValidator::createNoWhitespaceValidator(), null, true);
-
+		
+			if(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
+			{
+				self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key", null, InputValidator::createCallbackValidator(array($this, 'validateActivationKey')));
+			}
+			else
+			{
+				self::set(AppConfigAttribute::ACTIVATION_KEY, 'false');
+			}
+			
 			self::getTrueFalse(AppConfigAttribute::DB1_CREATE_NEW_DB, "Would you like to create a new kaltura database or use an exisiting one (choose yes (y) for new database)?", 'y');
 
 			self::getInput(AppConfigAttribute::DB_ROOT_USER, "Database username (with create & write privileges on all database servers, leave empty for root)", "Database username cannot be empty, please enter again", InputValidator::createNonEmptyValidator(), 'root');
@@ -1021,23 +1047,30 @@ class AppConfig
 				Logger::logMessage(Logger::LEVEL_INFO, "User input is $input");
 			}
 
-			if($validator && ! $validator->validateInput($input))
+			try
 			{
-				Logger::logMessage(Logger::LEVEL_USER, $not_valid_text);
-			}
-			else
-			{
-
-				if(!$input && !is_null($default))
+				if($validator && ! $validator->validateInput($input))
 				{
-					$input = $default;
-					if($hideValue)
-						Logger::logMessage(Logger::LEVEL_USER, "Using default value");
-					else
-						Logger::logMessage(Logger::LEVEL_USER, "Using default value: $default");
+					Logger::logMessage(Logger::LEVEL_USER, $not_valid_text);
 				}
-				echo PHP_EOL;
-				$inputOk = true;
+				else
+				{
+	
+					if(!$input && !is_null($default))
+					{
+						$input = $default;
+						if($hideValue)
+							Logger::logMessage(Logger::LEVEL_USER, "Using default value");
+						else
+							Logger::logMessage(Logger::LEVEL_USER, "Using default value: $default");
+					}
+					echo PHP_EOL;
+					$inputOk = true;
+				}
+			}
+			catch(InputValidatorException $e)
+			{
+				Logger::logMessage(Logger::LEVEL_USER, $e->getMessage());
 			}
 		}
 
