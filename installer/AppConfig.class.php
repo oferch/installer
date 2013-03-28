@@ -352,23 +352,20 @@ class AppConfig
 					self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
 				else
 					self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", 'Invalid environment protocol - please enter http or https', InputValidator::createEnumValidator(array('http', 'https'), false, true), 'http');
+					
+				if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https')
+				{
+					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_FILE, "SSL certificate file path", 'File not found', InputValidator::createFileValidator());
+					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, "SSL certificate key file path", 'File not found', InputValidator::createFileValidator());
+				}
 			}
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 	
 		if(in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
 		{
-			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https')
-			{
-				if(!in_array('ssl', self::$components))
-					self::$components[] = 'ssl';
-					
-				if(!$silentRun)
-				{
-					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_FILE, "SSL certificate file path", 'File not found', InputValidator::createFileValidator());
-					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, "SSL certificate key file path", 'File not found', InputValidator::createFileValidator());
-				}
-			}
+			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
+				self::$components[] = 'ssl';
 		}
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
