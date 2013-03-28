@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <base user="${OS_ROOT_USER}" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true">
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
@@ -61,7 +60,7 @@
 				<v1.1.2 svnPath="/usr/local/kalprod/flash/kclip/v1.1.2" skipFilesOwner="true" skipFilesMode="true" />
 			</kclip>
 			<kmc skipFilesOwner="true" skipFilesMode="true">
-				<v5.34 svnPath="/usr/local/kalprod/flash/kmc/v5.34" skipFilesOwner="true" skipFilesMode="true" />
+				<v5.34.2 svnPath="/usr/local/kalprod/flash/kmc/v5.34.2" skipFilesOwner="true" skipFilesMode="true" />
 				<login skipFilesOwner="true" skipFilesMode="true">
 					<v1.2.3 svnPath="/usr/local/kalprod/flash/kmc/login/v1.2.3" skipFilesOwner="true" skipFilesMode="true" />
 				</login>
