@@ -144,6 +144,9 @@ class AppConfigAttribute
 	const TRACK_KDPWRAPPER = 'TRACK_KDPWRAPPER';
 	const USAGE_TRACKING_OPTIN = 'USAGE_TRACKING_OPTIN';
 
+	const SSL_CERTIFICATE_FILE = 'SSL_CERTIFICATE_FILE';
+	const SSL_CERTIFICATE_KEY_FILE = 'SSL_CERTIFICATE_KEY_FILE';
+
 	const KMC_VERSION = 'KMC_VERSION';
 	const CLIPAPP_VERSION = 'CLIPAPP_VERSION';
 	const HTML5_VERSION = 'HTML5_VERSION';
@@ -355,8 +358,17 @@ class AppConfig
 	
 		if(in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
 		{
-			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
-				self::$components[] = 'ssl';
+			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https')
+			{
+				if(!in_array('ssl', self::$components))
+					self::$components[] = 'ssl';
+					
+				if(!$silentRun)
+				{
+					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_FILE, "SSL certificate file path", 'File not found', InputValidator::createFileValidator());
+					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, "SSL certificate key file path", 'File not found', InputValidator::createFileValidator());
+				}
+			}
 		}
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
