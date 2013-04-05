@@ -324,15 +324,18 @@ class Validator
 						break;
 						
 					case 'sphinx':
-						$host = AppConfig::get(AppConfigAttribute::SPHINX_SERVER);
-						$connectionString = "mysql:host=$host;port=9312;";
-						try
+						$hosts = array(AppConfig::get(AppConfigAttribute::SPHINX_SERVER1), AppConfig::get(AppConfigAttribute::SPHINX_SERVER2));
+						foreach($hosts as $host)
 						{
-							new PDO($connectionString);
-						}
-						catch(PDOException $e)
-						{
-							$this->prerequisites[] = "Sphinx not installed on host $host.";
+							$connectionString = "mysql:host=$host;port=9312;";
+							try
+							{
+								new PDO($connectionString);
+							}
+							catch(PDOException $e)
+							{
+								$this->prerequisites[] = "Sphinx not installed on host $host.";
+							}
 						}
 						break;
 						

@@ -61,6 +61,8 @@ class AppConfigAttribute
 	const DB3_NAME = 'DB3_NAME';
 
 	const SPHINX_SERVER = 'SPHINX_SERVER';
+	const SPHINX_SERVER1 = 'SPHINX_SERVER1';
+	const SPHINX_SERVER2 = 'SPHINX_SERVER2';
 	const SPHINX_DB_HOST = 'SPHINX_DB_HOST';
 	const SPHINX_DB_PORT = 'SPHINX_DB_PORT';
 	const SPHINX_DB_NAME = 'SPHINX_DB_NAME';
@@ -310,7 +312,7 @@ class AppConfig
 			self::initField(AppConfigAttribute::DB_ROOT_USER, 'root');
 			self::initField(AppConfigAttribute::DB_ROOT_PASS, 'root');
 			self::initField(AppConfigAttribute::DB1_CREATE_NEW_DB, 'y');
-			self::initField(AppConfigAttribute::SPHINX_DB_HOST, ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
+			self::initField(AppConfigAttribute::SPHINX_SERVER1, ($hostname == 'localhost' ? '127.0.0.1' : $hostname));
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 		else
@@ -346,7 +348,7 @@ class AppConfig
 
 				self::getInput(AppConfigAttribute::DB1_PORT, "Database port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 
-				self::getInput(AppConfigAttribute::SPHINX_DB_HOST, "Sphinx host (leave empty to use 127.0.0.1).", null, InputValidator::createHostValidator(), '127.0.0.1');
+				self::getInput(AppConfigAttribute::SPHINX_SERVER1, "Sphinx host (leave empty to use 127.0.0.1).", null, InputValidator::createHostValidator(), '127.0.0.1');
 
 				if(is_array(self::$components) && in_array('ssl', self::$components))
 					self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
@@ -366,6 +368,16 @@ class AppConfig
 		{
 			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
 				self::$components[] = 'ssl';
+		}
+	
+		if(in_array('sphinx', self::$components))
+		{
+			self::set(AppConfigAttribute::SPHINX_SERVER, $hostname);
+		}
+	
+		if(in_array('populate', self::$components))
+		{
+			self::set(AppConfigAttribute::SPHINX_SERVER, self::getCurrentMachineConfig(AppConfigAttribute::SPHINX_SERVER));
 		}
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
@@ -507,7 +519,8 @@ class AppConfig
 		self::initField(AppConfigAttribute::DB3_PASS, self::get(AppConfigAttribute::DB1_PASS));
 
 		//sphinx
-		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::DB1_HOST) == 'localhost' ? '127.0.01' : self::get(AppConfigAttribute::DB1_HOST));
+		self::initField(AppConfigAttribute::SPHINX_SERVER2, self::get(AppConfigAttribute::SPHINX_SERVER1));
+		
 		self::initField(AppConfigAttribute::SPHINX_DB_NAME, 'kaltura_sphinx_log');
 		self::initField(AppConfigAttribute::SPHINX_DB_HOST, self::get(AppConfigAttribute::DB1_HOST));
 		self::initField(AppConfigAttribute::SPHINX_DB_PORT, self::get(AppConfigAttribute::DB1_PORT));
@@ -578,6 +591,7 @@ class AppConfig
 			'var' => 'Multi-Account Console',
 			'db' => 'Database Server (mySql)',
 			'sphinx' => 'Indexing Server (sphinx)',
+			'populate' => 'Indexing replication (sphinx sync)',
 			'dwh' => 'Data Warehouse',
 			'batch' => 'Batch Server',
 			'red5' => 'Media Server (red5)',
@@ -689,13 +703,63 @@ class AppConfig
 
 				if($component == 'sphinx')
 				{
-					if(isset(self::$config[AppConfigAttribute::SPHINX_SERVER]))
+					$sphinxAvailableServers = array();
+					if(!isset(self::$config[AppConfigAttribute::SPHINX_SERVER1]))
+						$sphinxAvailableServers[1] = 'Primary sphinx server';
+
+					if(!isset(self::$config[AppConfigAttribute::SPHINX_SERVER2]))
+						$sphinxAvailableServers[2] = 'Secondary sphinx server';
+
+					if(!count($sphinxAvailableServers))
 					{
-						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Indexing server is already defined, sphinx won't be installed on $hostname.");
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All sphinx servers are already defined, sphinx won't be installed on $hostname.");
 						continue;
 					}
 
-					self::set(AppConfigAttribute::SPHINX_SERVER, $hostname);
+					$sphinxSelectedServers = array_keys($sphinxAvailableServers);
+					if(count($sphinxAvailableServers) > 1)
+					{
+						Logger::logMessage(Logger::LEVEL_USER, "Available sphinx connections:");
+						foreach($sphinxAvailableServers as $index => $title)
+							Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
+
+						$message = "Please select the sphinx connections that will be installed on $hostname sphinx server, ";
+						$message .= "please enter the connections numbers seperated with commas ";
+						$message .= "(leave empty for all connections).";
+
+						$sphinxSelectedServersInput = self::getInput(null, $message, 'Invalid sphinx connections selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxAvailableServers), true, true), implode(',', $sphinxSelectedServers));
+						if($sphinxSelectedServersInput)
+							$sphinxSelectedServers = explode(',', $sphinxSelectedServersInput);
+					}
+
+					foreach($sphinxSelectedServers as $sphinxSelectedServer)
+						self::set("SPHINX_SERVER{$sphinxSelectedServer}", $hostname);
+				}
+
+				if($component == 'populate')
+				{
+					$sphinxPopulateAvailableServers = array();
+					if(!isset(self::$config[AppConfigAttribute::SPHINX_SERVER1]))
+						$sphinxPopulateAvailableServers[1] = 'Primary sphinx server';
+
+					if(!isset(self::$config[AppConfigAttribute::SPHINX_SERVER2]))
+						$sphinxPopulateAvailableServers[2] = 'Secondary sphinx server';
+
+					if(!count($sphinxPopulateAvailableServers))
+					{
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All sphinx replications are already defined, sphinx replication won't be installed on $hostname.");
+						continue;
+					}
+
+					if(count($sphinxPopulateAvailableServers) > 1)
+					{
+						Logger::logMessage(Logger::LEVEL_USER, "Available sphinx replications:");
+						foreach($sphinxPopulateAvailableServers as $index => $title)
+							Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
+
+						$message = "Please select the sphinx replication that will be installed on $hostname sphinx replication server.";
+						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = self::getInput(null, $message, 'Invalid sphinx replication selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)), implode(',', $sphinxPopulateSelectedServers));
+					}
 				}
 
 				if($component == 'dwh')
