@@ -758,7 +758,7 @@ class AppConfig
 							Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
 
 						$message = "Please select the sphinx replication that will be installed on $hostname sphinx replication server.";
-						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = self::getInput(null, $message, 'Invalid sphinx replication selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)), implode(',', $sphinxPopulateSelectedServers));
+						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = self::getInput(null, $message, 'Invalid sphinx replication selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)));
 					}
 				}
 
