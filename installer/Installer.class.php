@@ -737,6 +737,22 @@ class Installer
 			return false;
 		}
 
+		$permissionsDir = AppConfig::get(AppConfigAttribute::APP_DIR) . '/deployment/permissions';
+		foreach($this->components as $component)
+		{
+			$componentPermissionsDir = "$permissionsDir/$component";
+			if(!file_exists($componentPermissionsDir) || !is_dir($componentPermissionsDir))
+				continue;
+				
+			Logger::logMessage(Logger::LEVEL_USER, "Creating databases initial $component permissions");
+			if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertPermissions.php -d $componentPermissionsDir", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
+				Logger::logMessage(Logger::LEVEL_INFO, "Default $component permissions inserted");
+			} else {
+				Logger::logMessage(Logger::LEVEL_ERROR, "Failed to insert $component permissions");
+				return false;
+			}
+		}
+		
 		return true;
 	}
 
