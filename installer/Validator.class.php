@@ -47,9 +47,12 @@ class Validator
 	private function validatePHP()
 	{
 		// check php version
-		if(! $this->checkVersion(phpversion(), $this->installConfig[Installer::BASE_COMPONENT]["php_min_version"]))
-			$this->prerequisites[] = "PHP version should be >= " . $this->installConfig[Installer::BASE_COMPONENT]["php_min_version"] . " (current version is " . phpversion() . ")";
-
+		$phpversion = phpversion();
+		if(! $this->checkVersion($phpversion, $this->installConfig[Installer::BASE_COMPONENT]["php_min_version"]))
+			$this->prerequisites[] = "PHP version should be >= " . $this->installConfig[Installer::BASE_COMPONENT]["php_min_version"] . " (current version is $phpversion)";
+		elseif(! $this->checkVersion($this->installConfig[Installer::BASE_COMPONENT]["php_min_unsupported_version"], $phpversion))
+			$this->prerequisites[] = "PHP version should be < " . $this->installConfig[Installer::BASE_COMPONENT]["php_min_unsupported_version"] . " (current version is $phpversion)";
+			
 		// check php extensions
 		foreach($this->components as $component)
 		{
