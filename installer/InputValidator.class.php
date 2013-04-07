@@ -41,56 +41,56 @@ class InputValidator {
 				Logger::logMessage(Logger::LEVEL_INFO, "Input is empty");
 		}
 		
-		if ($valid && $this->validateNumberRange)
+		if ($valid && $input && $this->validateNumberRange)
 		{
 			$valid = is_numeric($input) && ($input >= $this->numberRange[0]) && ($input <= $this->numberRange[1]);
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not in range: " . $this->numberRange[0] . ' - ' . $this->numberRange[1]);
 		}
 		
-		if ($valid && $this->validateHostnameOrIp)
+		if ($valid && $input && $this->validateHostnameOrIp)
 		{
 			$valid = (preg_match(self::HOSTNAME_IP_REGEX, parse_url($input, PHP_URL_HOST) ? parse_url($input, PHP_URL_HOST) : $input) === 1);
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not a valid host or ip");
 		}
 		
-		if ($valid && $this->validateEmail)
+		if ($valid && $input && $this->validateEmail)
 		{
 			$valid = (preg_match(self::EMAIL_REGEX, $input) === 1);
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not a valid e-mail");
 		}
 		
-		if ($valid && $this->validateFileExists)
+		if ($valid && $input && $this->validateFileExists)
 		{
 			$valid = is_file($input);
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not of existing path");
 		}
 		
-		if ($valid && $this->validateNoWhitespace)
+		if ($valid && $input && $this->validateNoWhitespace)
 		{
 			$valid = (preg_match(self::WHITESPACE_REGEX, $input) === 0);
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] contains white spaces");
 		}
 		
-		if ($valid && $this->validateDirectory)
+		if ($valid && $input && $this->validateDirectory)
 		{
 			$valid = is_dir(dirname($input));
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not path of valid directory");
 		}
 		
-		if ($valid && $this->validateRegex)
+		if ($valid && $input && $this->validateRegex)
 		{
 			$valid = (preg_match($this->validateRegex, $input) === 1);
 			if(!$valid)
 				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] does not match regex [$this->validateRegex]");
 		}
 		
-		if ($valid && $this->validateTimezone)
+		if ($valid && $input && $this->validateTimezone)
 		{
 			$valid = $this->isValidTimezone($input);
 			if(!$valid)
