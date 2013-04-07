@@ -364,20 +364,23 @@ class AppConfig
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 	
-		if(in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
+		if(self::$components)
 		{
-			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
-				self::$components[] = 'ssl';
-		}
-	
-		if(in_array('sphinx', self::$components))
-		{
-			self::set(AppConfigAttribute::SPHINX_SERVER, $hostname);
-		}
-	
-		if(in_array('populate', self::$components))
-		{
-			self::set(AppConfigAttribute::SPHINX_SERVER, self::getCurrentMachineConfig(AppConfigAttribute::SPHINX_SERVER));
+			if(in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
+			{
+				if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
+					self::$components[] = 'ssl';
+			}
+		
+			if(in_array('sphinx', self::$components))
+			{
+				self::set(AppConfigAttribute::SPHINX_SERVER, $hostname);
+			}
+		
+			if(in_array('populate', self::$components))
+			{
+				self::set(AppConfigAttribute::SPHINX_SERVER, self::getCurrentMachineConfig(AppConfigAttribute::SPHINX_SERVER));
+			}
 		}
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
