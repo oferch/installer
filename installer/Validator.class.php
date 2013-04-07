@@ -146,6 +146,25 @@ class Validator
 				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->installConfig['db']["mysql_min_version"] . " (current version is $mysql_version)";
 			}
 
+			$mysql_timezone = $this->getMysqlSetting($link, 'time_zone'); // will always return the value
+			if(strtoupper($mysql_timezone) == 'SYSTEM')
+				$mysql_timezone = OsUtils::executeWithOutput('date +%:z');
+				
+			if(is_null($mysql_timezone))
+			{
+				$mysqlPrerequisites[] = "Please set MySQL host $host:$port timezone in my.cnf and restart MySQL.";
+			}
+			else
+			{
+				$mysql_timezone = $this->intTimezoneSeconds($mysql_timezone);
+				
+				$dateTimeZone = new DateTimeZone(AppConfig::get(AppConfigAttribute::TIME_ZONE));
+				$dateTime = new DateTime('now', $dateTimeZone);
+				$php_timezone = $dateTime->getOffset();
+				if($mysql_timezone != $php_timezone)
+					$mysqlPrerequisites[] = "Please set MySQL host $host:$port timezone in my.cnf to match the php timezone (" . AppConfig::get(AppConfigAttribute::TIME_ZONE) . ") and restart MySQL.";
+			}
+			
 			$mysqlPrerequisites = array();
 			foreach($this->installConfig['db']['mysql_settings'] as $field => $value)
 			{
@@ -157,6 +176,16 @@ class Validator
 			if(count($mysqlPrerequisites))
 				$this->prerequisites[] = "Please set MySQL host $host:$port in my.cnf and restart MySQL:\n - " . implode("\n - ", $mysqlPrerequisites);
 		}
+	}
+
+	private function intTimezoneSeconds($value)
+	{
+		$parts = explode(':', $value, 3);
+		$ret = (intval($parts[0]) * 60 * 60) + (intval($parts[1]) * 60);
+		if(isset($parts[2]))
+			$ret += intval($parts[2]);
+			
+		return $ret;
 	}
 
 	private function intConfigValue($value)
