@@ -329,7 +329,7 @@ class AppConfig
 		
 			if(AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_TM_TYPE)
 			{
-				self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key", null, InputValidator::createCallbackValidator(array(self, 'validateActivationKey')));
+				self::getInput(AppConfigAttribute::ACTIVATION_KEY, "Kaltura server activation key", null, InputValidator::createCallbackValidator(array('AppConfig', 'validateActivationKey')));
 			}
 			else
 			{
