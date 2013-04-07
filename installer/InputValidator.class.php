@@ -1,8 +1,6 @@
 <?php
 
-define('EMAIL_REGEX','/^([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*[\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)$/i');
-define('HOSTNAME_IP_REGEX','/^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]))$/');
-define('WHITESPACE_REGEX', '/\s/');
+include_once('installer/Log.php');
 
 class InputValidatorException extends Exception
 {
@@ -13,6 +11,11 @@ class InputValidatorException extends Exception
 * This class validates input according to the validation parameters set
 */
 class InputValidator {
+	const EMAIL_REGEX = '/^([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*[\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)$/i';
+	const HOSTNAME_IP_REGEX = '/^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]))$/';
+	const WHITESPACE_REGEX = '/\s/';
+	
+
 	public $emptyIsValid = false;
 	public $validateNumberRange = false;
 	public $validateHostnameOrIp = false;
@@ -32,34 +35,78 @@ class InputValidator {
 		$valid = true;
 		
 		if ($valid && !$this->emptyIsValid)
+		{
 			$valid = !empty($input);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input is empty");
+		}
 		
 		if ($valid && $this->validateNumberRange)
+		{
 			$valid = is_numeric($input) && ($input >= $this->numberRange[0]) && ($input <= $this->numberRange[1]);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not in range: " . $this->numberRange[0] . ' - ' . $this->numberRange[1]);
+		}
 		
 		if ($valid && $this->validateHostnameOrIp)
-			$valid = (preg_match(HOSTNAME_IP_REGEX, parse_url($input, PHP_URL_HOST) ? parse_url($input, PHP_URL_HOST) : $input) === 1);
+		{
+			$valid = (preg_match(self::HOSTNAME_IP_REGEX, parse_url($input, PHP_URL_HOST) ? parse_url($input, PHP_URL_HOST) : $input) === 1);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not a valid host or ip");
+		}
 		
 		if ($valid && $this->validateEmail)
-			$valid = (preg_match(EMAIL_REGEX, $input) === 1);
+		{
+			$valid = (preg_match(self::EMAIL_REGEX, $input) === 1);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not a valid e-mail");
+		}
 		
 		if ($valid && $this->validateFileExists)
+		{
 			$valid = is_file($input);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not of existing path");
+		}
 		
 		if ($valid && $this->validateNoWhitespace)
-			$valid = (preg_match(WHITESPACE_REGEX, $input) === 0);
+		{
+			$valid = (preg_match(self::WHITESPACE_REGEX, $input) === 0);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] contains white spaces");
+		}
 		
 		if ($valid && $this->validateDirectory)
+		{
 			$valid = is_dir(dirname($input));
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not path of valid directory");
+		}
 		
 		if ($valid && $this->validateRegex)
+		{
 			$valid = (preg_match($this->validateRegex, $input) === 1);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] does not match regex [$this->validateRegex]");
+		}
 		
 		if ($valid && $this->validateTimezone)
+		{
 			$valid = $this->isValidTimezone($input);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not a valid time zone");
+		}
 		
 		if ($valid && $this->validateCallback)
-			$valid = is_callable($this->validateCallback) && call_user_func($this->validateCallback, $input);
+		{
+			$valid = is_callable($this->validateCallback);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Callback [" . print_r($this->validateCallback, true) . "] is not callable");
+				
+			$valid = $valid && call_user_func($this->validateCallback, $input);
+			if(!$valid)
+				Logger::logMessage(Logger::LEVEL_INFO, "Input [$input] is not valid according to callback");
+		}
 
 		return $valid;
 	}
