@@ -600,6 +600,11 @@ class AppConfig
 			'red5' => 'Media Server (red5)',
 		);
 
+		$sphinxPopulateAvailableServers = array(
+			1 => 'Primary sphinx server',
+			2 => 'Secondary sphinx server',
+		);
+
 		$definedComponents = array();
 
 		$serversCount = 0;
@@ -741,19 +746,6 @@ class AppConfig
 
 				if($component == 'populate')
 				{
-					$sphinxPopulateAvailableServers = array();
-					if(!isset(self::$config[AppConfigAttribute::SPHINX_SERVER1]))
-						$sphinxPopulateAvailableServers[1] = 'Primary sphinx server';
-
-					if(!isset(self::$config[AppConfigAttribute::SPHINX_SERVER2]))
-						$sphinxPopulateAvailableServers[2] = 'Secondary sphinx server';
-
-					if(!count($sphinxPopulateAvailableServers))
-					{
-						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All sphinx replications are already defined, sphinx replication won't be installed on $hostname.");
-						continue;
-					}
-
 					if(count($sphinxPopulateAvailableServers) > 1)
 					{
 						Logger::logMessage(Logger::LEVEL_USER, "Available sphinx replications:");
@@ -761,7 +753,17 @@ class AppConfig
 							Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
 
 						$message = "Please select the sphinx replication that will be installed on $hostname sphinx replication server.";
-						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = self::getInput(null, $message, 'Invalid sphinx replication selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)));
+						$sphinxPopulateAvailableServer = self::getInput(null, $message, 'Invalid sphinx replication selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)));
+						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = $sphinxPopulateAvailableServer;
+						unset($sphinxPopulateAvailableServers[$sphinxPopulateAvailableServer]);
+					}
+					elseif(count($sphinxPopulateAvailableServers) == 1)
+					{
+						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = reset(array_keys($sphinxPopulateAvailableServers));
+					}
+					else
+					{
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All sphinx replications are already defined, sphinx replication won't be installed on $hostname.");
 					}
 				}
 
