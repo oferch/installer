@@ -242,7 +242,7 @@
 			<entry mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<metadata mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<batchfiles mode="0750" filesMode="0640" skipFilesOwner="true" />
-			<docs svnPath="/usr/local/kalsource/docs" mode="0700" filesMode="0400" skipFilesOwner="true" />
+			<docs svnPath="/usr/local/kalsource/docs/tags/gemini_2013_04_08" mode="0700" filesMode="0400" skipFilesOwner="true" />
 			<templates svnPath="/usr/local/kalsource/on-premise/trunk/packaging/templates" mode="0700" filesMode="0400" skipFilesOwner="true" />
 			<clientlibs user="${OS_KALTURA_USER}" mode="0750" filesMode="0640" skipFilesOwner="true" />
 		</content>
