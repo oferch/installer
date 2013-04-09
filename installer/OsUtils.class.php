@@ -16,17 +16,32 @@ class OsUtils {
 		self::$log = $path;
 	}
 
-	// returns true if the user is root, false otherwise
-	public static function verifyRootUser() {
-		exec('id -u', $output, $result);
-		Logger::logMessage(Logger::LEVEL_INFO, "User: $output");
-		return (isset($output[0]) && $output[0] == '0' && $result == 0);
-	}
-
 	// returns true if the OS is linux, false otherwise
 	public static function verifyOS() {
 		Logger::logMessage(Logger::LEVEL_INFO, "OS: ".OsUtils::getOsName());
+		return self::isLinux();
+	}
+
+	// returns true if the OS is linux, false otherwise
+	public static function isLinux() {
 		return (OsUtils::getOsName() === OsUtils::LINUX_OS);
+	}
+
+	// returns true if the OS is windows, false otherwise
+	public static function isWindows() {
+		return (OsUtils::getOsName() === OsUtils::WINDOWS_OS);
+	}
+
+	public static function windowsPath($path)
+	{
+		if(!$path)
+			return null;
+			
+		$path = str_replace('/', '\\', $path);
+		if($path[0] == '\\')
+			$path = realpath('/') . ltrim($path, '\\');
+			
+		return $path;
 	}
 
 	// returns the computer hostname if found, 'unknown' if not found
@@ -72,6 +87,9 @@ class OsUtils {
 
 	// returns the linux distribution
 	public static function getOsLsb() {
+		if(!self::isLinux())
+			return null;
+			
 		$dist = OsUtils::executeWithOutput("lsb_release -d");
 		if($dist)
 		{
@@ -207,6 +225,9 @@ class OsUtils {
 
 	public static function startService($service, $alwaysStartAutomtically = true)
 	{
+		if(!OsUtils::isLinux())
+			return false;
+			
 		if($alwaysStartAutomtically)
 			OsUtils::execute("chkconfig $service on");
 
@@ -215,6 +236,9 @@ class OsUtils {
 
 	public static function stopService($service, $neverStartAutomtically = true)
 	{
+		if(!OsUtils::isLinux())
+			return false;
+			
 		if($neverStartAutomtically)
 			OsUtils::executeInBackground("chkconfig $service off");
 
@@ -295,8 +319,8 @@ class OsUtils {
 	 */
 	public static function findBinary($file_name)
 	{
-		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
-			return null; // TODO
+		if(!OsUtils::isLinux())
+			return null;
 
 		if (!is_array($file_name))
 			$file_name = array ($file_name);
@@ -319,8 +343,8 @@ class OsUtils {
 	 */
 	public static function findService($serviceName)
 	{
-		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
-			return null; // TODO
+		if(!OsUtils::isLinux())
+			return null;
 
 		if (!is_array($serviceName))
 			$serviceName = array ($serviceName);
@@ -341,11 +365,40 @@ class OsUtils {
 
 	// full copy $source to $target and return true/false according to success
 	public static function fullCopy($source, $target) {
+		if(self::isWindows())
+		{
+			$source = self::windowsPath($source);
+			$target = self::windowsPath($target);
+			if(is_dir($source))
+				return self::execute("xcopy /Y /S /R /Q $source $target");
+				
+			return self::execute("copy /Y $source $target");
+		}
+		
 		return self::execute("cp -r $source $target");
 	}
-
+	
+	public static function symlink($target, $link)
+	{
+		if(self::isWindows())
+		{
+			$target = self::windowsPath($target);
+			$link = self::windowsPath($link);
+			return self::execute("mklink $link $target");
+		}
+		
+		return symlink($target, $link);
+	}
+	
 	// full copy $source to $target and return true/false according to success
 	public static function rsync($source, $target, $options = "") {
+		if(self::isWindows())
+		{
+			$source = self::windowsPath($source);
+			$target = self::windowsPath($target);
+			return self::fullCopy($source, $target);
+		}
+			
 		return self::execute("rsync -r $options $source $target");
 	}
 
@@ -353,7 +406,19 @@ class OsUtils {
 	public static function recursiveDelete($path, $exclude = null)
 	{
 		if(! $exclude)
+		{
+			Logger::logMessage(Logger::LEVEL_USER, "Deleting $path");
+			if(self::isWindows())
+			{
+				$path = self::windowsPath($path);
+				if(is_dir($path))
+					return self::execute("rd /F /Q $path");
+					
+				return self::execute("del /S /Q $path");
+			}
+				
 			return self::execute("rm -rf $path");
+		}
 
 		if(is_array($exclude))
 		{
