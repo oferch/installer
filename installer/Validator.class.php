@@ -392,7 +392,7 @@ class Validator
 	public function validate()
 	{
 		if (!OsUtils::verifyOS())
-			return array("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.");
+			return array("Full Kaltura platform can only be installed on Linux OS at this time.");
 
 		$this->validatePHP();
 		$this->validateMysql();
