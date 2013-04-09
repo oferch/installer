@@ -103,6 +103,7 @@ class Installer
 			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
 				continue;
 
+			Logger::logMessage(Logger::LEVEL_INFO, "Searching symbolic links");
 			foreach ($config['symlinks'] as $slink)
 			{
 				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
@@ -128,6 +129,8 @@ class Installer
 				if(!isset($config['databases']) || !is_array($config['databases']))
 					continue;
 	
+				Logger::logMessage(Logger::LEVEL_INFO, "Searching databases");
+				
 				$verify = $this->detectDatabases($config['databases']);
 				if (!isset($verify))
 					continue;
@@ -150,8 +153,12 @@ class Installer
 			foreach($this->installConfig as $component => $config)
 			{
 				if(isset($config['chkconfig']) && is_array($config['chkconfig']))
+				{
+					Logger::logMessage(Logger::LEVEL_INFO, "Stopping services");
+	
 					foreach ($config['chkconfig'] as $service)
 						OsUtils::stopService($service);
+				}
 			}
 		}
 
@@ -229,6 +236,27 @@ class Installer
 		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
 		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
 		
+		if(OsUtils::isWindows())
+		{
+			AppConfig::set(AppConfigAttribute::BASE_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::BASE_DIR)));
+			AppConfig::set(AppConfigAttribute::APP_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::APP_DIR)));
+			AppConfig::set(AppConfigAttribute::WEB_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::WEB_DIR)));
+			AppConfig::set(AppConfigAttribute::BIN_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::BIN_DIR)));
+			AppConfig::set(AppConfigAttribute::LOG_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::LOG_DIR)));
+			AppConfig::set(AppConfigAttribute::TMP_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::TMP_DIR)));
+			AppConfig::set(AppConfigAttribute::DWH_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::DWH_DIR)));
+			AppConfig::set(AppConfigAttribute::ETL_HOME_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::ETL_HOME_DIR)));
+			AppConfig::set(AppConfigAttribute::PHP_BIN, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::PHP_BIN)));
+			AppConfig::set(AppConfigAttribute::HTTPD_BIN, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::HTTPD_BIN)));
+			AppConfig::set(AppConfigAttribute::LOG_ROTATE_BIN, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::LOG_ROTATE_BIN)));
+			AppConfig::set(AppConfigAttribute::IMAGE_MAGICK_BIN_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::IMAGE_MAGICK_BIN_DIR)));
+			AppConfig::set(AppConfigAttribute::CURL_BIN_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::CURL_BIN_DIR)));
+			AppConfig::set(AppConfigAttribute::SPHINX_BIN_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::SPHINX_BIN_DIR)));
+			AppConfig::set(AppConfigAttribute::EVENTS_LOGS_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::EVENTS_LOGS_DIR)));
+			AppConfig::set(AppConfigAttribute::STORAGE_BASE_DIR, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::STORAGE_BASE_DIR)));
+			AppConfig::set(AppConfigAttribute::SSL_CERTIFICATE_FILE, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::SSL_CERTIFICATE_FILE)));
+			AppConfig::set(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, OsUtils::windowsPath(AppConfig::get(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE)));
+		}
 	}
 
 	/**
@@ -317,13 +345,20 @@ class Installer
 		if(!$this->changeDirsAndFilesPermissions())
 			return "Failed to set files permissions";
 
-		if(!$this->restartApache(true))
-			return "Failed restarting apache http server";
-
-		Logger::logMessage(Logger::LEVEL_USER, "Starting services");
-		foreach($this->components as $component)
-			$this->installComponentServices($component);
-
+		if(OsUtils::isLinux())
+		{
+			if(!$this->restartApache(true))
+				return "Failed restarting apache http server";
+	
+			Logger::logMessage(Logger::LEVEL_USER, "Starting services");
+			foreach($this->components as $component)
+				$this->installComponentServices($component);
+		}
+		else
+		{
+			AppConfig::getInput(null, "Please restart apache web server and click any key to continue.");
+		}
+		
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 
@@ -362,15 +397,18 @@ class Installer
 			if(file_exists($link))
 				unlink($link);
 
-			if (symlink($target, $link))
+			if (OsUtils::symlink($target, $link))
 			{
 				Logger::logMessage(Logger::LEVEL_INFO, "Created symbolic link $link -> $target");
 			}
 			else
 			{
 				Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, retyring..");
-				unlink($link);
-				symlink($target, $link);
+				
+				if(file_exists($link))
+					unlink($link);
+					
+				OsUtils::symlink($target, $link);
 			}
 
 			clearstatcache();
@@ -621,6 +659,7 @@ class Installer
 
 				$checkedDatabases["$host:$port:$db"] = true;
 
+				Logger::logMessage(Logger::LEVEL_INFO, "Searching database [$db] on server [$host:$port]");
 				$result = DatabaseUtils::dbExists($host, $port, $db);
 
 				if ($result === -1)
