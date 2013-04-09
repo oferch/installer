@@ -322,7 +322,10 @@ class Installer
 
 		Logger::logMessage(Logger::LEVEL_USER, "Creating symbolic links");
 		foreach($this->components as $component)
-			$this->installComponentSymlinks($component);
+			if($component != 'ssl')
+				$this->installComponentSymlinks($component);
+		if(in_array('ssl', $this->components))
+			$this->installComponentSymlinks('ssl');
 
 		foreach($this->components as $component)
 			$this->installComponent($component);
