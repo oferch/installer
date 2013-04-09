@@ -142,7 +142,7 @@ if (count($prerequisites))
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "One or more prerequisites required to install Kaltura failed:");
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, implode("\n", $prerequisites));
 
-	if($force || AppConfig::getInput(null, "Please resolve the issues and run the installation again. If you want to install Kaltura server anyway and resolve all issues later, enter 'install'.") != 'install')
+	if(!$force && !AppConfig::getTrueFalse(null, "Please resolve the issues and run the installation again. Do you want to install Kaltura server anyway and resolve all issues later?", 'n'))
 		exit(-1);
 }
 
