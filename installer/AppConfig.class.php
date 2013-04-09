@@ -539,15 +539,34 @@ class AppConfig
 		else
 		{
 			$output = OsUtils::executeWithOutput('echo "select admin_secret from partner where id=0" | mysql -h' . self::get(AppConfigAttribute::DB1_HOST) . ' -P' . self::get(AppConfigAttribute::DB1_PORT) . ' -u' . self::get(AppConfigAttribute::DB1_USER) . ' -p' . self::get(AppConfigAttribute::DB1_PASS) . ' ' . self::get(AppConfigAttribute::DB1_NAME) . ' --skip-column-names');
-			self::initField(AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET, $output[0]);
+			if(count($output))
+				self::initField(AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET, $output[0]);
+			else
+				self::initField(AppConfigAttribute::PARTNER_ZERO_ADMIN_SECRET, self::generateSecret());
+				
 			$output = OsUtils::executeWithOutput('echo "select admin_secret from partner where id=-1" | mysql -h' . self::get(AppConfigAttribute::DB1_HOST) . ' -P' . self::get(AppConfigAttribute::DB1_PORT) . ' -u' . self::get(AppConfigAttribute::DB1_USER) . ' -p' . self::get(AppConfigAttribute::DB1_PASS) . ' ' . self::get(AppConfigAttribute::DB1_NAME) . ' --skip-column-names');
-			self::initField(AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET, $output[0]);
+			if(count($output))
+				self::initField(AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET, $output[0]);
+			else
+				self::initField(AppConfigAttribute::BATCH_PARTNER_ADMIN_SECRET, self::generateSecret());
+				
 			$output = OsUtils::executeWithOutput('echo "select admin_secret from partner where id=-2" | mysql -h' . self::get(AppConfigAttribute::DB1_HOST) . ' -P' . self::get(AppConfigAttribute::DB1_PORT) . ' -u' . self::get(AppConfigAttribute::DB1_USER) . ' -p' . self::get(AppConfigAttribute::DB1_PASS) . ' ' . self::get(AppConfigAttribute::DB1_NAME) . ' --skip-column-names');
-			self::initField(AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET, $output[0]);
+			if(count($output))
+				self::initField(AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET, $output[0]);
+			else
+				self::initField(AppConfigAttribute::ADMIN_CONSOLE_PARTNER_ADMIN_SECRET, self::generateSecret());
+				
 			$output = OsUtils::executeWithOutput('echo "select admin_secret from partner where id=-3" | mysql -h' . self::get(AppConfigAttribute::DB1_HOST) . ' -P' . self::get(AppConfigAttribute::DB1_PORT) . ' -u' . self::get(AppConfigAttribute::DB1_USER) . ' -p' . self::get(AppConfigAttribute::DB1_PASS) . ' ' . self::get(AppConfigAttribute::DB1_NAME) . ' --skip-column-names');
-			self::initField(AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET, $output[0]);
+			if(count($output))
+				self::initField(AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET, $output[0]);
+			else
+				self::initField(AppConfigAttribute::HOSTED_PAGES_PARTNER_ADMIN_SECRET, self::generateSecret());
+				
 			$output = OsUtils::executeWithOutput('echo "select admin_secret from partner where id=99" | mysql -h' . self::get(AppConfigAttribute::DB1_HOST) . ' -P' . self::get(AppConfigAttribute::DB1_PORT) . ' -u' . self::get(AppConfigAttribute::DB1_USER) . ' -p' . self::get(AppConfigAttribute::DB1_PASS) . ' ' . self::get(AppConfigAttribute::DB1_NAME) . ' --skip-column-names');
-			self::initField(AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET, $output[0]);
+			if(count($output))
+				self::initField(AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET, $output[0]);
+			else
+				self::initField(AppConfigAttribute::TEMPLATE_PARTNER_ADMIN_SECRET, self::generateSecret());
 		}
 
 		self::initField(AppConfigAttribute::VERIFY_INSTALLATION, true);
