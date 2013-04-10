@@ -614,7 +614,7 @@ class AppConfig
 			'var' => 'Multi-Account Console',
 			'db' => 'Database Server (mySql)',
 			'sphinx' => 'Indexing Server (sphinx)',
-			'populate' => 'Indexing replication (sphinx sync)',
+			'populate' => 'Indexing synchronizer (sphinx populate)',
 			'dwh' => 'Data Warehouse',
 			'batch' => 'Batch Server',
 			'red5' => 'Media Server (red5)',
@@ -768,12 +768,12 @@ class AppConfig
 				{
 					if(count($sphinxPopulateAvailableServers) > 1)
 					{
-						Logger::logMessage(Logger::LEVEL_USER, "Available sphinx replications:");
+						Logger::logMessage(Logger::LEVEL_USER, "Available sphinx synchronizers:");
 						foreach($sphinxPopulateAvailableServers as $index => $title)
 							Logger::logMessage(Logger::LEVEL_USER, " - $index. $title");
 
-						$message = "Please select the sphinx replication that will be installed on $hostname sphinx replication server.";
-						$sphinxPopulateAvailableServer = self::getInput(null, $message, 'Invalid sphinx replication selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)));
+						$message = "Please select the sphinx synchronizer that will be installed on $hostname sphinx synchronizer server.";
+						$sphinxPopulateAvailableServer = self::getInput(null, $message, 'Invalid sphinx synchronizer selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)));
 						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = $sphinxPopulateAvailableServer;
 						unset($sphinxPopulateAvailableServers[$sphinxPopulateAvailableServer]);
 					}
@@ -783,7 +783,7 @@ class AppConfig
 					}
 					else
 					{
-						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All sphinx replications are already defined, sphinx replication won't be installed on $hostname.");
+						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "All sphinx synchronizers are already defined, sphinx synchronizer won't be installed on $hostname.");
 					}
 				}
 
