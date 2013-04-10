@@ -188,8 +188,10 @@ class Validator
 				$this->prerequisites[] = "MySQL host $host:$port version should be >= " . $this->installConfig['db']["mysql_min_version"] . " (current version is $mysql_version)";
 			}
 
+			$mysqlPrerequisites = array();
+			
 			$mysql_timezone = $this->getMysqlSetting($link, 'time_zone'); // will always return the value
-			if(!preg_match('/^[+-0-9:]+$/', $mysql_timezone))
+			if(!preg_match('/^[-+]?[0-9]{2}:[0-9]{2}$/', $mysql_timezone))
 			{
 				$system_timezone = OsUtils::executeWithOutput('date +%:z');
 				if($system_timezone)
@@ -211,7 +213,6 @@ class Validator
 					$mysqlPrerequisites[] = "Please set MySQL host $host:$port timezone in my.cnf to match the php timezone (" . AppConfig::get(AppConfigAttribute::TIME_ZONE) . ") and restart MySQL.";
 			}
 			
-			$mysqlPrerequisites = array();
 			foreach($this->installConfig['db']['mysql_settings'] as $field => $value)
 			{
 				$actualValue = $this->getMysqlSetting($link, $field);
@@ -226,7 +227,7 @@ class Validator
 
 	private function intTimezoneSeconds($value)
 	{
-		if(!preg_match('/^[+-0-9:]+$/', $value))
+		if(!preg_match('/^[-+]?[0-9]{2}:[0-9]{2}$/', $value))
 			return null;
 			
 		$parts = explode(':', $value, 3);
