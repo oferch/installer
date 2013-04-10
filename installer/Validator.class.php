@@ -190,7 +190,11 @@ class Validator
 
 			$mysql_timezone = $this->getMysqlSetting($link, 'time_zone'); // will always return the value
 			if(!preg_match('/^[+-0-9:]+$/', $mysql_timezone))
-				$mysql_timezone = OsUtils::executeWithOutput('date +%:z');
+			{
+				$system_timezone = OsUtils::executeWithOutput('date +%:z');
+				if($system_timezone)
+					$mysql_timezone = reset($system_timezone);
+			}
 				
 			if(is_null($mysql_timezone))
 			{
