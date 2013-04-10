@@ -150,7 +150,7 @@ class Validator
 			}
 
 			$mysql_timezone = $this->getMysqlSetting($link, 'time_zone'); // will always return the value
-			if(strtoupper($mysql_timezone) == 'SYSTEM')
+			if(!preg_match('/^[+-0-9:]+$/', $mysql_timezone))
 				$mysql_timezone = OsUtils::executeWithOutput('date +%:z');
 				
 			if(is_null($mysql_timezone))
@@ -183,6 +183,9 @@ class Validator
 
 	private function intTimezoneSeconds($value)
 	{
+		if(!preg_match('/^[+-0-9:]+$/', $mysql_timezone))
+			return null;
+			
 		$parts = explode(':', $value, 3);
 		$ret = (intval($parts[0]) * 60 * 60) + (intval($parts[1]) * 60);
 		if(isset($parts[2]))
@@ -392,7 +395,7 @@ class Validator
 	public function validate()
 	{
 		if (!OsUtils::verifyOS())
-			return array("Full Kaltura platform can only be installed on Linux OS at this time.");
+			return array("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.");
 
 		$this->validatePHP();
 		$this->validateMysql();
