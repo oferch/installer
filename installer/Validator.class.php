@@ -44,6 +44,45 @@ class Validator
 		$this->components = array_unique($this->components);
 	}
 
+	private function validateUser($user, $ids, $required = true)
+	{
+		$systemIdsOutput = OsUtils::executeWithOutput("id $user");
+		if(!$systemIdsOutput)
+		{
+			if($required)
+				$this->prerequisites[] = "Mandatory user $user is not defined.";
+				
+			return;
+		}
+		
+		$systemIds = explode(' ', $systemIdsOutput);
+		foreach($systemIds as $systemId)
+		{
+			list($idName, $id) = explode('=', $systemId, 2);
+			if(!isset($ids[$idName]))
+				continue;
+				
+			if(intval($ids[$idName]) != intval($id))
+				$this->prerequisites[] = "User $user is defined with wrong $idName [$id], expected " . $ids[$idName] . ".";
+		}
+	}
+
+	private function validateUsers()
+	{
+		$this->validateUser(AppConfig::get(AppConfigAttribute::OS_ROOT_USER), array(
+			'uid' => AppConfig::get(AppConfigAttribute::OS_ROOT_UID),
+			'gid' => AppConfig::get(AppConfigAttribute::OS_ROOT_GID),
+		));
+		$this->validateUser(AppConfig::get(AppConfigAttribute::OS_APACHE_USER), array(
+			'uid' => AppConfig::get(AppConfigAttribute::OS_APACHE_UID),
+			'gid' => AppConfig::get(AppConfigAttribute::OS_APACHE_GID),
+		));
+		$this->validateUser(AppConfig::get(AppConfigAttribute::OS_KALTURA_USER), array(
+			'uid' => AppConfig::get(AppConfigAttribute::OS_KALTURA_UID),
+			'gid' => AppConfig::get(AppConfigAttribute::OS_KALTURA_GID),
+		), false);
+	}
+	
 	private function validatePHP()
 	{
 		// check php version
@@ -397,6 +436,7 @@ class Validator
 		if (!OsUtils::verifyOS())
 			return array("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.");
 
+		$this->validateUsers();
 		$this->validatePHP();
 		$this->validateMysql();
 		$this->validateApache();
