@@ -55,7 +55,7 @@ class Validator
 			return;
 		}
 		
-		$systemIds = explode(' ', $systemIdsOutput);
+		$systemIds = explode(' ', reset($systemIdsOutput));
 		foreach($systemIds as $systemId)
 		{
 			list($idName, $id) = explode('=', $systemId, 2);
