@@ -354,13 +354,14 @@ class AppConfig
 					self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
 				else
 					self::getInput(AppConfigAttribute::ENVIRONMENT_PROTOCOL, "Environment protocol - enter http/https (leave empty for http)", 'Invalid environment protocol - please enter http or https', InputValidator::createEnumValidator(array('http', 'https'), false, true), 'http');
-					
-				if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https')
-				{
-					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_FILE, "SSL certificate file path", 'File not found', InputValidator::createFileValidator());
-					self::getInput(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, "SSL certificate key file path", 'File not found', InputValidator::createFileValidator());
-				}
 			}
+			
+			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https')
+			{
+				self::getInput(AppConfigAttribute::SSL_CERTIFICATE_FILE, "SSL certificate file path", 'File not found', InputValidator::createFileValidator());
+				self::getInput(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, "SSL certificate key file path", 'File not found', InputValidator::createFileValidator());
+			}
+			
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
 		}
 	
