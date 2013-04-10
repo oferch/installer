@@ -254,7 +254,7 @@
 		</tmp>
 		<html5 skipFilesOwner="true" skipFilesMode="true">
 			<html5lib>
-				<v1.7.4.1 gitPath="/kaltura/mwEmbed.git" gitTag="v1.7.4.1" skipFilesOwner="true" skipFilesMode="true" />
+				<v1.8.2 gitPath="/kaltura/mwEmbed.git" gitTag="v1.8.2" skipFilesOwner="true" skipFilesMode="true" />
 			</html5lib>
 		</html5>
 	</web>
