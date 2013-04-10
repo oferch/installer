@@ -222,7 +222,7 @@ class Validator
 
 	private function intTimezoneSeconds($value)
 	{
-		if(!preg_match('/^[+-0-9:]+$/', $mysql_timezone))
+		if(!preg_match('/^[+-0-9:]+$/', $value))
 			return null;
 			
 		$parts = explode(':', $value, 3);
