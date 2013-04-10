@@ -494,7 +494,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::OS_APACHE_GROUP, self::get(AppConfigAttribute::OS_APACHE_USER));
 		self::initField(AppConfigAttribute::OS_KALTURA_GROUP, self::get(AppConfigAttribute::OS_KALTURA_USER));
 		
-		self::initField(AppConfigAttribute::OS_ROOT_UID, 1); // that's how it's created by the OS
+		self::initField(AppConfigAttribute::OS_ROOT_UID, 0); // that's how it's created by the OS
 		self::initField(AppConfigAttribute::OS_APACHE_UID, 48); // that's how it's created by the apache
 		self::initField(AppConfigAttribute::OS_KALTURA_UID, 613); // the number doesn't matter, as long as it's identical in all machine in the environment
 		self::initField(AppConfigAttribute::OS_ROOT_GID, self::get(AppConfigAttribute::OS_ROOT_UID));
