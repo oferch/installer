@@ -38,6 +38,7 @@
 				<v1.0 svnPath="/usr/local/kalprod/flash/cvfsdk/v1.0" skipFilesOwner="true" skipFilesMode="true" />
 			</cvfsdk>
 			<kdp3 skipFilesOwner="true" skipFilesMode="true">
+				<v3.5.21 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.21" skipFilesOwner="true" skipFilesMode="true" />
 				<v3.8 svnPath="/usr/local/kalprod/flash/kdp3/v3.8" skipFilesOwner="true" skipFilesMode="true" />
 			</kdp3>
 			<kdp3plugins  svnPath="/usr/local/kalprod/flash/kdp3plugins" skipFilesOwner="true" skipFilesMode="true" />
@@ -254,6 +255,7 @@
 		</tmp>
 		<html5 skipFilesOwner="true" skipFilesMode="true">
 			<html5lib>
+				<v1.6.12.27g gitPath="/kaltura/mwEmbed.git" gitTag="v1.6.12.27g" skipFilesOwner="true" skipFilesMode="true" />
 				<v1.8.2 gitPath="/kaltura/mwEmbed.git" gitTag="v1.8.2" skipFilesOwner="true" skipFilesMode="true" />
 			</html5lib>
 		</html5>
