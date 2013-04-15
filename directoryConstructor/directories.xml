@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <base user="${OS_ROOT_USER}" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true">
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
@@ -260,9 +261,9 @@
 			</html5lib>
 		</html5>
 	</web>
-	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk">
-		<ddl skipFilesOwner="true" skipFilesMode="true">
-			<migrations svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
+	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0770" scriptsMode="0770" filesMode="0660" skipFilesOwner="true">
+		<ddl user="${OS_ROOT_USER}" skipFilesOwner="true" skipFilesMode="true">
+			<migrations user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
 		</ddl>
 	</dwh>
 </base>
