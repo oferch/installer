@@ -260,6 +260,7 @@
 				<v1.8.2 gitPath="/kaltura/mwEmbed.git" gitTag="v1.8.2" skipFilesOwner="true" skipFilesMode="true" />
 			</html5lib>
 		</html5>
+		<log user="${OS_KALTURA_USER}" mode="0750" />
 	</web>
 	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0770" scriptsMode="0770" filesMode="0660" skipFilesOwner="true">
 		<ddl user="${OS_ROOT_USER}" skipFilesOwner="true" skipFilesMode="true">
