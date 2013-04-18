@@ -6,7 +6,7 @@
 		<web skipFilesMode="true" skipFilesOwner="true">
 			<flash skipFilesMode="true" skipFilesOwner="true">
 				<krecord skipFilesMode="true" skipFilesOwner="true">
-					<v1.5.12 svnPath="/usr/local/kalprod/flash/krecord/v1.5.12" />
+					<v1.5.13 svnPath="/usr/local/kalprod/flash/krecord/v1.5.12" />
 				</krecord>
 				<ksr skipFilesOwner="true" skipFilesMode="true">
 					<v1.0.33s svnPath="/usr/local/kalprod/flash/ksr/v1.0.33s" skipFilesOwner="true" skipFilesMode="true" />
