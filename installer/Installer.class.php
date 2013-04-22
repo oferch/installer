@@ -406,7 +406,7 @@ class Installer
 			}
 			else
 			{
-				Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, retyring..");
+				Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, retyring.");
 				
 				if(file_exists($link))
 					unlink($link);
