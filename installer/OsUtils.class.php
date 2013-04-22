@@ -380,6 +380,29 @@ class OsUtils {
 	
 	public static function symlink($target, $link)
 	{
+		if(strpos($link, '*') > 0)
+		{
+			list($basePath, $linkPath) = explode('*', $link, 2);
+			$basePath .= '*';
+			$basePaths = glob($basePath);
+			if(!$basePaths)
+			{
+				Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, path [$basePath] not found.");
+				return false;
+			}
+			
+			foreach($basePaths as $basePath)
+			{
+				$link = "$basePath/$linkPath";
+				if(!self::symlink($target, $link))
+				{
+					Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target.");
+					return false;
+				}
+			}
+			return true;
+		}
+		
 		if(self::isWindows())
 		{
 			$target = self::windowsPath($target);
