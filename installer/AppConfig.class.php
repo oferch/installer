@@ -138,11 +138,12 @@ class AppConfigAttribute
 	const GOOGLE_ANALYTICS_ACCOUNT = 'GOOGLE_ANALYTICS_ACCOUNT';
 	const INSTALLATION_UID = 'INSTALLATION_UID';
 	const INSTALLATION_SEQUENCE_UID = 'INSTALLATION_SEQUENCE_UID';
+	const APP_REMOTE_ADDR_HEADER_SALT = 'APP_REMOTE_ADDR_HEADER_SALT';
 
 	const ACTIVATION_KEY = 'ACTIVATION_KEY';
 	const KALTURA_VERSION_TYPE = 'KALTURA_VERSION_TYPE';
 	const KALTURA_VERSION = 'KALTURA_VERSION';
-
+	
 	const UICONF_TAB_ACCESS = 'UICONF_TAB_ACCESS';
 
 	const TRACK_KDPWRAPPER = 'TRACK_KDPWRAPPER';
@@ -601,6 +602,7 @@ class AppConfig
 		self::set(AppConfigAttribute::BATCH_SCHEDULER_TEMPLATE, $scheulderTemplate);
 		self::set(AppConfigAttribute::BATCH_SCHEDULER_ID, $scheulderId);
 		self::set(AppConfigAttribute::INSTALLED_HOSNAME, self::getHostname());
+		self::set(AppConfigAttribute::APP_REMOTE_ADDR_HEADER_SALT, uniqid());
 	}
 
 	protected static function configureMultipleServers()
