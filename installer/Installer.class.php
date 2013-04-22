@@ -394,7 +394,7 @@ class Installer
 				continue;
 			}
 
-			if(!file_exists(dirname($link)))
+			if(strpos($link, '*') === false && !file_exists(dirname($link)))
 				mkdir(dirname($link), 0755, true);
 
 			if(file_exists($link))
