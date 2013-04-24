@@ -1040,7 +1040,7 @@ class AppConfig
 					$data = $tmpData;
 				}
 				
-				$tmpData = preg_replace('/^([^=]+)=([^"]*[=&][^"]*)$/', '$1="$2"', $data, -1, $count);
+				$tmpData = preg_replace('/^([^=\n]+)=(\s*)([^"\n]*[=&][^"\n]*)$/m', '$1=$2"$3"', $data, -1, $count);
 				if($tmpData && $count)
 				{
 					Logger::logMessage(Logger::LEVEL_INFO, "Wrapped complex string values with qoutes in ini file [$newfile]");
