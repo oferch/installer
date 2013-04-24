@@ -52,7 +52,7 @@
 			</flexwrapper>
 			<kcw skipFilesOwner="true" skipFilesMode="true">
 				<v2.1.6.7 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.7" skipFilesOwner="true" skipFilesMode="true" />
-				<v2.2 svnPath="/usr/local/kalprod/flash/kcw/v2.2" skipFilesOwner="true" skipFilesMode="true" />
+				<v2.2.1 svnPath="/usr/local/kalprod/flash/kcw/v2.2.1" skipFilesOwner="true" skipFilesMode="true" />
 			</kcw>
 			<kclip skipFilesOwner="true" skipFilesMode="true">
 				<v1.1.2.1 svnPath="/usr/local/kalprod/flash/kclip/v1.1.2.1" skipFilesOwner="true" skipFilesMode="true" />
@@ -262,9 +262,9 @@
 		</html5>
 		<log user="${OS_KALTURA_USER}" mode="0750" />
 	</web>
-	<dwh user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0770" scriptsMode="0770" filesMode="0660" skipFilesOwner="true">
-		<ddl user="${OS_ROOT_USER}" skipFilesOwner="true" skipFilesMode="true">
-			<migrations user="${OS_ROOT_USER}" svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
+	<dwh user="${OS_KALTURA_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0750" scriptsMode="0750" filesMode="0660" skipFilesOwner="true">
+		<ddl user="${OS_KALTURA_USER}" skipFilesOwner="true" skipFilesMode="true">
+			<migrations user="${OS_KALTURA_USER}" svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
 		</ddl>
 	</dwh>
 </base>
