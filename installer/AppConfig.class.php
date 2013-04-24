@@ -277,8 +277,7 @@ class AppConfig
 		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
 		$token = md5(uniqid(rand(), true));
 		$str = implode("|", array(md5($admin_email), self::KEY_TYPE_ACTIVATION, self::KEY_NO_EXPIRE, $token));
-		$key = base64_encode($str);
-		AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, "\"$key\"");
+		AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, base64_encode($str));
 	}
 
 	/**
@@ -1030,6 +1029,12 @@ class AppConfig
 		else
 		{
 			$data = self::replaceTokensInString($data);
+			
+			if(preg_match('/\.ini$/', $newfile))
+			{
+				$data = preg_replace('/^([^=]+)=([^"]*[=&][^"]*)$/', '$1="$2"', $data);
+			}
+			
 			if(! file_put_contents($newfile, $data))
 			{
 				Logger::logMessage(Logger::LEVEL_ERROR, "Cannot replace token in file, cannot write to file $newfile");
