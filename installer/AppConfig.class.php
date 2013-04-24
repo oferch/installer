@@ -1032,7 +1032,20 @@ class AppConfig
 			
 			if(preg_match('/\.ini$/', $newfile))
 			{
-				$data = preg_replace('/^([^=]+)=([^"]*[=&][^"]*)$/', '$1="$2"', $data);
+				$count = null;
+				$tmpData = str_replace("\r", '', $data, $count);
+				if($tmpData && $count)
+				{
+					Logger::logMessage(Logger::LEVEL_INFO, "Removed dos carriage return from ini file [$newfile]");
+					$data = $tmpData;
+				}
+				
+				$tmpData = preg_replace('/^([^=]+)=([^"]*[=&][^"]*)$/', '$1="$2"', $data, -1, $count);
+				if($tmpData && $count)
+				{
+					Logger::logMessage(Logger::LEVEL_INFO, "Wrapped complex string values with qoutes in ini file [$newfile]");
+					$data = $tmpData;
+				}
 			}
 			
 			if(! file_put_contents($newfile, $data))
