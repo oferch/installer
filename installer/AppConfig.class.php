@@ -271,13 +271,13 @@ class AppConfig
 		if (AppConfig::get(AppConfigAttribute::KALTURA_VERSION_TYPE) == AppConfig::K_CE_TYPE)
 			AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, 'false');
 
-		if(!AppConfig::get(AppConfigAttribute::ACTIVATION_KEY))
-			return;
-			
-		$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
-		$token = md5(uniqid(rand(), true));
-		$str = implode("|", array(md5($admin_email), self::KEY_TYPE_ACTIVATION, self::KEY_NO_EXPIRE, $token));
-		AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, base64_encode($str));
+		if(AppConfig::get(AppConfigAttribute::ACTIVATION_KEY) === true)
+		{
+			$admin_email = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
+			$token = md5(uniqid(rand(), true));
+			$str = implode("|", array(md5($admin_email), self::KEY_TYPE_ACTIVATION, self::KEY_NO_EXPIRE, $token));
+			AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, base64_encode($str));
+		}
 	}
 
 	/**
