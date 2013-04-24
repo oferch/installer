@@ -220,8 +220,20 @@ class Validator
 					$mysqlPrerequisites[] = "$field = $value" . ($actualValue ? " (current value is $actualValue)" : '');
 					
 			}
+			
 			if(count($mysqlPrerequisites))
-				$this->prerequisites[] = "Please set MySQL host $host:$port in my.cnf and restart MySQL:\n - " . implode("\n - ", $mysqlPrerequisites);
+			{
+				$dataDir = $this->getMysqlSetting($link, 'datadir');
+				$logFiles = glob("$dataDir/ib_logfile*");
+				
+				$prerequisite = "Please set MySQL host $host:$port in my.cnf:\n - " . implode("\n - ", $mysqlPrerequisites);
+				
+				if($logFiles)
+					$prerequisite .= "\nPlease delete the following log files:\n - " . implode("\n - ", $logFiles);
+				
+				$prerequisite .= "\nPlease restart MySQL in order to apply the changed configuration.";
+				$this->prerequisites[] = $prerequisite;
+			}
 		}
 	}
 
