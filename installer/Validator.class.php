@@ -83,6 +83,40 @@ class Validator
 		), false);
 	}
 	
+	private function validatePear()
+	{
+		if(!isset($this->installConfig[Installer::BASE_COMPONENT]["pears"]))
+			return;
+
+		$matches = null;
+		foreach($this->installConfig[Installer::BASE_COMPONENT]["pears"] as $pear => $version)
+		{
+			$pearInfo = OsUtils::executeWithOutput("pear info $pear");
+			$pearVersion = null;
+			foreach($pearInfo as $pearInfoLine)
+			{
+				if(preg_match('/^No information found/', $pearInfoLine))
+					break;
+					
+				if(preg_match('/^Release Version[\s]+([\d.]+)/', $pearInfoLine, $matches))
+				{
+					$pearVersion = $matches[1];
+					break;
+				}
+			}
+			
+			if($pearVersion)
+			{
+				if(! $this->checkVersion($pearVersion, $version))
+					$this->prerequisites[] = "Pear $pear package version should be >= $version (current version is $pearVersion)";
+			}
+			else
+			{
+				$this->prerequisites[] = "Missing pear $pear package, please install $pear-$version";
+			}
+		}
+	}
+	
 	private function validatePHP()
 	{
 		// check php version
@@ -455,6 +489,7 @@ class Validator
 
 		$this->validateUsers();
 		$this->validatePHP();
+		$this->validatePear();
 		$this->validateMysql();
 		$this->validateApache();
 		$this->validateDWH();
