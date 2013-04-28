@@ -31,6 +31,7 @@
 		<emailIngestion user="${OS_KALTURA_USER}" />
 		<imports user="${OS_KALTURA_USER}" />
 		<thumb user="${OS_KALTURA_USER}" />
+		<bulk user="${OS_KALTURA_USER}" />
 	</tmp>
 	<web>
 		<flash skipFilesOwner="true" skipFilesMode="true">
