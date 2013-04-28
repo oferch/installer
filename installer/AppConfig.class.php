@@ -879,7 +879,7 @@ class AppConfig
 		if($config && isset($config['components']))
 			self::$components = explode(',', $config['components']);
 
-		if(in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
+		if(in_array('*', self::$components) || in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
 		{
 			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
 				self::$components[] = 'ssl';
