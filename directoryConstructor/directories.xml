@@ -3,7 +3,7 @@
 	<!--
 	<app gitPath="/kaltura/KalturaServer.git">
 	-->
-	<app mode="0750" user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/tags/gemini_2013_03_18">
+	<app mode="0750" user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/trunk/core">
 		<cache mode="0770" filesMode="0660" skipFilesOwner="true" />
 		<configurations skipFilesMode="true" skipFilesOwner="true">
 			<monit mode="0750" filesMode="0600" skipFilesOwner="true" />
