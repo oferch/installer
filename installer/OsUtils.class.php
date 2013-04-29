@@ -430,7 +430,6 @@ class OsUtils {
 	{
 		if(! $exclude)
 		{
-			Logger::logMessage(Logger::LEVEL_USER, "Deleting $path");
 			if(self::isWindows())
 			{
 				$path = self::windowsPath($path);
