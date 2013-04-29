@@ -302,7 +302,18 @@ class ProgressBarTarTask extends Task
 					throw new BuildException($tar->error_object->getMessage());
 				}
 			}
+			
 		
+			// check if tar is out of date with respect to each fileset
+			if(!$this->tarFile->exists())
+				throw new BuildException("Tar file not created");
+				
+			foreach($this->filesets as $fs)
+			{
+				$files = $fs->getFiles($this->project, $this->includeEmpty);
+				if(! $this->archiveIsUpToDate($files, $fs->getDir($this->project)))
+					throw new BuildException("Not all files added to the tar");
+			}
 		}
 		catch(IOException $ioe)
 		{
