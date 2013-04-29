@@ -202,7 +202,7 @@ class CreateUserTask extends Task
 		passthru($command, $returnedValue);
 
 		if($returnedValue != 0)
-			throw new Exception("Can't update existing user");
+			throw new BuildException("Can't update existing user");
 	}
 
 	/**
@@ -250,31 +250,31 @@ class CreateUserTask extends Task
 		switch($returnedValue)
 		{
 			case 1:
-				throw new Exception("Can't update password file");
+				throw new BuildException("Can't update password file");
 
 			case 2:
-				throw new Exception("Invalid command syntax");
+				throw new BuildException("Invalid command syntax");
 
 			case 3:
-				throw new Exception("Invalid argument to option");
+				throw new BuildException("Invalid argument to option");
 
 			case 4:
-				throw new Exception("UID already in use");
+				throw new BuildException("UID already in use");
 
 			case 6:
-				throw new Exception("Specified group doesn't exist");
+				throw new BuildException("Specified group doesn't exist");
 
 			case 9:
-				throw new Exception("Username already in use");
+				throw new BuildException("Username already in use");
 
 			case 10:
-				throw new Exception("Can't update group file");
+				throw new BuildException("Can't update group file");
 
 			case 12:
-				throw new Exception("Can't create home directory");
+				throw new BuildException("Can't create home directory");
 
 			case 13:
-				throw new Exception("Can't create mail spool");
+				throw new BuildException("Can't create mail spool");
 		}
 	}
 

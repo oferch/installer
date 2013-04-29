@@ -84,11 +84,11 @@ class GrantDbUserTask extends Task
 			 * 2	Driver-specific error message.
 			 */
 			$errInfo = $pdo->errorInfo();
-			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+			throw new BuildException($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
 		
 		if($pdoStatement->rowCount() == 0)
-			throw new Exception("User [{$this->user}] not found", $errInfo[0], null);
+			throw new BuildException("User [{$this->user}] not found", $errInfo[0], null);
 		
 		$statement = "GRANT {$this->privileges} ON {$this->database}.* TO '{$this->user}'@'{$this->fromHost}'";
 		$this->log("Executing: $statement");
@@ -101,7 +101,7 @@ class GrantDbUserTask extends Task
 			 * 2	Driver-specific error message.
 			 */
 			$errInfo = $pdo->errorInfo();
-			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+			throw new BuildException($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
 		
 		$statement = "FLUSH PRIVILEGES";
@@ -115,7 +115,7 @@ class GrantDbUserTask extends Task
 			 * 2	Driver-specific error message.
 			 */
 			$errInfo = $pdo->errorInfo();
-			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+			throw new BuildException($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
 	}
 	

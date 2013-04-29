@@ -107,7 +107,7 @@ class ExecSqlTask extends Task
 		$returnValue = null;
 		passthru($cmd, $returnValue);
 		if($returnValue != 0)
-			throw new Exception("SQL execution failed.");
+			throw new BuildException("SQL execution failed.");
 	}
 
 	protected function execSql($sql)
@@ -126,7 +126,7 @@ class ExecSqlTask extends Task
 			 * 2	Driver-specific error message.
 			 */
 			$errInfo = $pdo->errorInfo();
-			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+			throw new BuildException($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
 	}
 

@@ -65,7 +65,7 @@ class CreateDbTask extends Task
 			 * 2	Driver-specific error message.
 			 */
 			$errInfo = $pdo->errorInfo();
-			throw new Exception($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
+			throw new BuildException($errInfo[0] . ': ' . $errInfo[2], $errInfo[1], null);
 		}
 	}
 	
