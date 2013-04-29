@@ -635,6 +635,7 @@ class AppConfig
 			'dwh' => 'Data Warehouse',
 			'batch' => 'Batch Server',
 			'red5' => 'Media Server (red5)',
+			'monitor' => 'Monitor (nagios)',
 		);
 
 		$sphinxPopulateAvailableServers = array(
