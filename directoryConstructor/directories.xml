@@ -263,9 +263,9 @@
 		</html5>
 		<log user="${OS_KALTURA_USER}" mode="0750" />
 	</web>
-	<dwh user="${OS_KALTURA_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0750" scriptsMode="0750" filesMode="0660" skipFilesOwner="true">
-		<ddl user="${OS_KALTURA_USER}" skipFilesOwner="true" skipFilesMode="true">
-			<migrations user="${OS_KALTURA_USER}" svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
+	<dwh user="${OS_KALTURA_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0750" scriptsMode="0750" filesMode="0640">
+		<ddl skipFilesOwner="true" skipFilesMode="true">
+			<migrations svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
 		</ddl>
 	</dwh>
 </base>
