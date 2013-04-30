@@ -390,7 +390,7 @@ class Installer
 			$tokens = $matches[1];
 			foreach($tokens as $token)
 			{
-				$value = self::get($token);
+				$value = AppConfig::get($token);
 				if(is_array($value))
 				{
 					foreach($value as $valueOption)
