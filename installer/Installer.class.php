@@ -64,9 +64,18 @@ class Installer
 
 	private function createOperatingSystemUsers()
 	{
+		$users = array();
+		
+		foreach($this->components as $component)
+		{
+			if(isset($this->installConfig[$component]) && isset($this->installConfig[$component]['users']))
+				$users = array_merge($users, $this->installConfig[$component]['users']);
+		}
+		$users = implode(',', array_unique($users));
+				
 		Logger::logMessage(Logger::LEVEL_USER, "Creating operating system users");
-		$dir = __DIR__ . '/../directoryConstructor';
-		return OsUtils::phing($dir, 'Create-Users');
+		$dir = __DIR__ . '/../osUsers';
+		return OsUtils::phing($dir, 'Create-Users', array('users' => $users));
 	}
 
 	/**

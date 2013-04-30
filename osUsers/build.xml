@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Directory Constructor" default="Create-Users" phingVersion="2.4.13">
+	<taskdef name="CreateUser" classpath="../lib" classname="phing.user.CreateUserTask" />
+	
+	<target name="Load-configuration">
+		<property file="build.properties" override="false" />
+	</target>
+	
+	<target name="Create-Users" depends="Load-configuration">
+		<if>
+			<not><isset property="users" /></not>
+			<then>
+				<fail message="Property 'users' must be supplied" />
+			</then>
+		</if>
+		<foreach list="${users}" param="user" target="Create-User" />
+	</target>
+	
+	<target name="Create-User">
+		<if>
+			<not><isset property="user.${user}.name" /></not>
+			<then>
+				<fail message="Property 'user.${user}.name' must be supplied" />
+			</then>
+		</if>
+		<CreateUser username="${user.${user}.name}" group="${user.${user}.name}" groups="${user.${user}.groups}" uid="${user.${user}.uid}" gid="${user.${user}.gid}" ifNotExists="true" />
+	</target>
+	
+</project>
