@@ -1079,7 +1079,15 @@ class AppConfig
 	// if it is a template file it will save it to a non template file and then override it
 	public static function replaceTokensInFile($file, array $overwriteValues = null)
 	{
-		Logger::logMessage(Logger::LEVEL_INFO, "Replacing configuration tokens in file [$file]");
+		if($overwriteValues)
+		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Replacing configuration tokens in file [$file], overwrite values [" . print_r($overwriteValues, true) . "]");
+		}
+		else
+		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Replacing configuration tokens in file [$file]");
+		}
+		
 		$newfile = self::copyTemplateFileIfNeeded($file);
 		if(is_array($newfile))
 		{
@@ -1176,8 +1184,8 @@ class AppConfig
 					{
 						$filePath = str_replace("@$token@", $valueOption, $returnFile);
 						
-						Logger::logMessage(Logger::LEVEL_INFO, "$file token file copied to $filePath");
 						OsUtils::fullCopy($file, $filePath);
+						Logger::logMessage(Logger::LEVEL_INFO, "$file token file translated and copied to $filePath");
 						
 						$returnFiles[$filePath] = array($token => $valueOption);
 					}
@@ -1189,8 +1197,8 @@ class AppConfig
 				}
 			}
 			
-			Logger::logMessage(Logger::LEVEL_INFO, "$file token file copied to $returnFile");
 			OsUtils::fullCopy($file, $returnFile);
+			Logger::logMessage(Logger::LEVEL_INFO, "$file token file copied to $returnFile");
 		}
 		return $returnFile;
 	}
