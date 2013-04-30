@@ -1061,8 +1061,11 @@ class AppConfig
 	public static function replaceTokensInString($string, array $overwriteValues = null)
 	{
 		$config = self::$config;
-		foreach($overwriteValues as $key => $var)
-			$config[$key] = $var;
+		if($overwriteValues)
+		{
+			foreach($overwriteValues as $key => $var)
+				$config[$key] = $var;
+		}
 			
 		foreach($config as $key => $var)
 		{
