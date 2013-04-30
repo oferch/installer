@@ -35,12 +35,10 @@ class AppConfigAttribute
 
 	const OS_ROOT_UID = 'OS_ROOT_UID';
 	const OS_APACHE_UID = 'OS_APACHE_UID';
-	const OS_NAGIOS_UID = 'OS_NAGIOS_UID';
 	const OS_KALTURA_UID = 'OS_KALTURA_UID';
 
 	const OS_ROOT_GID = 'OS_ROOT_GID';
 	const OS_APACHE_GID = 'OS_APACHE_GID';
-	const OS_NAGIOS_GID = 'OS_NAGIOS_GID';
 	const OS_KALTURA_GID = 'OS_KALTURA_GID';
 	
 	const DB_ROOT_USER = 'DB_ROOT_USER';
@@ -508,9 +506,11 @@ class AppConfig
 		self::initField(AppConfigAttribute::OS_ROOT_USER, (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root'));
 		self::initField(AppConfigAttribute::OS_APACHE_USER, 'apache');
 		self::initField(AppConfigAttribute::OS_KALTURA_USER, 'kaltura');
+		self::initField(AppConfigAttribute::OS_NAGIOS_USER, 'nagios');
 		self::initField(AppConfigAttribute::OS_ROOT_GROUP, self::get(AppConfigAttribute::OS_ROOT_USER));
 		self::initField(AppConfigAttribute::OS_APACHE_GROUP, self::get(AppConfigAttribute::OS_APACHE_USER));
 		self::initField(AppConfigAttribute::OS_KALTURA_GROUP, self::get(AppConfigAttribute::OS_KALTURA_USER));
+		self::initField(AppConfigAttribute::OS_NAGIOS_GROUP, self::get(AppConfigAttribute::OS_NAGIOS_USER));
 		
 		self::initField(AppConfigAttribute::OS_ROOT_UID, 0); // that's how it's created by the OS
 		self::initField(AppConfigAttribute::OS_APACHE_UID, 48); // that's how it's created by the apache
