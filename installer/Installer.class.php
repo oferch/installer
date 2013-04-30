@@ -382,37 +382,62 @@ class Installer
 		return null;
 	}
 
+	private function createSymlink($slink)
+	{
+		$matches = null;
+		if(preg_match_all('/@([A-Z0-9_]+)@/', $slink, $matches))
+		{
+			$tokens = $matches[1];
+			foreach($tokens as $token)
+			{
+				$value = self::get($token);
+				if(is_array($value))
+				{
+					foreach($value as $valueOption)
+					{
+						if(!self::createSymlink(str_replace("@$token@", $valueOption, $slink)))
+							return false;
+					}
+					return true;
+				}
+			}
+			$slink = AppConfig::replaceTokensInString($slink);
+		}
+		
+		list($target, $link) = explode(SYMLINK_SEPARATOR, $slink);
+
+		if(!file_exists($target))
+		{
+			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Failed to create symbolic link [$link], target [$target] does not exist.");
+			continue;
+		}
+
+		if (OsUtils::symlink($target, $link))
+		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Created symbolic link $link -> $target");
+		}
+		else
+		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, retyring.");
+			
+			if(file_exists($link))
+				unlink($link);
+				
+			OsUtils::symlink($target, $link);
+		}
+
+		clearstatcache();
+		if(file_exists($link))
+			chgrp($link, AppConfig::get(AppConfigAttribute::OS_KALTURA_GROUP));
+
+		fwrite($this->uninstallConfig, "symlinks[]=$link" . PHP_EOL);
+	}
+
 	private function createSymlinks(array $symlinks)
 	{
 		foreach ($symlinks as $slink)
 		{
-			list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink), 2);
-
-			if(!file_exists($target))
-			{
-				Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Failed to create symbolic link [$link], target [$target] does not exist.");
-				continue;
-			}
-
-			if (OsUtils::symlink($target, $link))
-			{
-				Logger::logMessage(Logger::LEVEL_INFO, "Created symbolic link $link -> $target");
-			}
-			else
-			{
-				Logger::logMessage(Logger::LEVEL_INFO, "Failed to create symbolic link from $link to $target, retyring.");
-				
-				if(file_exists($link))
-					unlink($link);
-					
-				OsUtils::symlink($target, $link);
-			}
-
-			clearstatcache();
-			if(file_exists($link))
-				chgrp($link, AppConfig::get(AppConfigAttribute::OS_KALTURA_GROUP));
-
-			fwrite($this->uninstallConfig, "symlinks[]=$link" . PHP_EOL);
+			self::createSymlink($slink);
 		}
 
 		return true;
