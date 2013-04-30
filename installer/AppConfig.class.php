@@ -149,6 +149,16 @@ class AppConfigAttribute
 	const TRACK_KDPWRAPPER = 'TRACK_KDPWRAPPER';
 	const USAGE_TRACKING_OPTIN = 'USAGE_TRACKING_OPTIN';
 
+	const API_MACHINES_NAMES = 'API_MACHINES_NAMES';
+	const BATCH_MACHINES_NAMES = 'BATCH_MACHINES_NAMES';
+	const ADMIN_MACHINES_NAMES = 'ADMIN_MACHINES_NAMES';
+	const VAR_MACHINES_NAMES = 'VAR_MACHINES_NAMES';
+	const DB_MACHINES_NAMES = 'DB_MACHINES_NAMES';
+	const SPHINX_MACHINES_NAMES = 'SPHINX_MACHINES_NAMES';
+	const POPULATE_MACHINES_NAMES = 'POPULATE_MACHINES_NAMES';
+	const DWH_MACHINES_NAMES = 'DWH_MACHINES_NAMES';
+	const RED5_MACHINES_NAMES = 'RED5_MACHINES_NAMES';
+        
 	const SSL_CERTIFICATE_FILE = 'SSL_CERTIFICATE_FILE';
 	const SSL_CERTIFICATE_KEY_FILE = 'SSL_CERTIFICATE_KEY_FILE';
 
@@ -602,12 +612,41 @@ class AppConfig
 		self::set(AppConfigAttribute::BATCH_SCHEDULER_ID, $scheulderId);
 		self::set(AppConfigAttribute::INSTALLED_HOSNAME, self::getHostname());
 		self::set(AppConfigAttribute::APP_REMOTE_ADDR_HEADER_SALT, uniqid());
+		
+		
+		self::set(AppConfigAttribute::API_MACHINES_NAMES, implode(',', self::getMachinesByComponent('api')));
+		self::set(AppConfigAttribute::BATCH_MACHINES_NAMES, implode(',', self::getMachinesByComponent('batch')));
+		self::set(AppConfigAttribute::ADMIN_MACHINES_NAMES, implode(',', self::getMachinesByComponent('admin')));
+		self::set(AppConfigAttribute::VAR_MACHINES_NAMES, implode(',', self::getMachinesByComponent('var')));
+		self::set(AppConfigAttribute::DB_MACHINES_NAMES, implode(',', self::getMachinesByComponent('db')));
+		self::set(AppConfigAttribute::SPHINX_MACHINES_NAMES, implode(',', self::getMachinesByComponent('sphinx')));
+		self::set(AppConfigAttribute::POPULATE_MACHINES_NAMES, implode(',', self::getMachinesByComponent('populate')));
+		self::set(AppConfigAttribute::DWH_MACHINES_NAMES, implode(',', self::getMachinesByComponent('dwh')));
+		self::set(AppConfigAttribute::RED5_MACHINES_NAMES, implode(',', self::getMachinesByComponent('red5')));
+	}
+
+	protected static function getMachinesByComponent($component)
+	{
+		if(!AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+			return array(AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+			
+		$machines = array();
+		foreach(self::$config as $name => $value)
+		{
+			if(is_array($value) && isset($value['components']))
+			{
+				$components = explode(',', $value['components']);
+				if(in_array($component, $components))
+					$machines[] = $name;
+			}
+		}
+		return $machines;
 	}
 
 	protected static function configureMultipleServers()
 	{
 		// if already defined or if no need to define
-		if (AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT) || !AppConfig::getTrueFalse(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT, "Would you like to configure multiple servers?", 'n'))
+		if (AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT) === false || !AppConfig::getTrueFalse(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT, "Would you like to configure multiple servers?", 'n'))
 			return false;
 
 		$numbers = array(
