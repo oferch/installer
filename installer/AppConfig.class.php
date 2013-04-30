@@ -158,6 +158,8 @@ class AppConfigAttribute
 	const POPULATE_MACHINES_NAMES = 'POPULATE_MACHINES_NAMES';
 	const DWH_MACHINES_NAMES = 'DWH_MACHINES_NAMES';
 	const RED5_MACHINES_NAMES = 'RED5_MACHINES_NAMES';
+	
+	const MACHINE_NAME = 'MACHINE_NAME';
         
 	const SSL_CERTIFICATE_FILE = 'SSL_CERTIFICATE_FILE';
 	const SSL_CERTIFICATE_KEY_FILE = 'SSL_CERTIFICATE_KEY_FILE';
@@ -623,6 +625,22 @@ class AppConfig
 		self::set(AppConfigAttribute::POPULATE_MACHINES_NAMES, implode(',', self::getMachinesByComponent('populate')));
 		self::set(AppConfigAttribute::DWH_MACHINES_NAMES, implode(',', self::getMachinesByComponent('dwh')));
 		self::set(AppConfigAttribute::RED5_MACHINES_NAMES, implode(',', self::getMachinesByComponent('red5')));
+		
+		self::set(AppConfigAttribute::MACHINE_NAME, self::getMachinesNames());
+	}
+
+	protected static function getMachinesNames()
+	{
+		if(!AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+			return array(AppConfig::get(AppConfigAttribute::KALTURA_VIRTUAL_HOST_NAME));
+			
+		$machines = array();
+		foreach(self::$config as $name => $value)
+		{
+			if(is_array($value) && isset($value['components']))
+				$machines[] = $name;
+		}
+		return $machines;
 	}
 
 	protected static function getMachinesByComponent($component)
@@ -1040,13 +1058,16 @@ class AppConfig
 	}
 
 	// replaces all tokens in the given string with the configuration values and returns the new string
-	public static function replaceTokensInString($string)
+	public static function replaceTokensInString($string, array $overwriteValues = null)
 	{
 		foreach(self::$config as $key => $var)
 		{
 			if(is_array($var))
 				continue;
 
+			if(isset($overwriteValues[$key]))
+				$var = $overwriteValues[$key];
+				
 			$key = TOKEN_CHAR . $key . TOKEN_CHAR;
 			$string = str_replace($key, $var, $string);
 		}
@@ -1056,11 +1077,21 @@ class AppConfig
 	// replaces all the tokens in the given file with the configuration values and returns true/false upon success/failure
 	// will override the file if it is not a template file
 	// if it is a template file it will save it to a non template file and then override it
-	public static function replaceTokensInFile($file)
+	public static function replaceTokensInFile($file, array $overwriteValues = null)
 	{
 		Logger::logMessage(Logger::LEVEL_INFO, "Replacing configuration tokens in file [$file]");
 		$newfile = self::copyTemplateFileIfNeeded($file);
+		if(is_array($newfile))
+		{
+			foreach($newfile as $filePath => $values)
+			{
+				if(!self::replaceTokensInFile($filePath, $values))
+					return false;
+			}
+			return true;
+		}
 		$data = @file_get_contents($newfile);
+		
 		if(! $data)
 		{
 			Logger::logMessage(Logger::LEVEL_ERROR, "Cannot replace token in file $newfile");
@@ -1068,7 +1099,7 @@ class AppConfig
 		}
 		else
 		{
-			$data = self::replaceTokensInString($data);
+			$data = self::replaceTokensInString($data, $overwriteValues);
 			
 			if(preg_match('/\.ini$/', $newfile))
 			{
@@ -1127,15 +1158,41 @@ class AppConfig
 	// returns the non template file if it was copied or the original file if it was not copied
 	private static function copyTemplateFileIfNeeded($file)
 	{
-		$return_file = $file;
+		$returnFile = $file;
 		// Replacement in a template file, first copy to a non .template file
 		if(strpos($file, TEMPLATE_FILE) !== false)
 		{
-			$return_file = str_replace(TEMPLATE_FILE, "", $file);
-			Logger::logMessage(Logger::LEVEL_INFO, "$file token file contains " . TEMPLATE_FILE);
-			OsUtils::fullCopy($file, $return_file);
+			$returnFile = str_replace(TEMPLATE_FILE, "", $file);
+			$matches = null;
+			if(preg_match('/@([A-Z0-9_]+)@/', $returnFile, $matches) && defined('AppConfigAttribute::' . $matches[1]))
+			{
+				$token = $matches[1];
+				$value = self::get($token);
+				
+				if(is_array($value))
+				{
+					$returnFiles = array();
+					foreach($value as $valueOption)
+					{
+						$filePath = str_replace("@$token@", $valueOption, $returnFile);
+						
+						Logger::logMessage(Logger::LEVEL_INFO, "$file token file copied to $filePath");
+						OsUtils::fullCopy($file, $filePath);
+						
+						$returnFiles[$filePath] = array($token => $valueOption);
+					}
+					return $returnFiles;
+				}
+				else
+				{
+					$returnFile = str_replace("@$token@", $value, $returnFile);
+				}
+			}
+			
+			Logger::logMessage(Logger::LEVEL_INFO, "$file token file copied to $returnFile");
+			OsUtils::fullCopy($file, $returnFile);
 		}
-		return $return_file;
+		return $returnFile;
 	}
 
 	/**
