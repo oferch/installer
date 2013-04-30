@@ -1060,14 +1060,15 @@ class AppConfig
 	// replaces all tokens in the given string with the configuration values and returns the new string
 	public static function replaceTokensInString($string, array $overwriteValues = null)
 	{
-		foreach(self::$config as $key => $var)
+		$config = clone self::$config;
+		foreach($overwriteValues as $key => $var)
+			$config[$key] = $var;
+			
+		foreach($config as $key => $var)
 		{
 			if(is_array($var))
 				continue;
 
-			if(isset($overwriteValues[$key]))
-				$var = $overwriteValues[$key];
-				
 			$key = TOKEN_CHAR . $key . TOKEN_CHAR;
 			$string = str_replace($key, $var, $string);
 		}
