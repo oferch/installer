@@ -668,7 +668,7 @@ class AppConfig
 	protected static function configureMultipleServers()
 	{
 		// if already defined or if no need to define
-		if (AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT) === false || !AppConfig::getTrueFalse(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT, "Would you like to configure multiple servers?", 'n'))
+		if (isset(self::$config[AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT]) || !AppConfig::getTrueFalse(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT, "Would you like to configure multiple servers?", 'n'))
 			return false;
 
 		$numbers = array(
