@@ -403,6 +403,12 @@ class OsUtils {
 			return true;
 		}
 		
+		if(!file_exists(dirname($link)))
+			mkdir(dirname($link), 0755, true);
+
+		if(file_exists($link))
+			unlink($link);
+	
 		if(self::isWindows())
 		{
 			$target = self::windowsPath($target);

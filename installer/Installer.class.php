@@ -394,12 +394,6 @@ class Installer
 				continue;
 			}
 
-			if(strpos($link, '*') === false && !file_exists(dirname($link)))
-				mkdir(dirname($link), 0755, true);
-
-			if(file_exists($link))
-				unlink($link);
-
 			if (OsUtils::symlink($target, $link))
 			{
 				Logger::logMessage(Logger::LEVEL_INFO, "Created symbolic link $link -> $target");
