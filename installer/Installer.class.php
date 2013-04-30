@@ -418,7 +418,7 @@ class Installer
 		if(!file_exists($target))
 		{
 			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Failed to create symbolic link [$link], target [$target] does not exist.");
-			continue;
+			return false;
 		}
 
 		if (OsUtils::symlink($target, $link))
@@ -440,13 +440,15 @@ class Installer
 			chgrp($link, AppConfig::get(AppConfigAttribute::OS_KALTURA_GROUP));
 
 		fwrite($this->uninstallConfig, "symlinks[]=$link" . PHP_EOL);
+		return true;
 	}
 
 	private function createSymlinks(array $symlinks)
 	{
 		foreach ($symlinks as $slink)
 		{
-			self::createSymlink($slink);
+			if(!self::createSymlink($slink))
+				return false;
 		}
 
 		return true;
