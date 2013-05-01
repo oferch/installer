@@ -288,7 +288,12 @@ class Installer
 				return "Failed to copy application files to target directory";
 
 			$copyWebContnet = false;
-			if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+			
+			if(AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+			{
+				$copyWebContnet = true;
+			}
+			elseif(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
 			{
 				if(in_array('db', $this->components))
 				{
@@ -296,10 +301,6 @@ class Installer
 					if($config && isset($config[AppConfigAttribute::DB1_CREATE_NEW_DB]) && $config[AppConfigAttribute::DB1_CREATE_NEW_DB])
 						$copyWebContnet = true;
 				}
-			}
-			elseif(AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
-			{
-				$copyWebContnet = true;
 			}
 
 			if ($copyWebContnet)
