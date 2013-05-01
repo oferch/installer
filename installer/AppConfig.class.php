@@ -469,7 +469,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::DWH_PORT, self::get(AppConfigAttribute::DB1_PORT));
 		self::initField(AppConfigAttribute::DWH_DATABASE_NAME, 'kalturadw');
 		self::initField(AppConfigAttribute::EVENTS_LOGS_DIR, self::get(AppConfigAttribute::WEB_DIR) . '/log');
-		self::initField(AppConfigAttribute::EVENTS_WILDCARD, '.*kaltura.*_apache_access*.log-.*');
+		self::initField(AppConfigAttribute::EVENTS_WILDCARD, '.*kaltura.*_apache_access.*.log-.*');
 		self::initField(AppConfigAttribute::EVENTS_FETCH_METHOD, 'local');
 
 		// other configurations
