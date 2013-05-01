@@ -171,6 +171,7 @@ class AppConfigAttribute
 	const HTML5_VERSION = 'HTML5_VERSION';
 
 	const VERIFY_INSTALLATION = 'VERIFY_INSTALLATION';
+	const DEPLOY_KMC = 'DEPLOY_KMC';
 	const VERBOSE = 'VERBOSE';
 }
 
@@ -310,6 +311,11 @@ class AppConfig
 			self::$config = array_merge(self::$config, $fileConfig);
 			if(!$configOnly && !$silentRun && self::componentDefined('db'))
 				unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
+				
+			if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT) && !self::componentDefined('db'))
+			{
+				self::set(AppConfigAttribute::DB1_CREATE_NEW_DB, false);
+			}
 		}
 
 		$hostname = self::getHostname();
@@ -603,6 +609,7 @@ class AppConfig
 		}
 
 		self::initField(AppConfigAttribute::VERIFY_INSTALLATION, true);
+		self::initField(AppConfigAttribute::DEPLOY_KMC, true);
 
 		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
 
@@ -751,6 +758,8 @@ class AppConfig
 				{
 					if(!isset($definedComponents[$component]))
 						$hostConfig[AppConfigAttribute::VERIFY_INSTALLATION] = true;
+					if(!isset($definedComponents[$component]))
+						$hostConfig[AppConfigAttribute::DEPLOY_KMC] = true;
 				}
 
 				if($component == 'db')

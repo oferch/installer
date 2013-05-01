@@ -760,6 +760,15 @@ class Installer
 		if(!in_array('api', $this->components))
 			return true;
 
+		if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT))
+		{
+			$config = AppConfig::getCurrentMachineConfig();
+			if($config && isset($config[AppConfigAttribute::DEPLOY_KMC]) && !$config[AppConfigAttribute::DEPLOY_KMC])
+				return true;
+		}
+		elseif(!AppConfig::get(AppConfigAttribute::DEPLOY_KMC))
+			return true;
+			
 		Logger::logMessage(Logger::LEVEL_USER, "Deploying user interface configuration files (KMC ui-confs)");
 		if(isset($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2']) && is_array($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2']))
 		{
