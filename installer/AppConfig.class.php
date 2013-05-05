@@ -506,7 +506,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::CONTACT_URL, 'http://corp.kaltura.com/contact');
 		self::initField(AppConfigAttribute::CONTACT_PHONE_NUMBER, '+1 800 871-5224');
 		self::initField(AppConfigAttribute::BEGINNERS_TUTORIAL_URL, 'http://corp.kaltura.com/about/dosignup');
-		self::initField(AppConfigAttribute::QUICK_START_GUIDE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . '/content/docs/pdf/KMC_Quick_Start_Guide.pdf');
+		self::initField(AppConfigAttribute::QUICK_START_GUIDE_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . '/content/docs/pdf/KMC_User_Manual.pdf');
 		self::initField(AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . '/index.php/extwidget/blockMail?e=');
 
 		self::initField(AppConfigAttribute::OS_ROOT_USER, (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root'));
