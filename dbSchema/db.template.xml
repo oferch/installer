@@ -33,7 +33,7 @@
 				<database dbname="@DB2_NAME@" privileges="SELECT" host="mysql2" id="propel2" />
 				<database dbname="@DB3_NAME@" privileges="SELECT" host="mysql3" id="propel3" />
 				<database dbname="@DWH_DATABASE_NAME@" privileges="SELECT" host="mysql2" id="dwh" />
-				<database dbname="@SPHINX_DB_NAME@" privileges="SELECT,INSERT" host="mysql1" id="sphinx_log" />
+				<database dbname="@SPHINX_DB_NAME@" privileges="SELECT,INSERT,UPDATE" host="mysql1" id="sphinx_log" />
 			</databases>
 		</user>
 		<user id="@DWH_USER@" password="@DWH_PASS@" fromHost="%">
