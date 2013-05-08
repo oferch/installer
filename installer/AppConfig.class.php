@@ -396,16 +396,12 @@ class AppConfig
 					self::$components[] = 'ssl';
 			}
 		
-			if(in_array('sphinx', self::$components))
-			{
-				self::set(AppConfigAttribute::SPHINX_SERVER, $hostname);
-			}
-		
 			if(in_array('populate', self::$components))
 			{
 				self::set(AppConfigAttribute::SPHINX_SERVER, self::getCurrentMachineConfig(AppConfigAttribute::SPHINX_SERVER));
 			}
 		}
+		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::SPHINX_SERVER1));
 
 		self::initField(AppConfigAttribute::KALTURA_VIRTUAL_HOST_PORT, (self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' ? 443 : 80));
 		if(strpos(self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME), ":"))
