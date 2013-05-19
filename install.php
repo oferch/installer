@@ -27,7 +27,7 @@ if(isset($options['h']))
 	echo " -p - Package XML path or URL." . PHP_EOL;
 	echo " -d - Don't validate installation." . PHP_EOL;
 	echo " -v - Verbose output." . PHP_EOL;
-	echo " -C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl)." . PHP_EOL;
+	echo " -C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,red5,ssl,monitor)." . PHP_EOL;
 	echo "      Use * for all default components, for example, *,red5,ssl." . PHP_EOL;
 	
 	// don't tell anyone it's possibler
