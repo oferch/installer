@@ -260,6 +260,9 @@
 			<thumb mode="0770" skipFilesOwner="true" />
 			<xml mode="0770" skipFilesOwner="true" />
 		</tmp>
+		<dropfolders mode="0750" filesMode="0660" skipFilesOwner="true">
+			<monitor mode="0770" skipFilesOwner="true" />
+		</dropfolders>
 		<html5 skipFilesOwner="true" skipFilesMode="true">
 			<html5lib>
 				<v1.6.12.27g	gitPath="/kaltura/mwEmbed.git" gitTag="v1.6.12.27g"	skipFilesOwner="true" skipFilesMode="true" />
