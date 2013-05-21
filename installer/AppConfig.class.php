@@ -701,6 +701,7 @@ class AppConfig
 			'batch' => 'Batch Server',
 			'red5' => 'Media Server (red5)',
 			'monitor' => 'Monitor (nagios)',
+			'cleanup' => 'Old content cleanup',
 		);
 
 		$sphinxPopulateAvailableServers = array(
