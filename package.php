@@ -66,6 +66,7 @@ $keepTemp = isset($options['k']);
 $logPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.log';
 $detailsLogPath = null;
 Logger::init($logPath, $verbose);
+Logger::logMessage(Logger::LEVEL_INFO, "Command: " . __FILE__ . ' ' . implode(' ', $argv));
 if(!$verbose)
 {
 	$detailsLogPath = __DIR__ . '/package.' . date("Y.m.d_H.i.s") . '.details.log';
