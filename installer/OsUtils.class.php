@@ -380,6 +380,7 @@ class OsUtils {
 	
 	public static function symlink($target, $link)
 	{
+		Logger::logMessage(Logger::LEVEL_INFO, "Create symbolic link target [$target], link [$link]");
 		if(strpos($link, '*') > 0)
 		{
 			list($basePath, $linkPath) = explode('*', $link, 2);
