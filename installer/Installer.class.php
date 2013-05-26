@@ -54,6 +54,7 @@ class Installer
 			}
 		}
 		$this->components = array_unique($this->components);
+		Logger::logMessage(Logger::LEVEL_INFO, "Installed components: " . implode(', ', $this->components));
 	}
 
 	public function __destruct()

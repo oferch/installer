@@ -929,6 +929,9 @@ class AppConfig
 	public static function setCurrentMachineComponents(array $components)
 	{
 		self::$components = $components;
+		
+		$components = self::getCurrentMachineComponents();
+		Logger::logMessage(Logger::LEVEL_INFO, "Components defined: " . implode(', ', $components));
 	}
 
 	public static function componentDefined($component)
