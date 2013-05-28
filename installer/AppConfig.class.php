@@ -341,8 +341,7 @@ class AppConfig
 		{
 			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . ")", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
 
-			self::initField(AppConfigAttribute::BASE_DIR, '/opt/kaltura');
-//			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
+			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
 
 			self::getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, "Please enter the domain name that will be used for the Kaltura server (without http://, leave empty for $hostname)", 'Must be a valid hostname or ip, please enter again', InputValidator::createHostValidator(), $hostname);
 
