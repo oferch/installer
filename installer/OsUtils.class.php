@@ -130,7 +130,9 @@ class OsUtils {
 			}
 			else
 			{
-				$value = '"' . trim($value, '"') . '"';
+				if(preg_match('/[=&;!@#$%^*()-+{}:?]/', $value))
+					$value = '"' . trim($value, '"') . '"';
+
 				$data .= "$key=$value" . PHP_EOL;
 			}
 		}
