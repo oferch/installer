@@ -234,7 +234,7 @@ class Validator
 				
 			if(is_null($mysql_timezone))
 			{
-				$mysqlPrerequisites[] = "Please set MySQL host $host:$port timezone in my.cnf and restart MySQL.";
+				$mysqlPrerequisites[] = "Please set MySQL host $host:$port default_time_zone directive in my.cnf and restart MySQL.";
 			}
 			else
 			{
@@ -244,7 +244,11 @@ class Validator
 				$dateTime = new DateTime('now', $dateTimeZone);
 				$php_timezone = $dateTime->getOffset();
 				if($mysql_timezone != $php_timezone)
-					$mysqlPrerequisites[] = "Please set MySQL host $host:$port timezone in my.cnf to match the php timezone (" . AppConfig::get(AppConfigAttribute::TIME_ZONE) . ") and restart MySQL.";
+				{
+					$php_timezone /= 60;
+					$php_timezone_str = ($php_timezone >= 0 ? '+' : '-') . str_pad(intval(abs($php_timezone) / 60), 2, '0', STR_PAD_LEFT) . ':' . str_pad($php_timezone % 60, 2, '0', STR_PAD_LEFT);
+					$mysqlPrerequisites[] = "Please set MySQL host $host:$port default_time_zone directive in my.cnf to match the php timezone ($php_timezone_str) and restart MySQL.";
+				}
 			}
 			
 			foreach($this->installConfig['db']['mysql_settings'] as $field => $value)
