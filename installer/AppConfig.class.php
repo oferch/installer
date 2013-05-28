@@ -63,6 +63,7 @@ class AppConfigAttribute
 	const DB3_NAME = 'DB3_NAME';
 
 	const SPHINX_SERVER = 'SPHINX_SERVER';
+	const SPHINX_SERVER_INDEX = 'SPHINX_SERVER_INDEX';
 	const SPHINX_SERVER1 = 'SPHINX_SERVER1';
 	const SPHINX_SERVER2 = 'SPHINX_SERVER2';
 	const SPHINX_DB_HOST = 'SPHINX_DB_HOST';
@@ -397,7 +398,9 @@ class AppConfig
 		
 			if(in_array('populate', self::$components))
 			{
-				self::set(AppConfigAttribute::SPHINX_SERVER, self::getCurrentMachineConfig(AppConfigAttribute::SPHINX_SERVER));
+				$sphinxServerIndex = self::getCurrentMachineConfig(AppConfigAttribute::SPHINX_SERVER_INDEX);
+				if($sphinxServerIndex)
+					self::set(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::SPHINX_SERVER . $sphinxServerIndex));
 			}
 		}
 		self::initField(AppConfigAttribute::SPHINX_SERVER, self::get(AppConfigAttribute::SPHINX_SERVER1));
@@ -859,12 +862,12 @@ class AppConfig
 
 						$message = "Please select the sphinx synchronizer that will be installed on $hostname sphinx synchronizer server.";
 						$sphinxPopulateAvailableServer = self::getInput(null, $message, 'Invalid sphinx synchronizer selected, please enter again', InputValidator::createEnumValidator(array_keys($sphinxPopulateAvailableServers)));
-						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = $sphinxPopulateAvailableServer;
+						$hostConfig[AppConfigAttribute::SPHINX_SERVER_INDEX] = $sphinxPopulateAvailableServer;
 						unset($sphinxPopulateAvailableServers[$sphinxPopulateAvailableServer]);
 					}
 					elseif(count($sphinxPopulateAvailableServers) == 1)
 					{
-						$hostConfig[AppConfigAttribute::SPHINX_SERVER] = reset(array_keys($sphinxPopulateAvailableServers));
+						$hostConfig[AppConfigAttribute::SPHINX_SERVER_INDEX] = reset(array_keys($sphinxPopulateAvailableServers));
 					}
 					else
 					{
