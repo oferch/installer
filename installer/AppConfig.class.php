@@ -936,8 +936,9 @@ class AppConfig
 			
 			$config = self::getCurrentMachineConfig();
 			if($config && isset($config['components']))
-				self::$components = explode(',', $config['components']);
+				$components = explode(',', $config['components']);
 		}
+		self::$components = $components;
 
 		if(in_array('*', self::$components) || in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
 		{
