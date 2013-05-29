@@ -928,12 +928,24 @@ class AppConfig
 		return true;
 	}
 
-	public static function setCurrentMachineComponents(array $components)
+	public static function setCurrentMachineComponents(array $components = null)
 	{
-		self::$components = $components;
-		
-		$components = self::getCurrentMachineComponents();
-		Logger::logMessage(Logger::LEVEL_INFO, "Components defined: " . implode(', ', $components));
+		if(!$components)
+		{
+			$components = array('*');
+			
+			$config = self::getCurrentMachineConfig();
+			if($config && isset($config['components']))
+				self::$components = explode(',', $config['components']);
+		}
+
+		if(in_array('*', self::$components) || in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
+		{
+			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
+				self::$components[] = 'ssl';
+		}
+
+		Logger::logMessage(Logger::LEVEL_INFO, "Selected components: " . implode(', ', self::$components));
 	}
 
 	public static function componentDefined($component)
@@ -944,22 +956,9 @@ class AppConfig
 	
 	public static function getCurrentMachineComponents()
 	{
-		if(self::$components)
-			return self::$components;
-			
-		self::$components = array('*');
-
-		$config = self::getCurrentMachineConfig();
-		if($config && isset($config['components']))
-			self::$components = explode(',', $config['components']);
-
-		if(in_array('*', self::$components) || in_array('api', self::$components) || in_array('apps', self::$components) || in_array('var', self::$components) || in_array('admin', self::$components))
-		{
-			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
-				self::$components[] = 'ssl';
-		}
-
-		Logger::logMessage(Logger::LEVEL_INFO, "Selected components: " . implode(', ', self::$components));
+		if(!self::$components)
+			self::setCurrentMachineComponents();
+		
 		return self::$components;
 	}
 
