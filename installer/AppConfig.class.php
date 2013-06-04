@@ -166,6 +166,7 @@ class AppConfigAttribute
         
 	const SSL_CERTIFICATE_FILE = 'SSL_CERTIFICATE_FILE';
 	const SSL_CERTIFICATE_KEY_FILE = 'SSL_CERTIFICATE_KEY_FILE';
+	const SSL_CERTIFICATE_CHAIN_FILE = 'SSL_CERTIFICATE_CHAIN_FILE';
 
 	const KMC_VERSION = 'KMC_VERSION';
 	const CLIPAPP_VERSION = 'CLIPAPP_VERSION';
@@ -383,6 +384,7 @@ class AppConfig
 			{
 				self::getInput(AppConfigAttribute::SSL_CERTIFICATE_FILE, "SSL certificate file path", 'File not found', InputValidator::createFileValidator());
 				self::getInput(AppConfigAttribute::SSL_CERTIFICATE_KEY_FILE, "SSL certificate key file path", 'File not found', InputValidator::createFileValidator());
+				self::getInput(AppConfigAttribute::SSL_CERTIFICATE_CHAIN_FILE, "SSL certificate chain file path", 'File not found', InputValidator::createFileValidator());
 			}
 			
 			self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'http');
