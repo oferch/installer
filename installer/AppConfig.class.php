@@ -297,16 +297,24 @@ class AppConfig
 		}
 	}
 
+	public static function getUserInputFilePath()
+	{
+		if(!self::$inputFilePath)
+			self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
+			
+		return self::$inputFilePath;
+	}
+
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
 	public static function configure($silentRun = false, $configOnly = false)
 	{
-		self::$inputFilePath = realpath(__DIR__ . '/../') . '/user_input.ini';
+		$inputFilePath = self::getUserInputFilePath();
 
-		if(file_exists(self::$inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
+		if(file_exists($inputFilePath) && ($silentRun || self::getTrueFalse(null, "Installation configuration has been detected, do you want to use it?", 'y')))
 		{
-			$fileConfig = parse_ini_file(self::$inputFilePath, true);
+			$fileConfig = parse_ini_file($inputFilePath, true);
 			if(isset($fileConfig[AppConfigAttribute::VERBOSE]))
 				unset($fileConfig[AppConfigAttribute::VERBOSE]);
 			
@@ -612,7 +620,7 @@ class AppConfig
 		self::initField(AppConfigAttribute::VERIFY_INSTALLATION, true);
 		self::initField(AppConfigAttribute::DEPLOY_KMC, true);
 
-		OsUtils::writeConfigToFile(self::$config, self::$inputFilePath);
+		OsUtils::writeConfigToFile(self::$config, $inputFilePath);
 
 		$scheulderTemplate = self::getCurrentMachineConfig(AppConfigAttribute::BATCH_SCHEDULER_TEMPLATE);
 		if(!$scheulderTemplate)
