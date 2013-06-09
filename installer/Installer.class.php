@@ -730,16 +730,26 @@ class Installer
 
 	private function installDB()
 	{
-		if(!AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
-			return true;
-
-		Logger::logMessage(Logger::LEVEL_INFO, "Creating databases and database users");
-
-		$dir = __DIR__ . '/../dbSchema';
-		if(!OsUtils::phing($dir))
-			return false;
-
-		return true;
+		if(AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
+		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Creating databases and database users");
+			$dir = __DIR__ . '/../dbSchema';
+			return OsUtils::phing($dir);
+		}
+		else
+		{
+			Logger::logMessage(Logger::LEVEL_USER, "Upgrading existing database");
+			if (OsUtils::execute(sprintf("%s %s/deployment/updates/update.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) 
+			{
+				Logger::logMessage(Logger::LEVEL_INFO, "Existing database upgraded");
+				return true;
+			} 
+			else 
+			{
+				Logger::logMessage(Logger::LEVEL_ERROR, "Failed to upgrade existing database");
+				return false;
+			}
+		}
 	}
 
 	private function createDynamicEnums()
