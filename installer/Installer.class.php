@@ -739,7 +739,11 @@ class Installer
 		else
 		{
 			Logger::logMessage(Logger::LEVEL_USER, "Upgrading existing database");
-			if (OsUtils::execute(sprintf("%s %s/deployment/updates/update.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) 
+			$cmd = sprintf('%s %s/deployment/updates/update.php -u "%s"', AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::DB_ROOT_USER));
+			if(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS))
+				$cmd .= sprintf(' -p "%s"', AppConfig::get(AppConfigAttribute::DB_ROOT_PASS));
+				
+			if (OsUtils::execute($cmd))
 			{
 				Logger::logMessage(Logger::LEVEL_INFO, "Existing database upgraded");
 				return true;
