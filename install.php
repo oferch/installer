@@ -84,7 +84,7 @@ AppConfig::configure($silentRun);
 
 if($upgrade)
 {
-	AppConfig::set('uninstall', false);
+	AppConfig::set(AppConfigAttribute::UNINSTALL, false);
 	AppConfig::set(AppConfigAttribute::DB1_CREATE_NEW_DB, false);
 	AppConfig::set(AppConfigAttribute::UPGRADE_FROM_VERSION, $upgrade);
 }
@@ -180,7 +180,7 @@ if (isset($leftovers)) {
 			exit(-2);
 		}
 	}
-	elseif (!$uninstall && !$force && AppConfig::getTrueFalse('uninstall', "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n'))
+	elseif (!$uninstall && !$force && AppConfig::getTrueFalse(AppConfigAttribute::UNINSTALL, "Leftovers from a previouse Kaltura installation have been detected. In order to continue with the current installation these leftovers must be removed. Do you wish to remove them now?", 'n'))
 	{
 		$uninstall = true;
 	}
