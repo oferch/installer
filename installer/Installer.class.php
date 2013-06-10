@@ -736,7 +736,7 @@ class Installer
 			$dir = __DIR__ . '/../dbSchema';
 			return OsUtils::phing($dir);
 		}
-		else
+		elseif(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
 			Logger::logMessage(Logger::LEVEL_USER, "Upgrading existing database");
 			$cmd = sprintf('%s %s/deployment/updates/update.php -u "%s"', AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::DB_ROOT_USER));
@@ -746,7 +746,6 @@ class Installer
 			if (OsUtils::execute($cmd))
 			{
 				Logger::logMessage(Logger::LEVEL_INFO, "Existing database upgraded");
-				return true;
 			} 
 			else 
 			{
@@ -754,6 +753,8 @@ class Installer
 				return false;
 			}
 		}
+		
+		return true;
 	}
 
 	private function createDynamicEnums()
