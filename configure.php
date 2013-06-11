@@ -8,7 +8,7 @@ require_once(__DIR__ . '/installer/Installer.class.php');
 require_once(__DIR__ . '/installer/Validator.class.php');
 
 $options = getopt('hsvat:');
-if($argc < 2 || isset($options['h']))
+if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
 	echo " -h - Show this help." . PHP_EOL;
