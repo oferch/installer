@@ -116,6 +116,12 @@ class Installer
 			{
 				foreach ($uninstallerConfig['symlinks'] as $link)
 				{
+					if(strpos($link, 'my_kaltura.conf'))
+						$uninstallerConfig['symlinks'][] = str_replace('my_kaltura.conf', 'my_kaltura.ssl.conf', $link);
+				}
+				
+				foreach ($uninstallerConfig['symlinks'] as $link)
+				{		
 					if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false))
 					{
 						if ($report_only)
