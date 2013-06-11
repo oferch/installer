@@ -310,7 +310,7 @@ class AppConfig
 	/**
 	 * Initialize all configuration variables from ini file or from wizard
 	 */
-	public static function configure($silentRun = false, $configOnly = false)
+	public static function configure($silentRun = false, $configOnly = false, $upgrade = false)
 	{
 		$inputFilePath = self::getUserInputFilePath();
 
@@ -321,7 +321,7 @@ class AppConfig
 				unset($fileConfig[AppConfigAttribute::VERBOSE]);
 			
 			self::$config = array_merge(self::$config, $fileConfig);
-			if(!$configOnly && !$silentRun && self::componentDefined('db'))
+			if(!$upgrade && !$configOnly && !$silentRun && self::componentDefined('db'))
 				unset(self::$config[AppConfigAttribute::DB1_CREATE_NEW_DB]);
 				
 			if(AppConfig::get(AppConfigAttribute::MULTIPLE_SERVER_ENVIRONMENT) && !self::componentDefined('db'))

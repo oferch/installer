@@ -80,7 +80,6 @@ if(isset($options['C']))
 AppConfig::set(AppConfigAttribute::VERBOSE, $verbose);
 if($autoGenerateKey)
 	AppConfig::set(AppConfigAttribute::ACTIVATION_KEY, true);
-AppConfig::configure($silentRun);
 
 if($upgrade)
 {
@@ -88,6 +87,8 @@ if($upgrade)
 	AppConfig::set(AppConfigAttribute::DB1_CREATE_NEW_DB, false);
 	AppConfig::set(AppConfigAttribute::UPGRADE_FROM_VERSION, $upgrade);
 }
+
+AppConfig::configure($silentRun, false, $upgrade);
 
 $downloadAttributes = array();
 if(isset($options['p']))
