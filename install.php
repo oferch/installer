@@ -186,7 +186,7 @@ if (isset($leftovers)) {
 		$uninstall = true;
 	}
 	
-	if ($uninstall)
+	if ($uninstall || $upgrade)
 	{
 		echo PHP_EOL;
 		Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Removing leftovers from a previous installation");

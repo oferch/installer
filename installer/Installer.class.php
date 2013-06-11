@@ -107,7 +107,28 @@ class Installer
 
 		if(!$report_only)
 			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
-			
+					
+		$uninstallerConfigPath = AppConfig::get(AppConfigAttribute::BASE_DIR) . '/uninstaller/uninstall.ini';
+		if(file_exists($uninstallerConfigPath))
+		{
+			$uninstallerConfig = parse_ini_file($uninstallerConfigPath);
+			foreach ($uninstallerConfig['symlinks'] as $link)
+			{
+				if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false))
+				{
+					if ($report_only)
+					{
+						$leftovers .= "   ".$link." symbolic link exists".PHP_EOL;
+					}
+					else
+					{
+						Logger::logMessage(Logger::LEVEL_INFO, "Removing symbolic link $link");
+						OsUtils::recursiveDelete($link);
+					}
+				}
+			}
+		}
+		
 		foreach($this->installConfig as $component => $config)
 		{
 			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
