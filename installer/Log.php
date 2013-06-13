@@ -154,6 +154,9 @@ class Logger
 	 */
 	public static function sendEmail()
 	{
+		if(!self::$emailContent || self::$email)
+			return;
+			
 		// send settings mail if possible
 		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
 
