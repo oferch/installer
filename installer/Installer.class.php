@@ -449,7 +449,7 @@ class Installer
 
 		if(!file_exists($target))
 		{
-			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Failed to create symbolic link [$link], target [$target] does not exist.");
+			Logger::logError(Logger::LEVEL_USER, "Failed to create symbolic link [$link], target [$target] does not exist.");
 			return false;
 		}
 
@@ -649,7 +649,7 @@ class Installer
 		$dirName = AppConfig::get(AppConfigAttribute::APP_DIR) . '/tests/sanity';
 		if(!file_exists($dirName) || !is_dir($dirName))
 		{
-			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Defaults sanity test files directory [$dirName] is not a valid directory");
+			Logger::logError(Logger::LEVEL_USER, "Defaults sanity test files directory [$dirName] is not a valid directory");
 			return false;
 		}
 		$dirName = realpath($dirName);
@@ -657,7 +657,7 @@ class Installer
 		$configPath = "$dirName/lib/config.ini";
 		if(!file_exists($configPath) || !is_file($configPath) || !parse_ini_file($configPath, true))
 		{
-			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Sanity test configuration file [$configPath] is not a valid ini file");
+			Logger::logError(Logger::LEVEL_USER, "Sanity test configuration file [$configPath] is not a valid ini file");
 			return false;
 		}
 
@@ -688,7 +688,7 @@ class Installer
 			$filePath = realpath("$dirName/$fileName");
 
 			if (!OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $filePath $configPath")) {
-				Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, "Verification failed [$filePath]");
+				Logger::logError(Logger::LEVEL_USER, "Verification failed [$filePath]");
 				return false;
 			}
 		}
@@ -743,7 +743,7 @@ class Installer
 						if(DatabaseUtils::dropDb($host, $port, $db))
 							Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " - done.", true, 3);
 						else
-							Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, " - failed.", true, 3);
+							Logger::logError(Logger::LEVEL_USER, " - failed.", 3);
 					}
 				}
 			}

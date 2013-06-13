@@ -264,12 +264,12 @@ class OsUtils {
 		if ($return_var === 0)
 			return true;
 
-		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Executing command failed: $cmd");
+		Logger::logError(Logger::LEVEL_ERROR, "Executing command failed: $cmd");
 
 		if(self::$log)
 		{
 			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Output from command is: ");
-			Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
+			Logger::logError(Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
 			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "End of Output");
 		}
 
@@ -303,9 +303,9 @@ class OsUtils {
 			return $output;
 		}
 
-		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Executing command failed: $cmd");
+		Logger::logError(Logger::LEVEL_ERROR, "Executing command failed: $cmd");
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "Output from command is: ");
-		Logger::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
+		Logger::logError(Logger::LEVEL_ERROR, "\t" . implode("\n\t", $output));
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_ERROR, "End of Output");
 		return false;
 	}

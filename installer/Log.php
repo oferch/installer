@@ -57,6 +57,11 @@ class Logger
 	protected static $emailContent = null;
 
 	/**
+	 * @var array
+	 */
+	protected static $errors = array();
+
+	/**
 	 * Start a new log with the given $filename
 	 * @param string $filename
 	 */
@@ -135,6 +140,18 @@ class Logger
 	/**
 	 * Send all recorded logs
 	 */
+	public static function sendErrors()
+	{
+		if(!count(self::$errors))
+			return;
+			
+		self::$emailContent = "Installation completed with errors:\n\n" . implode("\n", self::$errors);
+		self::sendEmail();
+	}
+
+	/**
+	 * Send all recorded logs
+	 */
 	public static function sendEmail()
 	{
 		// send settings mail if possible
@@ -151,15 +168,28 @@ class Logger
 		$mailer->Body = self::$emailContent;
 
 		if(file_exists(self::$logFilePath))
-			$mailer->AddAttachment(self::$logFilePath, 'install.log');
+			$mailer->AddAttachment(self::$logFilePath, 'install.log', 'base64', 'text/plain');
 			
 		if(file_exists(OsUtils::getLogPath()))
-			$mailer->AddAttachment(OsUtils::getLogPath(), 'details.log');
+			$mailer->AddAttachment(OsUtils::getLogPath(), 'details.log', 'base64', 'text/plain');
 		
 		if (!$mailer->Send())
 			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Results installation email cannot be sent");
 
 		self::clearEmail();
+	}
+
+	/**
+	 * Log a message in the given level, will print to the screen according to the log level
+	 * @param int $level
+	 * @param string $message
+	 * @param boolean $newLine
+	 * @param boolean $returnChars number of backspace before logging the current message
+	 */
+	public static function logError($level, $message, $returnChars = 0)
+	{
+		self::$errors[] = $message;
+		self::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, $message, true, $returnChars);
 	}
 
 	/**

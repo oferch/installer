@@ -257,4 +257,5 @@ if ($install_output !== null)
 if ($report)
 	$report->reportInstallationSuccess();
 
+Logger::sendErrors();
 exit(0);
