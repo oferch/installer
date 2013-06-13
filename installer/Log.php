@@ -1,4 +1,5 @@
 <?php
+include_once(__DIR__ . '/phpmailer/class.phpmailer.php');
 
 class Logger
 {
@@ -26,7 +27,12 @@ class Logger
 	const COLOR_WHITE			= '1;37';
 
 	/**
-	 * @var resiurce
+	 * @var string
+	 */
+	protected static $logFilePath = null;
+
+	/**
+	 * @var resource
 	 */
 	protected static $logFile = null;
 
@@ -41,6 +47,16 @@ class Logger
 	protected static $verbose;
 
 	/**
+	 * @var string
+	 */
+	protected static $email;
+
+	/**
+	 * @var string
+	 */
+	protected static $emailContent = null;
+
+	/**
 	 * Start a new log with the given $filename
 	 * @param string $filename
 	 */
@@ -48,7 +64,16 @@ class Logger
 	{
 		OsUtils::clearScreen();
 		self::$logFile = fopen($filename, 'a');
+		self::$logFilePath = $filename;
 		self::$verbose = $verbose;
+	}
+
+	/**
+	 * @param string $email
+	 */
+	public static function setEmail($email)
+	{
+		self::$email = $email;
 	}
 
 	/**
@@ -91,6 +116,53 @@ class Logger
 	}
 
 	/**
+	 * Start concatenating any log message in order to send later as mail body
+	 * Recording stopped by calling clearEmail or sendEmail
+	 */
+	public static function recordEmail()
+	{
+		self::$emailContent = '';
+	}
+
+	/**
+	 * Stop concatenating log messages
+	 */
+	public static function clearEmail()
+	{
+		self::$emailContent = null;
+	}
+
+	/**
+	 * Send all recorded logs
+	 */
+	public static function sendEmail()
+	{
+		// send settings mail if possible
+		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
+
+		$mailer = new PHPMailer();
+		$mailer->CharSet = 'utf-8';
+		$mailer->IsHTML(false);
+		$mailer->AddAddress(self::$email);
+		$mailer->Sender = "installation.results@$virtualHostName";
+		$mailer->From = "installation.results@$virtualHostName";
+		$mailer->FromName = AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME);
+		$mailer->Subject = "Kaltura Installation Results [$virtualHostName]";
+		$mailer->Body = self::$emailContent;
+
+		if(file_exists(self::$logFilePath))
+			$mailer->AddAttachment(self::$logFilePath, 'install.log');
+			
+		if(file_exists(OsUtils::getLogPath()))
+			$mailer->AddAttachment(OsUtils::getLogPath(), 'details.log');
+		
+		if (!$mailer->Send())
+			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Results installation email cannot be sent");
+
+		self::clearEmail();
+	}
+
+	/**
 	 * Log a message in the given level, will print to the screen according to the log level
 	 * @param int $level
 	 * @param string $message
@@ -98,10 +170,10 @@ class Logger
 	 * @param boolean $returnChars number of backspace before logging the current message
 	 */
 	public static function logMessage($level, $message, $newLine = true, $returnChars = 0)
-	{
+	{		
 		$message = str_replace("\\n", PHP_EOL, $message);
 		$message = str_replace("\\t", "\t", $message);
-
+		
 		// print to screen according to log level
 		if (self::$logPrintLevel >= $level || self::$verbose)
 		{
@@ -112,8 +184,19 @@ class Logger
 
 			if ($newLine)
 				echo PHP_EOL;
+				
+			if(!is_null(self::$emailContent))
+			{
+				if($returnChars)
+					self::$emailContent = substr(self::$emailContent, 0, $returnChars * -1);
+					
+				self::$emailContent .= $message;
+				
+				if ($newLine)
+					self::$emailContent .= PHP_EOL;
+			}
 		}
-
+	
 		if (!self::$logFile)
 			return;
 

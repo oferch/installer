@@ -16,6 +16,11 @@ class OsUtils {
 		self::$log = $path;
 	}
 
+	public static function getLogPath()
+	{
+		return self::$log;
+	}
+
 	// returns true if the OS is linux, false otherwise
 	public static function verifyOS() {
 		Logger::logMessage(Logger::LEVEL_INFO, "OS: ".OsUtils::getOsName());

@@ -16,7 +16,7 @@ ini_set('max_input_time ', 0);
 
 date_default_timezone_set(@date_default_timezone_get());
 
-$options = getopt('hsudvafC:p:g::');
+$options = getopt('hsudvafC:p:g::e:');
 if(isset($options['h']))
 {
 	echo 'Usage is php ' . __FILE__ . ' [arguments]'.PHP_EOL;
@@ -28,6 +28,7 @@ if(isset($options['h']))
 	echo " -d - Don't validate installation." . PHP_EOL;
 	echo " -v - Verbose output." . PHP_EOL;
 	echo " -g - Upgrade from version (6 - Falcon)." . PHP_EOL;
+	echo " -e - E-mail logs and results." . PHP_EOL;
 	echo " -C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,cleanup,red5,ssl,monitor)." . PHP_EOL;
 	echo "      Use * for all default components, for example, *,red5,ssl." . PHP_EOL;
 	
@@ -48,6 +49,7 @@ $dontValidate = isset($options['d']);
 $verbose = isset($options['v']);
 $force = isset($options['f']);
 $autoGenerateKey = isset($options['a']);
+$emailResults = isset($options['e']) ? $options['e'] : null;
 
 $upgrade = false;
 if(isset($options['g']))
@@ -57,6 +59,7 @@ if(isset($options['g']))
 $logPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log';
 $detailsLogPath = null;
 Logger::init($logPath, $verbose);
+Logger::setEmail($emailResults);
 Logger::logMessage(Logger::LEVEL_INFO, "Command: " . implode(' ', $argv));
 if(!$verbose)
 {
@@ -153,9 +156,11 @@ if (count($prerequisites))
 	if ($report)
 		$report->reportInstallationFailed("One or more prerequisites required to install Kaltura failed:\n" . implode("\n", $prerequisites));
 
+	Logger::recordEmail();
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "One or more prerequisites required to install Kaltura failed:");
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, implode("\n", $prerequisites));
-
+	Logger::sendEmail();
+	
 	if(!$force && !AppConfig::getTrueFalse(null, "Please resolve the issues and run the installation again. Do you want to install Kaltura server anyway and resolve all issues later?", 'n'))
 		exit(-1);
 }
@@ -173,7 +178,10 @@ if (isset($leftovers)) {
 	{
 		if(!$uninstall && !$force)
 		{
+			Logger::recordEmail();
 			$description = "Installation cannot continue because a previous installation of Kaltura was detected.\n" . $leftovers;
+			Logger::sendEmail();
+			
 			if ($report)
 				$report->reportInstallationFailed($description);
 	
@@ -196,12 +204,15 @@ if (isset($leftovers)) {
 
 if($downloadCode)
 {
+	Logger::recordEmail();
 	Logger::logMessage(Logger::LEVEL_USER, "Downloading Kaltura server...", false);
 	if(!OsUtils::phing(__DIR__ . '/directoryConstructor', 'Construct', $downloadAttributes))
 	{
 		Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, " failed.", true, 3);
+		Logger::sendEmail();
 		exit(-1);
 	}
+	Logger::clearEmail();
 	Logger::logColorMessage(Logger::COLOR_GREEN, Logger::LEVEL_USER, " - done.", true, 3);
 	echo PHP_EOL;
 }
@@ -212,8 +223,10 @@ Logger::logColorMessage(Logger::COLOR_YELLOW, Logger::LEVEL_USER, "Installing Ka
 $install_output = $installer->install($packageDir, $dontValidate);
 if ($install_output !== null)
 {
+	Logger::recordEmail();
 	$description = "Installation failed.";
 	Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, $install_output);
+	Logger::sendEmail();
 
 	if ($report)
 		$report->reportInstallationFailed($description);
