@@ -154,7 +154,7 @@ class Logger
 	 */
 	public static function sendEmail()
 	{
-		if(!self::$emailContent || self::$email)
+		if(!self::$emailContent || !self::$email)
 			return;
 			
 		// send settings mail if possible
