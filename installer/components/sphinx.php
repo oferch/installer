@@ -13,9 +13,12 @@ if(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		"$appDir/deployment/base/scripts/populateSphinxKusers.php",
 		"$appDir/deployment/base/scripts/populateSphinxTags.php",
 	);
-	$cmd = sprintf("%s/ddl/migrations/20130606_falcon_to_gemini/Falcon2Gemini.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
-	if (!OsUtils::execute($cmd)){
-		return "Failed running data warehouse upgrade script";
+	
+	foreach($populateScripts as $populateScript)
+	{
+		if (!OsUtils::execute($populateScript)){
+			return "Failed running sphinx populate script [$populateScript]";
+		}
 	}
 }
 
