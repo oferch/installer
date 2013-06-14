@@ -110,8 +110,8 @@ class Installer
 			// stop sphinx of installed previous versions
 			if(OsUtils::isLinux())
 			{
-				OsUtils::stopService('sphinx_watch.sh');
-				OsUtils::execute('killall -9 searchd');
+				OsUtils::executeInBackground('/etc/init.d/sphinx_watch.sh stop');
+				OsUtils::executeInBackground('killall -9 searchd');
 			}
 		
 			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");

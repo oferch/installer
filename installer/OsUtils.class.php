@@ -236,7 +236,7 @@ class OsUtils {
 		if($alwaysStartAutomtically)
 			OsUtils::execute("chkconfig $service on");
 
-		return self::execute("/etc/init.d/$service restart");
+		return OsUtils::execute("/etc/init.d/$service restart");
 	}
 
 	public static function stopService($service, $neverStartAutomtically = true)
@@ -244,10 +244,13 @@ class OsUtils {
 		if(!OsUtils::isLinux())
 			return false;
 			
+		if(!file_exists("/etc/init.d/$service"))
+			return true;
+			
 		if($neverStartAutomtically)
 			OsUtils::executeInBackground("chkconfig $service off");
 
-		return self::execute("/etc/init.d/$service stop");
+		return OsUtils::executeInBackground("/etc/init.d/$service stop");
 	}
 
 	// executes the shell $commands and returns true/false according to the execution return value
