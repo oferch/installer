@@ -415,6 +415,9 @@ class Installer
 		
 		if(!$this->populateSphinx())
 			return "Failed to populate sphinx";
+		
+		if(!$this->upgradeContent())
+			return "Failed to upgrade content";
 
 		if($packageDir)
 			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
@@ -782,6 +785,7 @@ class Installer
 			$cmd = sprintf('%s %s/deployment/updates/update.php -u "%s"', AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::DB_ROOT_USER));
 			if(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS))
 				$cmd .= sprintf(' -p "%s"', AppConfig::get(AppConfigAttribute::DB_ROOT_PASS));
+			$cmd .= ' -d';
 				
 			if (OsUtils::execute($cmd))
 			{
@@ -917,6 +921,33 @@ class Installer
 			$cmd = sprintf("%s/ddl/migrations/20130606_falcon_to_gemini/Falcon2Gemini.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
 			if (!OsUtils::execute($cmd)){
 				return "Failed running data warehouse upgrade script";
+			}
+		}
+		
+		return true;
+	}
+
+	private function upgradeContent ()
+	{
+		if(!in_array('db', $this->components))
+			return true;
+			
+		if(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
+		{
+			Logger::logMessage(Logger::LEVEL_USER, "Upgrading existing content");
+			$cmd = sprintf('%s %s/deployment/updates/update.php -u "%s"', AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::DB_ROOT_USER));
+			if(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS))
+				$cmd .= sprintf(' -p "%s"', AppConfig::get(AppConfigAttribute::DB_ROOT_PASS));
+			$cmd .= ' -s';
+				
+			if (OsUtils::execute($cmd))
+			{
+				Logger::logMessage(Logger::LEVEL_INFO, "Existing content upgraded");
+			} 
+			else 
+			{
+				Logger::logMessage(Logger::LEVEL_ERROR, "Failed to upgrade existing content");
+				return false;
 			}
 		}
 		
