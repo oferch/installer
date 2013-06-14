@@ -200,6 +200,10 @@ class Installer
 						OsUtils::stopService($service);
 				}
 			}
+			
+			// stop sphinx of installed previous versions
+			if(OsUtils::isLinux())
+				OsUtils::execute('killall -9 searchd');
 		}
 
 		if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
@@ -892,21 +896,22 @@ class Installer
 		if(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Populating old content to the sphinx");
-			$appDir = AppConfig::get(AppConfigAttribute::APP_DIR);
 			$populateScripts = array(
-				"$appDir/deployment/base/scripts/populateSphinxCategories.php",
-				"$appDir/deployment/base/scripts/populateSphinxEntries.php",
-				"$appDir/deployment/base/scripts/populateSphinxKusers.php",
-				"$appDir/deployment/base/scripts/populateSphinxCaptionAssetItem.php",
-				"$appDir/deployment/base/scripts/populateSphinxCategoryKusers.php",
-				"$appDir/deployment/base/scripts/populateSphinxCuePoints.php",
-				"$appDir/deployment/base/scripts/populateSphinxEntryDistributions.php",
-				"$appDir/deployment/base/scripts/populateSphinxTags.php",
+				"populateSphinxCaptionAssetItem.php",
+				"populateSphinxCategories.php",
+				"populateSphinxEntries.php",
+				"populateSphinxKusers.php",
+				"populateSphinxCaptionAssetItem.php",
+				"populateSphinxCategoryKusers.php",
+				"populateSphinxCuePoints.php",
+				"populateSphinxEntryDistributions.php",
+				"populateSphinxTags.php",
 			);
 			
+			$appDir = AppConfig::get(AppConfigAttribute::APP_DIR);
 			foreach($populateScripts as $populateScript)
 			{
-				if (!OsUtils::execute($populateScript)){
+				if (!OsUtils::execute("php $appDir/deployment/base/scripts/$populateScript")){
 					Logger::logError(Logger::LEVEL_ERROR, "Failed running sphinx populate script [$populateScript]");
 					return false;
 				}
