@@ -104,9 +104,18 @@ class Installer
 	// returns null if no leftovers are found or it is not report only or a text containing all the leftovers found
 	public function detectLeftovers($report_only) {
 		$leftovers = null;
-
+	
 		if(!$report_only)
+		{
+			// stop sphinx of installed previous versions
+			if(OsUtils::isLinux())
+			{
+				OsUtils::stopService('sphinx_watch.sh');
+				OsUtils::execute('killall -9 searchd');
+			}
+		
 			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
+		}
 					
 		$uninstallerConfigPath = AppConfig::get(AppConfigAttribute::BASE_DIR) . '/uninstaller/uninstall.ini';
 		if(file_exists($uninstallerConfigPath))
@@ -200,10 +209,6 @@ class Installer
 						OsUtils::stopService($service);
 				}
 			}
-			
-			// stop sphinx of installed previous versions
-			if(OsUtils::isLinux())
-				OsUtils::execute('killall -9 searchd');
 		}
 
 		if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
