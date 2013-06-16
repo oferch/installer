@@ -1,6 +1,6 @@
 <?php
 
-include_once('installer/Log.php');
+include_once(__DIR__ . '/Log.php');
 
 class InputValidatorException extends Exception
 {
