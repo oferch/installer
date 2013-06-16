@@ -110,6 +110,7 @@ class Installer
 			// stop sphinx of installed previous versions
 			if(OsUtils::isLinux())
 			{
+				OsUtils::executeInBackground('/etc/init.d/serviceBatchMgr.sh stop');
 				OsUtils::executeInBackground('/etc/init.d/sphinx_watch.sh stop');
 				OsUtils::executeInBackground('killall -9 searchd');
 			}
