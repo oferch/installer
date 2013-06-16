@@ -112,7 +112,6 @@ class Installer
 			{
 				OsUtils::executeInBackground('/etc/init.d/serviceBatchMgr.sh stop');
 				OsUtils::executeInBackground('/etc/init.d/sphinx_watch.sh stop');
-				OsUtils::executeInBackground('killall -9 searchd');
 			}
 		
 			Logger::logMessage(Logger::LEVEL_USER, "Removing symbolic links");
@@ -210,6 +209,9 @@ class Installer
 						OsUtils::stopService($service);
 				}
 			}
+			
+			if(OsUtils::isLinux())
+				OsUtils::executeInBackground('killall -9 searchd');
 		}
 
 		if (is_dir(AppConfig::get(AppConfigAttribute::BASE_DIR)) && (($files = @scandir(AppConfig::get(AppConfigAttribute::BASE_DIR))) && count($files) > 2))
