@@ -18,10 +18,10 @@
 			<v1.0.8_saas svnPath="/usr/local/kalprod/apps/clipapp/v1.0.7_saas" skipFilesOwner="true" skipFilesMode="true" />
 		</clipapp>
 	</apps>
-	<log user="${OS_KALTURA_USER}" mode="0770" filesMode="0660">
-		<batch user="${OS_KALTURA_USER}" mode="0700" filesMode="0600" />
-		<sphinx user="${OS_KALTURA_USER}" mode="0700" filesMode="0600">
-			<data user="${OS_KALTURA_USER}" mode="0700" filesMode="0600" />
+	<log user="${OS_KALTURA_USER}" mode="0770" filesMode="0660" skipFilesOwner="true">
+		<batch user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
+		<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" >
+			<data user="${OS_KALTURA_USER}" skipFilesMode="true" />
 		</sphinx>
 	</log>
 	<bin user="${OS_KALTURA_USER}" svnPath="/usr/local/kalsource/on-premise/trunk/packaging/bin/linux/64bit" mode="0770" filesMode="0770" scriptsMode="0770" />
