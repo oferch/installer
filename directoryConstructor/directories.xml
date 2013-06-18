@@ -8,6 +8,7 @@
 		<configurations skipFilesMode="true" skipFilesOwner="true">
 			<monit mode="0750" filesMode="0600" skipFilesOwner="true" />
 		</configurations>
+		<vendor	gitPath="/kaltura/server-vendor.git" gitTag="master"	skipFilesOwner="true" skipFilesMode="true" />
 	</app>
 	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
 		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages/trunk" skipFilesOwner="true" skipFilesMode="true" />
