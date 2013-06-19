@@ -192,7 +192,7 @@ class Logger
 	public static function logError($level, $message, $returnChars = 0)
 	{
 		self::$errors[] = $message;
-		self::logColorMessage(Logger::COLOR_RED, Logger::LEVEL_USER, $message, true, $returnChars);
+		self::logColorMessage(Logger::COLOR_RED, $level, $message, true, $returnChars);
 	}
 
 	/**
