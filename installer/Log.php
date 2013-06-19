@@ -179,7 +179,9 @@ class Logger
 		if(file_exists(OsUtils::getLogPath()))
 			$mailer->AddAttachment(OsUtils::getLogPath(), 'details.log', 'base64', 'text/plain');
 		
-		if (!$mailer->Send())
+		if ($mailer->Send())
+			Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Results installation email sent to " . self::$email);
+		else
 			Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Results installation email cannot be sent");
 
 		self::clearEmail();
