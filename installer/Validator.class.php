@@ -93,15 +93,18 @@ class Validator
 		{
 			$pearInfo = OsUtils::executeWithOutput("pear info $pear");
 			$pearVersion = null;
-			foreach($pearInfo as $pearInfoLine)
+			if($pearInfo)
 			{
-				if(preg_match('/^No information found/', $pearInfoLine))
-					break;
-					
-				if(preg_match('/^Release Version[\s]+([\d.]+)/', $pearInfoLine, $matches))
+				foreach($pearInfo as $pearInfoLine)
 				{
-					$pearVersion = $matches[1];
-					break;
+					if(preg_match('/^No information found/', $pearInfoLine))
+						break;
+						
+					if(preg_match('/^Release Version[\s]+([\d.]+)/', $pearInfoLine, $matches))
+					{
+						$pearVersion = $matches[1];
+						break;
+					}
 				}
 			}
 			
