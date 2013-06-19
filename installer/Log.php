@@ -154,8 +154,11 @@ class Logger
 	 */
 	public static function sendEmail()
 	{
-		if(!self::$emailContent || !self::$email)
+		if(is_null(self::$emailContent) || is_null(self::$email))
 			return;
+			
+		if(self::$email === false)
+			self::$email = $virtualHostName = AppConfig::get(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL);
 			
 		// send settings mail if possible
 		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
