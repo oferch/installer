@@ -61,6 +61,7 @@ $detailsLogPath = null;
 Logger::init($logPath, $verbose);
 Logger::setEmail($emailResults);
 Logger::logMessage(Logger::LEVEL_INFO, "Command: " . implode(' ', $argv));
+Logger::logMessage(Logger::LEVEL_INFO, "Options: [" . print_r($options, true) . "]");
 if(!$verbose)
 {
 	$detailsLogPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.details.log';
