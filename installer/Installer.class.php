@@ -285,6 +285,7 @@ class Installer
 	private function init()
 	{
 		AppConfig::set(AppConfigAttribute::KMC_VERSION, AppConfig::getServerConfig('kmc_version'));
+		AppConfig::set(AppConfigAttribute::KMC_LOGIN_VERSION, AppConfig::getServerConfig('kmc_login_version'));
 		AppConfig::set(AppConfigAttribute::CLIPAPP_VERSION, AppConfig::getServerConfig('clipapp_version'));
 		AppConfig::set(AppConfigAttribute::HTML5_VERSION, AppConfig::getServerConfig('html5_version'));
 		
