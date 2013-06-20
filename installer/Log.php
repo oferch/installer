@@ -145,7 +145,7 @@ class Logger
 		if(!count(self::$errors))
 			return;
 			
-		self::$emailContent = "Installation completed with errors:\n\n" . implode("\n", self::$errors);
+		self::$emailContent = "Installation completed with errors:" . PHP_EOL . PHP_EOL . implode(PHP_EOL, self::$errors);
 		self::sendEmail();
 	}
 
@@ -164,20 +164,37 @@ class Logger
 		$virtualHostName = AppConfig::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME);
 
 		$mailer = new PHPMailer();
+		$mailer->SMTPDebug = true;
 		$mailer->CharSet = 'utf-8';
 		$mailer->IsHTML(false);
 		$mailer->AddAddress(self::$email);
-		$mailer->Sender = "installation.results@$virtualHostName";
-		$mailer->From = "installation.results@$virtualHostName";
+		$mailer->Sender = "installation_results@$virtualHostName";
+		$mailer->From = "installation_results@$virtualHostName";
 		$mailer->FromName = AppConfig::get(AppConfigAttribute::ENVIRONMENT_NAME);
 		$mailer->Subject = "Kaltura Installation Results [$virtualHostName]";
 		$mailer->Body = self::$emailContent;
 
 		if(file_exists(self::$logFilePath))
-			$mailer->AddAttachment(self::$logFilePath, 'install.log', 'base64', 'text/plain');
+		{
+			$gzFile = self::$logFilePath . '.gz';
+			$fp = gzopen($gzFile, 'w9');
+			
+			//return "\033[{$color}m{$message}\033[0m";
+			gzwrite ($fp, preg_replace("/\033\\[[;\\d]*m/", '', file_get_contents(self::$logFilePath)));
+			gzclose($fp);
+
+			$mailer->AddAttachment($gzFile, 'install.log.gz', 'base64', 'text/plain');
+		}
 			
 		if(file_exists(OsUtils::getLogPath()))
-			$mailer->AddAttachment(OsUtils::getLogPath(), 'details.log', 'base64', 'text/plain');
+		{
+			$gzFile = OsUtils::getLogPath() . '.gz';
+			$fp = gzopen($gzFile, 'w9');
+			gzwrite ($fp, preg_replace("/\033\\[[;\\d]*m/", '', file_get_contents(OsUtils::getLogPath())));
+			gzclose($fp);
+
+			$mailer->AddAttachment($gzFile, 'details.log.gz', 'base64', 'text/plain');
+		}
 		
 		if ($mailer->Send())
 			Logger::logColorMessage(Logger::COLOR_LIGHT_GREEN, Logger::LEVEL_USER, "Results installation email sent to " . self::$email);
@@ -196,6 +213,9 @@ class Logger
 	 */
 	public static function logError($level, $message, $returnChars = 0)
 	{
+		$message = str_replace("\\n", PHP_EOL, $message);
+		$message = str_replace("\\t", "\t", $message);
+		
 		self::$errors[] = $message;
 		self::logColorMessage(Logger::COLOR_RED, $level, $message, true, $returnChars);
 	}
