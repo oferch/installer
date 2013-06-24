@@ -106,7 +106,6 @@
 		</plugins>
 	</app>
 	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
-		<hosted_pages gitPath="/kaltura/hosted-pages.git" skipFilesOwner="true" skipFilesMode="true" />
 		<clipapp skipFilesOwner="true" skipFilesMode="true">
 			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" skipFilesOwner="true" skipFilesMode="true" />
 			<v1.0.5_saas svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5_saas" skipFilesOwner="true" skipFilesMode="true" />
