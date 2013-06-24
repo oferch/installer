@@ -18,89 +18,89 @@
 		</configurations>
 		<cache															skipFilesOwner="true" mode="0770" filesMode="0660" />
 		<plugins														skipFilesOwner="true" skipFilesMode="true">
-			<admin-console									gitPath="/kaltura/server-plugin-admin-console.git" skipFilesOwner="true" skipFilesMode="true" />
+			<admin_console									gitPath="/kaltura/server-plugin-admin-console.git" skipFilesOwner="true" skipFilesMode="true" />
 			<aspera											gitPath="/kaltura/server-plugin-aspera.git" skipFilesOwner="true" skipFilesMode="true" />
 			<audit											gitPath="/kaltura/server-plugin-audit.git" skipFilesOwner="true" skipFilesMode="true" />
-			<bulk-upload-base								gitPath="/kaltura/server-plugin-bulk-upload-base.git" skipFilesOwner="true" skipFilesMode="true" />
-			<bulk-upload-csv								gitPath="/kaltura/server-plugin-bulk-upload-csv.git" skipFilesOwner="true" skipFilesMode="true" />
-			<bulk-upload-xml								gitPath="/kaltura/server-plugin-bulk-upload-xml.git" skipFilesOwner="true" skipFilesMode="true" />
-			<bulk-upload-drop-folder-xml					gitPath="/kaltura/server-plugin-bulk-upload-drop-folder-xml.git" skipFilesOwner="true" skipFilesMode="true" />
+			<bulk_upload_base								gitPath="/kaltura/server-plugin-bulk-upload-base.git" skipFilesOwner="true" skipFilesMode="true" />
+			<bulk_upload_csv								gitPath="/kaltura/server-plugin-bulk-upload-csv.git" skipFilesOwner="true" skipFilesMode="true" />
+			<bulk_upload_xml								gitPath="/kaltura/server-plugin-bulk-upload-xml.git" skipFilesOwner="true" skipFilesMode="true" />
+			<bulk_upload_drop_folder_xml					gitPath="/kaltura/server-plugin-bulk-upload-drop-folder-xml.git" skipFilesOwner="true" skipFilesMode="true" />
 			<attachment										gitPath="/kaltura/server-plugin-attachment.git" skipFilesOwner="true" skipFilesMode="true" />
 			<caption										gitPath="/kaltura/server-plugin-caption.git" skipFilesOwner="true" skipFilesMode="true" />
 			<document										gitPath="/kaltura/server-plugin-document.git" skipFilesOwner="true" skipFilesMode="true" />
-			<external-media									gitPath="/kaltura/server-plugin-external-media.git" skipFilesOwner="true" skipFilesMode="true" />
+			<external_media									gitPath="/kaltura/server-plugin-external-media.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<content-distribution							gitPath="/kaltura/server-plugin-content-distribution.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-att-uverse				gitPath="/kaltura/server-plugin-content-distribution-att-uverse.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-avn						gitPath="/kaltura/server-plugin-content-distribution-avn.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-comcast-mrss				gitPath="/kaltura/server-plugin-content-distribution-comcast-mrss.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-cross-kaltura				gitPath="/kaltura/server-plugin-content-distribution-cross-kaltura.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-dailymotion				gitPath="/kaltura/server-plugin-content-distribution-dailymotion.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-doubleclick				gitPath="/kaltura/server-plugin-content-distribution-doubleclick.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-example					gitPath="/kaltura/server-plugin-content-distribution-example.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-freewheel					gitPath="/kaltura/server-plugin-content-distribution-freewheel.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-freewheel-generic			gitPath="/kaltura/server-plugin-content-distribution-freewheel-generic.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-ftp						gitPath="/kaltura/server-plugin-content-distribution-ftp.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-hulu						gitPath="/kaltura/server-plugin-content-distribution-hulu.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-idetic					gitPath="/kaltura/server-plugin-content-distribution-idetic.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-metro-pcs					gitPath="/kaltura/server-plugin-content-distribution-metro-pcs.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-msn						gitPath="/kaltura/server-plugin-content-distribution-msn.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-ndn						gitPath="/kaltura/server-plugin-content-distribution-ndn.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-podcast					gitPath="/kaltura/server-plugin-content-distribution-podcast.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-quickplay					gitPath="/kaltura/server-plugin-content-distribution-quickplay.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-synacor-hbo				gitPath="/kaltura/server-plugin-content-distribution-synacor-hbo.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-time-warner				gitPath="/kaltura/server-plugin-content-distribution-time-warner.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-tvcom						gitPath="/kaltura/server-plugin-content-distribution-tvcom.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-uverse					gitPath="/kaltura/server-plugin-content-distribution-uverse.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-uverse-click-to-order		gitPath="/kaltura/server-plugin-content-distribution-uverse-click-to-order.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-verizon-vcast				gitPath="/kaltura/server-plugin-content-distribution-verizon-vcast.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-voxant					gitPath="/kaltura/server-plugin-content-distribution-voxant.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-yahoo						gitPath="/kaltura/server-plugin-content-distribution-yahoo.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-youtube					gitPath="/kaltura/server-plugin-content-distribution-youtube.git" skipFilesOwner="true" skipFilesMode="true" />
-			<content-distribution-youtube-api				gitPath="/kaltura/server-plugin-content-distribution-youtube-api.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution							gitPath="/kaltura/server-plugin-content-distribution.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_att_uverse				gitPath="/kaltura/server-plugin-content-distribution-att-uverse.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_avn						gitPath="/kaltura/server-plugin-content-distribution-avn.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_comcast_mrss				gitPath="/kaltura/server-plugin-content-distribution-comcast-mrss.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_cross_kaltura				gitPath="/kaltura/server-plugin-content-distribution-cross-kaltura.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_dailymotion				gitPath="/kaltura/server-plugin-content-distribution-dailymotion.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_doubleclick				gitPath="/kaltura/server-plugin-content-distribution-doubleclick.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_example					gitPath="/kaltura/server-plugin-content-distribution-example.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_freewheel					gitPath="/kaltura/server-plugin-content-distribution-freewheel.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_freewheel_generic			gitPath="/kaltura/server-plugin-content-distribution-freewheel-generic.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_ftp						gitPath="/kaltura/server-plugin-content-distribution-ftp.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_hulu						gitPath="/kaltura/server-plugin-content-distribution-hulu.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_idetic					gitPath="/kaltura/server-plugin-content-distribution-idetic.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_metro_pcs					gitPath="/kaltura/server-plugin-content-distribution-metro-pcs.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_msn						gitPath="/kaltura/server-plugin-content-distribution-msn.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_ndn						gitPath="/kaltura/server-plugin-content-distribution-ndn.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_podcast					gitPath="/kaltura/server-plugin-content-distribution-podcast.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_quickplay					gitPath="/kaltura/server-plugin-content-distribution-quickplay.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_synacor_hbo				gitPath="/kaltura/server-plugin-content-distribution-synacor-hbo.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_time_warner				gitPath="/kaltura/server-plugin-content-distribution-time-warner.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_tvcom						gitPath="/kaltura/server-plugin-content-distribution-tvcom.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_uverse					gitPath="/kaltura/server-plugin-content-distribution-uverse.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_uverse_click_to_order		gitPath="/kaltura/server-plugin-content-distribution-uverse-click-to-order.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_verizon_vcast				gitPath="/kaltura/server-plugin-content-distribution-verizon-vcast.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_voxant					gitPath="/kaltura/server-plugin-content-distribution-voxant.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_yahoo						gitPath="/kaltura/server-plugin-content-distribution-yahoo.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_youtube					gitPath="/kaltura/server-plugin-content-distribution-youtube.git" skipFilesOwner="true" skipFilesMode="true" />
+			<content_distribution_youtube_api				gitPath="/kaltura/server-plugin-content-distribution-youtube-api.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<cue-points-base								gitPath="/kaltura/server-plugin-cue-points-base.git" skipFilesOwner="true" skipFilesMode="true" />
-			<cue-points-ad									gitPath="/kaltura/server-plugin-cue-points-ad.git" skipFilesOwner="true" skipFilesMode="true" />
-			<cue-points-annotation							gitPath="/kaltura/server-plugin-cue-points-annotation.git" skipFilesOwner="true" skipFilesMode="true" />
-			<cue-points-code								gitPath="/kaltura/server-plugin-cue-points-code.git" skipFilesOwner="true" skipFilesMode="true" />
-			<cue-points-sphinx								gitPath="/kaltura/server-plugin-cue-points-sphinx.git" skipFilesOwner="true" skipFilesMode="true" />
+			<cue_points_base								gitPath="/kaltura/server-plugin-cue-points-base.git" skipFilesOwner="true" skipFilesMode="true" />
+			<cue_points_ad									gitPath="/kaltura/server-plugin-cue-points-ad.git" skipFilesOwner="true" skipFilesMode="true" />
+			<cue_points_annotation							gitPath="/kaltura/server-plugin-cue-points-annotation.git" skipFilesOwner="true" skipFilesMode="true" />
+			<cue_points_code								gitPath="/kaltura/server-plugin-cue-points-code.git" skipFilesOwner="true" skipFilesMode="true" />
+			<cue_points_sphinx								gitPath="/kaltura/server-plugin-cue-points-sphinx.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<delivery-edgecast								gitPath="/kaltura/server-plugin-delivery-edgecast.git" skipFilesOwner="true" skipFilesMode="true" />
-			<delivery-limelight								gitPath="/kaltura/server-plugin-delivery-limelight.git" skipFilesOwner="true" skipFilesMode="true" />
-			<delivery-mirror-image							gitPath="/kaltura/server-plugin-delivery-mirror-image.git" skipFilesOwner="true" skipFilesMode="true" />
+			<delivery_edgecast								gitPath="/kaltura/server-plugin-delivery-edgecast.git" skipFilesOwner="true" skipFilesMode="true" />
+			<delivery_limelight								gitPath="/kaltura/server-plugin-delivery-limelight.git" skipFilesOwner="true" skipFilesMode="true" />
+			<delivery_mirror_image							gitPath="/kaltura/server-plugin-delivery-mirror-image.git" skipFilesOwner="true" skipFilesMode="true" />
 			
 			<drm											gitPath="/kaltura/server-plugin-drm.git" skipFilesOwner="true" skipFilesMode="true" />
-			<drop-folder									gitPath="/kaltura/server-plugin-drop-folder.git" skipFilesOwner="true" skipFilesMode="true" />
+			<drop_folder									gitPath="/kaltura/server-plugin-drop-folder.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<event-notification-base						gitPath="/kaltura/server-plugin-event-notification-base.git" skipFilesOwner="true" skipFilesMode="true" />
-			<event-notification-email						gitPath="/kaltura/server-plugin-event-notification-email.git" skipFilesOwner="true" skipFilesMode="true" />
-			<event-notification-http						gitPath="/kaltura/server-plugin-event-notification-http.git" skipFilesOwner="true" skipFilesMode="true" />
+			<event_notification_base						gitPath="/kaltura/server-plugin-event-notification-base.git" skipFilesOwner="true" skipFilesMode="true" />
+			<event_notification_email						gitPath="/kaltura/server-plugin-event-notification-email.git" skipFilesOwner="true" skipFilesMode="true" />
+			<event_notification_http						gitPath="/kaltura/server-plugin-event-notification-http.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<file-sync										gitPath="/kaltura/server-plugin-file-sync.git" skipFilesOwner="true" skipFilesMode="true" />
+			<file_sync										gitPath="/kaltura/server-plugin-file-sync.git" skipFilesOwner="true" skipFilesMode="true" />
 			<like											gitPath="/kaltura/server-plugin-like.git" skipFilesOwner="true" skipFilesMode="true" />
 			<metadata										gitPath="/kaltura/server-plugin-metadata.git" skipFilesOwner="true" skipFilesMode="true" />
-			<monitor-nagios									gitPath="/kaltura/server-plugin-monitor-nagios.git" skipFilesOwner="true" skipFilesMode="true" />
-			<multi-centers									gitPath="/kaltura/server-plugin-multi-centers.git" skipFilesOwner="true" skipFilesMode="true" />
-			<partner-aggregation							gitPath="/kaltura/server-plugin-partner-aggregation.git" skipFilesOwner="true" skipFilesMode="true" />
-			<short-link										gitPath="/kaltura/server-plugin-short-link.git" skipFilesOwner="true" skipFilesMode="true" />
-			<search-sphinx									gitPath="/kaltura/server-plugin-search-sphinx.git" skipFilesOwner="true" skipFilesMode="true" />
-			<tag-search										gitPath="/kaltura/server-plugin-tag-search.git" skipFilesOwner="true" skipFilesMode="true" />
+			<monitor_nagios									gitPath="/kaltura/server-plugin-monitor-nagios.git" skipFilesOwner="true" skipFilesMode="true" />
+			<multi_centers									gitPath="/kaltura/server-plugin-multi-centers.git" skipFilesOwner="true" skipFilesMode="true" />
+			<partner_aggregation							gitPath="/kaltura/server-plugin-partner-aggregation.git" skipFilesOwner="true" skipFilesMode="true" />
+			<short_link										gitPath="/kaltura/server-plugin-short-link.git" skipFilesOwner="true" skipFilesMode="true" />
+			<search_sphinx									gitPath="/kaltura/server-plugin-search-sphinx.git" skipFilesOwner="true" skipFilesMode="true" />
+			<tag_search										gitPath="/kaltura/server-plugin-tag-search.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<transcoding-avidemux 							gitPath="/kaltura/server-plugin-transcoding-avidemux.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-expression-encoder					gitPath="/kaltura/server-plugin-transcoding-expression-encoder.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-fast-start							gitPath="/kaltura/server-plugin-transcoding-fast-start.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-inlet-armada						gitPath="/kaltura/server-plugin-transcoding-inlet-armada.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-mp4box								gitPath="/kaltura/server-plugin-transcoding-mp4box.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-quick-time-tools					gitPath="/kaltura/server-plugin-transcoding-quick-time-tools.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-segmenter							gitPath="/kaltura/server-plugin-transcoding-segmenter.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-vlc								gitPath="/kaltura/server-plugin-transcoding-vlc.git" skipFilesOwner="true" skipFilesMode="true" />
-			<transcoding-webex-nbrplayer					gitPath="/kaltura/server-plugin-transcoding-webex-nbrplayer.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_avidemux 							gitPath="/kaltura/server-plugin-transcoding-avidemux.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_expression_encoder					gitPath="/kaltura/server-plugin-transcoding-expression-encoder.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_fast_start							gitPath="/kaltura/server-plugin-transcoding-fast-start.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_inlet_armada						gitPath="/kaltura/server-plugin-transcoding-inlet-armada.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_mp4box								gitPath="/kaltura/server-plugin-transcoding-mp4box.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_quick_time_tools					gitPath="/kaltura/server-plugin-transcoding-quick-time-tools.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_segmenter							gitPath="/kaltura/server-plugin-transcoding-segmenter.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_vlc								gitPath="/kaltura/server-plugin-transcoding-vlc.git" skipFilesOwner="true" skipFilesMode="true" />
+			<transcoding_webex_nbrplayer					gitPath="/kaltura/server-plugin-transcoding-webex-nbrplayer.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<var-console									gitPath="/kaltura/server-plugin-var-console.git" skipFilesOwner="true" skipFilesMode="true" />
+			<var_console									gitPath="/kaltura/server-plugin-var-console.git" skipFilesOwner="true" skipFilesMode="true" />
 			
-			<virus-scan-base								gitPath="/kaltura/server-plugin-virus-scan-base.git" skipFilesOwner="true" skipFilesMode="true" />
-			<virus-scan-clam								gitPath="/kaltura/server-plugin-virus-scan-clam.git" skipFilesOwner="true" skipFilesMode="true" />
-			<virus-scan-symantec							gitPath="/kaltura/server-plugin-virus-scan-symantec.git" skipFilesOwner="true" skipFilesMode="true" />
+			<virus_scan_base								gitPath="/kaltura/server-plugin-virus-scan-base.git" skipFilesOwner="true" skipFilesMode="true" />
+			<virus_scan_clam								gitPath="/kaltura/server-plugin-virus-scan-clam.git" skipFilesOwner="true" skipFilesMode="true" />
+			<virus_scan_symantec							gitPath="/kaltura/server-plugin-virus-scan-symantec.git" skipFilesOwner="true" skipFilesMode="true" />
 			
 			<webex											gitPath="/kaltura/server-plugin-webex.git" skipFilesOwner="true" skipFilesMode="true" />
 		</plugins>
