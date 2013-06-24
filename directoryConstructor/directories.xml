@@ -106,7 +106,7 @@
 		</plugins>
 	</app>
 	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
-		<hosted_pages svnPath="/usr/local/kalsource/applications/hosted_pages/trunk" skipFilesOwner="true" skipFilesMode="true" />
+		<hosted_pages gitPath="/kaltura/hosted-pages.git" skipFilesOwner="true" skipFilesMode="true" />
 		<clipapp skipFilesOwner="true" skipFilesMode="true">
 			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" skipFilesOwner="true" skipFilesMode="true" />
 			<v1.0.5_saas svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5_saas" skipFilesOwner="true" skipFilesMode="true" />
@@ -348,7 +348,7 @@
 			<entry mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<metadata mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<batchfiles mode="0750" filesMode="0640" skipFilesOwner="true" />
-			<docs svnPath="/usr/local/kalsource/docs/tags/gemini_2013_04_08" mode="0700" filesMode="0400" skipFilesOwner="true" />
+			<docs gitPath="/kaltura/kmc-docs.git" mode="0700" filesMode="0400" skipFilesOwner="true" />
 			<templates svnPath="/usr/local/kalsource/on-premise/trunk/packaging/templates" mode="0700" filesMode="0400" skipFilesOwner="true" />
 			<clientlibs user="${OS_KALTURA_USER}" mode="0750" filesMode="0640" skipFilesOwner="true" />
 		</content>
@@ -372,9 +372,5 @@
 		</html5>
 		<log user="${OS_KALTURA_USER}" mode="0750" />
 	</web>
-	<dwh user="${OS_KALTURA_USER}" svnPath="/usr/local/kalprod/dwh/core/trunk" mode="0750" scriptsMode="0750" filesMode="0640">
-		<ddl skipFilesOwner="true" skipFilesMode="true">
-			<migrations svnPath="/usr/local/kalprod/dwh/site-specific/Falcon/CE/ddl/migrations" overwrite="true" skipFilesOwner="true" skipFilesMode="true" />
-		</ddl>
-	</dwh>
+	<dwh user="${OS_KALTURA_USER}" gitPath="/kaltura/dwh.git" mode="0750" scriptsMode="0750" filesMode="0640" />
 </base>
