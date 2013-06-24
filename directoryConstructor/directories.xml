@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <base user="${OS_ROOT_USER}" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true">
-	<app mode="0750" user="${OS_ROOT_USER}" svnPath="/usr/local/kalsource/backend/server/trunk/core">
+	<app mode="0750" user="${OS_ROOT_USER}">
 		<admin_console	gitPath="/kaltura/server-admin-console.git"			skipFilesOwner="true" skipFilesMode="true" />
 		<alpha			gitPath="/kaltura/server-core.git"					skipFilesOwner="true" skipFilesMode="true" />
 		<api_v3			gitPath="/kaltura/server-api.git"					skipFilesOwner="true" skipFilesMode="true" />
