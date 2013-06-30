@@ -419,14 +419,14 @@ class Installer
 			AppConfig::getInput(null, "Please restart apache web server and click any key to continue.");
 		}
 		
+		if(!$this->upgradeContent())
+			return "Failed to upgrade content";
+		
 		if(!$this->createTemplateContent())
 			return "Failed to create template content";
 		
 		if(!$this->populateSphinx())
 			return "Failed to populate sphinx";
-		
-		if(!$this->upgradeContent())
-			return "Failed to upgrade content";
 
 		if($packageDir)
 			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');

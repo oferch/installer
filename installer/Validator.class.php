@@ -69,6 +69,9 @@ class Validator
 
 	private function validateUsers()
 	{
+		if(OsUtils::isWindows())
+			return;
+			
 		$this->validateUser(AppConfig::get(AppConfigAttribute::OS_ROOT_USER), array(
 			'uid' => AppConfig::get(AppConfigAttribute::OS_ROOT_UID),
 			'gid' => AppConfig::get(AppConfigAttribute::OS_ROOT_GID),
@@ -91,7 +94,7 @@ class Validator
 		$matches = null;
 		foreach($this->installConfig[Installer::BASE_COMPONENT]["pears"] as $pear => $version)
 		{
-			$pearInfo = OsUtils::executeWithOutput("pear info $pear");
+			$pearInfo = OsUtils::executeWithOutput(AppConfig::get(AppConfigAttribute::PEAR_BIN) . " info $pear");
 			$pearVersion = null;
 			if($pearInfo)
 			{
@@ -230,7 +233,11 @@ class Validator
 			$mysql_timezone = $this->getMysqlSetting($link, 'time_zone'); // will always return the value
 			if(!preg_match('/^[-+]?[0-9]{2}:[0-9]{2}$/', $mysql_timezone))
 			{
-				$system_timezone = OsUtils::executeWithOutput('date +%:z');
+				if(OsUtils::isWindows())
+					$system_timezone = OsUtils::executeWithOutput('systeminfo | findstr  /L Zone');
+				else
+					$system_timezone = OsUtils::executeWithOutput('date +%:z');
+					
 				if($system_timezone)
 					$mysql_timezone = reset($system_timezone);
 			}
@@ -280,7 +287,7 @@ class Validator
 
 	private function intTimezoneSeconds($value)
 	{
-		if(!preg_match('/^[-+]?[0-9]{2}:[0-9]{2}$/', $value))
+		if(!preg_match('/[-+]?[0-9]{2}:[0-9]{2}/', $value))
 			return null;
 			
 		$parts = explode(':', $value, 3);
@@ -491,9 +498,6 @@ class Validator
 
 	public function validate()
 	{
-		if (!OsUtils::verifyOS())
-			return array("Installation cannot continue, Kaltura platform can only be installed on Linux OS at this time.");
-
 		$this->validateUsers();
 		$this->validatePHP();
 		$this->validatePear();

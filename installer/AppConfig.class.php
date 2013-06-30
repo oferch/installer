@@ -17,6 +17,7 @@ class AppConfigAttribute
 	const ETL_HOME_DIR = 'ETL_HOME_DIR';
 
 	const PHP_BIN = 'PHP_BIN';
+	const PEAR_BIN = 'PEAR_BIN';
 	const HTTPD_BIN = 'HTTPD_BIN';
 	const LOG_ROTATE_BIN = 'LOG_ROTATE_BIN';
 	const IMAGE_MAGICK_BIN_DIR = 'IMAGE_MAGICK_BIN_DIR';
@@ -335,10 +336,11 @@ class AppConfig
 		
 		self::calculateActivationKey();
 
+		$defaultBaseDir = OsUtils::isWindows() ? 'C:\opt\kaltura' : '/opt/kaltura';
 		if($silentRun)
 		{
 			self::initField(AppConfigAttribute::TIME_ZONE, date_default_timezone_get());
-			self::initField(AppConfigAttribute::BASE_DIR, '/opt/kaltura');
+			self::initField(AppConfigAttribute::BASE_DIR, $defaultBaseDir);
 			self::initField(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, $hostname);
 			self::initField(AppConfigAttribute::ADMIN_CONSOLE_ADMIN_MAIL, "admin@$hostname");
 			self::initField(AppConfigAttribute::ADMIN_CONSOLE_PASSWORD, 'admin');
@@ -354,7 +356,7 @@ class AppConfig
 		{
 			self::getInput(AppConfigAttribute::TIME_ZONE, "Default time zone for Kaltura application (leave empty to use system timezone: " . date_default_timezone_get() . ")", "Timezone must be a valid timezone, please enter again", InputValidator::createTimezoneValidator(), date_default_timezone_get());
 
-			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for /opt/kaltura)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), '/opt/kaltura');
+			self::getInput(AppConfigAttribute::BASE_DIR, "Full target directory path for Kaltura application (leave empty for $defaultBaseDir)", "Target directory must be a valid directory path, please enter again", InputValidator::createDirectoryValidator(), $defaultBaseDir);
 
 			self::getInput(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME, "Please enter the domain name that will be used for the Kaltura server (without http://, leave empty for $hostname)", 'Must be a valid hostname or ip, please enter again', InputValidator::createHostValidator(), $hostname);
 
@@ -485,10 +487,37 @@ class AppConfig
 		self::initField(AppConfigAttribute::EVENTS_FETCH_METHOD, 'local');
 
 		// other configurations
-		if(OsUtils::getOsName() != OsUtils::WINDOWS_OS)
+		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+		{
+			$httpBin = 'C:\xampp\apache\bin\httpd.exe';
+			if(file_exists($httpBin))
+				self::initField(AppConfigAttribute::HTTPD_BIN, $httpBin);
+			elseif (!$silentRun)
+				self::getInput(AppConfigAttribute::HTTPD_BIN, 'Please specify the path to apache httpd.exe file', 'File not found, please specify full path of httpd.exe, e.g. C:\xampp\apache\bin\httpd.exe', InputValidator::createFileValidator());
+		
+			$phpBin = 'C:\xampp\php\php.exe';
+			if(file_exists($phpBin))
+				self::initField(AppConfigAttribute::PHP_BIN, $phpBin);
+			elseif(isset($_SERVER['PHP_PEAR_PHP_BIN']))
+				self::initField(AppConfigAttribute::PHP_BIN, $_SERVER['PHP_PEAR_PHP_BIN']);
+			elseif ($silentRun)
+				self::initField(AppConfigAttribute::PHP_BIN, 'php');
+			else
+				self::getInput(AppConfigAttribute::PHP_BIN, 'Please specify the path to php.exe file', 'File not found, please specify full path of php.exe, e.g. C:\xampp\php\php.exe', InputValidator::createFileValidator());
+				
+			$pearBin = dirname(self::get(AppConfigAttribute::PHP_BIN)) . '\pear.bat';
+			if(file_exists($pearBin))
+				self::initField(AppConfigAttribute::PEAR_BIN, $pearBin);
+			elseif ($silentRun)
+				self::initField(AppConfigAttribute::PEAR_BIN, 'pear');
+			else
+				self::getInput(AppConfigAttribute::PEAR_BIN, 'Please specify the path to pear.exe file', 'File not found, please specify full path of pear.exe, e.g. C:\xampp\php\pear.exe', InputValidator::createFileValidator());
+		}
+		else
 		{
 			self::initField(AppConfigAttribute::HTTPD_BIN, OsUtils::findBinary(array('apachectl', 'apache2ctl')));
 			self::initField(AppConfigAttribute::PHP_BIN, OsUtils::findBinary('php'));
+			self::initField(AppConfigAttribute::PEAR_BIN, OsUtils::findBinary('pear'));
 			self::initField(AppConfigAttribute::LOG_ROTATE_BIN, OsUtils::findBinary('logrotate'));
 		}
 
