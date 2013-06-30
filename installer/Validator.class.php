@@ -160,17 +160,6 @@ class Validator
 		return $current;
 	}
 
-	private function validateDWH()
-	{
-		if(! in_array('dwh', $this->components))
-			return;
-
-		// check pentaho exists
-		$pentaho = $this->installConfig['dwh']["pentaho_path"];
-		if(! is_file($pentaho))
-			$this->prerequisites[] = "Missing pentaho at $pentaho";
-	}
-
 	private function validateMysql()
 	{
 		if(! in_array('db', $this->components))
@@ -503,7 +492,6 @@ class Validator
 		$this->validatePear();
 		$this->validateMysql();
 		$this->validateApache();
-		$this->validateDWH();
 		$this->validateBinaries();
 		$this->validateDependency();
 
