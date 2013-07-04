@@ -83,7 +83,7 @@
 			<multi_centers									gitPath="/kaltura/server-plugin-multi-centers.git" skipFilesOwner="true" skipFilesMode="true" />
 			<partner_aggregation							gitPath="/kaltura/server-plugin-partner-aggregation.git" skipFilesOwner="true" skipFilesMode="true" />
 			<short_link										gitPath="/kaltura/server-plugin-short-link.git" skipFilesOwner="true" skipFilesMode="true" />
-			<search_sphinx									gitPath="/kaltura/server-plugin-search-sphinx.git" skipFilesOwner="true" skipFilesMode="true" />
+			<sphinx_search									gitPath="/kaltura/server-plugin-search-sphinx.git" skipFilesOwner="true" skipFilesMode="true" />
 			<tag_search										gitPath="/kaltura/server-plugin-tag-search.git" skipFilesOwner="true" skipFilesMode="true" />
 			
 			<transcoding_avidemux 							gitPath="/kaltura/server-plugin-transcoding-avidemux.git" skipFilesOwner="true" skipFilesMode="true" />
@@ -119,7 +119,7 @@
 			<data user="${OS_KALTURA_USER}" skipFilesMode="true" />
 		</sphinx>
 	</log>
-	<bin user="${OS_KALTURA_USER}" gitPath="/kaltura/server-bin-linux-64bit.git" mode="0770" filesMode="0770" scriptsMode="0770" />
+	<bin user="${OS_KALTURA_USER}" gitPath="/kaltura/server-bin-${OS_TYPE}-64bit.git" mode="0770" filesMode="0770" scriptsMode="0770" />
 	<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
 	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600">
 		<convert user="${OS_KALTURA_USER}" />
