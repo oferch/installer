@@ -332,9 +332,13 @@
 			<reports mode="0700" skipFilesMode="true" skipFilesOwner="true" />
 			<syndication mode="0700" skipFilesMode="true" skipFilesOwner="true" />
 			<uiconf mode="0700" skipFilesMode="true" skipFilesOwner="true">
-				<moodle svnPath="/usr/local/kalsource/uiconf/moodle" skipFilesOwner="true" skipFilesMode="true" />
-				<kaltura svnPath="/usr/local/kalsource/uiconf/kaltura" skipFilesOwner="true" skipFilesMode="true" />
-				<kcweditor svnPath="/usr/local/kalsource/uiconf/kcweditor" skipFilesOwner="true" skipFilesMode="true" />
+				<kaltura skipFilesOwner="true" skipFilesMode="true">
+					<kmc skipFilesOwner="true" skipFilesMode="true">
+						<appstudio skipFilesOwner="true" skipFilesMode="true">
+							<kdp3 svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/appstudio/kdp3" skipFilesOwner="true" skipFilesMode="true" />
+						</appstudio>
+					</kmc>
+				</kaltura>
 				<ps skipFilesOwner="true" skipFilesMode="true">
 					<kaltura skipFilesOwner="true" skipFilesMode="true">
 						<kvpm skipFilesOwner="true" skipFilesMode="true">
