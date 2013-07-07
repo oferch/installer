@@ -273,7 +273,7 @@ class Installer
 			if(in_array('generateClients', $this->runOnce))
 			{
 				Logger::logMessage(Logger::LEVEL_USER, "Generating client libraries");
-				return OsUtils::execute(sprintf("%s/generator/generate.sh", AppConfig::get(AppConfigAttribute::APP_DIR)));
+				return OsUtils::execute(sprintf("%s %s/generator/generate.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)));
 			}
 			return true;
 		}
@@ -775,6 +775,9 @@ class Installer
 
 	private function changeDirsAndFilesPermissions()
 	{
+		if(OsUtils::isWindows())
+			return true;
+			
 		Logger::logMessage(Logger::LEVEL_USER, "Changing permissions of directories and files");
 		$dir = __DIR__ . '/../directoryConstructor';
 		return OsUtils::phing($dir, 'Update-Permissions');
