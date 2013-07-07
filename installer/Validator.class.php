@@ -25,7 +25,7 @@ class Validator
 
 	public function __construct()
 	{
-		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
+		$this->installConfig = AppConfig::getInstallationConfiguration();
 
 		$components = AppConfig::getCurrentMachineComponents();
 		foreach($components as $component)
@@ -359,6 +359,9 @@ class Validator
 
 	private function validateBinaries()
 	{
+		if(OsUtils::isWindows())
+			return;
+			
 		$validated = array();
 		
 		foreach($this->components as $component)

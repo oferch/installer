@@ -6,7 +6,7 @@ require_once __DIR__ . '/progress/ProgressBarProcess.php';
 * This is a static OS utilities class
 */
 class OsUtils {
-	const WINDOWS_OS = 'Windows';
+	const WINDOWS_OS = 'windows';
 	const LINUX_OS   = 'linux';
 
 	private static $log = null;
@@ -68,7 +68,7 @@ class OsUtils {
 
 	public static function clearScreen()
 	{
-		if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+		if(OsUtils::isWindows())
 		{
 			echo str_repeat("\n", 1000);
 		}
@@ -174,7 +174,7 @@ class OsUtils {
 			
 		foreach($attributes as $attribute => $value)
 		{
-			if(OsUtils::getOsName() == OsUtils::WINDOWS_OS)
+			if(OsUtils::isWindows())
 				$value = "\"$value\"";
 			else
 				$value = "'$value'";
@@ -449,7 +449,7 @@ class OsUtils {
 			{
 				$path = self::windowsPath($path);
 				if(is_dir($path))
-					return self::execute("rd /F /Q $path");
+					return self::execute("rd /S /Q $path");
 					
 				return self::execute("del /S /Q $path");
 			}
