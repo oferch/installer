@@ -29,7 +29,7 @@ if(isset($options['h']))
 	echo " -v - Verbose output." . PHP_EOL;
 	echo " -g - Upgrade from version (6 - Falcon)." . PHP_EOL;
 	echo " -e - E-mail logs and results." . PHP_EOL;
-	echo " -C - Comma seperated components list (api,db,sphinx,batch,dwh,admin,var,apps,cleanup,red5,ssl,monitor)." . PHP_EOL;
+	echo " -C - Comma seperated components list (api,db,sphinx,populate,batch,dwh,admin,var,apps,cleanup,red5,ssl,monitor)." . PHP_EOL;
 	echo "      Use * for all default components, for example, *,red5,ssl." . PHP_EOL;
 	
 	// don't tell anyone it's possibler
