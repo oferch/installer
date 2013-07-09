@@ -37,7 +37,10 @@ class Installer
 	 */
 	public function __construct()
 	{
-		$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
+		if(OsUtils::isWindows())
+			$this->installConfig = parse_ini_file(__DIR__ . '/installation.windows.ini', true);
+		else
+			$this->installConfig = parse_ini_file(__DIR__ . '/installation.ini', true);
 
 		$components = AppConfig::getCurrentMachineComponents();
 		foreach($components as $component)
@@ -149,11 +152,17 @@ class Installer
 		
 		foreach($this->installConfig as $component => $config)
 		{
-			if(!isset($config['symlinks']) || !is_array($config['symlinks']))
+			if(!isset($config['symlinks']) && !isset($config['crons']))
 				continue;
 
 			Logger::logMessage(Logger::LEVEL_INFO, "Searching symbolic links");
-			foreach ($config['symlinks'] as $slink)
+			$symlinks = array();
+			if(isset($config['symlinks']) && is_array($config['symlinks']))
+				$symlinks = $config['symlinks'];
+			if(isset($config['crons']) && is_array($config['crons']))
+				$symlinks = array_merge($symlinks, $config['crons']);
+				
+			foreach ($symlinks as $slink)
 			{
 				list($target, $link) = explode(SYMLINK_SEPARATOR, AppConfig::replaceTokensInString($slink));
 				if (is_file($link) && (strpos($link, AppConfig::get(AppConfigAttribute::BASE_DIR)) === false))
@@ -253,8 +262,33 @@ class Installer
 		{
 			if(in_array('generateClients', $this->runOnce))
 			{
-				Logger::logMessage(Logger::LEVEL_USER, "Restarting apache http server");
-				return OsUtils::execute("service " . AppConfig::get(AppConfigAttribute::APACHE_SERVICE) . " restart");
+				if(OsUtils::isWindows())
+				{
+					$started = false;
+					if(function_exists('win32_start_service'))
+					{
+						$serviceName = 'Apache2.2';
+						win32_stop_service($serviceName);
+						win32_start_service($serviceName);
+						$timer = 0;
+						while(win32_query_service_status($serviceName) != 4 && $timer < 20)
+						{
+							sleep(1);
+							$timer++;
+						}
+						if(win32_query_service_status($serviceName) == 4)
+							$started = true;
+					}
+					if(!$started)
+					{
+						AppConfig::getInput(null, "Please restart apache web server and click any key to continue.");
+					}
+				}
+				else
+				{
+					Logger::logMessage(Logger::LEVEL_USER, "Restarting apache http server");
+					return OsUtils::execute("service " . AppConfig::get(AppConfigAttribute::APACHE_SERVICE) . " restart");
+				}
 			}
 			return true;
 		}
@@ -377,9 +411,9 @@ class Installer
 		Logger::logMessage(Logger::LEVEL_USER, "Creating symbolic links");
 		foreach($this->components as $component)
 			if($component != 'ssl')
-				$this->installComponentSymlinks($component);
+				$this->installComponentSymlinks($component, 'symlinks');
 		if(in_array('ssl', $this->components))
-			$this->installComponentSymlinks('ssl');
+			$this->installComponentSymlinks('ssl', 'symlinks');
 
 		foreach($this->components as $component)
 			$this->installComponent($component);
@@ -404,21 +438,17 @@ class Installer
 
 		if(!$this->installDWH())
 			return "Failed to install DWH";
-
+			
+		if(!$this->restartApache(true))
+			return "Failed restarting apache http server";
+	
 		if(OsUtils::isLinux())
 		{
-			if(!$this->restartApache(true))
-				return "Failed restarting apache http server";
-	
 			Logger::logMessage(Logger::LEVEL_USER, "Starting services");
 			foreach($this->components as $component)
 				$this->installComponentServices($component);
 		}
-		else
-		{
-			AppConfig::getInput(null, "Please restart apache web server and click any key to continue.");
-		}
-		
+				
 		if(!$this->upgradeContent())
 			return "Failed to upgrade content";
 		
@@ -431,6 +461,10 @@ class Installer
 		if($packageDir)
 			OsUtils::execute("cp $packageDir/version.ini " . AppConfig::get(AppConfigAttribute::APP_DIR) . '/configurations/');
 
+		Logger::logMessage(Logger::LEVEL_USER, "Creating crontab symbolic links");
+		foreach($this->components as $component)
+			$this->installComponentSymlinks($component, 'crons');
+				
 		if($dontValidate)
 		{
 			Logger::logMessage(Logger::LEVEL_USER, "Skipping installation verification");
@@ -521,18 +555,18 @@ class Installer
 		return true;
 	}
 
-	private function installComponentSymlinks($component)
+	private function installComponentSymlinks($component, $configName)
 	{
 		if(!isset($this->installConfig[$component]))
 			return "Component [$component] not found";
 
-		if(!isset($this->installConfig[$component]['symlinks']))
+		if(!isset($this->installConfig[$component][$configName]))
 			return true;
 
 		$componentConfig = $this->installConfig[$component];
 		Logger::logMessage(Logger::LEVEL_INFO, "Installing component [$component] symbolic links");
 
-		$createSymlinks = $this->createSymlinks($componentConfig['symlinks']);
+		$createSymlinks = $this->createSymlinks($componentConfig[$configName]);
 		if($createSymlinks !== true)
 			return $createSymlinks;
 
@@ -793,6 +827,11 @@ class Installer
 		}
 		elseif(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
+			Logger::logMessage(Logger::LEVEL_INFO, "Creating database users");
+			$dir = __DIR__ . '/../dbSchema';
+			if(!OsUtils::phing($dir, 'Set Permissions'))
+				return false;
+			
 			Logger::logMessage(Logger::LEVEL_USER, "Upgrading existing database");
 			$cmd = sprintf('%s %s/deployment/updates/update.php -u "%s"', AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), AppConfig::get(AppConfigAttribute::DB_ROOT_USER));
 			if(AppConfig::get(AppConfigAttribute::DB_ROOT_PASS))

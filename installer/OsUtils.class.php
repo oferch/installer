@@ -183,6 +183,9 @@ class OsUtils {
 		}
 		$options = implode(' ', $options);
 		
+		if($target)
+			$target = '"' . $target . '"';
+			
 		return "phing -propertyfile $propertyFile $options $target";
 	}
 
@@ -230,8 +233,11 @@ class OsUtils {
 
 	public static function startService($service, $alwaysStartAutomtically = true)
 	{
-		if(!OsUtils::isLinux())
-			return false;
+		if(OsUtils::isWindows())
+		{
+			OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $service install");
+			return OsUtils::execute(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $service stop");
+		}
 			
 		if($alwaysStartAutomtically)
 			OsUtils::execute("chkconfig $service on");
@@ -241,8 +247,18 @@ class OsUtils {
 
 	public static function stopService($service, $neverStartAutomtically = true)
 	{
-		if(!OsUtils::isLinux())
-			return false;
+		if(OsUtils::isWindows())
+		{
+			if(!file_exists($service))
+				return true;
+								
+			$ret = OsUtils::executeInBackground(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $service stop");
+			
+			if($neverStartAutomtically)
+				OsUtils::executeInBackground(AppConfig::get(AppConfigAttribute::PHP_BIN) . " $service uninstall");
+				
+			return $ret;
+		}
 			
 		if(!file_exists("/etc/init.d/$service"))
 			return true;
@@ -422,7 +438,10 @@ class OsUtils {
 		{
 			$target = self::windowsPath($target);
 			$link = self::windowsPath($link);
-			return self::execute("mklink $link $target");
+			if(is_dir($target))
+				return self::execute("mklink /D $link $target");
+			else
+				return self::execute("mklink $link $target");
 		}
 		
 		return symlink($target, $link);

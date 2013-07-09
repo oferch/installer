@@ -1007,6 +1007,9 @@ class AppConfig
 			if(self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) == 'https' && !in_array('ssl', self::$components))
 				self::$components[] = 'ssl';
 		}
+		
+		if(OsUtils::isWindows() && in_array('dwh', self::$components))
+			unset(self::$components[array_search('dwh', self::$components)]);
 
 		Logger::logMessage(Logger::LEVEL_INFO, "Selected components: " . implode(', ', self::$components));
 	}
