@@ -200,6 +200,7 @@
 									<else>
 										<gitcheckout gitPath="git" repository="${directory.fullPath}" branchname="." />												
 									</else>
+									<gitpull gitPath="git" repository="${directory.fullPath}" strategy="recursive" all="true" />
 								</if>
 							</else>
 						</if>
