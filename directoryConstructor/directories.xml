@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <base user="${OS_ROOT_USER}" mode="0750" filesMode="0640" scriptsMode="0750" skipFilesMode="true">
-	<app mode="0750" user="${OS_ROOT_USER}"	gitPath="/kaltura/server.git" gitTag="IX-9.2.0" skipFilesOwner="true" skipFilesMode="true">
+	<app mode="0750" user="${OS_ROOT_USER}"	gitPath="/kaltura/server.git" gitTag="IX-9.2.0" skipFilesOwner="true">
 		<configurations skipFilesOwner="true" skipFilesMode="true" >
 			<monit skipFilesOwner="true" mode="0750" filesMode="0600" />
 		</configurations>
 		<cache skipFilesOwner="true" mode="0770" filesMode="0660" />
 	</app>
-	<apps user="${OS_ROOT_USER}" skipFilesMode="true">
+	<apps user="${OS_ROOT_USER}" >
 		<clipapp skipFilesOwner="true" skipFilesMode="true">
 			<v1.0.5 svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5" skipFilesOwner="true" skipFilesMode="true" />
 			<v1.0.5_saas svnPath="/usr/local/kalprod/apps/clipapp/v1.0.5_saas" skipFilesOwner="true" skipFilesMode="true" />
@@ -21,7 +21,7 @@
 		</sphinx>
 	</log>
 	<bin user="${OS_KALTURA_USER}" gitPath="/kaltura/server-bin-${OS_TYPE}-64bit.git" mode="0770" filesMode="0770" scriptsMode="0770" />
-	<sphinx user="${OS_KALTURA_USER}" mode="0700" skipFilesMode="true" />
+	<sphinx user="${OS_KALTURA_USER}" mode="0700"  />
 	<tmp user="${OS_KALTURA_USER}" mode="0700" filesMode="0600">
 		<convert user="${OS_KALTURA_USER}" />
 		<emailIngestion user="${OS_KALTURA_USER}" />
