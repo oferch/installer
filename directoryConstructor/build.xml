@@ -180,22 +180,22 @@
 								<if>
 									<isset property="directory.attributes.${directory.id}.gitTag" />
 									<then>
-										<gitpull gitPath="git" repository="${directory.fullPath}" strategy="recursive" source="." refspec="${directory.attributes.${directory.id}.gitTag}" />
+										<gitpull gitPath="${git.bin}" repository="${directory.fullPath}" strategy="recursive" source="." refspec="${directory.attributes.${directory.id}.gitTag}" />
 									</then>
 									<else>
-										<gitpull gitPath="git" repository="${directory.fullPath}" strategy="recursive" all="true" />
+										<gitpull gitPath="${git.bin}" repository="${directory.fullPath}" strategy="recursive" all="true" />
 									</else>
 								</if>
 							</then>
 							<else>
 								<property name="directory.gitUrl" value="${git.protocol}://${git.domain}${directory.attributes.${directory.id}.gitPath}" />
 								<echo message="Clone from git URL [${directory.gitUrl}]" />
-								<gitclone gitPath="git" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
-								<gitfetch gitPath="git" source="${directory.gitUrl}" repository="${directory.fullPath}" all="true" />
+								<gitclone gitPath="${git.bin}" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
+								<gitfetch gitPath="${git.bin}" source="${directory.gitUrl}" repository="${directory.fullPath}" all="true" />
 								<if>
 									<isset property="directory.attributes.${directory.id}.gitTag" />
 									<then>
-										<gitcheckout gitPath="git" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitTag}" />
+										<gitcheckout gitPath="${git.bin}" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitTag}" />
 									</then>
 								</if>
 							</else>
