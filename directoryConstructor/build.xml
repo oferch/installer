@@ -270,7 +270,7 @@
 					<then>
 						<ProgressBarTitle name="directories" title="Download Git Release - ${directory.path}" />
 						<echo message="Downloading git release ${directory.attributes.${directory.id}.gitTag}"/>
-						<exec command="./html5lib.sh ${directory.attributes.${directory.id}.gitTag}" "./${directory.attributes.${directory.id}.gitTag}"/>
+						<exec command="./html5lib.sh ${directory.attributes.${directory.id}.gitTag} ./${directory.attributes.${directory.id}.gitTag}"/>
 					</then>
 				</if>
 			</then>
