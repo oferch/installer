@@ -165,7 +165,7 @@
 		</if>
 		<resolvepath propertyName="directory.fullPath" file="${directory.fullPath}" />
 		
-		<!-- Get directory contnet -->
+		<!-- Get directory content -->
 		<if>
 			<istrue value="${actions.fetchCode}" />
 			<then>
@@ -178,9 +178,9 @@
 							<then>
 								<echo message="Pull git repository [${directory.fullPath}]" />
 								<if>
-									<isset property="directory.attributes.${directory.id}.gitTag" />
+									<isset property="directory.attributes.${directory.id}.gitBranch" />
 									<then>
-										<gitpull gitPath="${git.bin}" repository="${directory.fullPath}" strategy="recursive" source="." refspec="${directory.attributes.${directory.id}.gitTag}" />
+										<gitpull gitPath="${git.bin}" repository="${directory.fullPath}" strategy="recursive" source="." refspec="${directory.attributes.${directory.id}.gitBranch}" />
 									</then>
 									<else>
 										<gitpull gitPath="${git.bin}" repository="${directory.fullPath}" strategy="recursive" all="true" />
@@ -193,9 +193,9 @@
 								<gitclone gitPath="${git.bin}" repository="${directory.gitUrl}" targetPath="${directory.fullPath}" />
 								<gitfetch gitPath="${git.bin}" source="${directory.gitUrl}" repository="${directory.fullPath}" all="true" />
 								<if>
-									<isset property="directory.attributes.${directory.id}.gitTag" />
+									<isset property="directory.attributes.${directory.id}.gitBranch" />
 									<then>
-										<gitcheckout gitPath="${git.bin}" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitTag}" />
+										<gitcheckout gitPath="${git.bin}" repository="${directory.fullPath}" branchname="${directory.attributes.${directory.id}.gitBranch}" />
 									</then>
 								</if>
 							</else>
@@ -263,6 +263,14 @@
 								<exec passthru="true" checkreturn="true" command="${svn.cmd}" />
 							</else>
 						</if>
+					</then>
+				</if>
+				<if>
+					<isset property="directory.attributes.${directory.id}.gitTag"/>
+					<then>
+						<ProgressBarTitle name="directories" title="Download Git Release - ${directory.path}" />
+						<echo message="Downloading git release ${directory.attributes.${directory.id}.gitTag}"/>
+						<exec command="./html5lib.sh ${directory.attributes.${directory.id}.gitTag}" "./${directory.attributes.${directory.id}.gitTag}"/>
 					</then>
 				</if>
 			</then>
