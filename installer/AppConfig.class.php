@@ -941,7 +941,7 @@ class AppConfig
 						continue;
 					}
 					self::set(AppConfigAttribute::DWH_HOST, $hostname);
-					self::getInput(AppConfigAttribute::SPHINX_DB_PORT, $dbAvailableServers[$dbSelectedServer] . " DWH port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
+					self::getInput(AppConfigAttribute::SPHINX_DB_PORT, " DWH port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 					
 				}
 
