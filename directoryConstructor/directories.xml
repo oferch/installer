@@ -50,7 +50,9 @@
 			</flexwrapper>
 			<kcw skipFilesOwner="true" skipFilesMode="true">
 				<v2.1.6.7 svnPath="/usr/local/kalprod/flash/kcw/v2.1.6.7" skipFilesOwner="true" skipFilesMode="true" />
+				<v2.1.5  svnPath="/usr/local/kalprod/flash/kcw/v2.1.5" skipFilesOwner="true" skipFilesMode="true" />
 				<v2.2.1 svnPath="/usr/local/kalprod/flash/kcw/v2.2.1" skipFilesOwner="true" skipFilesMode="true" />
+				<v2.2.3 svnPath="/usr/local/kalprod/flash/kcw/v2.2.3" skipFilesOwner="true" skipFilesMode="true" />
 			</kcw>
 			<kclip skipFilesOwner="true" skipFilesMode="true">
 				<v1.1.2.1 svnPath="/usr/local/kalprod/flash/kclip/v1.1.2.1" skipFilesOwner="true" skipFilesMode="true" />
@@ -239,6 +241,9 @@
 						<appstudio skipFilesOwner="true" skipFilesMode="true">
 							<kdp3 svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/appstudio/kdp3" skipFilesOwner="true" skipFilesMode="true" />
 						</appstudio>
+						<kcw>
+							<v2.1.4 svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/kcw/v2.1.4" skipFilesOwner="true" skipFilesMode="true" />
+						</kcw>
 					</kmc>
 				</kaltura>
 				<ps skipFilesOwner="true" skipFilesMode="true">
@@ -268,12 +273,12 @@
 		</dropfolders>
 		<html5 skipFilesOwner="true" skipFilesMode="true">
 			<html5lib>
-				<v1.6.12.27g	gitTag="v1.6.12.27g" />
-				<v1.7.0.4		gitTag="v1.7.0.4" />
-				<v1.7.0.8		gitTag="v1.7.0.8" />
-				<v1.7.1.11		gitTag="v1.7.1.11" />
-				<v1.8.2			gitTag="v1.8.2" />
-				<v1.9.3			gitTag="v1.9.3" />
+				<v1.6.12.27g	gitPath="/kaltura/mwEmbed.git" gitBranch="v1.6.12.27g"	skipFilesOwner="true" skipFilesMode="true" />
+				<v1.7.0.4		gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.0.4"	skipFilesOwner="true" skipFilesMode="true" />
+				<v1.7.0.8		gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.0.8"	skipFilesOwner="true" skipFilesMode="true" />
+				<v1.7.1.11		gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.1.11"	skipFilesOwner="true" skipFilesMode="true" />
+				<v1.8.2			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.8.2"		skipFilesOwner="true" skipFilesMode="true" />
+				<v1.9.3			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.9.3"		skipFilesOwner="true" skipFilesMode="true" />
 			</html5lib>
 		</html5>
 		<log user="${OS_KALTURA_USER}" mode="0750" />
