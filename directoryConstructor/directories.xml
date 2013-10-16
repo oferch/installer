@@ -248,6 +248,9 @@
 						</kcw>
 						<nab svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/nab" skipFilesOwner="true" skipFilesMode="true"/>
 					</kmc>
+					<generic>
+						<kcw_2.1.5 svnPath="/usr/local/kalsource/uiconf/kaltura/generic/kcw_2.1.5" skipFilesOwner="true" skipFilesMode="true"/>
+					</generic>
 				</kaltura>
 				<ps skipFilesOwner="true" skipFilesMode="true">
 					<kaltura skipFilesOwner="true" skipFilesMode="true">
@@ -283,6 +286,7 @@
 				<v1.8.2			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.8.2"		skipFilesOwner="true" skipFilesMode="true" />
 				<v1.8.9			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.8.9"		skipFilesOwner="true" skipFilesMode="true" />
 				<v1.9.3			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.9.3"		skipFilesOwner="true" skipFilesMode="true" />
+				<v1.9.4			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.9.4"		skipFilesOwner="true" skipFilesMode="true" />
 			</html5lib>
 		</html5>
 		<log user="${OS_KALTURA_USER}" mode="0750" />
