@@ -246,6 +246,7 @@
 							<v2.1.4 svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/kcw/v2.1.4" skipFilesOwner="true" skipFilesMode="true" />
 							<v2.1.5 svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/kcw/v2.1.5" skipFilesOwner="true" skipFilesMode="true" />
 						</kcw>
+						<nab svnPath="/usr/local/kalsource/uiconf/kaltura/kmc/nab" skipFilesOwner="true" skipFilesMode="true"/>
 					</kmc>
 				</kaltura>
 				<ps skipFilesOwner="true" skipFilesMode="true">
@@ -285,6 +286,11 @@
 			</html5lib>
 		</html5>
 		<log user="${OS_KALTURA_USER}" mode="0750" />
+		<control user="${OS_KALTURA_USER}" mode="0750">
+			<adminConsoleLoginControl user="${OS_KALTURA_USER}" mode="0750"/>
+			<kmcLoginControl user="${OS_KALTURA_USER}" mode="0750"/>
+			<startPageLoginControl user="${OS_KALTURA_USER}" mode="0750"/>
+		</control>
 	</web>
 	<dwh user="${OS_KALTURA_USER}" gitPath="/kaltura/dwh.git" mode="0750" scriptsMode="0750" filesMode="0640" />
 </base>
