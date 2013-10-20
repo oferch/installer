@@ -38,6 +38,7 @@
 			<kdp3 skipFilesOwner="true" skipFilesMode="true">
 				<v3.5.21 svnPath="/usr/local/kalprod/flash/kdp3/v3.5.21" skipFilesOwner="true" skipFilesMode="true" />
 				<v3.8 svnPath="/usr/local/kalprod/flash/kdp3/v3.8" skipFilesOwner="true" skipFilesMode="true" />
+				<v3.8.5 svnPath="/usr/local/kalprod/flash/kdp3/v3.8.9" skipFilesOwner="true" skipFilesMode="true" />
 				<v3.8.9 svnPath="/usr/local/kalprod/flash/kdp3/v3.8.9" skipFilesOwner="true" skipFilesMode="true" />
 				<v3.9.1 svnPath="/usr/local/kalprod/flash/kdp3/v3.9.1" skipFilesOwner="true" skipFilesMode="true" />
 				<v3.9.2 svnPath="/usr/local/kalprod/flash/kdp3/v3.9.2" skipFilesOwner="true" skipFilesMode="true" />
@@ -261,6 +262,7 @@
 						</kvpm>
 					</kaltura>
 				</ps>
+				<wordpress svnPath="/usr/local/kalsource/uiconf/kaltura/wordpress" skipFilesOwner="true" skipFilesMode="true"/>
 			</uiconf>
 			<entry mode="0770" filesMode="0640" skipFilesOwner="true" />
 			<metadata mode="0770" filesMode="0640" skipFilesOwner="true" />
