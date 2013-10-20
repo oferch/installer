@@ -282,6 +282,7 @@
 			<html5lib>
 				<v1.6.12.27g	gitPath="/kaltura/mwEmbed.git" gitBranch="v1.6.12.27g"	skipFilesOwner="true" skipFilesMode="true" />
 				<v1.7.0.4		gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.0.4"	skipFilesOwner="true" skipFilesMode="true" />
+				<v1.7.2			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.2"	skipFilesOwner="true" skipFilesMode="true" />
 				<v1.7.0.8		gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.0.8"	skipFilesOwner="true" skipFilesMode="true" />
 				<v1.7.1.11		gitPath="/kaltura/mwEmbed.git" gitBranch="v1.7.1.11"	skipFilesOwner="true" skipFilesMode="true" />
 				<v1.8.2			gitPath="/kaltura/mwEmbed.git" gitBranch="v1.8.2"		skipFilesOwner="true" skipFilesMode="true" />
