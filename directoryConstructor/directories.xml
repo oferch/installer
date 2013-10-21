@@ -254,6 +254,11 @@
 						<kcw_2.1.5 svnPath="/usr/local/kalsource/uiconf/kaltura/generic/kcw_2.1.5" skipFilesOwner="true" skipFilesMode="true"/>
 					</generic>
 				</kaltura>
+				<kcweditor>
+					<locales>
+						<en_US svnPath="/usr/local/kalsource/uiconf/kcweditor/locales/en_US" skipFilesOwner="true" skipFilesMode="true"/>
+					</locales>				
+				</kcweditor>
 				<ps skipFilesOwner="true" skipFilesMode="true">
 					<kaltura skipFilesOwner="true" skipFilesMode="true">
 						<kvpm skipFilesOwner="true" skipFilesMode="true">
