@@ -456,7 +456,7 @@ class OsUtils {
 			return self::fullCopy($source, $target);
 		}
 			
-		return self::execute("rsync -r $options $source $target");
+		return self::execute("rsync -rl $options $source $target");
 	}
 
 	// recursive delete the $path and return true/false according to success
