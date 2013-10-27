@@ -27,7 +27,7 @@ if(isset($options['h']))
 	echo " -p - Package XML path or URL." . PHP_EOL;
 	echo " -d - Don't validate installation." . PHP_EOL;
 	echo " -v - Verbose output." . PHP_EOL;
-	echo " -g - Upgrade from version (6 - Falcon)." . PHP_EOL;
+	echo " -g - Upgrade from version (7 - Gemini)." . PHP_EOL;
 	echo " -e - E-mail logs and results." . PHP_EOL;
 	echo " -C - Comma seperated components list (api,db,sphinx,populate,batch,dwh,admin,var,apps,cleanup,red5,ssl,monitor)." . PHP_EOL;
 	echo "      Use * for all default components, for example, *,red5,ssl." . PHP_EOL;
