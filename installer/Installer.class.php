@@ -966,7 +966,7 @@ class Installer
 		elseif(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Upgrading data warehouse");
-			$cmd = sprintf("%s/ddl/migrations/20130606_falcon_to_gemini/Falcon2Gemini.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
+			$cmd = sprintf("%s/ddl/migrations/20130922_gemini_to_IX/gemini2IX.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
 			if (!OsUtils::execute($cmd)){
 				return "Failed running data warehouse upgrade script";
 			}
