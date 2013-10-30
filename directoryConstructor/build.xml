@@ -209,7 +209,7 @@
 						<ProgressBarTitle name="directories" title="Checkout svn - ${directory.path}" />
 						<chmod file="${svn.key}" mode="600" />
 						
-						<property name="svn.ssh.cmd" value="${svn.ssh.bin} -i ${svn.key}" />
+						<property name="svn.ssh.cmd" value="${svn.ssh.bin} -q -i ${svn.key}" />
 						<if>
 							<and>
 								<not><isset property="${VERBOSE}" /></not>
