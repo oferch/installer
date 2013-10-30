@@ -281,6 +281,7 @@
 			<imports mode="0770" skipFilesOwner="true" />
 			<thumb mode="0770" skipFilesOwner="true" />
 			<xml mode="0770" skipFilesOwner="true" />
+			<encrypt user="${OS_KALTURA_USER}" mode="0770" skipFilesOwner="true"/>
 		</tmp>
 		<dropfolders mode="0750" filesMode="0660" skipFilesOwner="true">
 			<monitor mode="0770" skipFilesOwner="true" />
